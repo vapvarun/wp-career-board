@@ -2,19 +2,63 @@
   "product": "WP Career Board",
   "productType": "plugin",
   "shortId": "wcb",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "tagline": "The community-powered job board for WordPress",
   "sections": [
-    { "name": "Getting Started", "folder": "getting-started" },
-    { "name": "Tutorials", "folder": "tutorials" },
-    { "name": "For Employers", "folder": "for-employers" },
-    { "name": "For Candidates", "folder": "for-candidates" },
-    { "name": "Admin Guide", "folder": "admin-guide" },
-    { "name": "Integrations", "folder": "integrations" },
-    { "name": "AI Features", "folder": "ai-features" },
-    { "name": "Pro Features", "folder": "pro-features" },
-    { "name": "FAQ", "folder": "faq" },
-    { "name": "Troubleshooting", "folder": "troubleshooting" },
-    { "name": "Developer Guide", "folder": "developer-guide" }
+    {
+      "name": "Getting Started",
+      "folder": "getting-started",
+      "description": "Install the plugin, run the setup wizard and get your first job board live in a day."
+    },
+    {
+      "name": "For Employers",
+      "folder": "for-employers",
+      "description": "Post jobs, review applications and manage your company profile and hiring pipeline."
+    },
+    {
+      "name": "For Candidates",
+      "folder": "for-candidates",
+      "description": "Find jobs, apply, track your applications and build a resume."
+    },
+    {
+      "name": "AI Features",
+      "folder": "ai-features",
+      "description": "Connect an AI provider and use AI to write, match and summarize for candidates and employers."
+    },
+    {
+      "name": "Tutorials",
+      "folder": "tutorials",
+      "description": "Follow start-to-finish recipes for running, monetizing and localizing your board."
+    },
+    {
+      "name": "Admin Guide",
+      "folder": "admin-guide",
+      "description": "Configure settings, emails, moderation, privacy, fields and credits for your whole board."
+    },
+    {
+      "name": "Integrations",
+      "folder": "integrations",
+      "description": "Make the board fit BuddyX Pro, Reign and BuddyPress sites."
+    },
+    {
+      "name": "Pro Features",
+      "folder": "pro-features",
+      "description": "Add a job map, multiple boards, analytics, a job feed, an installable app and CSV import with WP Career Board Pro."
+    },
+    {
+      "name": "Developer Guide",
+      "folder": "developer-guide",
+      "description": "Extend the plugin with hooks, REST routes, WP-CLI commands and template overrides."
+    },
+    {
+      "name": "FAQ",
+      "folder": "faq",
+      "description": "Get quick answers to common questions from site owners, employers and candidates."
+    },
+    {
+      "name": "Troubleshooting",
+      "folder": "troubleshooting",
+      "description": "Fix problems with pages, themes, jobs, applications, emails and accounts."
+    }
   ]
 }

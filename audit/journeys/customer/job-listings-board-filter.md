@@ -3,7 +3,8 @@ id: job-listings-board-filter
 priority: high
 personas: anonymous
 requires: seed:jobs
-last_verified: 2026-06-09
+last_verified: 2026-10-13
+bug_ref: 10359893313
 needs: cli
 ---
 
@@ -19,7 +20,8 @@ needs: cli
 4. **Negative** — GET `/wp-json/wcb/v1/jobs?board=999999` (nonexistent board) → expect `0` (filter engaged), NOT `<total>` (the old ignored-param bug returned everything)
 5. **Other callers** — GET `/wp-json/wcb/v1/jobs?board_id=<board-id>` → expect the same count as step 3 (both param spellings resolve to the same `_wcb_board_id` meta_query)
 6. Browser: on a site with ≥2 boards, `/find-jobs/` renders a Board chip group; clicking a board chip narrows the visible cards and shows an active "× <board>" chip
-7. tail debug.log diff → expect ZERO new fatal/warning lines
+7. URL state: on a site with two or more boards click a board chip on `/find-jobs/` → `location.search` gains `board=<board-id>` (pushState, no reload); reloading that URL first-paints only that board's jobs (card count equals step 3's `<on-board>`, up to the page size) with the "× <board>" pill; Back returns to the unfiltered list.
+8. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 

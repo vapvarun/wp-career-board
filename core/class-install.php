@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.7';
+	const DB_VERSION = '1.3.8';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -478,6 +478,26 @@ final class Install {
 			// markup); index the jobs saved before it existed, in the background.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.6', '<' ) && ! wp_next_scheduled( \WCB\Modules\Jobs\JobSearch::INDEX_HOOK ) ) {
 				wp_schedule_single_event( time() + 30, \WCB\Modules\Jobs\JobSearch::INDEX_HOOK );
+			}
+
+			// 1.3.8 - a candidate is anyone who applied or has a resume; give
+			// existing applicants the role in the background.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.8', '<' ) && ! wp_next_scheduled( \WCB\Modules\Candidates\CandidatesModule::BACKFILL_HOOK, array( 0 ) ) ) {
+				wp_schedule_single_event( time() + 30, \WCB\Modules\Candidates\CandidatesModule::BACKFILL_HOOK, array( 0 ) );
+			}
+			// 1.3.8 - jobs and companies of users deleted before 1.8.1 stayed public.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.8', '<' ) ) {
+				global $wpdb;
+				$wcb_orphans = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair.
+					"SELECT DISTINCT p.post_author FROM {$wpdb->posts} p LEFT JOIN {$wpdb->users} u ON u.ID = p.post_author
+					WHERE p.post_type IN ( 'wcb_job', 'wcb_company' ) AND p.post_author > 0 AND u.ID IS NULL"
+				);
+				foreach ( $wcb_orphans as $wcb_orphan ) {
+					\WCB\Modules\Employers\EmployersModule::retire_owned_listings( (int) $wcb_orphan, null );
+				}
+
+				// Jobs located Remote but saved as on-site; needs the taxonomy (init@10).
+				add_action( 'init', array( Locations::class, 'backfill_remote_flags' ), 25 );
 			}
 
 			// Only bump the stored DB version if every expected table now

@@ -28,7 +28,7 @@ The **Filters** panel sits beside the results. Depending on how the site owner s
 |---|---|
 | **Job type** | Shows jobs of the types you tick |
 | **Experience** | Shows jobs at the experience levels you tick |
-| **Category** | Shows jobs in the categories you tick |
+| **Category** | Shows jobs in the categories you tick. Child categories sit under their parent, and a search box appears when there are more than 12 |
 | **Tags** | Shows jobs with the tags you tick |
 | **Location** | **Remote only** shows only jobs marked remote |
 | **Job board** | Shows jobs from the boards you tick, when the site has more than one board |
@@ -36,7 +36,7 @@ The **Filters** panel sits beside the results. Depending on how the site owner s
 
 The options in each list are the ones your site has set up. If the site uses the separate Job Filters block instead, it shows drop-down lists for category, job type, location and experience, and two number fields for salary.
 
-You can tick several values in one filter. A job matches if it has any value you ticked in a filter, and it must match every filter you use. Each active filter appears as a removable pill above the results. Click **Clear all** to remove them all. Links that carry filters in the address bar open with those filters already applied.
+You can tick several values in one filter. A job matches if it has any value you ticked in a filter, and it must match every filter you use. Each active filter appears as a removable pill above the results. Click **Clear all** to remove them all. Links that carry filters in the address bar open with those filters already applied, the matching boxes ticked and the pills shown. Every change you make updates the address bar, so you can share the page or step back with the browser's Back button. A long Category list gets a search box, and child categories sit indented under their parent.
 
 On small screens the filter panel collapses. Use its toggle to open it.
 
@@ -54,7 +54,7 @@ Featured jobs come first with **Newest first** and when you are searching.
 
 ## Load more
 
-Click **Load more jobs** at the bottom to show the next set.
+Click **Load more jobs** at the bottom to show the next set. It is a real link to the next page of results (for example `/find-jobs/page/2/`, or `/jobs/page/2/` on the jobs archive), so it also works without JavaScript and search engines can reach every job.
 
 ## Browse by tag or category
 

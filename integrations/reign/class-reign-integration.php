@@ -31,6 +31,8 @@ class ReignIntegration {
 		add_filter( 'single_template', array( $this, 'single_template' ) );
 		add_filter( 'archive_template', array( $this, 'archive_template' ) );
 		add_filter( 'reign_nav_items', array( $this, 'add_nav_items' ) );
+		// Reign's header opens <main id="content">; ours would nest a second one.
+		add_filter( 'wcb_template_main_tag', static fn () => 'div' );
 		\WCB\Core\ThemeCompat::register(
 			'wcb-reign-compat',
 			WCB_URL . 'integrations/reign/assets/reign-compat.css',

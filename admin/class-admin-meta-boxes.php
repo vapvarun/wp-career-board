@@ -217,14 +217,18 @@ class AdminMetaBoxes {
 		$wcb_salary_max          = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
 		$wcb_currency_catalog    = AdminSettings::get_currency_catalog();
 		$wcb_salary_currency_raw = strtoupper( (string) get_post_meta( $post->ID, '_wcb_salary_currency', true ) );
-		$wcb_salary_currency     = array_key_exists( $wcb_salary_currency_raw, $wcb_currency_catalog ) ? $wcb_salary_currency_raw : 'USD';
+		$wcb_salary_currency     = array_key_exists( $wcb_salary_currency_raw, $wcb_currency_catalog ) ? $wcb_salary_currency_raw : \WCB\Modules\Jobs\JobsMeta::sanitize_currency( '' );
 		$wcb_salary_type_raw     = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
 		$wcb_salary_type         = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
 		$wcb_remote              = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
 		$wcb_featured            = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
 		$wcb_deadline            = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
-		$wcb_company_id          = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
-		$wcb_company_name        = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
+		// A saved job without a deadline was made evergreen; a new one starts on the default.
+		$wcb_no_expiry    = '' === $wcb_deadline && 'auto-draft' !== $post->post_status;
+		$wcb_apply_url    = (string) get_post_meta( $post->ID, '_wcb_apply_url', true );
+		$wcb_apply_email  = (string) get_post_meta( $post->ID, '_wcb_apply_email', true );
+		$wcb_company_id   = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
+		$wcb_company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
 
 		// Fall back to the employer's linked company when no company is selected
 		// yet. Resolved through CompanyMetaShape so an employer whose company was
@@ -300,7 +304,7 @@ class AdminMetaBoxes {
 					name="wcb_salary_min"
 					value="<?php echo esc_attr( $wcb_salary_min ); ?>"
 					min="0"
-					step="1000"
+					step="any"
 					placeholder="e.g. 60000"
 				/>
 			</div>
@@ -312,7 +316,7 @@ class AdminMetaBoxes {
 					name="wcb_salary_max"
 					value="<?php echo esc_attr( $wcb_salary_max ); ?>"
 					min="0"
-					step="1000"
+					step="any"
 					placeholder="e.g. 90000"
 				/>
 			</div>
@@ -324,6 +328,19 @@ class AdminMetaBoxes {
 					name="wcb_deadline"
 					value="<?php echo esc_attr( $wcb_deadline ); ?>"
 				/>
+				<p class="description"><?php esc_html_e( 'Leave empty to use the board\'s listing length.', 'wp-career-board' ); ?></p>
+				<label>
+					<input type="checkbox" name="wcb_no_expiry" value="1" <?php checked( $wcb_no_expiry ); ?> />
+					<?php esc_html_e( 'No expiry (stays open until closed)', 'wp-career-board' ); ?>
+				</label>
+			</div>
+			<div>
+				<label for="wcb_apply_url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
+				<input type="url" id="wcb_apply_url" name="wcb_apply_url" value="<?php echo esc_attr( $wcb_apply_url ); ?>" placeholder="https://" />
+			</div>
+			<div>
+				<label for="wcb_apply_email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>
+				<input type="email" id="wcb_apply_email" name="wcb_apply_email" value="<?php echo esc_attr( $wcb_apply_email ); ?>" />
 			</div>
 			<div>
 				<label for="wcb_company_id"><?php esc_html_e( 'Company', 'wp-career-board' ); ?></label>
@@ -391,7 +408,7 @@ class AdminMetaBoxes {
 		$wcb_tagline          = (string) get_post_meta( $post->ID, '_wcb_tagline', true );
 		$wcb_industry         = (string) get_post_meta( $post->ID, '_wcb_industry', true );
 		$wcb_company_size     = (string) get_post_meta( $post->ID, '_wcb_company_size', true );
-		$wcb_company_type     = (string) get_post_meta( $post->ID, '_wcb_company_type', true );
+		$wcb_company_type     = \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $post->ID, '_wcb_company_type', true ) );
 		$wcb_founded          = (string) get_post_meta( $post->ID, '_wcb_founded', true );
 		$wcb_hq_location      = (string) get_post_meta( $post->ID, '_wcb_hq_location', true );
 
@@ -408,16 +425,7 @@ class AdminMetaBoxes {
 			'5001+'     => __( '5,001+ employees', 'wp-career-board' ),
 		);
 
-		$wcb_types = array(
-			''              => __( ' -  Select Type  - ', 'wp-career-board' ),
-			'public'        => __( 'Public Company', 'wp-career-board' ),
-			'private'       => __( 'Privately Held', 'wp-career-board' ),
-			'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
-			'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
-			'government'    => __( 'Government Agency', 'wp-career-board' ),
-			'educational'   => __( 'Educational Institution', 'wp-career-board' ),
-			'partnership'   => __( 'Partnership', 'wp-career-board' ),
-		);
+		$wcb_types = array( '' => __( ' -  Select Type  - ', 'wp-career-board' ) ) + \WCB\Core\CompanyMetaShape::types();
 		?>
 		<div class="wcb-company-meta-grid">
 			<div class="wcb-meta-full">
@@ -606,26 +614,25 @@ class AdminMetaBoxes {
 			return;
 		}
 
-		// Salary currency.
-		$salary_currency_raw = isset( $_POST['wcb_salary_currency'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['wcb_salary_currency'] ) ) ) : 'USD'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$salary_currency     = array_key_exists( $salary_currency_raw, AdminSettings::get_currency_catalog() ) ? $salary_currency_raw : 'USD';
-		update_post_meta( $post_id, '_wcb_salary_currency', $salary_currency );
+		// Every value passes through the sanitizer JobsMeta registers for its
+		// key, the same rule REST, the frontend form and importers use.
+		foreach ( array( 'salary_currency', 'salary_type', 'salary_min', 'salary_max', 'apply_url', 'apply_email' ) as $field ) {
+			$value = isset( $_POST[ 'wcb_' . $field ] ) ? trim( (string) wp_unslash( $_POST[ 'wcb_' . $field ] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by the registered meta callback.
+			if ( '' === $value && in_array( $field, array( 'apply_url', 'apply_email', 'salary_min', 'salary_max' ), true ) ) {
+				delete_post_meta( $post_id, '_wcb_' . $field );
+				continue;
+			}
+			update_post_meta( $post_id, '_wcb_' . $field, $value );
+		}
 
-		// Salary type.
-		$salary_type_raw = isset( $_POST['wcb_salary_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_type'] ) ) : 'yearly'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$salary_type     = in_array( $salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $salary_type_raw : 'yearly';
-		update_post_meta( $post_id, '_wcb_salary_type', $salary_type );
-
-		// Salary min.
-		$salary_min = isset( $_POST['wcb_salary_min'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_min'] ) ) : '';
-		update_post_meta( $post_id, '_wcb_salary_min', $salary_min );
-
-		// Salary max.
-		$salary_max = isset( $_POST['wcb_salary_max'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_salary_max'] ) ) : '';
-		update_post_meta( $post_id, '_wcb_salary_max', $salary_max );
-
-		// Deadline.
+		// Deadline: empty means the board's listing length, unless the admin
+		// ticked No expiry (owner decision, 1.8.1).
 		$deadline = isset( $_POST['wcb_deadline'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_deadline'] ) ) : '';
+		if ( ! empty( $_POST['wcb_no_expiry'] ) ) {
+			$deadline = '';
+		} elseif ( '' === $deadline ) {
+			$deadline = \WCB\Core\JobDeadline::default_end_for_board( (int) get_post_meta( $post_id, '_wcb_board_id', true ) );
+		}
 		update_post_meta( $post_id, '_wcb_deadline', $deadline );
 
 		// Company — prefer the select dropdown; fall back to the text input shown when no companies exist.
@@ -705,7 +712,6 @@ class AdminMetaBoxes {
 		}
 
 		$allowed_sizes = array_merge( array( '' ), \WCB\Core\CompanyMetaShape::size_keys() );
-		$allowed_types = array( '', 'public', 'private', 'self-employed', 'nonprofit', 'government', 'educational', 'partnership' );
 		$allowed_trust = array( '', 'verified', 'trusted', 'premium' );
 
 		$wcb_text_fields = array(
@@ -732,10 +738,8 @@ class AdminMetaBoxes {
 			update_post_meta( $post_id, '_wcb_company_size', $wcb_size );
 		}
 
-		$wcb_type = isset( $_POST['wcb_company_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_company_type'] ) ) : '';
-		if ( in_array( $wcb_type, $allowed_types, true ) ) {
-			update_post_meta( $post_id, '_wcb_company_type', $wcb_type );
-		}
+		$wcb_type = isset( $_POST['wcb_company_type'] ) ? \WCB\Core\CompanyMetaShape::type_slug( sanitize_text_field( wp_unslash( $_POST['wcb_company_type'] ) ) ) : '';
+		update_post_meta( $post_id, '_wcb_company_type', $wcb_type );
 
 		$wcb_trust = isset( $_POST['wcb_trust_level'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_trust_level'] ) ) : '';
 		if ( in_array( $wcb_trust, $allowed_trust, true ) ) {

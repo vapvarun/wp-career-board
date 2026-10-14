@@ -45,7 +45,7 @@
 }
 
 .wcb-form-simple .wcb-required {
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
 	font-weight: var(--wcb-font-bold);
 	margin-left: 2px; /* hairline gap */
 }
@@ -256,15 +256,6 @@
 
 /* ── Logged-out gate ─────────────────────────────────────────────────── */
 
-.wcb-form-simple__gate {
-	padding: var(--wcb-space-3xl) var(--wcb-space-2xl);
-	background: var(--wcb-bg-subtle);
-	border: 1px dashed var(--wcb-border);
-	border-radius: var(--wcb-radius-xl);
-	text-align: center;
-	color: var(--wcb-text-secondary);
-	font-size: var(--wcb-text-base);
-}
 
 /* ── Toggle utilities — mirror the wizard's wcb-hidden / wcb-shown ─────*/
 

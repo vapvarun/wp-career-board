@@ -16,7 +16,7 @@ needs: cli
 1. Find or create a published job with a deadline exactly 1 day from now:
    ```bash
    TOMORROW=$(date -v+1d +%Y-%m-%d 2>/dev/null || date -d "+1 day" +%Y-%m-%d)
-   JOB_ID=$(wp post create --post_type=wcb_job --post_title="Smoke Deadline Reminder" --post_status=publish --post_author=50 --porcelain)
+   JOB_ID=$(wp post create --post_type=wcb_job --post_title="Warehouse Operations Lead - Leeds" --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --post_author=50 --porcelain)
    wp post meta update $JOB_ID _wcb_deadline "$TOMORROW"
    echo "Job $JOB_ID deadline set to $TOMORROW"
    ```
@@ -24,7 +24,7 @@ needs: cli
 3. Record the current Mailpit message count (or baseline the mail queue): note the count at `http://localhost:8025/api/v1/messages` (or equivalent) → capture as `<mail-count-before>`
 4. Trigger the deadline-reminder cron event: `wp cron event run wcb_check_job_expiry` (or the specific reminder hook if different — check the cron manifest) → expect exit code 0
 5. Check Mailpit for a new message to sarah.chen's address: GET `http://localhost:8025/api/v1/messages` → expect count > `<mail-count-before>`, and at least one message with `To` containing `sarah.chen@example.test` (or the registered email for sarah.chen: `wp user get sarah.chen --field=user_email`)
-6. Verify the email subject references the job: inspect the message subject → expect it mentions "Smoke Deadline Reminder" or "deadline" or "expires soon"
+6. Verify the email subject references the job: inspect the message subject → expect it mentions "Warehouse Operations Lead - Leeds" or "deadline" or "expires soon"
 7. Verify no duplicate email: trigger the same cron event again → confirm Mailpit count does NOT increase a second time for the same job (reminders must be idempotent per job per candidate)
 8. tail debug.log diff → expect ZERO new fatal/warning lines
 

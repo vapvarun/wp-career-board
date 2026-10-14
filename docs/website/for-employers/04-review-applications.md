@@ -53,7 +53,7 @@ Setting **Rejected** sends the candidate a "not selected" email in place of the 
 
 ## Rate applicants and keep notes
 
-Open an applicant and find **Your rating and notes**. Click a star to rate from 1 to 5, and click the same star again to clear it. Add notes for your hiring team below the stars. You can delete your own notes. Only the job's employer and site staff see ratings and notes. Candidates never do, and they are removed if the application is later anonymised.
+Open an applicant and find **Rating and notes**. An applicant nobody has rated shows five empty stars and "Not rated". Click a star to rate from 1 to 5, and click the same star again to clear it. Add notes for your hiring team below the stars. You can delete your own notes. Only the job's employer and site staff see ratings and notes. Candidates never do, and they are removed if the application is later anonymised.
 
 ## Export applicants to CSV
 

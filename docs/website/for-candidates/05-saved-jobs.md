@@ -7,7 +7,7 @@ You can save jobs, companies and (with Pro) candidate resumes to come back to la
 - On the job board, click the **bookmark icon** on a job card.
 - On a job page, click **Save Job**.
 
-Click again to unsave. Any signed-in user can save jobs, and you do not need the Candidate role unless the site owner turned on **Require Candidate Role**.
+Click again to unsave. Any signed-in member who can apply can save jobs, and you do not need the Candidate role unless the site owner turned on **Require Candidate Role**. Accounts that only post jobs (employers) do not see the Save buttons. If a save fails, the button says **Could not save**; try again.
 
 ## See your saved jobs
 

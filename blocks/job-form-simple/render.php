@@ -26,20 +26,7 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_emp_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
-	echo '<p class="wcb-form-simple__gate">';
-	if ( ! is_user_logged_in() ) {
-		echo esc_html__( 'Please sign in as an employer to post a job.', 'wp-career-board' );
-	} elseif ( $wcb_emp_reg_page > 0 ) {
-		printf(
-			/* translators: %s: employer registration link. */
-			esc_html__( 'Posting a job is for employers. %s to start hiring.', 'wp-career-board' ),
-			'<a href="' . esc_url( (string) get_permalink( $wcb_emp_reg_page ) ) . '">' . esc_html__( 'Register as an employer', 'wp-career-board' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		);
-	} else {
-		echo esc_html__( 'Posting a job is for employers.', 'wp-career-board' );
-	}
-	echo '</p>';
+	require WCB_DIR . 'templates/parts/post-job-gate.php';
 	return;
 }
 
@@ -96,20 +83,25 @@ if ( 0 === $wcb_resolved_board_id && ! empty( $wcb_board_options ) ) {
 	$wcb_resolved_board_id  = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
 }
 
-// ── Taxonomy terms ─────────────────────────────────────────────────────────
-$wcb_term_args = static function ( string $tax ): array {
-	return array(
-		'taxonomy'   => $tax,
-		'hide_empty' => false,
-	);
-};
+// Open on a board the employer can afford, not on a paid default that greets a
+// 0-credit employer with "This board requires 3 credits" (site admins post free).
+$wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
+if ( 0 === $wcb_board_id_attr && ( $wcb_board_credit_costs[ $wcb_resolved_board_id ] ?? 0 ) > $wcb_credit_balance && ! \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+	foreach ( $wcb_board_options as $wcb_opt ) {
+		if ( ( $wcb_board_credit_costs[ (int) $wcb_opt['id'] ] ?? 0 ) <= $wcb_credit_balance ) {
+			$wcb_resolved_board_id = (int) $wcb_opt['id'];
+			break;
+		}
+	}
+}
 
-$wcb_categories = array_filter( (array) get_terms( $wcb_term_args( 'wcb_category' ) ), static fn( $t ) => $t instanceof \WP_Term );
-$wcb_job_types  = array_filter( (array) get_terms( $wcb_term_args( 'wcb_job_type' ) ), static fn( $t ) => $t instanceof \WP_Term );
+// ── Taxonomy terms ─────────────────────────────────────────────────────────
+$wcb_categories = \WCB\Core\Taxonomy::options( 'wcb_category' );
+$wcb_job_types  = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
 // Location dropdown is scoped to the employer's company HQ + reserved
 // 'remote' / 'other' terms. Admins (wcb/manage-settings) still get every term.
 $wcb_locations   = \WCB\Core\Locations::get_dropdown_terms( get_current_user_id() );
-$wcb_experiences = array_filter( (array) get_terms( $wcb_term_args( 'wcb_experience' ) ), static fn( $t ) => $t instanceof \WP_Term );
+$wcb_experiences = \WCB\Core\Taxonomy::options( 'wcb_experience' );
 
 // ── Currency: site-wide admin setting → USD. One source of truth across every
 // employer; the dropdown still lets them override per job.
@@ -117,10 +109,12 @@ $wcb_user_id      = get_current_user_id();
 $wcb_company_id   = \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_user_id );
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_company_name = ( $wcb_company_post instanceof \WP_Post ) ? $wcb_company_post->post_title : '';
+// Company picker: the companies this employer runs.
+$wcb_companies = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id, true );
 
 $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 
-$wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
+$wcb_preferred        = \WCB\Modules\Jobs\JobsMeta::default_currency();
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );
@@ -139,6 +133,11 @@ $wcb_initial_currency = $wcb_board_currency && array_key_exists( $wcb_board_curr
 // Credit cost for the board the form opens on, plus a per-board map so view.js
 // can swap the banner when the employer switches boards.
 $wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id );
+// Site admins post for free (JobPayment::is_exempt()).
+if ( \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+	$wcb_credit_cost        = 0;
+	$wcb_board_credit_costs = array_map( '__return_zero', $wcb_board_credit_costs );
+}
 
 /**
  * Pre-resolve the pluralised credit noun ("1 credit" / "5 credits") server-side.
@@ -166,24 +165,9 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_bcost ) {
 }
 
 // ── Deadline ───────────────────────────────────────────────────────────────
-// Auto-filled from the wcb_job_default_expiry_days filter chain (board override
-// if set, otherwise the global jobs_expire_days). The form input is read-only —
-// admins control the policy — so the human-readable label never changes without
-// a server round-trip and is pre-formatted here with wp_date() rather than
-// client-side toLocaleDateString(), which would follow the BROWSER locale.
-$wcb_deadline = ( static function () use ( $wcb_resolved_board_id ): string {
-	$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
-	$wcb_preview_request->set_param( 'board_id', $wcb_resolved_board_id );
-	$wcb_default_days  = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-	$wcb_resolved_days = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
-	$wcb_resolved_days = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
-	return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
-} )();
-
-$wcb_deadline_ts    = strtotime( $wcb_deadline . ' 00:00:00' );
-$wcb_deadline_label = $wcb_deadline_ts
-	? (string) wp_date( (string) get_option( 'date_format', 'F j, Y' ), $wcb_deadline_ts )
-	: $wcb_deadline;
+// Default from the board's listing length; the employer may pick any date up to
+// it (owner decision, 1.8.1) and REST caps it at the same maximum.
+$wcb_deadline = \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -205,10 +189,8 @@ $wcb_state = apply_filters(
 		'salaryType'        => 'yearly',
 		'remote'            => false,
 		'deadline'          => $wcb_deadline,
-		// Human-readable deadline, formatted server-side against the SITE locale
-		// and the site's date_format. view.js must never re-derive this with
-		// toLocaleDateString(), which formats against the BROWSER locale.
-		'deadlineLabel'     => $wcb_deadline_label,
+		'deadlineMax'       => $wcb_deadline,
+		'deadlineMin'       => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
 		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
 		// it is a locale tag, not a translatable string. view.js hands it to
 		// Intl.NumberFormat so numbers group per the SITE locale.
@@ -218,7 +200,7 @@ $wcb_state = apply_filters(
 		'locationSlug'      => '',
 		'locationCustom'    => '',
 		'typeSlug'          => '',
-		'categorySlug'      => '',
+		'categorySlugs'     => array(),
 		'expSlug'           => '',
 		'tags'              => '',
 		// Board picker state mirrors the wizard so future board-related changes
@@ -228,7 +210,9 @@ $wcb_state = apply_filters(
 		// when boardId stays 0.
 		'boardId'           => $wcb_resolved_board_id,
 		'boardOptions'      => $wcb_board_options,
+		'companyId'         => $wcb_company_id,
 		'companyName'       => $wcb_company_name,
+		'companyNames'      => (object) $wcb_companies,
 		'submitting'        => false,
 		'submitted'         => false,
 		'_aiGenerating'     => false,
@@ -249,7 +233,7 @@ $wcb_state = apply_filters(
 		// Per-board currency override map so view.js can update currencyCode
 		// on board switch. Empty string means no override - keep current.
 		'boardCurrencies'   => array_map( 'strval', $wcb_board_currencies ),
-		'creditBalance'     => (int) apply_filters( 'wcb_employer_credit_balance', 0, $wcb_user_id ),
+		'creditBalance'     => $wcb_credit_balance,
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'buyUrl'            => '',
 		'featured'          => false,
@@ -273,14 +257,16 @@ $wcb_state = apply_filters(
 			// live balance (formatted with Intl.NumberFormat against state.locale).
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'creditInsufficient'       => __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
+			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+			'creditInsufficientNoBuy'  => __( 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance. */
 			'creditDeduction'          => __( 'Posting deducts %1$s. Balance after: %2$s (currently %3$s).', 'wp-career-board' ),
-			/* translators: %s: current credit balance. Shown when the selected board has no credit cost. */
-			'creditFree'               => __( 'Free to post on this board.', 'wp-career-board' ),
 
 			// Listing window notice.
 			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
 			'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+			/* translators: %s: latest allowed deadline date. */
+			'deadlineHelp'             => __( 'Pick any date up to %s, the longest this board allows.', 'wp-career-board' ),
 
 			// AI description generator.
 			'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
@@ -378,6 +364,27 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			</div>
 			<?php endif; ?>
 
+			<?php if ( count( $wcb_companies ) > 1 ) : ?>
+			<div class="wcb-form-field">
+				<label class="wcb-form-label" for="wcb-simple-company-id">
+					<?php esc_html_e( 'Company', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-simple-company-id"
+					class="wcb-field"
+					data-wcb-field="companyId"
+					data-wp-bind--value="state.companyId"
+					data-wp-on--change="actions.updateField"
+				>
+					<?php foreach ( $wcb_companies as $wcb_cid => $wcb_cname ) : ?>
+						<option value="<?php echo (int) $wcb_cid; ?>" <?php selected( $wcb_company_id, (int) $wcb_cid ); ?>>
+							<?php echo esc_html( $wcb_cname ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<?php endif; ?>
+
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-simple-title">
 					<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
@@ -412,6 +419,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 					<?php endif; ?>
 				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
+					<?php require dirname( __DIR__ ) . '/job-form/editor-toolbar.php'; ?>
 					<div class="wcb-editor-holder" id="wcb-editor-job-desc-simple"></div>
 					<textarea
 						id="wcb-simple-desc"
@@ -433,15 +441,12 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'Classification', 'wp-career-board' ); ?></p>
 
 			<div class="wcb-form-simple__tax-grid">
-				<div class="wcb-form-field">
-					<label class="wcb-form-label" for="wcb-simple-category"><?php esc_html_e( 'Category', 'wp-career-board' ); ?></label>
-					<select id="wcb-simple-category" class="wcb-field" data-wcb-field="categorySlug" data-wp-bind--value="state.categorySlug" data-wp-on--change="actions.updateField">
-						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
-						<?php foreach ( $wcb_categories as $wcb_t ) : ?>
-							<option value="<?php echo esc_attr( $wcb_t->slug ); ?>"><?php echo esc_html( $wcb_t->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
+				<?php
+				$wcb_jobcat_form  = 'wcb-job-form-simple';
+				$wcb_jobcat_id    = 'wcb-simple-category';
+				$wcb_jobcat_terms = $wcb_categories;
+				require WCB_DIR . 'templates/parts/job-category-field.php';
+				?>
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-type"><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></label>
 					<select id="wcb-simple-type" class="wcb-field" data-wcb-field="typeSlug" data-wp-bind--value="state.typeSlug" data-wp-on--change="actions.updateField">
@@ -540,8 +545,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			</div>
 			<div class="wcb-form-field wcb-form-field--deadline">
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
-				<input id="wcb-simple-deadline" type="date" class="wcb-field" data-wp-bind--value="state.deadline" readonly aria-readonly="true" tabindex="-1" />
-				<span class="wcb-form-hint"><?php esc_html_e( 'Auto-filled from the job-board policy. Contact your site admin to extend the listing window.', 'wp-career-board' ); ?></span>
+				<input id="wcb-simple-deadline" type="date" aria-describedby="wcb-simple-deadline-help" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
+				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
 			</div>
 		</section>
 

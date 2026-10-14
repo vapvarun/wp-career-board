@@ -1,6 +1,6 @@
 # REST meta filters
 
-You can filter the jobs list by any job meta value, in the REST API or in the Job Listings block. Keys that start with `_wcb_` work with no setup. Any other key needs one line of PHP.
+You can filter the jobs list by job meta values, in the REST API or in the Job Listings block. In the REST API, keys that start with `_wcb_` work with no setup as long as the key is public in REST (registered for jobs with `show_in_rest`); private keys such as the apply email are ignored. Any other key needs one line of PHP.
 
 The endpoint is `GET /wp-json/wcb/v1/jobs`. Add `meta_<key>=<value>` to the query string.
 
@@ -9,7 +9,7 @@ GET /wp-json/wcb/v1/jobs?meta__wcb_department=engineering
 GET /wp-json/wcb/v1/jobs?meta__wcb_visa_sponsorship=1
 ```
 
-The key is the full meta key, so `_wcb_department` becomes `meta__wcb_department`.
+The key is the full meta key, so `_wcb_department` becomes `meta__wcb_department`. Since 1.8.1 a `meta__wcb_*` filter on a key that is not public in REST is ignored (the request returns the unfiltered list), so nobody can learn private values by watching the result count. To make such a key filterable on purpose, register it with `show_in_rest` or add it to the `wcb_jobs_allowed_meta_filters` filter (below).
 
 ## Filter in the Job Listings block or shortcode
 
@@ -23,7 +23,7 @@ If the key does not start with `_wcb_` and is not allowed by the filter below, t
 
 ## Allow a custom meta key
 
-Keys that do not start with `_wcb_` are blocked by default, so nobody can query private meta from other plugins. Allow a key with the `wcb_jobs_allowed_meta_filters` filter:
+Keys that do not start with `_wcb_`, and `_wcb_` keys that are not public in REST, are blocked by default, so nobody can query private meta. Allow a key with the `wcb_jobs_allowed_meta_filters` filter:
 
 ```php
 add_filter( 'wcb_jobs_allowed_meta_filters', function ( $keys ) {

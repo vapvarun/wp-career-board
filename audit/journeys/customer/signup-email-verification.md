@@ -3,9 +3,9 @@ id: signup-email-verification
 priority: critical
 personas: anonymous
 requires: mu:autologin
-last_verified: 2026-09-27
+last_verified: 2026-10-13
 needs: cli, mailpit
-bug_ref: 10340678963, 10340678827, 10344034506
+bug_ref: 10340678963, 10340678827, 10344034506, 10355318941
 ---
 
 # New members confirm their email, sign-ups are spam-gated, and signing up never strips a role
@@ -23,7 +23,10 @@ bug_ref: 10340678963, 10340678827, 10344034506
 7. Logged in as an editor, sign up as a candidate → roles are `editor, wcb_candidate`; a subscriber signing up as employer becomes `wcb_employer` only
 8. Ban an employer, request account deletion, cancel it → the ban stays, POST `/wp-json/wcb/v1/jobs` still 403
 9. Registration off → the block shows "New account registration is closed on this site." and a Sign in link, no form
-10. tail debug.log diff → expect ZERO new fatal/warning lines
+10. **The link signs in only the browser that registered (1.8.1).** In browser context A register a new candidate; the response sets cookie `wcb_verify_browser` (HttpOnly, SameSite=Lax, path = `COOKIEPATH`, 7 days). Take the confirmation link from Mailpit and open it in a SECOND context B that has no such cookie → B lands on `wp-login.php?redirect_to=<dashboard>` (not signed in: no `wordpress_logged_in_*` cookie, header shows Login), yet the address IS confirmed (`wp user meta get <id> _wcb_email_unverified` prints nothing and `wp eval 'echo is_wp_error( wp_authenticate( "<login>", "<pw>" ) ) ? "blocked" : "ok";'` prints `ok`), so the member signs in normally with their password.
+11. In a THIRD fresh account, open the link in the registering browser A → signed in on the dashboard, and `wcb_verify_browser` is cleared (expired) afterwards.
+12. Negative: set `wcb_verify_browser` to a wrong value in A (devtools) before opening the link → behaves like context B (confirmed, sent to login, not signed in). Opening an already-used link still goes to the login page, not an error.
+13. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 
@@ -31,3 +34,7 @@ bug_ref: 10340678963, 10340678827, 10344034506
 wp user delete <test users> --yes
 wp transient delete --all
 ```
+
+## Notes
+
+- Fixes login CSRF: before 1.8.1 anyone who opened (or was tricked into opening) a victim's confirmation link was signed in as that account. The pending-confirmation marker is user meta `_wcb_email_unverified` (`EmailVerification::META`); it is deleted when the link is opened anywhere.

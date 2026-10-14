@@ -323,11 +323,13 @@ final class CandidatesEndpoint extends RestController {
 		$visibility     = $raw_visibility ? $raw_visibility : 'public';
 		$is_self        = get_current_user_id() === $user_id;
 		$is_admin       = $this->check_ability( 'wcb/manage-settings' );
+		// A private profile answers exactly like a missing one, so the route
+		// does not confirm who has an account here.
 		if ( 'private' === $visibility && ! $is_self && ! $is_admin ) {
 			return new \WP_Error(
-				'wcb_private',
-				__( 'This profile is private.', 'wp-career-board' ),
-				array( 'status' => 403 )
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
 			);
 		}
 
@@ -351,6 +353,10 @@ final class CandidatesEndpoint extends RestController {
 		}
 
 		$data = $this->prepare_candidate( $user );
+		// Anyone else sees the public name, never the login WordPress defaults display_name to.
+		if ( ! $is_self ) {
+			$data['display_name'] = \WCB\Modules\Candidates\CandidatesModule::public_name( $user_id );
+		}
 
 		// Contact details (phone, location, email…) go to the candidate, admins
 		// and employers the candidate applied to - not to anyone who asks.
@@ -482,7 +488,7 @@ final class CandidatesEndpoint extends RestController {
 					(string) get_post_meta( $post->ID, '_wcb_salary_max', true ),
 					// Default currency to USD when unset, exactly as the jobs list
 					// card does, so the two render the same salary string.
-					(string) ( get_post_meta( $post->ID, '_wcb_salary_currency', true ) ?: 'USD' ),
+					(string) ( get_post_meta( $post->ID, '_wcb_salary_currency', true ) ?: \WCB\Modules\Jobs\JobsMeta::default_currency() ),
 					(string) ( get_post_meta( $post->ID, '_wcb_salary_type', true ) ?: 'yearly' )
 				),
 				'remote'       => '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true ),
@@ -522,7 +528,7 @@ final class CandidatesEndpoint extends RestController {
 		$items       = array();
 
 		if ( ! empty( $company_ids ) ) {
-			update_meta_cache( 'post', $company_ids );
+			\WCB\Core\CompanyMetaShape::prime_logos( $company_ids );
 		}
 
 		foreach ( $company_ids as $company_id ) {
@@ -538,6 +544,8 @@ final class CandidatesEndpoint extends RestController {
 				'industry'  => \WCB\Core\Industries::label( (string) get_post_meta( $post->ID, '_wcb_industry', true ) ),
 				'hq'        => (string) get_post_meta( $post->ID, '_wcb_hq_location', true ),
 				'tagline'   => (string) get_post_meta( $post->ID, '_wcb_tagline', true ),
+				'logo'      => \WCB\Core\CompanyMetaShape::logo_url( $post->ID ),
+				'initial'   => mb_strtoupper( mb_substr( $post->post_title, 0, 1 ) ),
 			);
 		}
 
@@ -585,7 +593,7 @@ final class CandidatesEndpoint extends RestController {
 				}
 
 				$candidate_id   = (int) $post->post_author;
-				$candidate_name = $candidate_id ? get_the_author_meta( 'display_name', $candidate_id ) : $post->post_title;
+				$candidate_name = $candidate_id ? \WCB\Modules\Candidates\CandidatesModule::public_name( $candidate_id, $post->post_title ) : $post->post_title;
 
 				// Job title + location live in `_wcb_resume_experience` (an
 				// array of work entries); the first entry is the most recent
@@ -608,6 +616,7 @@ final class CandidatesEndpoint extends RestController {
 					'permalink' => get_permalink( $post->ID ),
 					'role'      => $job_title,
 					'location'  => $location,
+					'avatar'    => \WCB\Modules\Candidates\CandidatesModule::avatar_url( $candidate_id, 96, $post->ID ),
 				);
 			}
 		}
@@ -688,7 +697,7 @@ final class CandidatesEndpoint extends RestController {
 			'display_name'       => $user->display_name,
 			'bio'                => $user->description,
 			'profile_visibility' => $raw_visibility ? $raw_visibility : 'public',
-			'avatar'             => get_avatar_url( $user->ID ),
+			'avatar'             => \WCB\Modules\Candidates\CandidatesModule::avatar_url( $user->ID ),
 			'resume_data'        => $raw_resume_data ? $raw_resume_data : array(),
 		);
 

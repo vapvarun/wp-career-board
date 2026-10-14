@@ -143,4 +143,24 @@ final class ThemeCompat {
 			|| is_post_type_archive( self::CPTS )
 			|| is_tax( self::TAXONOMIES );
 	}
+
+	/**
+	 * Element that wraps WCB template content: `main`, or `div` on a theme
+	 * whose header already opens `<main>` (one main landmark per page).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @return string 'main' or 'div'.
+	 */
+	public static function main_tag(): string {
+		/**
+		 * Filters the wrapper element of WCB page, archive and single templates.
+		 * Return 'div' when the active theme's header opens its own `<main>`.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param string $tag 'main' (default) or 'div'.
+		 */
+		return 'div' === apply_filters( 'wcb_template_main_tag', 'main' ) ? 'div' : 'main';
+	}
 }

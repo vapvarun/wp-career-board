@@ -186,7 +186,7 @@ Run manually before each release using Playwright MCP tools.
 | # | Page | URL | Checks |
 |---|------|-----|--------|
 | B01 | Homepage | `/` | Hero block renders, search bar functional, featured jobs load, stats display, CTA buttons link correctly |
-| B02 | Find Jobs | `/find-jobs/` | Job cards load (10 per page), search input filters, type/level/location filter toggles work, grid/list toggle, sort dropdown, "Load more" pagination, "Alert me" button (Pro) |
+| B02 | Find Jobs | `/find-jobs/` | Job cards load (12 per page on a fresh install), search input filters, type/level/location filter toggles work, grid/list toggle, sort dropdown, "Load more" pagination, "Alert me" button (Pro) |
 | B03 | Job Single | `/job/{slug}/` | Title/company/salary/location render, Apply Now opens modal, share buttons, related jobs section |
 | B04 | Companies | `/companies/` | Company cards render, industry/size filters, verified badge, "View Profile" links |
 | B05 | Company Profile | `/company/{slug}/` | Company info header, open positions list, location/website/size |

@@ -3,7 +3,8 @@ id: employer-applicants-list
 priority: high
 personas: employer-a
 requires: mu:autologin, seed:jobs, seed:applications
-last_verified: 2026-09-27
+last_verified: 2026-10-13
+bug_ref: 10375223031
 needs: cli
 ---
 
@@ -24,7 +25,12 @@ needs: cli
 7. Verify application count: items from step 3 ≥ 1 (seed must have at least one application for company A's jobs).
 8. Scale (1.8.0): with 120+ applications on one job, open Applications and select that job → 50 rows load, the status pills show the job's full totals (they equal `ApplicationStatus::counts('job', <job>)`), and **Load more applicants** brings 100, then all, with no duplicate rows; the button then disappears. Same in Board layout.
 9. Click the **Rejected** pill → the list is fetched from the server (`?status=rejected`) and shows every rejected applicant, not only those already loaded. Change one to Hired → Rejected drops by 1 and Hired rises by 1 without a reload.
-10. tail debug.log diff → expect ZERO new fatal/warning lines.
+10. **Zero-count status filter keeps the controls (1.8.1, Basecamp 10375223031).** As `employer.figma` open `$WCB_SITE/employer-dashboard/#applications`, pick a job (`.wcb-apps-job-item`) that has applicants but none Rejected, then click `.wcb-filter-pill[data-wcb-filter="rejected"]` (count 0) → `.wcb-apps-filter-bar` (all pills), `.wcb-apps-layout-toggle` (List/Board) and `a.wcb-apps-export` (Export CSV) all stay visible, the list is empty, and the message "No applications with this status." shows in `.wcb-empty-state--toggle`. The "No applications yet for this job." message must NOT show.
+11. Click the **All** pill → the rows return, `.wcb-filter-active` is back on All, the chrome never disappeared in between (no layout jump).
+12. Negative: a job with zero applications total shows ONLY "No applications yet for this job." with the filter bar, layout toggle and Export hidden (the chrome follows the job's total via `state.jobHasApplications`, not the filtered page).
+13. Switch job while a status filter is active: with the Rejected pill selected, click another job tile (`actions.switchAppsJob`) → the filter resets to All (the All pill is `.wcb-filter-active`) and the new job's full list is shown, not a zero-count empty state carried over from the previous job.
+14. REST sanity for step 10: `GET /wp-json/wcb/v1/jobs/<job>/applications?status=rejected` as the owner → 200 with an empty list, not an error.
+15. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown
 

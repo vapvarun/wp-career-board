@@ -116,6 +116,60 @@ final class CompanyMetaShape {
 	 * @return string
 	 */
 	/**
+	 * Company types, slug => label: the one list the dashboard form, the
+	 * wp-admin meta box and the public profile all read.
+	 *
+	 * @since 1.8.1
+	 * @return array<string,string>
+	 */
+	public static function types(): array {
+		/**
+		 * Filter the company types an employer can pick.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param array<string,string> $types Slug => translated label.
+		 */
+		return (array) apply_filters(
+			'wcb_company_types',
+			array(
+				'public'        => __( 'Public Company', 'wp-career-board' ),
+				'private'       => __( 'Privately Held', 'wp-career-board' ),
+				'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
+				'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
+				'government'    => __( 'Government Agency', 'wp-career-board' ),
+				'educational'   => __( 'Educational Institution', 'wp-career-board' ),
+				'partnership'   => __( 'Partnership', 'wp-career-board' ),
+			)
+		);
+	}
+
+	/**
+	 * A stored or submitted company type as its slug, '' when unknown.
+	 *
+	 * Accepts the slug or a label in any case ("Private", "Privately Held"):
+	 * imports and older data stored labels, and the form then showed
+	 * "Select type" for a company that has one.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $raw Stored or submitted value.
+	 * @return string
+	 */
+	public static function type_slug( string $raw ): string {
+		$needle = strtolower( trim( $raw ) );
+		if ( '' === $needle ) {
+			return '';
+		}
+		foreach ( self::types() as $slug => $label ) {
+			if ( strtolower( $slug ) === $needle || strtolower( $label ) === $needle || strtolower( (string) strtok( $label, ' ' ) ) === $needle ) {
+				return (string) $slug;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Canonical company-size slugs, in display order.
 	 *
 	 * The labels already had a single home (size_label below); the SLUGS did not,
@@ -157,6 +211,24 @@ final class CompanyMetaShape {
 	}
 
 	/**
+	 * Up to two initials for a company badge: "Harbor & Pine Studio" is "HP".
+	 * Words without a letter or digit ("&", "-") are skipped.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string $name Company name.
+	 * @return string '?' when there is nothing to use.
+	 */
+	public static function initials( string $name ): string {
+		$words = preg_grep( '/^[\p{L}\p{N}]/u', (array) preg_split( '/\s+/u', trim( $name ) ) );
+		$init  = '';
+		foreach ( array_slice( (array) $words, 0, 2 ) as $word ) {
+			$init .= mb_strtoupper( mb_substr( (string) $word, 0, 1 ) );
+		}
+		return '' !== $init ? $init : '?';
+	}
+
+	/**
 	 * Resolve the company an employer owns, self-healing the reciprocal link.
 	 *
 	 * Employers own a `wcb_company` post (its `post_author`) and carry a
@@ -180,7 +252,8 @@ final class CompanyMetaShape {
 		}
 
 		$company_id = (int) get_user_meta( $user_id, '_wcb_company_id', true );
-		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) ) {
+		// A trashed company is not theirs to post for any more (1.8.1).
+		if ( $company_id > 0 && 'wcb_company' === get_post_type( $company_id ) && in_array( get_post_status( $company_id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
 			return $company_id;
 		}
 
@@ -189,7 +262,7 @@ final class CompanyMetaShape {
 			array(
 				'post_type'      => 'wcb_company',
 				'author'         => $user_id,
-				'post_status'    => array( 'publish', 'pending', 'draft' ),
+				'post_status'    => \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,

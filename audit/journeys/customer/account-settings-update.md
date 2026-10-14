@@ -3,8 +3,8 @@ id: account-settings-update
 priority: high
 personas: sarah.chen
 requires: mu:autologin
-last_verified: 2026-06-09
-bug_ref: 9976177430
+last_verified: 2026-10-13
+bug_ref: 9976177430, 10394946382
 ---
 
 # Account Settings — update name/email and change password in-place
@@ -18,7 +18,9 @@ bug_ref: 9976177430
 3. Change the Display Name + Save → POST `/wp-json/wcb/v1/account` `{display_name, email}` → expect HTTP 200, inline "Account updated." success; `wp user get <id> --field=display_name` reflects the new value
 4. Email validation: POST an email already used by another account → expect HTTP 409; POST a malformed email → expect HTTP 400 (no change persisted)
 5. Password change: submit mismatched new/confirm → client blocks with "do not match" (no request). Submit wrong current password → expect HTTP 403 `wcb_bad_current_password`. Submit correct current + valid new (>= 8 chars) → expect HTTP 200, `password_changed: true`, a fresh `nonce` in the response, and the session stays logged in (subsequent REST writes succeed)
-6. tail debug.log diff → expect ZERO new fatal/warning lines
+6. **Delete my account form spacing (1.8.1, Basecamp 10394946382).** As `sarah.chen` open `$WCB_SITE/candidate-dashboard/#settings`, scroll to Privacy & My Data and click **Delete my account** → `.wcb-delete-account-form` opens as a column: `getComputedStyle( form ).display` = `flex`, `flexDirection` = `column`, `rowGap` > 0, `marginBlockStart` > 0, `maxWidth` = 32rem. The "Type DELETE" label has air above it (`label[for="wcb-delete-confirm"]` `marginBlockStart` > 0), and the two buttons sit in `.wcb-settings-row-actions` (flex, wrap, gap) instead of touching. At 390px viewport `document.documentElement.scrollWidth <= clientWidth` (no horizontal scroll) and the buttons wrap rather than overflow.
+7. The explanatory paragraph uses `.wcb-settings-note` (secondary text colour, margin below); in dark mode it stays readable (token colours, no raw hex).
+8. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 

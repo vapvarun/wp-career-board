@@ -21,6 +21,10 @@
 #  11. No tracked generated assets (-rtl.css, .min.css/.js outside vendored code)
 #  12. No native browser dialogs (window.confirm/alert/prompt)
 #  13. One border width - no 1.5px borders (UI guideline: 1px; 2px only for focus/selected)
+#  14. Contract gates (bin/contract-gates.php, whole tree): no `this.` in store
+#      actions, no redirect inside an admin render(), no silent catch after a
+#      request, no unstyled wcb-* template class (baselined), every job meta
+#      key editable in admin
 #
 # Modes:
 #   --staged   only check files staged for commit (default for pre-commit hook)
@@ -300,6 +304,28 @@ if [ -n "$BORDER" ]; then
 	report "Rule 13: 1.5px border - the guideline is 1px (2px only for focus or the selected state)"
 else
 	ok "Rule 13: one border width (no 1.5px)"
+fi
+
+# --- Rule 14: contract gates ---
+# Cross-file checks, so they always scan the whole tree. Each one would have
+# failed on a bug that shipped in 1.8.0 (see the header of the script).
+if GATES=$(php "$ROOT/bin/contract-gates.php" 2>/dev/null); then
+	ok "Rule 14: contract gates"
+else
+	echo "$GATES" | grep -v '^  ok' | sed 's/^/  /'
+	report "Rule 14: contract gate failed - see bin/contract-gates.php for what each gate guards"
+fi
+
+# --- Rule 15: the accent is not a text colour ---
+# Text on the owner's accent reads --wcb-primary-text, which keeps 4.5:1 on any
+# brand (a raw yellow or sky-blue accent fails as text). Admin CSS is excluded:
+# it sits on admin/tokens.css's fixed accent, which the owner's colour never reaches.
+ACCENT_TEXT=$(grep -nE '^[[:space:]]*color:[[:space:]]*var\([[:space:]]*--wcb-primary[[:space:]]*[,)]' $(printf '%s\n' $CSS_FILES | grep -v -- '-rtl\.css' | grep -vE '(^|/)admin') 2>/dev/null || true)
+if [ -n "$ACCENT_TEXT" ]; then
+	echo "$ACCENT_TEXT" | sed 's/^/    /'
+	report "Rule 15: text coloured with the raw accent - use var(--wcb-primary-text)"
+else
+	ok "Rule 15: accent text uses --wcb-primary-text"
 fi
 
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"

@@ -39,6 +39,38 @@
 	box-shadow: 0 0 0 3px color-mix( in srgb, var(--wcb-danger-fg, #991b1b) 18%, transparent );
 }
 
+/* ── Frame ─────────────────────────────────────────────────────────────
+   Placed on any page, the form gets the same card the dashboard's Post a Job
+   tab draws around it (.wcb-dashboard-shell + .wcb-main padding), so both
+   entry points look the same. Inside the dashboard the shell is the card. */
+.wcb-job-form-wrap {
+	box-sizing: border-box;
+	padding: var(--wcb-space-3xl);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+}
+
+.wcb-dashboard .wcb-job-form-wrap {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+@media (max-width: 1024px) {
+	.wcb-job-form-wrap {
+		padding: var(--wcb-space-xl);
+	}
+}
+
+@media (max-width: 640px) {
+	.wcb-job-form-wrap {
+		padding: var(--wcb-space-xl) var(--wcb-space-lg);
+	}
+}
+
 /* ── Step indicator (chip-style, kept functional + clean) ────────────── */
 .wcb-steps {
 	display: flex;
@@ -169,7 +201,7 @@
 }
 
 .wcb-required {
-	color: var(--wcb-danger);
+	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
 	font-weight: var(--wcb-font-bold);
 	margin-inline-start: 2px; /* hairline gap */
 }
@@ -412,7 +444,7 @@
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	background: var(--wcb-primary-soft);
 	border: 1px solid var(--wcb-info-border);
 	border-radius: var(--wcb-radius-full);
@@ -553,7 +585,8 @@
 
 /* ── Responsive ──────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-	.wcb-step__label {
+	/* Numbers only for the other steps; the current one keeps its name. */
+	.wcb-step:not(.wcb-step--active) .wcb-step__label {
 		display: none;
 	}
 
@@ -573,12 +606,13 @@
 		align-items: stretch;
 	}
 
-	.wcb-btn {
+	/* Scoped: unscoped, this stretched every button on the page the form sits on. */
+	.wcb-form-nav .wcb-btn {
 		width: 100%;
 		min-width: 0;
 	}
 
-	.wcb-btn--primary {
+	.wcb-form-nav .wcb-btn--primary {
 		margin-inline-start: 0;
 	}
 }

@@ -208,6 +208,12 @@ final class JobsEndpoint extends RestController {
 			if ( '' === $meta_key || isset( $seen_keys[ $meta_key ] ) ) {
 				continue;
 			}
+			// Only keys already public in REST: filtering on a private one
+			// (apply email, flag status) answered yes/no about its value.
+			$registered = get_registered_meta_keys( 'post', 'wcb_job' );
+			if ( empty( $registered[ $meta_key ]['show_in_rest'] ) ) {
+				continue;
+			}
 			if ( null === $raw || '' === $raw ) {
 				continue;
 			}
@@ -465,10 +471,10 @@ final class JobsEndpoint extends RestController {
 		}
 
 		// A job in moderation (pending) or a rejected draft is not public.
-		// Expose it only to its author, a moderator, or an admin — otherwise a
-		// guessed ID leaks unapproved content.
+		// Expose it only to its owner (poster or company owner), a moderator, or
+		// an admin — otherwise a guessed ID leaks unapproved content.
 		if ( 'publish' !== $post->post_status ) {
-			$is_owner = (int) $post->post_author === $this->current_user_id();
+			$is_owner = \WCB\Modules\Employers\EmployersModule::owns_job( $this->current_user_id(), $post );
 			if ( ! $is_owner
 				&& ! $this->check_ability( 'wcb/moderate-jobs' )
 				&& ! $this->check_ability( 'wcb/manage-settings' ) ) {
@@ -524,6 +530,16 @@ final class JobsEndpoint extends RestController {
 			return $wcb_location_error;
 		}
 
+		$wcb_category_error = $this->category_limit_error( $request );
+		if ( $wcb_category_error ) {
+			return $wcb_category_error;
+		}
+
+		$wcb_company_error = $this->company_error( $request );
+		if ( $wcb_company_error ) {
+			return $wcb_company_error;
+		}
+
 		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		if ( empty( $title ) ) {
 			return new \WP_Error(
@@ -541,7 +557,7 @@ final class JobsEndpoint extends RestController {
 
 		// Credit gate — if board has a credit cost, check employer balance.
 		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
-		if ( $wcb_credit_cost > 0 ) {
+		if ( $wcb_credit_cost > 0 && ! JobPayment::is_exempt() ) {
 			$wcb_employer_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, get_current_user_id() );
 			// Fast answer for the common case. The charge after insert is the
 			// one that counts: it runs under the employer's credit lock.
@@ -594,6 +610,8 @@ final class JobsEndpoint extends RestController {
 		$wcb_deadline_raw = $request->get_param( 'deadline' );
 		if ( empty( $wcb_deadline_raw ) ) {
 			$wcb_deadline_raw = \WCB\Core\JobDeadline::default_end( $request );
+		} else {
+			$wcb_deadline_raw = \WCB\Core\JobDeadline::cap( (string) $wcb_deadline_raw, (int) $request->get_param( 'board_id' ) );
 		}
 		// Values are validated by the route args and normalised by the meta
 		// sanitizers registered in JobsMeta.
@@ -629,7 +647,12 @@ final class JobsEndpoint extends RestController {
 		// post, and reading the user's copy left the job orphaned. The dashboard later self-heals the
 		// user meta, at which point My Jobs switches to the company-scoped query
 		// and the orphaned job disappears from the employer's own list.
-		$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
+		// An employer running several companies picks one (validated above); the
+		// rest get their linked company.
+		$wcb_company_id = absint( $request->get_param( 'company_id' ) );
+		if ( ! $wcb_company_id ) {
+			$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
+		}
 		if ( $wcb_company_id ) {
 			$wcb_company = get_post( $wcb_company_id );
 			if ( $wcb_company instanceof \WP_Post && 'wcb_company' === $wcb_company->post_type ) {
@@ -718,13 +741,24 @@ final class JobsEndpoint extends RestController {
 			return $wcb_location_error;
 		}
 
+		$wcb_category_error = $this->category_limit_error( $request, $post );
+		if ( $wcb_category_error ) {
+			return $wcb_category_error;
+		}
+
+		$wcb_company_error = $this->company_error( $request, $post );
+		if ( $wcb_company_error ) {
+			return $wcb_company_error;
+		}
+
 		// A board move changes the price: collect the difference (or hand it
 		// back) before anything else changes, and refuse the move if the
 		// employer can't pay it.
 		$wcb_new_board = $request->get_param( 'board_id' );
 		if ( null !== $wcb_new_board ) {
 			$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
-			if ( (int) $wcb_new_board !== $wcb_old_board ) {
+			// Compare resolved boards: a job with no board meta already lives on the default board.
+			if ( \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_new_board ) !== \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_old_board ) ) {
 				update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
 				$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
 				if ( is_wp_error( $wcb_paid ) ) {
@@ -789,6 +823,11 @@ final class JobsEndpoint extends RestController {
 			// wcb_job_republish_credit_cost filter for renewal discounts).
 			if ( 'publish' === $status && in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) ) {
 				$wcb_charge = 'republish';
+				// Its company was removed: going live would list it under a page that is gone.
+				$wcb_cur_company = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
+				if ( $wcb_cur_company > 0 && ! absint( $request->get_param( 'company_id' ) ) && ! in_array( get_post_status( $wcb_cur_company ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+					return new \WP_Error( 'wcb_company_removed', __( 'This job\'s company was removed. Edit the job to choose another company, then reopen it.', 'wp-career-board' ), array( 'status' => 409 ) );
+				}
 			}
 			// Reopening an ended job starts a new listing period: without a future
 			// deadline it would expire again at the next hourly sweep. Covers a
@@ -865,6 +904,17 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		if ( null !== $request->get_param( 'deadline' ) ) {
+			$request->set_param(
+				'deadline',
+				\WCB\Core\JobDeadline::cap(
+					(string) $request->get_param( 'deadline' ),
+					$request->has_param( 'board_id' ) ? (int) $request->get_param( 'board_id' ) : (int) get_post_meta( $post->ID, '_wcb_board_id', true ),
+					(string) get_post_meta( $post->ID, '_wcb_deadline', true )
+				)
+			);
+		}
+
 		// Postmeta — only update keys present in the request.
 		$meta_map = array(
 			'deadline'        => '_wcb_deadline',
@@ -879,6 +929,14 @@ final class JobsEndpoint extends RestController {
 			if ( null !== $value ) {
 				update_post_meta( $post->ID, $meta_key, $value );
 			}
+		}
+
+		// Move the job to another company (validated above). 0 means no change.
+		$wcb_company_id = absint( $request->get_param( 'company_id' ) );
+		if ( $wcb_company_id ) {
+			update_post_meta( $post->ID, '_wcb_company_id', $wcb_company_id );
+			// Raw title: get_the_title() turns '&' into '&#038;', which the cards print as text.
+			update_post_meta( $post->ID, '_wcb_company_name', (string) get_post_field( 'post_title', $wcb_company_id ) );
 		}
 
 		// Apply destination — sanitize identically to create_item().
@@ -1001,6 +1059,10 @@ final class JobsEndpoint extends RestController {
 	 * @return string 'publish', 'pending' or 'draft'.
 	 */
 	private function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
+		// Whoever approves jobs doesn't wait for their own approval.
+		if ( $this->check_ability( 'wcb/moderate-jobs' ) ) {
+			return 'publish';
+		}
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 		$fallback     = $auto_publish ? 'publish' : 'pending';
 
@@ -1310,53 +1372,7 @@ final class JobsEndpoint extends RestController {
 		$wcb_question_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_question_groups ): array {
-				$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
-				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
-
-				return array(
-					'id'                 => $p->ID,
-					'candidate_id'       => $candidate_id,
-					'applicant_name'     => $candidate_user
-						? $candidate_user->display_name
-						: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
-					'applicant_email'    => $candidate_user
-						? $candidate_user->user_email
-						: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
-					'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
-					// Answers to the job's questions, labelled, for the applicant detail.
-					'custom_fields'      => \WCB\Core\FormCustomFields::labelled_values( $wcb_question_groups, $p->ID, 'post_meta', \WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX ),
-					'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
-					'rating'             => \WCB\Modules\Applications\ApplicationNotes::rating( $p->ID ),
-					'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
-					'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
-					// Raw ISO 8601 for any client-side date logic; localised sibling
-					// for display. Never hand a translated date string to new Date().
-					'submitted_at'       => get_the_date( 'c', $p ),
-					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
-					'resume_url'         => ( static function () use ( $p ): ?string {
-						$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
-						if ( $att_id <= 0 ) {
-							return null;
-						}
-						$url = \WCB\Core\PrivateFiles::url( $att_id );
-						return '' !== $url ? $url : null;
-					} )(),
-					'resume_permalink'   => ( static function () use ( $p ): ?string {
-						$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
-						if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
-							return null;
-						}
-						$resume_post = get_post( $resume_id );
-						if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
-							return null;
-						}
-						$url = get_permalink( $resume_id );
-						return false !== $url ? (string) $url : null;
-					} )(),
-				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
-			},
+			static fn ( \WP_Post $p ): array => self::employer_application_item( $p, $wcb_question_groups ),
 			$posts
 		);
 
@@ -1376,6 +1392,67 @@ final class JobsEndpoint extends RestController {
 		);
 	}
 
+	/**
+	 * One application as the employer sees it: applicant, cover letter, answers
+	 * to the job's questions, rating, AI fit, resume links and status.
+	 *
+	 * Shared by GET /jobs/{id}/applications and GET /employers/me/applications,
+	 * so the applicant detail has the same fields whichever list it came from.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Post             $p      Application post.
+	 * @param array<int, mixed>    $groups The job's question groups (wcb_application_form_fields_groups).
+	 * @return array<string, mixed>
+	 */
+	public static function employer_application_item( \WP_Post $p, array $groups ): array {
+		$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
+		$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
+		$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
+
+		return array(
+			'id'                 => $p->ID,
+			'candidate_id'       => $candidate_id,
+			'applicant_name'     => $candidate_user
+				? \WCB\Modules\Candidates\CandidatesModule::public_name( $candidate_id )
+				: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
+			'applicant_email'    => $candidate_user
+				? $candidate_user->user_email
+				: (string) get_post_meta( $p->ID, '_wcb_guest_email', true ),
+			'cover_letter'       => (string) get_post_meta( $p->ID, '_wcb_cover_letter', true ),
+			// Answers to the job's questions, labelled, for the applicant detail.
+			'custom_fields'      => \WCB\Core\FormCustomFields::labelled_values( $groups, $p->ID, 'post_meta', \WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX ),
+			'ai_score'           => '' !== (string) get_post_meta( $p->ID, '_wcbp_ai_scored_at', true ) ? (int) get_post_meta( $p->ID, '_wcbp_ai_fit_score', true ) : null,
+			'rating'             => \WCB\Modules\Applications\ApplicationNotes::rating( $p->ID ),
+			'ai_reason'          => (string) get_post_meta( $p->ID, '_wcbp_ai_fit_reason', true ),
+			'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
+			// Raw ISO 8601 for any client-side date logic; localised sibling
+			// for display. Never hand a translated date string to new Date().
+			'submitted_at'       => get_the_date( 'c', $p ),
+			'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
+			'resume_url'         => ( static function () use ( $p ): ?string {
+				$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
+				if ( $att_id <= 0 ) {
+					return null;
+				}
+				$url = \WCB\Core\PrivateFiles::url( $att_id );
+				return '' !== $url ? $url : null;
+			} )(),
+			'resume_permalink'   => ( static function () use ( $p ): ?string {
+				$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
+				if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+					return null;
+				}
+				$resume_post = get_post( $resume_id );
+				if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
+					return null;
+				}
+				$url = get_permalink( $resume_id );
+				return false !== $url ? (string) $url : null;
+			} )(),
+		) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
+	}
+
 	// --- Permission callbacks ---------------------------------------------------
 
 	/**
@@ -1393,8 +1470,8 @@ final class JobsEndpoint extends RestController {
 	/**
 	 * Check if the current user can update the given job.
 	 *
-	 * Allows the post author (if they have wcb_post_jobs) or an admin
-	 * (via wcb_manage_settings ability).
+	 * Allows an employer whose scope holds the job (EmployersModule::owns_job(),
+	 * with wcb_post_jobs) or an admin (via wcb_manage_settings ability).
 	 *
 	 * @since 1.0.0
 	 *
@@ -1406,16 +1483,10 @@ final class JobsEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$user_id           = $this->current_user_id();
-		$is_author         = (int) $post->post_author === $user_id
+		$is_owner = \WCB\Modules\Employers\EmployersModule::owns_job( $this->current_user_id(), $post )
 			&& $this->check_ability( 'wcb/post-jobs' );
-		$user_company      = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
-		$job_company       = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
-		$is_company_member = $user_company > 0
-			&& $user_company === $job_company
-			&& $this->check_ability( 'wcb/post-jobs' );
-		$is_admin          = $this->check_ability( 'wcb/manage-settings' );
-		return ( $is_author || $is_company_member || $is_admin ) ? true : $this->permission_error();
+		$is_admin = $this->check_ability( 'wcb/manage-settings' );
+		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
 
 	/**
@@ -1434,7 +1505,7 @@ final class JobsEndpoint extends RestController {
 	 * Check if the current user can view this job's applications.
 	 *
 	 * The ability says the role may view applications at all; it does not say
-	 * which job's. Scope it to the job's author, or any employer could read
+	 * which job's. Scope it to EmployersModule::owns_job(), or any employer could read
 	 * every other employer's applicants (name, email, cover letter, resume) —
 	 * the same IDOR the applications endpoint already guards against.
 	 *
@@ -1457,7 +1528,7 @@ final class JobsEndpoint extends RestController {
 			return $this->permission_error();
 		}
 
-		return (int) $job->post_author === $this->current_user_id() ? true : $this->permission_error();
+		return \WCB\Modules\Employers\EmployersModule::owns_job( $this->current_user_id(), $job ) ? true : $this->permission_error();
 	}
 
 	// --- Helpers ----------------------------------------------------------------
@@ -1512,6 +1583,93 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
+	 * Refuse a company the employer does not run.
+	 *
+	 * Site admins may pick any company, as in wp-admin. A job keeping the
+	 * company it already has always passes.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Request; no `company_id` param means no change.
+	 * @param \WP_Post|null    $job     Job being updated, null on create.
+	 * @return \WP_Error|null
+	 */
+	private function company_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		$company_id = absint( $request->get_param( 'company_id' ) );
+		if ( ! $company_id || ( $job && (int) get_post_meta( $job->ID, '_wcb_company_id', true ) === $company_id ) ) {
+			return null;
+		}
+		// Only a published company has a page a job can link to (owner rule, 1.8.1), for every role.
+		if ( ! in_array( get_post_status( $company_id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+			return new \WP_Error( 'wcb_company_offline', __( 'This company is not published, so jobs can\'t use it.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+		if ( $this->check_ability( 'wcb/manage-settings' )
+			|| isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id(), true )[ $company_id ] ) ) {
+			return null;
+		}
+		return new \WP_Error(
+			'wcb_company_not_yours',
+			__( 'You can only post jobs for a company you run.', 'wp-career-board' ),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
+	 * Refuse a job with more categories than the site allows.
+	 *
+	 * A job already over the limit (categories set in wp-admin, or a higher
+	 * limit since lowered) saves with the same categories or fewer, so an
+	 * employer never has to drop ones they did not touch.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Request; no `categories` param means no change.
+	 * @param \WP_Post|null    $job     Job being updated, null on create.
+	 * @return \WP_Error|null
+	 */
+	private function category_limit_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		$values = $request->get_param( 'categories' );
+		// Site admins are never limited, as in wp-admin.
+		if ( null === $values || $this->check_ability( 'wcb/manage-settings' ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter how many categories an employer may give one job.
+		 *
+		 * Free allows one. Pro raises it through `wcbp_job_max_categories`.
+		 * Site admins (REST or wp-admin) are not limited.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param int $limit Most categories per job. Default 1.
+		 */
+		$limit  = max( 1, (int) apply_filters( 'wcb_job_category_limit', 1 ) );
+		$values = array_unique( array_filter( array_map( static fn ( $value ): string => sanitize_title( (string) $value ), (array) $values ) ) );
+		if ( count( $values ) <= $limit ) {
+			return null;
+		}
+
+		if ( $job ) {
+			$current = wp_get_object_terms( $job->ID, 'wcb_category', array( 'fields' => 'id=>slug' ) );
+			$current = is_array( $current ) ? array_merge( array_map( 'strval', array_keys( $current ) ), array_values( $current ) ) : array();
+			if ( ! array_diff( $values, $current ) ) {
+				return null;
+			}
+		}
+
+		return new \WP_Error(
+			'wcb_too_many_categories',
+			sprintf(
+				/* translators: %s: most categories one job may have. */
+				_n( 'Choose up to %s category for this job.', 'Choose up to %s categories for this job.', $limit, 'wp-career-board' ),
+				number_format_i18n( $limit )
+			),
+			array( 'status' => 400 )
+		);
+	}
+
+	/**
 	 * Shape a WP_Post into the REST response array.
 	 *
 	 * Returns both slug-indexed taxonomy arrays (for filtering) and
@@ -1527,7 +1685,7 @@ final class JobsEndpoint extends RestController {
 	 */
 	public function prepare_item_for_response_array( \WP_Post $post ): array {
 		$currency     = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
-		$currency     = '' !== $currency ? $currency : 'USD';
+		$currency     = '' !== $currency ? $currency : \WCB\Modules\Jobs\JobsMeta::default_currency();
 		$salary_min   = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$salary_max   = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );
 		$salary_type  = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
@@ -1633,7 +1791,7 @@ final class JobsEndpoint extends RestController {
 			'remote'                 => '1' === get_post_meta( $post->ID, '_wcb_remote', true ),
 			'featured'               => '1' === get_post_meta( $post->ID, '_wcb_featured', true ),
 			'board_id'               => $board_id,
-			'board_currency'         => (string) apply_filters( 'wcb_board_currency', 'USD', $board_id ),
+			'board_currency'         => (string) apply_filters( 'wcb_board_currency', \WCB\Modules\Jobs\JobsMeta::default_currency(), $board_id ),
 			// Display-name strings for cards.
 			'location'               => implode( ', ', $loc_names ),
 			'type'                   => implode( ', ', $type_names ),
@@ -1802,12 +1960,23 @@ final class JobsEndpoint extends RestController {
 			'board_id'        => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || 'wcb_board' === get_post_type( absint( $v ) ), __( 'Unknown job board.', 'wp-career-board' ) ),
 			),
+			// One of the companies the employer runs; 0 or absent = their linked company (create) or no change (update).
+			'company_id'      => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || ( 'wcb_company' === get_post_type( absint( $v ) ) && 'trash' !== get_post_status( absint( $v ) ) ), __( 'Unknown company.', 'wp-career-board' ) ),
+			),
 			'apply_email'     => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => (bool) is_email( (string) $v ), __( 'Apply email is not a valid email address.', 'wp-career-board' ) ),
 			),
 			'status'          => array(
 				'type' => 'string',
 				'enum' => array( 'publish', 'draft', 'closed' ),
+			),
+			// Category slugs or term IDs. How many is limited by wcb_job_category_limit.
+			'categories'      => array(
+				'type'  => 'array',
+				'items' => array(
+					'type' => array( 'string', 'integer' ),
+				),
 			),
 		);
 	}

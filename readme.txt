@@ -3,16 +3,16 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A complete job board for WordPress — built on Gutenberg blocks and the WordPress Interactivity API.
+A complete job board for WordPress - built on Gutenberg blocks and the WordPress Interactivity API.
 
 == Description ==
 
-WP Career Board is a full-featured job board plugin built on Gutenberg blocks and the WordPress Interactivity API. Employer dashboards, candidate applications, company profiles, BuddyPress integration, and full applicant tracking — free. Included with Reign Theme.
+WP Career Board is a full-featured job board plugin built on Gutenberg blocks and the WordPress Interactivity API. Employer dashboards, candidate applications, company profiles, BuddyPress integration, and full applicant tracking - free. Included with Reign Theme.
 
 WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) extends it with advanced hiring tools, monetisation, and automation.
 
@@ -20,16 +20,16 @@ WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomd
 
 [WP Career Board Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) adds:
 
-* **Application Pipeline** — Drag-and-drop Kanban board with custom hiring stages per job
-* **Resume Builder** — Rich candidate resume profiles with education, experience, and skills
-* **Credits System** — Sell job posting credits to employers via Stripe
-* **AI Job Descriptions** — Auto-generate compelling job posts with AI
-* **Multi-Board Engine** — Run multiple independent job boards from a single install
-* **Custom Field Builder** — Add custom fields to jobs, applications, and company profiles
-* **Job Alerts** — Candidates receive email alerts for new matching jobs
-* **Job Feed** — Publish jobs as RSS/XML feeds for aggregators
-* **Maps Integration** — Display job locations on an interactive map
-* **Priority Support** — Direct support from the Wbcom Designs team
+* **Application Pipeline** - Drag-and-drop Kanban board with custom hiring stages per job
+* **Resume Builder** - Rich candidate resume profiles with education, experience, and skills
+* **Credits System** - Sell job posting credits to employers via Stripe
+* **AI Job Descriptions** - Auto-generate compelling job posts with AI
+* **Multi-Board Engine** - Run multiple independent job boards from a single install
+* **Custom Field Builder** - Add custom fields to jobs, applications, and company profiles
+* **Job Alerts** - Candidates receive email alerts for new matching jobs
+* **Job Feed** - Publish jobs as RSS/XML feeds for aggregators
+* **Maps Integration** - Display job locations on an interactive map
+* **Priority Support** - Direct support from the Wbcom Designs team
 
 == Installation ==
 
@@ -40,16 +40,16 @@ WP Career Board is fully functional as a free plugin. [Pro](https://store.wbcomd
 == Frequently Asked Questions ==
 
 = Does this plugin require WooCommerce? =
-No. WP Career Board is a standalone job board — no e-commerce plugin is needed.
+No. WP Career Board is a standalone job board - no e-commerce plugin is needed.
 
 = Can candidates apply without creating an account? =
-Yes. Guest applications are supported out of the box with name, email, and cover letter fields.
+Yes. Guest applications are supported out of the box with name, email, and cover letter fields. If the email already belongs to an account, the visitor is asked to sign in to apply, so the application lands on that account.
 
 = Does it work with block themes? =
 Yes. All frontend UI uses Gutenberg blocks with the WordPress Interactivity API, compatible with both classic and block themes.
 
 = How do I migrate from WP Job Manager? =
-Go to Career Board → Import and use the built-in one-click migration tool. Your original WPJM data is never modified.
+Go to Career Board → Settings → Import and use the built-in migration tool. It runs in batches and can be run again safely. Your original WPJM data is never modified.
 
 == Screenshots ==
 
@@ -61,6 +61,70 @@ Go to Career Board → Import and use the built-in one-click migration tool. You
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.1 - October 2026 =
+
+Employers can run several companies, a redesigned employer and candidate dashboard, and fixes from QA and our own review.
+
+* New      - Employers can run several companies; the dashboard, applications and Post a Job cover all of them.
+* New      - Find Jobs and the search bar accept several job categories at once.
+* New      - Employer Overview shows what needs attention: applications waiting for review and jobs closing within 7 days.
+* New      - Site admins post, move, republish and feature jobs for free.
+* New      - Post a Job has a formatting toolbar for the description.
+* New      - Moderators get a Review jobs link on their dashboard.
+* New      - Employers can pick their own application deadline, up to the board's listing length.
+* New      - Admin job editor: Apply URL and Apply Email fields, and a No expiry option.
+* New      - Order field for job categories, types, locations, experience levels and tags; experience levels default to seniority order.
+* New      - Child categories and locations nest under their parent in every filter and form, with a search box for long category lists.
+* New      - View resume link on the admin application screen and in the Applications list.
+* Improve  - Every Overview figure opens the list it counts, including this week's applications.
+* Improve  - Dashboard rows show one main action with the rest in a menu, and every empty list says what to do next.
+* Improve  - Applications opens the newest applicant on desktop, in one clean panel where an unrated applicant shows empty stars.
+* Improve  - Credits appear on the employer dashboard only when a board charges or the employer holds credits.
+* Improve  - Find Jobs filters stay in view while you scroll, long filter groups fold, and active filters sit beside Clear all.
+* Improve  - Links and labels in the site's brand colour stay readable on any accent colour, in light and dark mode.
+* Improve  - Employers only see the Saved tabs they can use.
+* Improve  - Members are shown by their name or "A candidate", never by their login, and candidates show their resume photo.
+* Improve  - Job pages show typed dash lists as bullet points and one main Apply button.
+* Improve  - Load More is a real next-page link, so job pages work without JavaScript and can be crawled. New sites show 12 jobs per page.
+* Improve  - Find Jobs filters are kept in the address bar: shared links open with the same filters and Back restores them.
+* Improve  - Saved Companies show the company logo and Saved Resumes show the candidate's photo.
+* Improve  - A job located Remote is always treated as remote, on the job page, in filters, search, feeds and Google for Jobs.
+* Improve  - Failed saves, removals and status changes now tell the member instead of failing silently.
+* Fix      - A company stored with a type label (such as Private) showed "Select type" on its profile.
+* Fix      - A row's menu on the last row of a list was cut off, so Withdraw, Delete and Remove could not be reached.
+* Fix      - Taking a company off the site now closes its jobs, and unreviewed jobs go to draft.
+* Fix      - Unfeatured jobs no longer sort below older jobs.
+* Fix      - Editing a live job no longer asks for credits.
+* Fix      - Job excerpts and Google job markup no longer show raw shortcode text.
+* Fix      - Text contrast on BuddyX, BuddyX Pro and Twenty Twenty-Five.
+* Fix      - Setup wizard was blank on Windows servers and symlinked installs.
+* Fix      - Request data export button on the candidate dashboard did nothing.
+* Fix      - Headers already sent warning when dismissing or unpublishing a reported job and when trashing companies in bulk.
+* Fix      - Members who applied or built a resume were missing from the admin Candidates screen.
+* Fix      - Deleting a user left their jobs and companies public; jobs now close and companies return to draft unless reassigned.
+* Fix      - A guest using an email that already has an account is asked to sign in instead of creating an unlinked application.
+* Fix      - Employer applications panel lost its filters when a status had no applications.
+* Fix      - Admin-created jobs used USD instead of the site currency, rejected salaries that were not multiples of 1000, and never expired without a deadline.
+* Fix      - Save Job no longer shows to employers, who cannot use it.
+* Fix      - Copy Link did not work on sites without HTTPS.
+* Fix      - Dashboard tabs: every tab updates the address, Notifications can be linked, and the Overview tab no longer flashes on reload.
+* Fix      - Welcome card no longer pops in and shifts the candidate dashboard.
+* Fix      - Notification times read one unit too small.
+* Fix      - Jobs list counts stay correct after approving or rejecting inline; the Jobs search box has a placeholder.
+* Fix      - Spacing on the Delete my account form and on settings cards.
+* Fix      - Saved Companies on the candidate dashboard did not show the industry.
+* Fix      - Updates screen warning from the bundled licensing library.
+* Security - Through the WordPress REST API, only an admin can set a job's company, board or featured flag.
+* Security - Free posting for admins applies only when an admin acts, not when someone else acts on an admin's job.
+* Security - Job descriptions run shortcodes only for authors trusted with unfiltered HTML.
+* Security - The confirmation email link signs in only the browser that created the account.
+* Security - Visitor IP from a proxy header uses the address your own proxy added.
+* Security - Private job details, applicant counts, private profiles and repeat guest applications no longer reveal anything through REST answers.
+* Security - Private documents always download instead of opening in the browser.
+* Dev      - GET /wcb/v1/employers/me/applications accepts since_days, and the filter wcb_company_types sets the company type list.
+* Dev      - New filter wcb_candidate_resume_url and helper JobDeadline::default_end_for_board().
+* Dev      - Contract checks in local CI catch silent failures, unstyled classes, unbound actions, redirects inside admin screens and brand colour used as text.
 
 = 1.8.0 - September 2026 =
 

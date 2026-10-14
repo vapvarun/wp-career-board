@@ -113,7 +113,7 @@ $tag_smoke = function ( int $id, string $kind ): void {
 // employer used by the cross-employer isolation journeys). Role slug is the
 // plugin's registered `wcb_employer` (NOT `employer`, which does not exist).
 $employers = array();
-foreach ( array( 'employer.figma' => 'Figma', 'employer.stripe' => 'Stripe' ) as $login => $first_name ) {
+foreach ( array( 'employer.figma' => array( 'Daniel', 'Reyes' ), 'employer.stripe' => array( 'Priya', 'Raman' ) ) as $login => $names ) {
 	$uid = username_exists( $login );
 	if ( ! $uid ) {
 		$uid = wp_insert_user(
@@ -122,7 +122,8 @@ foreach ( array( 'employer.figma' => 'Figma', 'employer.stripe' => 'Stripe' ) as
 				'user_pass'  => wp_generate_password( 16 ),
 				'user_email' => $login . '@example.test',
 				'role'       => 'wcb_employer',
-				'first_name' => $first_name,
+				'first_name' => $names[0],
+				'last_name'  => $names[1],
 			)
 		);
 		if ( is_wp_error( $uid ) ) {
@@ -212,7 +213,7 @@ $insert = function ( array $args, string $kind, array $meta = array() ) use ( $w
 		array(
 			'post_status'  => 'publish',
 			'post_author'  => 1,
-			'post_content' => 'Smoke fixture content. Lorem ipsum dolor sit amet.',
+			'post_content' => 'We are growing the team and looking for someone who enjoys owning problems end to end, working closely with design and product, and shipping calm, well-tested software.',
 		),
 		$args
 	);
@@ -232,7 +233,7 @@ $insert = function ( array $args, string $kind, array $meta = array() ) use ( $w
 $board_id = $insert(
 	array(
 		'post_type'  => 'wcb_board',
-		'post_title' => 'Smoke Board (default)',
+		'post_title' => 'Northwind Careers',
 	),
 	'board'
 );
@@ -241,27 +242,29 @@ $board_id = $insert(
 $company_alpha = $insert(
 	array(
 		'post_type'   => 'wcb_company',
-		'post_title'  => 'Smoke Co Alpha',
+		'post_title'  => 'Larkspur Labs',
 		'post_author' => $employers[0],
 	),
 	'company',
 	array(
 		'_wcb_company_owner'   => $employers[0],
-		'_wcb_company_website' => 'https://alpha.example.test',
+		'_wcb_company_website' => 'https://larkspurlabs.example.test',
 	)
 );
 $company_beta  = $insert(
 	array(
 		'post_type'   => 'wcb_company',
-		'post_title'  => 'Smoke Co Beta & Sons',
+		'post_title'  => 'Hale & Rowan Studio',
 		'post_author' => $employers[1],
 	),
 	'company',
 	array(
 		'_wcb_company_owner'   => $employers[1],
-		'_wcb_company_website' => 'https://beta.example.test',
+		'_wcb_company_website' => 'https://haleandrowan.example.test',
 	)
 );
+
+$resume_titles = array( 'Full-Stack Developer, 8 years in fintech', 'Product Designer, B2B SaaS and design systems', 'Data Engineer, streaming pipelines' );
 
 // Resumes (candidate profiles — `wcb_resume` is the candidate-profile CPT).
 $resumes = array();
@@ -269,7 +272,7 @@ foreach ( $candidates as $i => $cuid ) {
 	$resumes[ $cuid ] = $insert(
 		array(
 			'post_type'   => 'wcb_resume',
-			'post_title'  => 'Smoke Resume ' . ( $i + 1 ),
+			'post_title'  => $resume_titles[ $i ],
 			'post_author' => $cuid,
 		),
 		'resume',
@@ -282,13 +285,14 @@ foreach ( $candidates as $i => $cuid ) {
 
 // Jobs (3 published, 1 draft, 1 expired).
 // Meta keys mirror JobsEndpoint::create_item() — not wcb_job_*.
-$jobs = array();
+$jobs       = array();
+$job_titles = array( 'Senior PHP Engineer, Payments - Lisbon', 'Product Designer, Design Systems - Berlin', 'Staff Data Engineer, Platform - Amsterdam', '', '' );
 for ( $i = 0; $i < 5; $i++ ) {
 	$status = 'publish';
-	$title  = sprintf( 'Smoke Job %d - Senior PHP Engineer', $i + 1 );
+	$title  = $job_titles[ $i ];
 	$meta   = array(
 		'_wcb_company_id'      => 0 === $i % 2 ? $company_alpha : $company_beta,
-		'_wcb_company_name'    => 0 === $i % 2 ? 'Smoke Co Alpha' : 'Smoke Co Beta & Sons',
+		'_wcb_company_name'    => 0 === $i % 2 ? 'Larkspur Labs' : 'Hale & Rowan Studio',
 		'_wcb_salary_min'      => '80000',
 		'_wcb_salary_max'      => '110000',
 		'_wcb_salary_currency' => 'USD',
@@ -300,10 +304,10 @@ for ( $i = 0; $i < 5; $i++ ) {
 
 	if ( 3 === $i ) {
 		$status = 'draft';
-		$title  = sprintf( 'Smoke Job %d - DRAFT', $i + 1 );
+		$title  = 'Customer Success Manager, EMEA - Dublin';
 	}
 	if ( 4 === $i ) {
-		$title                 = sprintf( 'Smoke Job %d - EXPIRED', $i + 1 );
+		$title                 = 'Marketing Analyst, Growth - Toronto';
 		$meta['_wcb_deadline'] = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
 	}
 
@@ -322,6 +326,12 @@ for ( $i = 0; $i < 5; $i++ ) {
 // Applications (4, spanning stages).
 // Meta keys mirror ApplicationsEndpoint::submit_application() — not wcb_application_*.
 $applications  = array();
+$cover_letters = array(
+	'submitted'   => 'I have spent the last six years building payment services and would love to bring that experience to your team.',
+	'reviewing'   => 'Your design systems work caught my eye; I have led two migrations to token-based theming and would enjoy doing it again.',
+	'shortlisted' => 'Streaming data platforms are my specialty, and your roadmap matches exactly where I want to grow next.',
+	'rejected'    => 'I am keen to move into a more product-facing role and believe my background in support tooling transfers well.',
+);
 $stage_options = array( 'submitted', 'reviewing', 'shortlisted', 'rejected' );
 foreach ( $stage_options as $idx => $stage ) {
 	$candidate_id = $candidates[ $idx % count( $candidates ) ];
@@ -330,7 +340,7 @@ foreach ( $stage_options as $idx => $stage ) {
 	$applications[] = $insert(
 		array(
 			'post_type'   => 'wcb_application',
-			'post_title'  => sprintf( 'Smoke Application %s on Job %d', $stage, $job_id ),
+			'post_title'  => get_user_meta( $candidate_id, 'first_name', true ) . ' applying for ' . get_the_title( $job_id ),
 			'post_author' => $candidate_id,
 		),
 		'application',
@@ -339,7 +349,7 @@ foreach ( $stage_options as $idx => $stage ) {
 			'_wcb_candidate_id' => $candidate_id,
 			'_wcb_resume_id'    => $resumes[ $candidate_id ],
 			'_wcb_status'       => $stage,
-			'_wcb_cover_letter' => 'Smoke cover letter for stage ' . $stage,
+			'_wcb_cover_letter' => $cover_letters[ $stage ],
 		)
 	);
 }
@@ -385,7 +395,7 @@ if ( $pro_active ) {
 				'item_id'    => 0,
 				'entry_type' => 'topup',
 				'amount'     => 5,
-				'note'       => 'Smoke seed - initial grant',
+				'note'       => 'Welcome grant - 5 job credits',
 			),
 			'credit_ledger'
 		);

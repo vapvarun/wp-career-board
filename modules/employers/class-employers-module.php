@@ -60,6 +60,191 @@ final class EmployersModule {
 				}
 			}
 		);
+
+		add_action( 'delete_user', array( self::class, 'retire_owned_listings' ), 10, 2 );
+		add_action( 'transition_post_status', array( self::class, 'on_status_change' ), 10, 3 );
+		add_filter( 'wp_insert_post_data', array( self::class, 'plain_company_title' ), 10, 1 );
+		add_action( 'before_delete_post', array( self::class, 'on_company_deleted' ), 10, 2 );
+	}
+
+	/**
+	 * Meta key: why a job was closed for its owner ('company_removed').
+	 *
+	 * @since 1.8.1
+	 * @var string
+	 */
+	public const CLOSED_REASON = '_wcb_closed_reason';
+
+	/**
+	 * Statuses in which a company has a public page, so jobs may name it.
+	 *
+	 * A draft or pending company is still the employer's (it shows in their
+	 * Companies list) but has no public page: a job naming it would link to a 404.
+	 *
+	 * @since 1.8.1
+	 * @var string[]
+	 */
+	public const LIVE_COMPANY = array( 'publish' );
+
+	/**
+	 * A company leaving the site closes its jobs; a job reopened loses its
+	 * "closed because" note.
+	 *
+	 * Trashing a company closes every job carrying it, whoever posted it, the
+	 * same way deleting an employer does: applicants are told and the history
+	 * stays. Restoring the company does not reopen them; the employer does
+	 * (owner decision, 1.8.1).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post       Post.
+	 * @return void
+	 */
+	public static function on_status_change( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'wcb_company' === $post->post_type && 'trash' === $new_status && 'trash' !== $old_status ) {
+			self::close_company_jobs( $post->ID );
+		} elseif ( 'wcb_job' === $post->post_type && in_array( $old_status, array( 'wcb_closed', 'draft' ), true ) && $old_status !== $new_status ) {
+			delete_post_meta( $post->ID, self::CLOSED_REASON );
+		}
+	}
+
+	/**
+	 * Keep '&' in a company name as '&'.
+	 *
+	 * For users without unfiltered_html, WordPress stores "Smith & Co" as
+	 * "Smith &amp; Co". Themes print titles as HTML, but company names are
+	 * copied into job meta and printed as text (cards, REST, the picker),
+	 * where the entity showed. Only the ampersand is restored, so no markup
+	 * can come back.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param array<string, mixed> $data Slashed post data.
+	 * @return array<string, mixed>
+	 */
+	public static function plain_company_title( array $data ): array {
+		if ( 'wcb_company' === ( $data['post_type'] ?? '' ) && is_string( $data['post_title'] ?? null ) ) {
+			$data['post_title'] = str_replace( array( '&amp;', '&#038;' ), '&', $data['post_title'] );
+		}
+		return $data;
+	}
+
+	/**
+	 * A company deleted without going through the trash closes its jobs too.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post.
+	 * @return void
+	 */
+	public static function on_company_deleted( int $post_id, $post ): void {
+		if ( $post instanceof \WP_Post && 'wcb_company' === $post->post_type && 'trash' !== $post->post_status ) {
+			self::close_company_jobs( $post_id );
+		}
+	}
+
+	/**
+	 * Take a removed company's jobs off the site and note why.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $company_id Company post ID.
+	 * @return void
+	 */
+	public static function close_company_jobs( int $company_id ): void {
+		$of_company = array(
+			'post_type'  => 'wcb_job',
+			'meta_key'   => '_wcb_company_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value' => (string) $company_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		);
+		// Only reviewed jobs close: reopening a closed job skips moderation, so a
+		// job still waiting for review goes back to draft and is reviewed as usual.
+		self::move_posts(
+			$of_company + array( 'post_status' => array( 'publish', 'wcb_expired' ) ),
+			'wcb_closed',
+			static fn ( int $job_id ) => update_post_meta( $job_id, self::CLOSED_REASON, 'company_removed' )
+		);
+		self::move_posts(
+			$of_company + array( 'post_status' => array( 'pending', 'future' ) ),
+			'draft',
+			static fn ( int $job_id ) => update_post_meta( $job_id, self::CLOSED_REASON, 'company_removed' )
+		);
+	}
+
+	/**
+	 * Move every post a query matches to a new status, 100 at a time.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param array<string, mixed> $query      get_posts() args (must exclude $new_status).
+	 * @param string               $new_status Status to set.
+	 * @param callable|null        $before     Called with each post ID before it moves.
+	 * @return void
+	 */
+	private static function move_posts( array $query, string $new_status, ?callable $before = null ): void {
+		// Each pass moves rows out of the query, so page 1 always holds the next batch.
+		do {
+			$ids = get_posts(
+				$query + array(
+					'fields'         => 'ids',
+					'posts_per_page' => 100,
+					'no_found_rows'  => true,
+				)
+			);
+			foreach ( wp_parse_id_list( $ids ) as $id ) {
+				if ( $before ) {
+					$before( $id );
+				}
+				wp_update_post(
+					array(
+						'ID'          => $id,
+						'post_status' => $new_status,
+					)
+				);
+			}
+			$full = 100 === count( $ids );
+		} while ( $full );
+	}
+
+	/**
+	 * Take a deleted employer's jobs and companies off the site.
+	 *
+	 * WordPress moves them to the chosen user when the admin picks "Attribute
+	 * all content to"; without that, neither post type is deleted with its
+	 * author, so they stayed public with no owner. Jobs close (applicants are
+	 * told, the history stays) and companies go back to draft: off the site
+	 * but recoverable (owner decision, 1.8.1).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int      $user_id  User being deleted.
+	 * @param int|null $reassign User receiving the content, or null.
+	 * @return void
+	 */
+	public static function retire_owned_listings( int $user_id, ?int $reassign ): void {
+		if ( $reassign ) {
+			return;
+		}
+		// Reviewed jobs close; unreviewed ones go to draft, because reopening a
+		// closed job skips moderation and a colleague of the company could.
+		$targets = array(
+			array( 'wcb_job', 'wcb_closed', array( 'publish', 'wcb_expired' ) ),
+			array( 'wcb_job', 'draft', array( 'pending', 'future' ) ),
+			array( 'wcb_company', 'draft', array( 'publish', 'pending', 'future' ) ),
+		);
+		foreach ( $targets as list( $post_type, $new_status, $from ) ) {
+			self::move_posts(
+				array(
+					'post_type'   => $post_type,
+					'post_status' => $from,
+					'author'      => $user_id,
+				),
+				$new_status
+			);
+		}
 	}
 
 	/* Note: the `wcb-company-sidebar` widget area was retired in 1.2.x.
@@ -283,6 +468,265 @@ final class EmployersModule {
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,
 			)
+		);
+	}
+
+	/**
+	 * Companies an employer runs, as id => name, sorted by name.
+	 *
+	 * One employer can run many companies (agencies, recruiters): every company
+	 * they created, every company naming them in `_wcb_company_owner`, and the
+	 * company linked on their account.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int  $user_id   Employer user ID.
+	 * @param bool $live_only Only companies with a public page (what a job may name).
+	 * @return array<int, string>
+	 */
+	public static function owned_companies( int $user_id, bool $live_only = false ): array {
+		if ( $user_id <= 0 ) {
+			return array();
+		}
+		global $wpdb;
+		$statuses = $live_only ? array( 'publish' ) : array( 'publish', 'pending', 'draft' );
+		// shortcut: capped at 200 companies per employer; raise it if an agency outgrows that.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one indexed lookup; the only interpolation is a %s placeholder per status.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT ID, post_title FROM {$wpdb->posts}
+				 WHERE post_type = 'wcb_company' AND post_status IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . " )
+				   AND ( post_author = %d
+				         OR ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_owner' AND meta_value = %s ) )
+				 ORDER BY post_title ASC
+				 LIMIT 200",
+				...array_merge( $statuses, array( $user_id, (string) $user_id ) )
+			)
+		);
+		// phpcs:enable
+		$companies = array();
+		foreach ( (array) $rows as $row ) {
+			$companies[ (int) $row->ID ] = (string) $row->post_title;
+		}
+		$linked = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
+		if ( $linked > 0 && ! isset( $companies[ $linked ] ) ) {
+			$companies[ $linked ] = (string) get_post_field( 'post_title', $linked );
+		}
+		return $companies;
+	}
+
+	/**
+	 * The companies an employer runs, as dashboard cards: main first, then by
+	 * name, each with its open jobs and applications (two grouped queries).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Employer user ID.
+	 * @return array<int, array{id:int, name:string, logo:string, initials:string, isMain:bool, status:string, statusLabel:string, openJobs:int, applications:int, stats:string, permalink:string, canRemove:bool}>
+	 */
+	public static function company_cards( int $user_id ): array {
+		$companies = self::owned_companies( $user_id );
+		if ( ! $companies ) {
+			return array();
+		}
+		$ids  = array_keys( $companies );
+		$main = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
+		$open = \WCB\Core\CompanyMetaShape::open_job_counts( $ids );
+		\WCB\Core\CompanyMetaShape::prime_logos( $ids );
+
+		global $wpdb;
+		$in = implode( ',', array_fill( 0, count( $ids ), '%s' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the ID count; COUNT only.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT co.meta_value AS company_id, COUNT(*) AS c
+				 FROM {$wpdb->postmeta} co
+				 INNER JOIN {$wpdb->postmeta} aj ON aj.meta_key = '_wcb_job_id' AND aj.meta_value = CAST( co.post_id AS CHAR )
+				 INNER JOIN {$wpdb->posts} app ON app.ID = aj.post_id AND app.post_type = 'wcb_application' AND app.post_status <> 'trash'
+				 WHERE co.meta_key = '_wcb_company_id' AND co.meta_value IN ( {$in} )
+				 GROUP BY co.meta_value",
+				...array_map( 'strval', $ids )
+			)
+		);
+		// phpcs:enable
+		$apps = array();
+		foreach ( (array) $rows as $row ) {
+			$apps[ (int) $row->company_id ] = (int) $row->c;
+		}
+
+		$status_labels = array(
+			'pending' => __( 'Waiting for review', 'wp-career-board' ),
+			'draft'   => __( 'Draft, not public', 'wp-career-board' ),
+		);
+		$cards         = array();
+		foreach ( $companies as $id => $name ) {
+			$status  = (string) get_post_status( $id );
+			$n_open  = (int) ( $open[ $id ] ?? 0 );
+			$n_apps  = (int) ( $apps[ $id ] ?? 0 );
+			$cards[] = array(
+				'id'           => (int) $id,
+				'name'         => (string) $name,
+				'logo'         => \WCB\Core\CompanyMetaShape::logo_url( (int) $id ),
+				'initials'     => \WCB\Core\CompanyMetaShape::initials( (string) $name ),
+				'isMain'       => (int) $id === $main,
+				'status'       => $status,
+				'statusLabel'  => $status_labels[ $status ] ?? '',
+				'openJobs'     => $n_open,
+				'applications' => $n_apps,
+				'stats'        => sprintf(
+					/* translators: 1: the open jobs count, 2: the applications count (each already a phrase). */
+					__( '%1$s · %2$s', 'wp-career-board' ),
+					/* translators: %s: number of open jobs, already localised. */
+					sprintf( _n( '%s open job', '%s open jobs', $n_open, 'wp-career-board' ), number_format_i18n( $n_open ) ),
+					/* translators: %s: number of applications, already localised. */
+					sprintf( _n( '%s application', '%s applications', $n_apps, 'wp-career-board' ), number_format_i18n( $n_apps ) )
+				),
+				'permalink'    => 'publish' === $status ? (string) get_permalink( $id ) : '',
+				// Only its creator removes a company; a colleague who runs it cannot close their jobs.
+				'canRemove'    => (int) get_post_field( 'post_author', $id ) === $user_id,
+			);
+		}
+		usort( $cards, static fn ( array $a, array $b ): int => array( ! $a['isMain'], strtolower( $a['name'] ) ) <=> array( ! $b['isMain'], strtolower( $b['name'] ) ) );
+		return $cards;
+	}
+
+	/**
+	 * Whether a job is in the employer's dashboard scope: they posted it, or it
+	 * belongs to a company they run.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int      $user_id Employer user ID.
+	 * @param \WP_Post $job     Job post.
+	 * @return bool
+	 */
+	public static function owns_job( int $user_id, \WP_Post $job ): bool {
+		if ( $user_id <= 0 ) {
+			return false;
+		}
+		if ( (int) $job->post_author === $user_id ) {
+			return true;
+		}
+		return isset( self::owned_companies( $user_id )[ (int) get_post_meta( $job->ID, '_wcb_company_id', true ) ] );
+	}
+
+	/**
+	 * SQL condition selecting the jobs in an employer's dashboard scope.
+	 *
+	 * The single definition behind every employer-dashboard number and list:
+	 * jobs the employer posted OR jobs whose `_wcb_company_id` is a company they
+	 * run. Resolved in SQL (indexed `wcb_meta_key_value` lookup), so no job IDs
+	 * are loaded into PHP.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int    $user_id    Employer user ID.
+	 * @param string $alias      Alias of the posts table holding the job rows.
+	 * @param int    $company_id Narrow to one of the employer's companies, 0 for all.
+	 *                           A company they do not run matches nothing.
+	 * @return string Prepared SQL condition.
+	 */
+	public static function job_scope_sql( int $user_id, string $alias, int $company_id = 0 ): string {
+		global $wpdb;
+		$companies = array_keys( self::owned_companies( $user_id ) );
+		if ( $company_id > 0 ) {
+			$companies = in_array( $company_id, $companies, true ) ? array( $company_id ) : array();
+		}
+		$by_company = $companies
+			? $wpdb->prepare(
+				"%i.ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_id' AND meta_value IN ( " . implode( ', ', array_fill( 0, count( $companies ), '%s' ) ) . ' ) )',
+				array_merge( array( $alias ), array_map( 'strval', $companies ) )
+			)
+			: '';
+		if ( $company_id > 0 ) {
+			return '' !== $by_company ? $by_company : '1 = 0';
+		}
+		$by_author = $wpdb->prepare( '%i.post_author = %d', $alias, $user_id );
+		return '' !== $by_company ? "( {$by_author} OR {$by_company} )" : $by_author;
+	}
+
+	/**
+	 * FROM + WHERE for the applications on an employer's dashboard-scope jobs.
+	 *
+	 * Shared by GET /employers/me/applications and dashboard_counts() so the
+	 * Applications list and the header numbers count the same rows.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id    Employer user ID.
+	 * @param int $company_id Narrow to one company, 0 for all.
+	 * @return string Prepared SQL, aliases `app` and `job`.
+	 */
+	public static function applications_scope_sql( int $user_id, int $company_id = 0 ): string {
+		global $wpdb;
+		$statuses = \WCB\Api\Endpoints\EmployersEndpoint::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built from the status count; the scope condition is already prepared.
+		return $wpdb->prepare(
+			"FROM {$wpdb->posts} app
+			 INNER JOIN {$wpdb->postmeta} pm_job
+			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
+			 INNER JOIN {$wpdb->posts} job
+			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
+			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . " )
+			 WHERE app.post_type = 'wcb_application'
+			   AND app.post_status = 'publish'",
+			...$statuses
+		) . ' AND ' . self::job_scope_sql( $user_id, 'job', $company_id );
+		// phpcs:enable
+	}
+
+	/**
+	 * Header numbers for the employer dashboard, all over job_scope_sql().
+	 *
+	 * `jobs_with_apps` is keyed by company ID (0 = jobs with no company) so the
+	 * Applications hint can follow the company filter; its sum is the total.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Employer user ID.
+	 * @return array{total_jobs:int, live_jobs:int, total_apps:int, new_apps:int, awaiting_apps:int, jobs_with_apps:array<int,int>}
+	 */
+	public static function dashboard_counts( int $user_id ): array {
+		global $wpdb;
+		$statuses = \WCB\Api\Endpoints\EmployersEndpoint::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- every fragment is prepared; COUNT(*) only.
+		$jobs_where = $wpdb->prepare(
+			"job.post_type = 'wcb_job' AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ' )',
+			...$statuses
+		) . ' AND ' . self::job_scope_sql( $user_id, 'job' );
+
+		$jobs = $wpdb->get_row( "SELECT COUNT(*) AS total, COALESCE( SUM( job.post_status = 'publish' ), 0 ) AS live FROM {$wpdb->posts} job WHERE {$jobs_where}" );
+		$apps = $wpdb->get_row(
+			$wpdb->prepare(
+				// awaiting: not reviewed yet (no status counts as submitted, as on the Applications chips).
+				"SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date >= %s ), 0 ) AS recent,
+				        COALESCE( SUM( COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = 'submitted' ), 0 ) AS awaiting " . self::applications_scope_sql( $user_id ),
+				gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS )
+			)
+		);
+		// Same "has applications" rule as each tile's appCount: any _wcb_job_id row.
+		$with_apps = $wpdb->get_results(
+			"SELECT COALESCE( co.meta_value, '0' ) AS company_id, COUNT(*) AS cnt
+			 FROM {$wpdb->posts} job
+			 LEFT JOIN {$wpdb->postmeta} co ON co.post_id = job.ID AND co.meta_key = '_wcb_company_id'
+			 WHERE {$jobs_where}
+			   AND EXISTS ( SELECT 1 FROM {$wpdb->postmeta} aj WHERE aj.meta_key = '_wcb_job_id' AND aj.meta_value = CAST( job.ID AS CHAR ) )
+			 GROUP BY company_id"
+		);
+		// phpcs:enable
+
+		$by_company = array();
+		foreach ( (array) $with_apps as $row ) {
+			$by_company[ (int) $row->company_id ] = ( $by_company[ (int) $row->company_id ] ?? 0 ) + (int) $row->cnt;
+		}
+
+		return array(
+			'total_jobs'     => (int) ( $jobs->total ?? 0 ),
+			'live_jobs'      => (int) ( $jobs->live ?? 0 ),
+			'total_apps'     => (int) ( $apps->total ?? 0 ),
+			'new_apps'       => (int) ( $apps->recent ?? 0 ),
+			'awaiting_apps'  => (int) ( $apps->awaiting ?? 0 ),
+			'jobs_with_apps' => $by_company,
 		);
 	}
 }

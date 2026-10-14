@@ -80,7 +80,7 @@ final class SettingsEndpoint extends RestController {
 			'apply_ai_notice'       => (string) apply_filters( 'wcb_apply_ai_notice', '', 0 ),
 			'is_pro_licensed'       => (bool) apply_filters( 'wcb_pro_licensed', false ),
 			'per_page'              => \WCB\Admin\Settings::int( 'jobs_per_page' ),
-			'currency'              => \WCB\Admin\Settings::string( 'salary_currency', 'USD' ),
+			'currency'              => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 			'moderation_mode'       => \WCB\Admin\Settings::bool( 'auto_publish_jobs', false ) ? 'auto_publish' : 'pending_review',
 			'allow_withdraw'        => \WCB\Admin\Settings::bool( 'allow_withdraw' ),
 			// So the app can require a resume BEFORE the apply POST instead of

@@ -61,7 +61,7 @@
 }
 
 .wcb-cd-app-title a:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -73,7 +73,44 @@
 
 .wcb-cd-app-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
+}
+
+/* My Resumes before the list arrives (never an empty pane under 'N of M'). */
+.wcb-resume-skeleton {
+	pointer-events: none; /* placeholder rows, nothing to press */
+}
+
+.wcb-resume-skeleton__row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-surface);
+}
+
+.wcb-resume-skeleton__row:last-child {
+	border-bottom: none;
+}
+
+.wcb-resume-skeleton__title {
+	display: block;
+	width: min(16rem, 70%);
+	height: 1rem;
+}
+
+.wcb-resume-skeleton__meta {
+	display: block;
+	width: min(9rem, 40%);
+	height: 0.75rem;
+}
+
+/* Status, then the row's '⋯' menu, on one line at every width. */
+.wcb-cd-app-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	flex-shrink: 0;
 }
 
 /* ── Status badge ─────────────────────────────────────────────────────────── */
@@ -85,7 +122,7 @@
 	border-radius: var(--wcb-radius-full);
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-semibold);
-	text-transform: capitalize;
+	/* No text-transform: labels arrive translated and cased ('Full-time', not 'Full-Time'). */
 	background: var(--wcb-bg-hover);
 	color: var(--wcb-text-secondary);
 }
@@ -130,7 +167,7 @@
 }
 
 .wcb-cd-bookmark-title a:hover {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -141,10 +178,6 @@
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
-}
-
-.wcb-cd-bookmark-meta-sep {
-	color: var(--wcb-text-tertiary);
 }
 
 .wcb-cd-bookmark-actions {
@@ -189,7 +222,7 @@
 
 .wcb-resume-cap-info {
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
 @media (max-width: 640px) {
@@ -250,7 +283,7 @@
 
 .wcb-resume-card-date {
 	font-size: var(--wcb-text-xs);
-	color: var(--wcb-text-tertiary);
+	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
 }
 
 .wcb-resume-card-actions {
@@ -369,12 +402,6 @@
 	outline-offset: 2px;
 }
 
-.wcb-form-actions {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-md);
-	margin-top: var(--wcb-space-lg);
-}
 
 .wcb-save-confirm {
 	display: none;
@@ -385,37 +412,6 @@
 
 .wcb-save-confirm.wcb-shown {
 	display: inline;
-}
-
-/* ── Withdraw button ─────────────────────────────────────────────────────── */
-/* Hidden until the candidate has wcb_withdraw_application; the wcb-shown
-   class is toggled by data-wp-class--wcb-shown="state.allowWithdraw" in
-   render.php. */
-.wcb-cd-withdraw-btn {
-	display: none;
-	background: transparent;
-	color: var(--wcb-danger-fg, #991b1b);
-	border: 1px solid var(--wcb-danger-border, #fca5a5);
-	border-radius: var(--wcb-radius-md);
-	padding: var(--wcb-space-xs) var(--wcb-space-md);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-medium);
-	cursor: pointer;
-	transition: all var(--wcb-transition-fast);
-}
-
-.wcb-cd-withdraw-btn.wcb-shown {
-	display: inline-flex;
-	align-items: center;
-}
-
-.wcb-cd-withdraw-btn:hover,
-.wcb-cd-withdraw-btn:focus-visible {
-	/* No tint: the row under it is already tinted on hover, and a second
-	 * tint pulled the label under 4.5:1 in dark mode. The border marks it. */
-	background: transparent;
-	color: var(--wcb-danger-fg, #b91c1c);
-	border-color: var(--wcb-danger);
 }
 
 /* `.wcb-settings-row*` rules live globally in
@@ -432,10 +428,6 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--wcb-space-sm);
-	}
-
-	.wcb-cd-status-badge {
-		align-self: flex-start;
 	}
 
 	/* Saved Jobs — stack info above actions */

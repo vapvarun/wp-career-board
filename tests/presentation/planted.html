@@ -1,0 +1,68 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Presentation gate planted samples</title>
+<style>
+body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #fff; color: #111; }
+section { padding: 16px; }
+</style></head>
+<body>
+<!-- Each section is one known-bad sample; the gate's self-test requires every check to fire.
+     The "clean" section must raise nothing. -->
+
+<!-- overflow: a block wider than a 390 viewport -->
+<section data-wcb-gate-scope class="bad-overflow"><div style="width: 600px">Too wide</div></section>
+
+<!-- edges: the pre-1.8.1 Settings panel - four left edges in one form -->
+<section data-wcb-gate-scope class="bad-edges"><form>
+	<label>Email</label>
+	<input style="margin-left: 40px" value="a@b.test">
+	<p class="description" style="margin-left: 120px">We never share it.</p>
+	<select style="margin-left: 200px"><option>Weekly</option></select>
+</form></section>
+
+<!-- midword: a company name in a too-narrow card (the 3-column grid bug) -->
+<section data-wcb-gate-scope class="bad-midword"><h3 class="wcb-ca-name" style="width: 60px; overflow-wrap: anywhere">Northpeakcloudsystems</h3></section>
+
+<!-- clipped: a button cut off by an overflow:hidden parent (pipeline column cut at 1440) -->
+<section data-wcb-gate-scope class="bad-clipped"><div style="width: 100px; overflow: hidden"><button style="width: 200px">Rejected column</button></div></section>
+
+<!-- contrast: 2.85:1 dark-mode placeholder and light grey text -->
+<section data-wcb-gate-scope class="bad-contrast" style="background: #1e1f24">
+	<input placeholder="Search jobs" style="background: #1e1f24; color: #eee">
+	<style>.bad-contrast input::placeholder { color: #5f6370; }</style>
+	<p style="color: #555a66">Low contrast text</p>
+</section>
+
+<!-- wpadmin: admin markup leaking into the frontend -->
+<section data-wcb-gate-scope class="bad-wpadmin"><table class="form-table"><tr><td>Option</td></tr></table></section>
+
+<!-- contrast through color-mix(): Chrome reports color(srgb 0-1 channels); a dark grey on it is fine... -->
+<section data-wcb-gate-scope class="clean-colormix" style="background: color-mix(in srgb, #2563eb 6%, #ffffff)"><span style="color: #404855">Clean colormix badge 12</span></section>
+<!-- ...but a pale grey on the same background must still fail. -->
+<section data-wcb-gate-scope class="bad-colormix" style="background: color-mix(in srgb, #2563eb 6%, #ffffff)"><span class="bad-colormix-text" style="color: #b4b9c2">Pale colormix badge</span></section>
+
+<!-- oklch(): Chrome reports relative colours (the text token) as oklch(L C H); a dark one passes... -->
+<section data-wcb-gate-scope class="clean-oklch" style="background: #ffffff"><span style="color: oklch(0.45 0.15 250)">Clean oklch link</span></section>
+<!-- ...and a light one (an unclamped sky-blue accent) must fail. -->
+<section data-wcb-gate-scope class="bad-oklch" style="background: #ffffff"><span class="bad-oklch-text" style="color: oklch(0.78 0.13 230)">Pale oklch link</span></section>
+
+<!-- nested: a bordered row inside a bordered card (the pipeline job picker before its fix)... -->
+<section data-wcb-gate-scope class="bad-nested"><div style="border:1px solid #ccc;padding:8px"><div style="border:1px solid #ccc;padding:8px"><p>Job row boxed in a card</p></div></div></section>
+<!-- ...while rows divided inside one card, inside the dashboard shell, are fine. -->
+<section data-wcb-gate-scope class="clean-nested"><div class="wcb-dashboard-shell" style="border:1px solid #ccc;padding:8px"><div style="border:1px solid #ccc;padding:8px"><p style="border-top:1px solid #ccc">Clean divided row</p></div></div></section>
+
+<!-- navgroup: a visible heading over one item (the 'Moderation' > 'Review jobs' case) -->
+<section data-wcb-gate-scope class="bad-navgroup"><nav><div role="group" aria-labelledby="pl-g1"><span id="pl-g1">Moderation</span><a href="#">Review jobs</a></div></nav></section>
+<!-- clean-nav: the same single item under a screen-reader-only label passes -->
+<section data-wcb-gate-scope class="clean-nav"><nav><div role="group" aria-labelledby="pl-g2"><span id="pl-g2" style="position:absolute;width:24px;clip:rect(1px,1px,1px,1px)">Clean moderation</span><a href="#">Clean review jobs</a></div><div role="group" aria-labelledby="pl-g3"><span id="pl-g3">Clean saved</span><a href="#">Clean jobs</a><a href="#">Clean companies</a></div></nav></section>
+
+<!-- caret: an appearance:none select with a drawn arrow and 16px end padding (the status select) -->
+<section data-wcb-gate-scope class="bad-caret"><select style="appearance:none;-webkit-appearance:none;padding:4px 16px;background:#fff url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22/%3E') no-repeat calc(100% - 17px) 50%"><option>Submitted</option></select></section>
+
+<!-- clean: nothing here may fire -->
+<section data-wcb-gate-scope class="clean">
+	<form style="display: flex; gap: 8px"><label class="screen-reader-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Clean keyword</label><input placeholder="Clean keyword" style="color: #111"><label class="screen-reader-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Clean place</label><input placeholder="Clean place" style="color: #111"><label class="screen-reader-text" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Clean type</label><select><option>Clean type</option></select></form>
+	<h3 class="wcb-card-title">Clean card title</h3>
+	<form><label>Clean label</label><input placeholder="Clean placeholder" style="color: #111"><p class="description">Clean help</p></form>
+	<button>Clean button</button>
+</section>
+</body></html>

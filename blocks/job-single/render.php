@@ -59,7 +59,7 @@ $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_ex
 
 // ── Job meta ─────────────────────────────────────────────────────────────────
 $wcb_currency_code_raw  = (string) get_post_meta( $wcb_job_id, '_wcb_salary_currency', true );
-$wcb_currency_code      = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : 'USD';
+$wcb_currency_code      = '' !== $wcb_currency_code_raw ? strtoupper( $wcb_currency_code_raw ) : \WCB\Modules\Jobs\JobsMeta::default_currency();
 $wcb_remote             = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_remote', true );
 $wcb_salary_min         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min', true );
 $wcb_salary_max         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
@@ -327,11 +327,14 @@ wp_interactivity_state(
 		'submitted'            => $wcb_has_applied,
 		'bookmarked'           => $wcb_is_bookmarked,
 		'bookmarking'          => false,
+		'bookmarkFailed'       => false,
+		'copyFallback'         => false,
 		'coverLetter'          => '',
 		// Only members who may apply can draft a letter (the route checks the same ability).
 		'aiCoverEnabled'       => (bool) apply_filters( 'wcb_ai_completion_available', false ) && $wcb_can_apply, // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		'coverLoading'         => false,
 		'error'                => '',
+		'errorNeedsLogin'      => false,
 		'userResumes'          => $wcb_user_resumes,
 		// Pre-select the newest resume so applying is one tap; the candidate can
 		// still switch or upload a different file. PDF-less builder resumes are
@@ -365,6 +368,7 @@ wp_interactivity_state(
 		// renders must therefore be translated server-side and seeded here. view.js reads
 		// them only through its t( key, fallback ) helper.
 		'i18n'                 => array(
+			'bookmarkFailed'       => __( 'Could not save', 'wp-career-board' ),
 			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
 			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
 			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
@@ -418,21 +422,16 @@ wp_interactivity_state(
 
 		<div class="wcb-job-hero-meta">
 			<?php if ( $wcb_featured ) : ?>
-				<span class="wcb-badge wcb-badge--featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
+				<span class="wcb-badge wcb-badge--warning wcb-badge--featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
 			<?php endif; ?>
 
 			<?php if ( $wcb_remote ) : ?>
-				<span class="wcb-badge wcb-badge--remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
+				<span class="wcb-badge wcb-badge--success wcb-badge--remote"><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
 			<?php elseif ( $wcb_location_terms ) : ?>
 				<?php foreach ( $wcb_location_terms as $wcb_term ) : ?>
 					<a href="<?php echo esc_url( (string) get_term_link( $wcb_term ) ); ?>" class="wcb-badge wcb-badge--location">
-					<?php
-						printf(
-							/* translators: %s: location name. The 📍 pin marks a location badge — translators may move it after the name or drop it for RTL locales. */
-							esc_html__( '📍 %s', 'wp-career-board' ),
-							esc_html( $wcb_term->name )
-						);
-					?>
+						<?php echo \WCB\Core\Icon::svg( 'map-pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper; the outline pin the job cards use, not an emoji. ?>
+						<?php echo esc_html( $wcb_term->name ); ?>
 					</a>
 				<?php endforeach; ?>
 			<?php endif; ?>
@@ -537,7 +536,7 @@ wp_interactivity_state(
 				<?php endif; ?>
 			<?php endif; ?>
 
-			<?php if ( is_user_logged_in() ) : ?>
+			<?php if ( wp_is_ability_granted( 'wcb/bookmark-jobs' ) ) : // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled; same gate as the bookmark route, so employers never see a button that 403s. ?>
 				<button
 					type="button"
 					class="wcb-bookmark-hero-btn"
@@ -578,7 +577,7 @@ wp_interactivity_state(
 					<?php
 					// Convert common markdown patterns (bold, italic, headings, lists) that users
 					// naturally type in the frontend textarea to HTML before rendering.
-					$wcb_job_desc     = (string) $wcb_job->post_content;
+					$wcb_job_desc     = \WCB\Core\Text::dash_lists( (string) $wcb_job->post_content );
 					$wcb_job_desc     = (string) preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/(?<!\*)\*(?![\*\s])(.+?)(?<!\s)\*(?!\*)/m', '<em>$1</em>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/^## (.+)$/m', '<h4>$1</h4>', $wcb_job_desc );
@@ -622,7 +621,19 @@ wp_interactivity_state(
 						// blank "About This Role" panel that reads as broken.
 						echo '<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact">' . esc_html__( 'No description has been provided for this role yet.', 'wp-career-board' ) . '</p>';
 					} else {
-						echo wp_kses_post( wpautop( do_shortcode( $wcb_job_desc ) ) );
+						// Shortcodes only for authors trusted with unfiltered HTML
+						// (admins/editors), never once per nested render: an
+						// employer's [wcb_job_single] used to recurse until PHP ran
+						// out of memory.
+						$wcb_author_trusted = user_can( (int) $wcb_job->post_author, 'unfiltered_html' ); // phpcs:ignore WordPress.WP.Capabilities -- a property of the author, not a permission gate for the viewer.
+						if ( $wcb_author_trusted && empty( $GLOBALS['wcb_rendering_job_desc'] ) ) {
+							$GLOBALS['wcb_rendering_job_desc'] = true; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- request-scoped recursion guard.
+							$wcb_desc_html                     = do_shortcode( $wcb_job_desc );
+							$GLOBALS['wcb_rendering_job_desc'] = false; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+						} else {
+							$wcb_desc_html = strip_shortcodes( $wcb_job_desc );
+						}
+						echo wp_kses_post( wpautop( $wcb_desc_html ) );
 					}
 					?>
 				</div>
@@ -735,7 +746,7 @@ wp_interactivity_state(
 					<?php endif; ?>
 
 					<?php if ( $wcb_apply_email && ! $wcb_deadline_passed ) : ?>
-						<div class="wcb-detail-row">
+						<div class="wcb-detail-row wcb-detail-row--stacked">
 							<dt><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></dt>
 							<dd>
 								<a
@@ -772,10 +783,11 @@ wp_interactivity_state(
 					<?php endif; ?>
 				</dl>
 
+				<?php // The hero holds the one filled action; the sidebar repeats it outlined. ?>
 				<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
 					<a
 						href="<?php echo esc_url( add_query_arg( 'job_apps', $wcb_job_id, $wcb_dashboard_url ) ); ?>"
-						class="wcb-btn wcb-btn--primary wcb-btn--full"
+						class="wcb-btn wcb-btn--secondary wcb-btn--full"
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
@@ -784,7 +796,7 @@ wp_interactivity_state(
 					<?php if ( $wcb_apply_external ) : ?>
 						<a
 							href="<?php echo esc_url( $wcb_apply_url ); ?>"
-							class="wcb-btn wcb-btn--primary wcb-btn--full wcb-apply-external"
+							class="wcb-btn wcb-btn--secondary wcb-btn--full wcb-apply-external"
 							target="_blank"
 							rel="noopener noreferrer nofollow"
 						>
@@ -793,7 +805,7 @@ wp_interactivity_state(
 					<?php else : ?>
 						<button
 							type="button"
-							class="wcb-btn wcb-btn--primary wcb-btn--full"
+							class="wcb-btn wcb-btn--secondary wcb-btn--full"
 							data-wp-on--click="actions.openPanel"
 							data-wp-class--wcb-hidden="state.submitted"
 						>
@@ -856,6 +868,7 @@ wp_interactivity_state(
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 					</span>
 				</button>
+				<input type="text" class="wcb-field-input wcb-copy-fallback" readonly hidden aria-label="<?php esc_attr_e( 'Copy this link', 'wp-career-board' ); ?>" value="<?php echo esc_url( (string) get_permalink( $wcb_job_id ) ); ?>" data-wp-bind--hidden="!state.copyFallback" />
 			</div>
 			</div>
 
@@ -1036,6 +1049,9 @@ wp_interactivity_state(
 		<?php endif; ?>
 
 				<p class="wcb-apply-error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+		<?php if ( ! is_user_logged_in() ) : ?>
+				<a class="wcb-btn wcb-btn--primary wcb-apply-login" href="<?php echo esc_url( wp_login_url( (string) get_permalink( $wcb_job_id ) ) ); ?>" data-wp-bind--hidden="!state.errorNeedsLogin" hidden><?php esc_html_e( 'Sign in to apply', 'wp-career-board' ); ?></a>
+		<?php endif; ?>
 
 		<?php if ( ! is_user_logged_in() ) : ?>
 					<div class="wcb-apply-guest-fields">

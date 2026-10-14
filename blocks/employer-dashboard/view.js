@@ -3,9 +3,10 @@
  *
  * @package WP_Career_Board
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getConfig } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
+import { formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -13,36 +14,10 @@ import { customFieldValue } from '@wcb/fields';
  * browser back-forward survive across the 2 dashboards. Anything outside
  * this list is ignored on read.
  */
-const VALID_VIEWS = [
-	'overview',
-	'jobs',
-	'post-job',
-	'applications',
-	'company',
-	'saved-jobs',
-	'saved-companies',
-	'saved-resumes',
-	'settings',
-	'notifications',
-	'credits',
-];
+// Tabs this employer can use, decided in render.php (bookmark gate, credits).
+const VALID_VIEWS = getConfig( 'wcb-employer-dashboard' ).views;
 
-function readHashView() {
-	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
-	return VALID_VIEWS.includes( raw ) ? raw : null;
-}
-
-function writeHashView( view ) {
-	if ( ! VALID_VIEWS.includes( view ) ) {
-		return;
-	}
-	const target = '#' + view;
-	if ( window.location.hash === target ) {
-		return;
-	}
-	const url = window.location.pathname + window.location.search + target;
-	window.history.replaceState( null, '', url );
-}
+const views = tabRouter( VALID_VIEWS, 'wcb_employer_view' );
 
 /**
  * Translation reader. Every user-facing string is seeded from render.php under
@@ -78,49 +53,6 @@ const fmtNumber = ( n ) => {
 };
 
 /**
- * Format a UTC MySQL datetime ("2026-09-28 17:24:41") as a short relative
- * time ("2h ago", "3d ago") against the SITE locale, falling back to a
- * localised absolute date once it's more than a week old. Bell notifications
- * bound the raw string directly with no formatting at all.
- *
- * @param {string} mysqlUtc UTC datetime as returned by current_time('mysql', true).
- * @return {string} Human-readable relative or absolute time, '' if unparsable.
- */
-function formatRelativeTime( mysqlUtc ) {
-	if ( ! mysqlUtc ) {
-		return '';
-	}
-	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
-	if ( Number.isNaN( then.getTime() ) ) {
-		return '';
-	}
-	const seconds = ( Date.now() - then.getTime() ) / 1000;
-	const locale  = state.locale || 'en-US';
-	if ( seconds < 7 * 86400 ) {
-		const units = [ [ 60, 'second' ], [ 60, 'minute' ], [ 24, 'hour' ], [ 7, 'day' ] ];
-		let value = seconds;
-		let unit  = 'second';
-		for ( const [ size, name ] of units ) {
-			if ( Math.abs( value ) < size ) {
-				break;
-			}
-			value /= size;
-			unit   = name;
-		}
-		try {
-			return new Intl.RelativeTimeFormat( locale, { numeric: 'auto' } ).format( -Math.round( value ), unit );
-		} catch {
-			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
-		}
-	}
-	try {
-		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
-	} catch {
-		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
-	}
-}
-
-/**
  * Render an AI fit score as a percentage. The percent sign's position is a
  * translatable format string, not a hardcoded suffix, and the digits run
  * through the site locale.
@@ -140,6 +72,20 @@ const aiScoreLabel = ( score ) =>
  */
 // Applicants fetched per page (endpoint maximum is 100).
 const APPS_PER_PAGE = 50;
+
+/**
+ * Open an applicant from the list. Where list and detail stack (tablet and
+ * phone) the detail sits below the list, so bring it into view.
+ *
+ * @param {HTMLElement} row Applicant row.
+ */
+function pickApplicant( row ) {
+	const id = parseInt( row.dataset.wcbAppId, 10 );
+	state.selectedAppId = Number.isNaN( id ) ? null : id;
+	if ( null !== state.selectedAppId && window.matchMedia( '(max-width: 1024px)' ).matches ) {
+		window.requestAnimationFrame( () => row.closest( '.wcb-split-panel' )?.querySelector( '.wcb-applicant-detail' )?.scrollIntoView( { behavior: 'smooth', block: 'start' } ) );
+	}
+}
 
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
@@ -209,6 +155,31 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const labels = state.companySizeLabels || {};
 			return labels[ slug ] || slug;
 		},
+		// The email field differs from the saved one: ask for the current password.
+		// Names the row's "more actions" button for screen readers.
+		// Only a company with a public page can be main (an offline one has no permalink).
+		get canMakeMain() {
+			const co = getContext().co;
+			return ! co.isMain && !! co.permalink;
+		},
+		// Saved rows ('...' menu): named after the saved job, company or resume.
+		get savedMeta() {
+			return savedMetaLine( getContext() );
+		},
+		get savedMenuLabel() {
+			const ctx  = getContext();
+			const item = ctx.bookmark || ctx.job || ctx.company || ctx.resume || {};
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', item.title || item.name || '' );
+		},
+		get companyMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().co.name );
+		},
+		get rowMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().job.title );
+		},
+		get emailChanged() {
+			return state.accountEmail.trim() !== state.accountEmailSaved;
+		},
 		get activeTabLabel() {
 			const map = {
 				overview:     t( 'overview', 'Overview' ),
@@ -216,6 +187,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				applications: t( 'applications', 'Applications' ),
 				company:      t( 'profile', 'Profile' ),
 				'post-job':   t( 'postAJob', 'Post a Job' ),
+				// Every tab names itself in the phone menu button (was 'Dashboard').
+				companies:         t( 'tabCompanies', 'Companies' ),
+				'saved-jobs':      t( 'tabSavedJobs', 'Saved Jobs' ),
+				'saved-companies': t( 'tabSavedCompanies', 'Saved Companies' ),
+				'saved-resumes':   t( 'tabSavedResumes', 'Saved Resumes' ),
+				settings:          t( 'tabSettings', 'Settings' ),
+				notifications:     t( 'tabNotifications', 'Notifications' ),
+				credits:           t( 'tabCredits', 'Credits' ),
 			};
 			return map[ state.currentView ] || t( 'dashboard', 'Dashboard' );
 		},
@@ -229,6 +208,36 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isViewApplications() {
 			return state.currentView === 'applications';
+		},
+		get isViewCompanies() {
+			return state.currentView === 'companies';
+		},
+		get hasManyCompanies() {
+			return state.companies.length > 1;
+		},
+		get isCompanyBusy() {
+			return state.companyBusy > 0;
+		},
+		get companyEditUrl() {
+			const url = new URL( state.dashboardUrl );
+			url.searchParams.set( 'company', String( getContext().co.id ) );
+			return url.toString() + '#company';
+		},
+		get mainRoleLabel() {
+			return state.mainCompanyName
+				? t( 'employerAt', 'Employer · %s' ).replace( '%s', state.mainCompanyName )
+				: t( 'employerRole', 'Employer' );
+		},
+		// The main company's page; empty (link hidden) when there is no company.
+		get mainCompanyUrl() {
+			const main = state.companies.find( ( c ) => c.isMain );
+			return ( main && main.permalink ) || '';
+		},
+		get mainInitials() {
+			const n = state.mainCompanyName || state.displayName;
+			return n
+				? n.split( ' ' ).filter( ( p ) => /^[\p{L}\p{N}]/u.test( p ) ).map( ( p ) => p[ 0 ] ).slice( 0, 2 ).join( '' ).toUpperCase() || '?'
+				: '?';
 		},
 		get isViewCompany() {
 			return state.currentView === 'company';
@@ -318,10 +327,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Jobs list.
 		get hasJobs() {
-			// Jobs are loaded author-scoped (/employers/me/jobs), so an employer
-			// who hasn't created a company profile still has real jobs to show —
-			// never gate the jobs list on company existence.
+			// Jobs load from /employers/me/jobs (posted by the employer or under
+			// any company they run), so an employer without a company profile
+			// still has real jobs to show — never gate on company existence.
 			return ! state.loading && state.filteredJobs.length > 0;
+		},
+		// Chips and search filter something only once there are jobs.
+		get hasAnyJobs() {
+			return state.jobs.length > 0;
 		},
 		get noJobs() {
 			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
@@ -343,8 +356,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return fmtNumber( state.ssrTotalJobs || 0 );
 		},
 		get publishedJobs() {
+			// A company-filtered list is not the whole dashboard: keep the server figure.
 			return fmtNumber(
-				state.jobs.length
+				state.jobs.length && ! state.companyFilter
 					? state.jobs.filter( ( j ) => j.status === 'publish' ).length
 					: ( state.ssrPublishedJobs || 0 )
 			);
@@ -406,17 +420,30 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get appsJobSelectorHint() {
 			const filtered = state.filteredJobsWithApps.length;
+			const hint     = state.appsHints[ String( state.companyFilter ) ] || {};
 			if ( ( state.appsJobSearch || '' ).trim() === '' ) {
 				// Whole sentence pre-pluralised in render.php from a COUNT(*) of
-				// jobs that have applications — i.e. matches found, not the rows the
-				// REST page happened to load (per_page is capped at 50).
-				return t( 'jobsWithAppsLabel', '' );
+				// jobs that have applications (per company filter value) — matches
+				// found, not the rows the REST page happened to load.
+				return hint.label || '';
 			}
 			// The total and the plural form of "job(s)" are resolved in render.php
 			// from the same COUNT(*); only the runtime-varying search-match count is
 			// filled in here. No client-side plural/number assembly.
-			return t( 'jobsFilteredCount', '%1$s of %2$s jobs' )
-				.replace( '%1$s', fmtNumber( filtered ) );
+			return ( hint.filtered || '%1$s' ).replace( '%1$s', fmtNumber( filtered ) );
+		},
+
+		// The folded job control: the chosen job and its application count.
+		get appsJobLabel() {
+			if ( state.isAllApps ) {
+				return t( 'allJobs', 'All jobs' );
+			}
+			return state.jobsWithApps.find( ( j ) => j.id === state.appsJobId )?.title || state.appsJobTitle || '';
+		},
+		get appsJobCount() {
+			return state.isAllApps
+				? state.totalApps
+				: ( state.jobsWithApps.find( ( j ) => j.id === state.appsJobId )?.appCountLabel || '' );
 		},
 
 		// Context getter — inside data-wp-each--job loop for apps selector.
@@ -446,13 +473,32 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return fmtNumber( state.ssrTotalApps || 0 );
 		},
 		get hasApplications() {
-			return state.appsJobId > 0 && ! state.appsLoading && state.applications.length > 0;
+			return ! state.appsLoading && state.applications.length > 0;
 		},
-		get noJobSelected() {
+		// No job picked: every job's applications (GET /employers/me/applications).
+		get isAllApps() {
 			return ! state.appsJobId;
 		},
+		// Filters follow the list's total, not the filtered page: a zero-count
+		// status must not hide the way back.
+		// A quiet week still keeps the chips (and 'This week x') on screen.
+		get jobHasApplications() {
+			return ! state.appsError && ( state.appsCounts.total > 0 || state.appsSinceActive );
+		},
+		// Board view and CSV export work on one job's applications.
+		get oneJobHasApplications() {
+			return state.appsJobId > 0 && state.jobHasApplications;
+		},
+		get noFilteredApplications() {
+			return state.jobHasApplications && ! state.appsLoading && 0 === state.applications.length;
+		},
+		get noFilteredAppsLabel() {
+			return state.appsSinceActive && 'all' === state.appsFilter
+				? t( 'noAppsThisWeek', 'No applications this week.' )
+				: t( 'noAppsStatus', 'No applications with this status.' );
+		},
 		get noApplications() {
-			return state.appsJobId > 0 && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total;
+			return state.appsLoaded && ! state.appsLoading && ! state.appsError && ! state.appsCounts.total && ! state.appsSinceActive;
 		},
 
 		// Application filter.
@@ -495,6 +541,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
+		// 'This week' narrows only the all-jobs list (the Overview figure's scope).
+		get appsSinceActive() {
+			return state.appsSinceDays > 0 && ! state.appsJobId;
+		},
+		get selectedAppRated() {
+			return ( state.selectedApp?.rating || 0 ) > 0;
+		},
 		get isStarOn() {
 			return ( getContext().star?.value || 0 ) <= ( state.selectedApp?.rating || 0 );
 		},
@@ -687,16 +740,25 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get noActiveJobs() {
 			return state.overviewActiveJobs.length === 0;
 		},
+		// Needs attention: live jobs closing within 7 days (site-calendar dates
+		// compared as Y-m-d), soonest first. shortcut: reads the loaded page of
+		// jobs (50); a job past that page is not listed until it is loaded.
+		get closingSoonJobs() {
+			return state.jobs
+				.filter( ( j ) => 'publish' === j.status && j.deadline && j.deadline >= state.siteToday && j.deadline <= state.siteSoon )
+				.sort( ( a, b ) => ( a.deadline < b.deadline ? -1 : 1 ) )
+				.slice( 0, 5 )
+				.map( ( j ) => ( {
+					...j,
+					closesLabel: t( 'closesOn', 'Closes %s' ).replace( '%s', formatSiteDate( j.deadline, state.locale ) ),
+				} ) );
+		},
+		get nothingNeedsAttention() {
+			return ! state.awaitingApps && 0 === state.closingSoonJobs.length;
+		},
 		get newThisWeek() {
-			if ( state.allApplications.length === 0 ) {
-				return fmtNumber( state.ssrNewThisWeek || 0 );
-			}
-			const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-			return fmtNumber(
-				state.allApplications.filter(
-					( a ) => new Date( a.submitted_at ).getTime() > cutoff
-				).length
-			);
+			// Server COUNT(*) over the whole scope, never the loaded page of applications.
+			return fmtNumber( state.ssrNewThisWeek || 0 );
 		},
 
 		// Company helpers.
@@ -750,28 +812,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 		*init() {
-			// Tab restoration priority: URL hash → sessionStorage → server default.
-			// Mirrors candidate-dashboard so deep-linking to #saved-jobs /
-			// #applications / etc lands the user on the right tab regardless
-			// of any prior session activity.
-			const hashView = readHashView();
-			if ( hashView ) {
-				state.currentView = hashView;
-			} else if ( state.currentView === 'overview' ) {
-				const saved = sessionStorage.getItem( 'wcb_employer_view' );
-				if ( saved ) {
-					state.currentView = saved;
-				}
-			}
+			state.currentView = views.initial( state.currentView );
 			const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
 			if ( savedJob > 0 && state.currentView === 'applications' ) {
 				state.appsJobId = savedJob;
 			}
-			writeHashView( state.currentView );
+			views.go( state.currentView );
 
 			// Browser back/forward and manual hash edits stay in sync.
 			window.addEventListener( 'hashchange', () => {
-				const next = readHashView();
+				const next = views.read();
 				if ( next && next !== state.currentView ) {
 					state.currentView = next;
 				}
@@ -783,17 +833,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield actions.loadJobs();
 
-				// Applications dataset (Overview "Recent Applications" widget + the
-				// Applications tab). Use the company-scoped route when a company
-				// profile exists, else the author-scoped /employers/me/applications
-				// so employers who post jobs BEFORE creating a company still see
-				// their applications instead of an empty widget beside a non-zero
-				// stat card.
-				const appsUrl = state.companyId
-					? state.apiBase + '/employers/' + String( state.companyId ) + '/applications'
-					: state.apiBase + '/employers/me/applications';
+				// Overview "Recent Applications": every company the employer runs,
+				// plus jobs posted before a company profile existed.
 				const appsResp = yield wcbFetch(
-					appsUrl,
+					state.apiBase + '/employers/me/applications',
 					{ headers: { 'X-WP-Nonce': state.nonce } }
 				);
 				if ( appsResp.ok ) {
@@ -819,9 +862,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
 			}
 
-			if ( state.appsJobId > 0 ) {
-				yield actions.loadApplications();
-			}
+			yield actions.loadApplications();
 
 			// Tab-restoration prefetch: when sessionStorage restores the
 			// user to a Saved-* tab, the corresponding switchToSaved*
@@ -850,19 +891,18 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		switchToOverview() {
 			state.currentView = 'overview';
 			state.navOpen     = false;
-			sessionStorage.removeItem( 'wcb_employer_view' );
-			writeHashView( 'overview' );
+			views.go( 'overview' );
 		},
 
 		// Fetch + normalize the employer's jobs. Shared by init() and the
 		// post-a-job refresh path so My Jobs reflects a just-posted job without
 		// a page reload.
 		*loadJobs() {
-			const jobsBase = state.companyId
-				? state.apiBase + '/employers/' + String( state.companyId ) + '/jobs'
-				: state.apiBase + '/employers/me/jobs';
-			const jobsUrl = new URL( jobsBase );
+			const jobsUrl = new URL( state.apiBase + '/employers/me/jobs' );
 			jobsUrl.searchParams.set( 'per_page', '50' );
+			if ( state.companyFilter ) {
+				jobsUrl.searchParams.set( 'company_id', String( state.companyFilter ) );
+			}
 
 			const resp = yield wcbFetch( jobsUrl.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
 			if ( ! resp.ok ) {
@@ -871,7 +911,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 			const jobsData = yield resp.json();
 			const jobs     = Array.isArray( jobsData ) ? jobsData : ( jobsData?.jobs ?? [] );
-			if ( typeof jobsData?.total === 'number' ) {
+			// The Total Jobs card counts every company; a filtered total is not it.
+			if ( typeof jobsData?.total === 'number' && ! state.companyFilter ) {
 				state.ssrTotalJobs = jobsData.total;
 			}
 			// "closed" = employer-closed, "expired" = past-deadline (cron); both
@@ -907,15 +948,123 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView = 'jobs';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'jobs' );
-			writeHashView( 'jobs' );
+			views.go( 'jobs' );
+		},
+
+		// Overview tiles: open My Jobs on the filter the tile counts.
+		openJobsFiltered( event ) {
+			state.jobFilter = event.currentTarget.dataset.wcbFilter || 'all';
+			actions.switchToJobs();
+		},
+
+		// Overview links into Applications: each sets its own filters, never the last ones.
+		*openApps( status, sinceDays ) {
+			state.appsJobId     = 0;
+			state.selectedAppId = null;
+			state.appsFilter    = status;
+			state.appsSinceDays = sinceDays;
+			actions.switchToApplications();
+			yield actions.loadApplications();
+		},
+		*openAwaitingApps() {
+			yield actions.openApps( 'submitted', 0 );
+		},
+		*openAllApps() {
+			yield actions.openApps( 'all', 0 );
+		},
+		*openAppsThisWeek() {
+			yield actions.openApps( 'all', 7 );
+		},
+		*clearAppsSince() {
+			state.appsSinceDays = 0;
+			yield actions.loadApplications();
 		},
 
 		switchToApplications() {
 			state.currentView = 'applications';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
-			writeHashView( 'applications' );
+			views.go( 'applications' );
+		},
+
+		switchToCompanies() {
+			state.currentView = 'companies';
+			state.error       = '';
+			state.navOpen     = false;
+			views.go( 'companies' );
+		},
+
+		// Show a fresh company list everywhere it appears: this view, the
+		// sidebar, the company filters and the Post a Job picker.
+		applyCompanies( list ) {
+			state.companies = list;
+			const main      = list.find( ( c ) => c.isMain );
+			state.mainCompanyId   = main ? main.id : 0;
+			state.mainCompanyName = main ? main.name : '';
+			state.mainLogoUrl     = main ? main.logo : '';
+			state.noCompany       = ! main;
+			if ( state.companyFilter && ! list.some( ( c ) => c.id === state.companyFilter ) ) {
+				state.companyFilter = 0;
+			}
+			const form = store( 'wcb-job-form' ).state;
+			form.companyList  = list.map( ( c ) => ( { id: c.id, name: c.name } ) );
+			form.companyNames = Object.fromEntries( list.map( ( c ) => [ String( c.id ), c.name ] ) );
+			// A new job starts on the main company; a job being edited keeps its own while it exists.
+			if ( main && ( ! form.editJobId || ! list.some( ( c ) => c.id === Number( form.companyId ) ) ) ) {
+				form.companyId   = main.id;
+				form.companyName = main.name;
+			}
+		},
+
+		*makeMainCompany() {
+			const id = getContext().co.id;
+			state.companyBusy = id;
+			try {
+				const response = yield wcbFetch( state.apiBase + '/employers/' + String( id ) + '/main', {
+					method:  'POST',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				if ( response.ok ) {
+					actions.applyCompanies( ( yield response.json() ).companies || [] );
+				} else {
+					yield actions.reportRefusal( response );
+				}
+			} catch {
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			} finally {
+				state.companyBusy = 0;
+			}
+		},
+
+		*removeCompany() {
+			const co = getContext().co;
+			try {
+				yield window.wcbConfirm( {
+					title:       t( 'removeCompanyTitle', 'Remove this company?' ),
+					message:     t( 'removeCompanyText', 'Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them.' ),
+					confirmText: t( 'removeCompanyButton', 'Remove company' ),
+					destructive: true,
+				} );
+			} catch ( cancelled ) {
+				return;
+			}
+			state.companyBusy = co.id;
+			try {
+				const response = yield wcbFetch( state.apiBase + '/employers/' + String( co.id ), {
+					method:  'DELETE',
+					headers: { 'X-WP-Nonce': state.nonce },
+				} );
+				if ( response.ok ) {
+					actions.applyCompanies( ( yield response.json() ).companies || [] );
+					// Its jobs just closed: My Jobs and the counts follow.
+					yield actions.loadJobs();
+				} else {
+					yield actions.reportRefusal( response );
+				}
+			} catch {
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			} finally {
+				state.companyBusy = 0;
+			}
 		},
 
 		switchToCompany() {
@@ -923,32 +1072,28 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.saved       = false;
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'company' );
-			writeHashView( 'company' );
+			views.go( 'company' );
 		},
 
 		switchToSettings() {
 			state.currentView = 'settings';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'settings' );
-			writeHashView( 'settings' );
+			views.go( 'settings' );
 		},
 
 		switchToCredits() {
 			state.currentView = 'credits';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'credits' );
-			writeHashView( 'credits' );
+			views.go( 'credits' );
 		},
 
 		*switchToNotifications() {
 			state.currentView = 'notifications';
 			state.error       = '';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'notifications' );
-			writeHashView( 'notifications' );
+			views.go( 'notifications' );
 			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
 				yield actions.fetchBellNotifications();
 			}
@@ -957,8 +1102,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		switchToPostJob() {
 			state.currentView = 'post-job';
 			state.navOpen     = false;
-			sessionStorage.setItem( 'wcb_employer_view', 'post-job' );
-			writeHashView( 'post-job' );
+			views.go( 'post-job' );
 		},
 
 		/**
@@ -970,8 +1114,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView       = 'saved-jobs';
 			state.navOpen           = false;
 			state.savedJobsError    = '';
-			sessionStorage.setItem( 'wcb_employer_view', 'saved-jobs' );
-			writeHashView( 'saved-jobs' );
+			views.go( 'saved-jobs' );
 
 			if ( state.savedJobs.length ) {
 				return;
@@ -999,8 +1142,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView          = 'saved-companies';
 			state.navOpen              = false;
 			state.savedCompaniesError  = '';
-			sessionStorage.setItem( 'wcb_employer_view', 'saved-companies' );
-			writeHashView( 'saved-companies' );
+			views.go( 'saved-companies' );
 
 			if ( state.savedCompanies.length ) {
 				return;
@@ -1028,8 +1170,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.currentView        = 'saved-resumes';
 			state.navOpen            = false;
 			state.savedResumesError  = '';
-			sessionStorage.setItem( 'wcb_employer_view', 'saved-resumes' );
-			writeHashView( 'saved-resumes' );
+			views.go( 'saved-resumes' );
 
 			if ( state.savedResumes.length ) {
 				return;
@@ -1068,7 +1209,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.savedJobs = state.savedJobs.filter( function( j ) { return j.id !== jobId; } );
 				}
 			} catch {
-				// Silent fail.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1087,7 +1228,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.savedCompanies = state.savedCompanies.filter( function( c ) { return c.id !== companyId; } );
 				}
 			} catch {
-				// Silent fail.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1106,7 +1247,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.savedResumes = state.savedResumes.filter( function( r ) { return r.id !== resumeId; } );
 				}
 			} catch {
-				// Silent fail.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1114,6 +1255,31 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const f = event.target.dataset.wcbFilter;
 			if ( f ) {
 				state.jobFilter = f;
+			}
+		},
+
+		// My Jobs + Applications company filter: reload the job list for the
+		// company and drop a selected job that is no longer in it.
+		*setCompanyFilter( event ) {
+			state.companyFilter = parseInt( event.target.value, 10 ) || 0;
+			state.loading       = true;
+			state.error         = '';
+			try {
+				yield actions.loadJobs();
+			} catch {
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state.loading = false;
+			}
+			if ( state.appsJobId > 0 && ! state.jobs.some( ( j ) => Number( j.id ) === Number( state.appsJobId ) ) ) {
+				state.appsJobId     = 0;
+				state.selectedAppId = null;
+				state.applications  = [];
+				try { sessionStorage.removeItem( 'wcb_employer_apps_job' ); } catch {}
+			}
+			// All jobs follows the company filter.
+			if ( ! state.appsJobId ) {
+				yield actions.loadApplications();
 			}
 		},
 
@@ -1204,15 +1370,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		selectApplicant( event ) {
-			const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
-			state.selectedAppId = Number.isNaN( id ) ? null : id;
+			pickApplicant( event.currentTarget );
 		},
 
 		handleRowKeydown( event ) {
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
-				const id = parseInt( event.currentTarget.dataset.wcbAppId, 10 );
-				state.selectedAppId = Number.isNaN( id ) ? null : id;
+				pickApplicant( event.currentTarget );
 			}
 		},
 
@@ -1229,11 +1393,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( Number.isNaN( id ) ) {
 				return;
 			}
+			event.currentTarget.closest( 'details' )?.removeAttribute( 'open' );
 			state.appsJobId     = id;
 			state.selectedAppId = null;
+			state.appsFilter    = 'all';
+			state.appsLayout    = id ? state.appsLayout : 'list';
 			state.currentView   = 'applications';
-			sessionStorage.setItem( 'wcb_employer_view', 'applications' );
-			sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );
+			views.go( 'applications' );
+			try {
+				if ( id ) {
+					sessionStorage.setItem( 'wcb_employer_apps_job', String( id ) );
+				} else {
+					sessionStorage.removeItem( 'wcb_employer_apps_job' );
+				}
+			} catch {}
 			yield actions.loadApplications();
 		},
 
@@ -1245,20 +1418,25 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// filter), plus per-status totals for the whole job. `append` adds the
 		// next page for Load more.
 		*loadApplications( append = false ) {
-			if ( ! state.appsJobId ) {
-				return;
-			}
-
 			const flag = append ? 'appsLoadingMore' : 'appsLoading';
 			state[ flag ]   = true;
 			state.appsError = '';
 
 			try {
-				const url = new URL( state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications' );
+				// One job's applications, or every job's (newest first, company filter applied).
+				const url = new URL( state.appsJobId
+					? state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications'
+					: state.apiBase + '/employers/me/applications' );
+				if ( ! state.appsJobId && state.companyFilter ) {
+					url.searchParams.set( 'company_id', String( state.companyFilter ) );
+				}
 				url.searchParams.set( 'per_page', String( APPS_PER_PAGE ) );
 				url.searchParams.set( 'page', String( append ? state.appsPage + 1 : 1 ) );
 				if ( state.appsFilter !== 'all' ) {
 					url.searchParams.set( 'status', state.appsFilter );
+				}
+				if ( state.appsSinceActive ) {
+					url.searchParams.set( 'since_days', String( state.appsSinceDays ) );
 				}
 
 				const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
@@ -1284,9 +1462,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						: {} ),
 				} ) );
 				state.applications = append ? [ ...state.applications, ...apps ] : apps;
+				// Side by side (desktop), open the newest applicant instead of an empty pane.
+				if ( ! append && null === state.selectedAppId && apps.length && window.matchMedia( '(min-width: 1025px)' ).matches ) {
+					state.selectedAppId = apps[ 0 ].id;
+				}
 				state.appsPage     = append ? state.appsPage + 1 : 1;
 				state.appsHasMore  = !! appsData?.has_more;
 				state.appsCounts   = appsData?.counts ?? { total: 0, by_status: {} };
+				state.appsLoaded   = true;
 				if ( state.applications.some( ( a ) => typeof a.aiScore === 'number' ) ) {
 					state.aiRanked = true;
 				}
@@ -1395,9 +1578,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 
 		*updateAppStatus( event ) {
-			const appId     = Number( event.target.dataset.wcbAppId );
-			const newStatus = event.target.value;
+			const select    = event.target;
+			const appId     = Number( select.dataset.wcbAppId );
+			const newStatus = select.value;
 			yield actions.applyStatusChange( appId, newStatus );
+			// The bound value only changes on success, so a failed save would leave
+			// the select showing a status the application doesn't have.
+			select.value = state.selectedAppStatus;
 		},
 
 		setAppsLayout( event ) {
@@ -1504,9 +1691,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isDraft     = false;
 					}
+				} else {
+					yield actions.reportRefusal( response );
 				}
 			} catch {
-				// Network error — status unchanged.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1542,11 +1731,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isRejected  = false;
 						state.jobs[ idx ].isDraft     = false;
+						state.jobs[ idx ].closedNote  = '';
 					}
+				} else {
+					yield actions.reportRefusal( response );
 				}
 			} catch {
-				// Network error — status unchanged.
+				showError( t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 			}
+		},
+
+		...rowMenuActions,
+
+		// The server said no (402 credits, 409 company removed): show its reason.
+		*reportRefusal( response ) {
+			const data = yield response.json().catch( () => ( {} ) );
+			showError( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
 		},
 
 		updateField( event ) {
@@ -1556,7 +1756,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*saveAccount() {
+		*saveAccount( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.accountSaving = true;
 			state.accountMsg    = '';
 			try {
@@ -1580,6 +1782,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.accountEmailPassword = '';
 					state.accountName    = data.display_name;
 					state.accountEmail   = data.email;
+					state.accountEmailSaved = data.email;
 					state.displayName    = data.display_name;
 					state.employerEmail  = data.email;
 					state.accountMsgType = 'success';
@@ -1596,7 +1799,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
-		*changePassword() {
+		*changePassword( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.pwMsg = '';
 			if ( ! state.curPassword || ! state.newPassword ) {
 				state.pwMsgType = 'error';
@@ -1680,6 +1885,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				const data = yield response.json();
 				if ( response.ok ) {
 					state.companyLogoUrl = data.logo_url;
+					if ( state.companyId === state.mainCompanyId ) {
+						state.mainLogoUrl = data.logo_url;
+					}
+					const card = state.companies.find( ( c ) => c.id === state.companyId );
+					if ( card ) {
+						card.logo = data.logo_url;
+					}
 				} else {
 					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 				}
@@ -1743,9 +1955,19 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					return;
 				}
 
-				if ( isNew ) {
-					state.companyId = data.id ?? 0;
-					state.noCompany = ! state.companyId;
+				if ( isNew && data.id ) {
+					// Open the new company's own profile (logo, custom fields), saved.
+					const url = new URL( state.dashboardUrl );
+					url.searchParams.set( 'company', String( data.id ) );
+					window.location.assign( url.toString() + '#company' );
+					return;
+				}
+				if ( state.companyId === state.mainCompanyId ) {
+					state.mainCompanyName = state.companyName;
+				}
+				const card = state.companies.find( ( c ) => c.id === state.companyId );
+				if ( card ) {
+					card.name = state.companyName;
 				}
 
 				state.saved = true;
@@ -1768,7 +1990,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} );
 				if ( res.ok ) {
 					const data              = yield res.json();
-					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: formatRelativeTime( n.created_at ) } ) );
+					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: relativeTime( state.locale, n.created_at ) } ) );
 					state.bellUnreadCount   = data.unread_count  || 0;
 				}
 			} finally {

@@ -14,10 +14,10 @@ needs: cli
 ## Steps
 
 1. As `sarah.chen`, navigate to `/?autologin=sarah.chen` → expect HTTP 200, candidate is logged in
-2. PATCH `/wp-json/wcb/v1/candidates/<sarah-id>` with body `{"display_name": "Sarah Chen (Smoke)", "bio": "Smoke journey bio text", "skills": ["PHP", "WordPress", "REST API"]}` where `<sarah-id>` is sarah.chen's user ID (`wp user get sarah.chen --field=ID`) → expect HTTP 200, response body echoes the updated fields
-3. Verify display_name persisted: `wp user get sarah.chen --field=display_name` → expect `Sarah Chen (Smoke)`
-4. Verify bio persisted: `wp post get $(wp post list --post_type=wcb_resume --author=$(wp user get sarah.chen --field=ID) --field=ID --posts_per_page=1) --field=post_content` → expect contains `Smoke journey bio text`
-5. Reload the candidate public profile (or GET `/wp-json/wcb/v1/candidates/<sarah-id>`) → expect `display_name` is `Sarah Chen (Smoke)` and `skills` array contains `PHP`
+2. PATCH `/wp-json/wcb/v1/candidates/<sarah-id>` with body `{"display_name": "Sarah Chen, Senior Backend Developer", "bio": "Backend developer with six years in payments and a soft spot for clean REST APIs.", "skills": ["PHP", "WordPress", "REST API"]}` where `<sarah-id>` is sarah.chen's user ID (`wp user get sarah.chen --field=ID`) → expect HTTP 200, response body echoes the updated fields
+3. Verify display_name persisted: `wp user get sarah.chen --field=display_name` → expect `Sarah Chen, Senior Backend Developer`
+4. Verify bio persisted: `wp post get $(wp post list --post_type=wcb_resume --author=$(wp user get sarah.chen --field=ID) --field=ID --posts_per_page=1) --field=post_content` → expect contains `Backend developer with six years in payments and a soft spot for clean REST APIs.`
+5. Reload the candidate public profile (or GET `/wp-json/wcb/v1/candidates/<sarah-id>`) → expect `display_name` is `Sarah Chen, Senior Backend Developer` and `skills` array contains `PHP`
 6. Upload a new avatar: POST `/wp-json/wcb/v1/employers/<sarah-id>/logo` (or the candidate-specific avatar endpoint — read `CandidatesEndpoint`) with a valid PNG file multipart body → expect HTTP 200, response contains an `avatar_url` with a non-empty URL
 7. Verify the avatar URL is served: GET the `avatar_url` from step 6 → expect HTTP 200 and `Content-Type: image/*`
 8. tail debug.log diff → expect ZERO new fatal/warning lines

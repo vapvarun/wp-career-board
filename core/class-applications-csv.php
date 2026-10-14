@@ -102,7 +102,7 @@ final class ApplicationsCsv {
 						(string) $app_id,
 						(string) $job_id,
 						$job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
-						$user instanceof \WP_User ? $user->display_name : (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
+						$user instanceof \WP_User ? \WCB\Modules\Candidates\CandidatesModule::public_name( $user->ID ) : (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
 						$user instanceof \WP_User ? $user->user_email : (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
 						\WCB\Modules\Applications\ApplicationStatus::label( (string) get_post_meta( $app_id, '_wcb_status', true ), \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ),
 						(string) get_post_field( 'post_date', $app_id ),

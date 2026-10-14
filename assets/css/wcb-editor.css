@@ -80,7 +80,7 @@
 }
 
 .wcb-editor-holder a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -121,4 +121,111 @@
 .ce-toolbar,
 .ce-inline-toolbar {
 	z-index: 5;
+}
+
+/* Always-visible formatting toolbar (blocks/job-form/editor-toolbar.php). */
+.wcb-editor-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	border-bottom: 1px solid var(--wcb-border);
+	border-start-start-radius: var(--wcb-radius-md);
+	border-start-end-radius: var(--wcb-radius-md);
+	background: var(--wcb-bg-subtle);
+}
+
+/* (0,2,0) plus the element, so a theme's bare button rule cannot restyle it. */
+.wcb-editor .wcb-editor-toolbar button.wcb-editor-toolbar__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 40px;
+	min-height: 40px;
+	margin: 0;
+	padding: 0 var(--wcb-space-sm);
+	border: 1px solid transparent;
+	border-radius: var(--wcb-radius-sm, 6px);
+	background: transparent;
+	color: var(--wcb-contrast);
+	font: inherit;
+	font-size: var(--wcb-text-md);
+	line-height: 1;
+	box-shadow: none;
+	cursor: pointer;
+}
+
+.wcb-editor .wcb-editor-toolbar button.wcb-editor-toolbar__btn:hover {
+	background: var(--wcb-base);
+	border-color: var(--wcb-border);
+	color: var(--wcb-contrast);
+}
+
+.wcb-editor .wcb-editor-toolbar button.wcb-editor-toolbar__btn:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 1px;
+}
+
+.wcb-editor .wcb-editor-toolbar button.wcb-editor-toolbar__btn:is([aria-pressed="true"], [aria-expanded="true"]) {
+	background: var(--wcb-primary-soft);
+	border-color: var(--wcb-primary);
+	color: var(--wcb-contrast);
+}
+
+.wcb-editor-toolbar__btn svg {
+	width: 18px;
+	height: 18px;
+}
+
+.wcb-editor-toolbar__btn b,
+.wcb-editor-toolbar__btn i {
+	font-family: Georgia, "Times New Roman", serif;
+}
+
+.wcb-editor-link {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-sm);
+	border-bottom: 1px solid var(--wcb-border);
+	background: var(--wcb-bg-subtle);
+}
+
+.wcb-editor-link[hidden] {
+	display: none;
+}
+
+.wcb-editor-link__field {
+	flex: 1 1 14rem;
+	min-width: 0;
+	margin: 0;
+}
+
+.wcb-editor .wcb-editor-link input.wcb-editor-link__input {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 40px;
+	margin: 0;
+	padding: 0 var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	font: inherit;
+	font-size: var(--wcb-text-base);
+}
+
+.wcb-editor .wcb-editor-link input.wcb-editor-link__input[aria-invalid="true"] {
+	border-color: var(--wcb-danger-fg, #991b1b);
+}
+
+@media (max-width: 640px) {
+	.wcb-editor-holder {
+		padding: var(--wcb-space-md);
+	}
+
+	.wcb-editor-link .wcb-btn {
+		flex: 1 1 auto;
+	}
 }

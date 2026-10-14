@@ -72,7 +72,7 @@ final class ApplicationsEndpoint extends RestController {
 				},
 				'permission_callback' => function ( \WP_REST_Request $r ): bool|\WP_Error {
 					$job = get_post( (int) $r['id'] );
-					return ( $job instanceof \WP_Post && 'wcb_job' === $job->post_type && ( ( $this->is_current_user( (int) $job->post_author ) && $this->check_ability( 'wcb/view-applications' ) ) || $this->check_ability( 'wcb/manage-settings' ) ) ) ? true : $this->permission_error();
+					return ( $job instanceof \WP_Post && 'wcb_job' === $job->post_type && ( ( \WCB\Modules\Employers\EmployersModule::owns_job( get_current_user_id(), $job ) && $this->check_ability( 'wcb/view-applications' ) ) || $this->check_ability( 'wcb/manage-settings' ) ) ) ? true : $this->permission_error();
 				},
 			)
 		);
@@ -293,6 +293,12 @@ final class ApplicationsEndpoint extends RestController {
 			if ( ! is_email( $guest_email ) ) {
 				return new \WP_Error( 'wcb_guest_email_invalid', __( 'A valid email address is required.', 'wp-career-board' ), array( 'status' => 400 ) );
 			}
+			// The email has an account: apply signed in, so the application
+			// lands on that account instead of an orphan guest row (owner
+			// decision, 1.8.1). Same disclosure as WordPress's lost-password form.
+			if ( email_exists( $guest_email ) ) {
+				return new \WP_Error( 'wcb_guest_has_account', __( 'This email already has an account. Sign in to apply.', 'wp-career-board' ), array( 'status' => 409 ) );
+			}
 
 			$wcb_lock_key = 'wcb_apply_lock_' . $job_id . '_g' . md5( $guest_email );
 		} else {
@@ -337,11 +343,16 @@ final class ApplicationsEndpoint extends RestController {
 					)
 				);
 
+				// Answer a repeat exactly like a first application (no second
+				// row, no second email): an "already applied" reply told anyone
+				// whether an email had applied to this job.
 				if ( $existing ) {
-					return new \WP_Error(
-						'wcb_already_applied',
-						__( 'You have already applied to this job recently.', 'wp-career-board' ),
-						array( 'status' => 409 )
+					return rest_ensure_response(
+						array(
+							'id'     => (int) $existing[0]->ID,
+							'job_id' => $job_id,
+							'status' => 'submitted',
+						)
 					);
 				}
 
@@ -1042,7 +1053,7 @@ final class ApplicationsEndpoint extends RestController {
 		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
 		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$job             = get_post( $job_id );
-		$is_employer     = $job instanceof \WP_Post && $this->is_current_user( (int) $job->post_author );
+		$is_employer     = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $current_user_id, $job );
 		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
@@ -1050,8 +1061,9 @@ final class ApplicationsEndpoint extends RestController {
 	/**
 	 * Check if the current user can update an application status.
 	 *
-	 * Requires wcb_view_applications ability AND that the current user authored
-	 * the job the application belongs to (prevents IDOR), or is an admin.
+	 * Requires wcb_view_applications ability AND that the job the application
+	 * belongs to is in the current user's scope (EmployersModule::owns_job(),
+	 * prevents IDOR), or is an admin.
 	 *
 	 * @since 1.0.0
 	 *
@@ -1066,14 +1078,14 @@ final class ApplicationsEndpoint extends RestController {
 		if ( $this->check_ability( 'wcb/manage-settings' ) ) {
 			return true;
 		}
-		// Employers may only update applications belonging to their own jobs.
+		// Employers may only update applications on jobs they post or whose company they run.
 		$app = get_post( (int) $request['id'] );
 		if ( ! $app ) {
 			return $this->permission_error();
 		}
 		$job_id   = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
 		$job      = get_post( $job_id );
-		$is_owner = $job instanceof \WP_Post && $this->is_current_user( (int) $job->post_author );
+		$is_owner = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( get_current_user_id(), $job );
 		return $is_owner ? true : $this->permission_error();
 	}
 
@@ -1174,7 +1186,7 @@ final class ApplicationsEndpoint extends RestController {
 			$job_id       = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 			$job          = $job_id ? get_post( $job_id ) : null;
 			$is_owner     = $candidate_id > 0 && $candidate_id === $current_user_id;
-			$is_employer  = $job instanceof \WP_Post && $current_user_id === (int) $job->post_author;
+			$is_employer  = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $current_user_id, $job );
 
 			if ( $is_employer ) {
 				$data        = $this->prepare_for_employer( $post );

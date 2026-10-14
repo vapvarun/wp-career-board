@@ -1,5 +1,7 @@
 # Job feed
 
+> **PRO** - Requires WP Career Board Pro.
+
 You can publish your live jobs as an XML feed at `/wcb-jobs.xml` and submit it to job aggregators. This needs WP Career Board Pro.
 
 ## What you can do

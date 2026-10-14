@@ -48,7 +48,7 @@ Open **Employer Dashboard > Post a Job**. The form has four steps.
 
 - **Salary Range** - choose the currency, a minimum and maximum, and the period (year, month or hour). Leave it blank to hide salary from candidates.
 - **Remote-friendly position** - tick this for remote roles.
-- **Application Deadline** - shown for information. It is filled in from the board's listing length and you cannot edit it. Ask the site owner if you need a longer listing.
+- **Application Deadline** - pre-filled from the board's listing length, which is also the latest date you can pick. Choose an earlier date to close the job sooner. Ask the site owner if you need a longer listing.
 - **Apply URL** and **Apply Email** - both are optional. Leave them empty to receive applications inside the dashboard. Fill in **Apply URL** to send candidates to your own application system. The job page then shows **Apply on Company Site**. Fill in **Apply Email** to show an address candidates can apply to.
 
 ### Classify Your Job

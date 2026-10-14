@@ -85,7 +85,11 @@ $matches = static function ( string $ref ) use ( $registered, $concrete ): bool 
 	// wildcard and slash.
 	$prefix = rtrim( (string) preg_replace( '~\*+.*$~', '', $ref ), '/' );
 	foreach ( $registered as $route ) {
-		if ( preg_match( '~^' . $route . '$~', $c ) ) {
+		// A named parameter accepts any one segment here: the journey's
+		// placeholder stands for whatever the route's own regex allows
+		// (a 32-hex token is not "1").
+		$loose = (string) preg_replace( '~\(\?P<[^>]+>[^)]*\)~', '[^/]+', $route );
+		if ( preg_match( '~^' . $loose . '$~', $c ) ) {
 			return true; // exact endpoint match
 		}
 		if ( '/wcb/v1' !== $prefix && ( $route === $prefix || 0 === strpos( $route, $prefix . '/' ) ) ) {

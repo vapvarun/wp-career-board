@@ -18,8 +18,8 @@ bug_ref: Basecamp 9895205013
 2. Inspect the page for known email keys from the settings manifest (`wcb_settings.emails`): expect at least one template (e.g. "Application Received" or "Job Approved") is listed
 3. Navigate to the edit screen for one template (click its edit link or navigate to the email settings tab) → expect the template edit form renders with a `subject` field and a `body` or `message` field
 4. Record the current subject: capture the current subject line text
-5. Update the subject to include a merge tag: edit the subject field to `Smoke Test - {{candidate_name}} applied` (or the plugin's documented merge-tag syntax) → save → expect HTTP 200 or 302 (no error flash)
-6. Verify the edit persisted: reload `/wp-admin/admin.php?page=wcb-emails` → navigate back to the same template → expect the subject field shows `Smoke Test - {{candidate_name}} applied`
+5. Update the subject to include a merge tag: edit the subject field to `Application received - {{candidate_name}}` (or the plugin's documented merge-tag syntax) → save → expect HTTP 200 or 302 (no error flash)
+6. Verify the edit persisted: reload `/wp-admin/admin.php?page=wcb-emails` → navigate back to the same template → expect the subject field shows `Application received - {{candidate_name}}`
 7. Click "Send Test" → expect `POST /wcb/v1/admin/emails/test` returns HTTP 200 with body `{sent: bool, to: string, logged: int}`.
 8. Assert `sent === true` and `logged` is an integer > 0.
 9. Query the notification log: `wp db query "SELECT status, payload FROM wp_wcb_notifications_log WHERE id = <logged>" --skip-column-names` → expect `status` = `sent_test` (NOT `sent`) and `payload` JSON contains `"is_test":true`.

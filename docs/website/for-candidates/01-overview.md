@@ -48,7 +48,7 @@ The sidebar shows your name and **Candidate**. It contains:
 
 ## Apply without an account
 
-Unless the site turns on **Require login to apply**, you can apply as a guest with your name and email. You get a confirmation email and status emails, but no dashboard. If you register later with the same email, your earlier guest applications appear in your dashboard. See [Apply as a guest](./09-guest-apply.md).
+Unless the site turns on **Require login to apply**, you can apply as a guest with your name and email. You get a confirmation email and status emails, but no dashboard. If you register later with the same email and confirm it, your earlier guest applications appear in your dashboard. See [Apply as a guest](./09-guest-apply.md).
 
 ## In this section
 

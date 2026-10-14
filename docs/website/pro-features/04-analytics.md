@@ -1,5 +1,7 @@
 # Analytics
 
+> **PRO** - Requires WP Career Board Pro.
+
 You can see a snapshot of board activity and credit flow at **Career Board > Settings > Analytics**. This needs WP Career Board Pro.
 
 ## Where to read the full guide

@@ -174,6 +174,17 @@ $wcb_better = wcb_jsx_job( "{$wcb_t2} in the title", 'Nothing else' );
 wcb_assert( array( $wcb_feat, $wcb_better ) === $wcb_ids( array( 'search' => $wcb_t2 ) ), 'a featured job leads a keyword search (relevance)' );
 delete_post_meta( $wcb_feat, '_wcb_featured' );
 wcb_assert( array( $wcb_better, $wcb_feat ) === $wcb_ids( array( 'search' => $wcb_t2 ) ), 'control: unfeatured, the better text match leads' );
+update_post_meta( $wcb_feat, '_wcb_featured', '0' );
+wcb_assert( array( $wcb_better, $wcb_feat ) === $wcb_ids( array( 'search' => $wcb_t2 ) ), "unfeatured stored as '0' does not outrank a better match with no featured row" );
+
+// Featured, then newest: an unfeatured job is unfeatured whether its row says '0' or is missing.
+$wcb_old_zero = wcb_jsx_job( "{$wcb_t2} Older", 'x', array( '_wcb_featured' => '0' ) );
+wp_update_post( array( 'ID' => $wcb_old_zero, 'post_date' => gmdate( 'Y-m-d H:i:s', strtotime( '-10 days' ) ) ) );
+$wcb_new_none = wcb_jsx_job( "{$wcb_t2} Newer", 'x' );
+$wcb_in_order = array_map( 'intval', JobSearch::run( JobSearch::query_args( array( 'sort' => 'newest' ), array( 'post__in' => array( $wcb_old_zero, $wcb_new_none ), 'fields' => 'ids', 'no_found_rows' => true ) ) )->posts );
+wcb_assert( array( $wcb_new_none, $wcb_old_zero ) === $wcb_in_order, "Featured, then newest: a new job with no featured row is listed above an older '0' job" );
+wp_delete_post( $wcb_old_zero, true );
+wp_delete_post( $wcb_new_none, true );
 
 // Closing soonest: open jobs first by deadline, no deadline next, jobs already past it last.
 $wcb_c_soon  = wcb_jsx_job( "{$wcb_t2} soon", 'x', array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+5 days' ) ) ) );

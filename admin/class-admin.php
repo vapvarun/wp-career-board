@@ -207,6 +207,7 @@ class Admin {
 			array( $admin_jobs, 'render' )
 		);
 		add_action( 'load-' . $jobs_hook, array( $admin_jobs, 'process_bulk_action' ) );
+		add_action( 'load-' . $jobs_hook, array( $admin_jobs, 'process_flag_action' ) );
 
 		$admin_apps = new AdminApplications();
 		$apps_hook  = add_submenu_page(
@@ -230,14 +231,16 @@ class Admin {
 		);
 		add_action( 'load-' . $candidates_hook, array( $admin_candidates, 'process_bulk_action' ) );
 
-		add_submenu_page(
+		$admin_companies = new AdminCompanies();
+		$companies_hook  = add_submenu_page(
 			'wp-career-board',
 			__( 'Companies', 'wp-career-board' ),
 			__( 'Companies', 'wp-career-board' ),
 			'wcb_manage_settings',
 			'wcb-companies',
-			array( new AdminCompanies(), 'render' )
+			array( $admin_companies, 'render' )
 		);
+		add_action( 'load-' . $companies_hook, array( $admin_companies, 'process_bulk_action' ) );
 
 		$admin_employers = new AdminEmployers();
 		$employers_hook  = add_submenu_page(
@@ -766,21 +769,18 @@ class Admin {
 	 * @since 1.0.0
 	 */
 	public function register_emails_submenu(): void {
-		add_submenu_page(
-			'wp-career-board',
+		// Parent '' keeps the page registered (so access checks pass) but out of
+		// the menu. Redirect on load-*, before any admin HTML is sent.
+		$wcb_hook = add_submenu_page(
+			'',
 			__( 'Emails', 'wp-career-board' ),
 			'',
 			'wcb_manage_settings',
 			'wcb-emails',
-			array( $this, 'redirect_emails_page' )
+			'__return_null'
 		);
-
-		// Remove from visible menu — page remains accessible for backward-compat redirect.
-		foreach ( (array) ( $GLOBALS['submenu']['wp-career-board'] ?? array() ) as $wcb_key => $wcb_item ) {
-			if ( 'wcb-emails' === ( $wcb_item[2] ?? '' ) ) {
-				unset( $GLOBALS['submenu']['wp-career-board'][ $wcb_key ] );
-				break;
-			}
+		if ( $wcb_hook ) {
+			add_action( 'load-' . $wcb_hook, array( $this, 'redirect_emails_page' ) );
 		}
 	}
 

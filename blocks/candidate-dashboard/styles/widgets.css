@@ -22,9 +22,8 @@
 
 .wcb-welcome-card {
 	display: none;
+	/* A tinted band, not a framed card: its step cards are the frames (no box in a box). */
 	background: linear-gradient( 135deg, var( --wcb-primary-soft, #eef2ff ) 0%, var( --wcb-surface, #ffffff ) 100% );
-	/* The accent is for focus, selection and buttons, not a card edge. */
-	border: 1px solid var( --wcb-border );
 	border-radius: var( --wcb-radius-xl );
 	padding: var( --wcb-space-lg, 16px );
 	margin-bottom: var( --wcb-space-lg, 16px );
@@ -140,23 +139,5 @@
 	.wcb-welcome-step:focus-visible { transform: none !important; }
 }
 
-/* ── Privacy panel — GDPR self-service controls (A-11) ────────────────────── */
-
-.wcb-privacy-panel { margin-top: var( --wcb-space-md, 16px ); }
-
-.wcb-privacy-desc {
-	color: var( --wcb-muted );
-	font-size: var(--wcb-text-base);
-	line-height: 1.5;
-	margin: 0 0 var( --wcb-space-md, 16px ) 0;
-}
-
-.wcb-privacy-note {
-	color: var(--wcb-danger-fg, #991b1b);
-	font-size: var(--wcb-text-sm);
-	margin: var( --wcb-space-sm, 8px ) 0 0 0;
-	display: none;
-}
-
-.wcb-privacy-note.wcb-shown { display: block; }
+/* Privacy panel styles live in assets/css/frontend-components.css (shared with the employer dashboard). */
 

@@ -3,7 +3,8 @@ id: walkthrough-gdpr-export-erase
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-09-27
+last_verified: 2026-10-13
+bug_ref: 10394985663
 ---
 
 # Walkthrough: GDPR Export & Erase - admin exports then erases a candidate's WP Career Board data via WP core privacy tools
@@ -29,7 +30,10 @@ last_verified: 2026-09-27
 5. As a test candidate with one resume (Pro), two applications with a CV, go to **Candidate Dashboard > Settings > Delete my account**; the form says profile, resumes and files are deleted, employers keep applications without name and contact details, and shows the grace days. Confirm with password + DELETE, then run the deletion without waiting: `wp eval 'update_user_meta( <ID>, "_wcb_deletion_scheduled_at", time() - 1 );' && wp cron event run wcb_process_account_deletions` → user gone; both applications read "Deleted candidate" for the employer; the CV URL returns 404; resume page gone; credit ledger rows (Pro) have `user_id` 0.
 6. `wp_wcb_gdpr_log` has one `export` and one `erase` row per request (hashed IP).
 7. Settings > Advanced shows **Keep Email History (days)** = 180. `wp cron event run wcb_prune_logs` deletes email-log (and Pro bell) rows older than that and leaves recent rows.
-8. tail debug.log diff → ZERO new fatal / warning lines.
+8. **Candidate self-service export (1.8.1, Basecamp 10394985663).** As `sarah.chen`, open `$WCB_SITE/candidate-dashboard/?autologin=sarah.chen#settings`, scroll to **Privacy & My Data** and click **Request data export** (`wcb-privacy::actions.requestExport`, templates/parts/privacy-settings.php) → expect `POST $WCB_SITE/wp-json/wcb/v1/candidates/me/privacy/export` = 200 with a `request_id`; the button swaps to the check-mark state (`wcb-privacy` `state.exportRequested`); `.wcb-privacy-note` stays empty. The same panel is on the employer dashboard's Settings (1.8.1, card 10400762390): repeat as `employer.vercel` at `$WCB_SITE/employer-dashboard/?autologin=employer.vercel#settings`; the browser console has NO `TypeError` about `runPrivacyRequest` (the old action called `this.runPrivacyRequest`, which is undefined in the Interactivity store, so the click threw and nothing was sent).
+9. Confirm the request is real: `wp post list --post_type=user_request --post_status=request-pending --fields=ID,post_title,post_name` → a row `export_personal_data` for sarah's email; Mailpit has the "Confirm Action: Export Personal Data" email addressed to her. Confirming it moves the request into Tools > Export Personal Data (step 1 of this journey then applies).
+10. Negative - logged out: `curl -s -o /dev/null -w '%{http_code}' -X POST $WCB_SITE/wp-json/wcb/v1/candidates/me/privacy/export` → 401 or 403 (`me_logged_in_check`), and no `user_request` row is created. The erase action is unchanged: **Delete my account** still opens the password + `DELETE` form, not a privacy erase request.
+11. tail debug.log diff → ZERO new fatal / warning lines.
 
 ## Teardown
 

@@ -50,6 +50,10 @@ html.dark-mode {
 	--wcb-contrast:       var( --bx-color-text-primary, var( --bx-color-fg, var( --bbg-headings-color, #0f172a ) ) );
 	--wcb-text-primary:   var( --bx-color-text-primary, var( --bx-color-fg, var( --bbg-headings-color, #111111 ) ) );
 	--wcb-text-secondary: var( --bx-color-text, var( --bx-color-fg-muted, var( --global-font-color, #475569 ) ) );
+	/* BuddyX Pro's muted grey (#757575) is 4.3:1 on its #f7f7f9 page; pull it
+	   a third of the way to the theme's own text colour so it clears 4.5:1 in
+	   both modes and still reads as the theme's grey. */
+	--wcb-text-secondary: color-mix( in srgb, var( --bx-color-text, var( --bx-color-fg-muted, var( --global-font-color, #475569 ) ) ) 65%, var( --bx-color-text-primary, var( --bx-color-fg, #0f172a ) ) );
 	--wcb-text-muted:     var( --bx-color-text-muted, var( --bx-color-fg-subtle, #6b7280 ) );
 	--wcb-text-tertiary:  var( --bx-color-fg-subtle, var( --bx-color-text-muted, #9ca3af ) );
 
@@ -126,7 +130,7 @@ html.dark-mode {
 
 .wcb-dashboard .wcb-panel-link {
 	background: none !important;
-	color: var( --wcb-blue, var( --wcb-primary, #2563eb ) ) !important;
+	color: var( --wcb-primary-text, #1d4ed8 ) !important;
 	-webkit-text-fill-color: currentColor !important;
 }
 
@@ -255,6 +259,18 @@ button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-her
 	-webkit-text-fill-color: currentColor !important;
 }
 
+/* Text-link buttons in the job filters keep the link colour, not body text. */
+button[class*="wcb-"]:is(.wcb-filter-panel__more, .wcb-clear-all) {
+	color: var( --wcb-primary-text, #1d4ed8 ) !important;
+}
+
+/* BuddyX clips .site with overflow:hidden, which stops the jobs filter rail
+   from sticking; clip draws the same edge without making a scroll container.
+   Only on pages that hold the job list. */
+.site:has(.wp-block-wp-career-board-job-listings) {
+	overflow: clip;
+}
+
 /* The employer dashboard's row actions mix <button> (Feature, Close, Publish,
    Reopen — the blanket rule above already neutralises these to one text
    colour, their accent border still shows through) and <a> (View, Edit,
@@ -311,7 +327,7 @@ button[class*="wcb-"].wcb-rating__star--on {
 /* Danger actions keep their danger label tone. */
 button[class*="wcb-"].wcb-btn--danger,
 button[class*="wcb-"].wcb-bell-clear-all,
-button[class*="wcb-"].wcb-cd-withdraw-btn {
+button[class*="wcb-"].wcb-row-menu__item--danger {
 	color: var( --wcb-danger-fg, #991b1b ) !important;
 }
 

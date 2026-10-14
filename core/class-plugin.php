@@ -94,6 +94,7 @@ final class Plugin {
 
 		if ( class_exists( \WCB\Core\Roles::class ) ) {
 			add_action( 'init', array( new \WCB\Core\Roles(), 'register' ), 5 );
+			add_action( 'admin_bar_menu', array( \WCB\Core\Roles::class, 'moderation_bar_node' ), 80 );
 		}
 
 		// Reserved location terms ('remote', 'other') — runs after the
@@ -102,7 +103,12 @@ final class Plugin {
 		// the insert when they do.
 		if ( class_exists( \WCB\Core\Locations::class ) ) {
 			add_action( 'init', array( \WCB\Core\Locations::class, 'seed_reserved_terms' ), 20 );
+			add_action( 'set_object_terms', array( \WCB\Core\Locations::class, 'flag_remote_on_terms' ), 10, 4 );
+			add_filter( 'update_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
+			add_filter( 'add_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
 		}
+
+		\WCB\Core\Taxonomy::boot();
 
 		if ( class_exists( \WCB\Core\Abilities::class ) ) {
 			$abilities = new \WCB\Core\Abilities();
@@ -285,11 +291,44 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_register_script_module(
+				'@wcb/ui',
+				WCB_URL . 'assets/js/modules/wcb-ui.js',
+				array(),
+				WCB_VERSION
+			);
+			wp_register_script_module(
+				'@wcb/category-picker',
+				WCB_URL . 'assets/js/modules/wcb-category-picker.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/ui' ),
+				),
+				WCB_VERSION
+			);
+			wp_register_script_module(
 				'@wcb/email-prefs',
 				WCB_URL . 'assets/js/modules/wcb-email-prefs.js',
 				array(
 					array( 'id' => '@wordpress/interactivity' ),
 					array( 'id' => '@wcb/fetch' ),
+				),
+				WCB_VERSION
+			);
+			wp_register_script_module(
+				'@wcb/privacy',
+				WCB_URL . 'assets/js/modules/wcb-privacy.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/fetch' ),
+				),
+				WCB_VERSION
+			);
+			wp_register_script_module(
+				'@wcb/job-category-field',
+				WCB_URL . 'assets/js/modules/wcb-job-category-field.js',
+				array(
+					array( 'id' => '@wordpress/interactivity' ),
+					array( 'id' => '@wcb/ui' ),
 				),
 				WCB_VERSION
 			);
@@ -440,7 +479,7 @@ final class Plugin {
 		);
 
 		// Job taxonomy archives show the listing scoped to the term; the scoping
-		// itself is JobsModule::scope_listing_to_term(), which runs on any theme.
+		// itself is JobSearch::from_url(), which runs on any theme.
 		$taxonomy_titles = array(
 			'wcb_category'   => __( 'Job Category Archive', 'wp-career-board' ),
 			'wcb_job_type'   => __( 'Job Type Archive', 'wp-career-board' ),

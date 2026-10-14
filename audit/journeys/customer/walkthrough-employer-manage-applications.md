@@ -3,7 +3,8 @@ id: walkthrough-employer-manage-applications
 priority: high
 personas: employer.figma
 requires: mu:autologin, seed:jobs
-last_verified: 2026-06-29
+last_verified: 2026-10-13
+bug_ref: 10375223031, 10389000669
 ---
 
 # Walkthrough: Employer Manage Applications — view applicants for a job and move them through the status pipeline
@@ -28,7 +29,10 @@ the whole functionality is browser-coverable in one pass.
 10. Repeat the status change to "Shortlisted" via the same `.wcb-status-select` → expect 200 with `{"status":"shortlisted"}` and the "Shortlisted" filter pill count (`.wcb-filter-pill[data-wcb-filter="shortlisted"] .wcb-pill-count`) increments by one. *(view.js `appsCountShortlisted` ~line 342)*
 11. Switch to the Board (Kanban) layout: click `.wcb-layout-btn[data-layout="board"]` (`data-wp-on--click="actions.setAppsLayout"`) → expect `.wcb-apps-board` shown with a column per status (`.wcb-board-col` with `data-status`) and the shortlisted card now sitting under the Shortlisted column. *(render.php:614-617 toggle, 711-731 board; view.js `setAppsLayout` ~line 998, `appsBoardColumns` ~line 313)*
 12. Drag a card `.wcb-board-card[data-wcb-app-id]` (draggable, `dragstart` → `actions.onCardDragStart`) and drop it on the "Rejected" column `.wcb-board-col[data-status="rejected"]` (`drop` → `actions.onColumnDrop`) → expect a PATCH `{"status":"rejected"}` returning 200 and the card relocates to that column. *(render.php:713-728; view.js `onColumnDrop` routes through `applyStatusChange` ~line 1001+)*
-13. tail debug.log diff for this journey's window → expect ZERO new fatal / warning / `wp_register_ability` notice lines.
+13. **Tab router + zero-count filter (1.8.1).** Click each employer sidebar tab in turn (`#wcb-tab-overview`, `#wcb-tab-jobs`, `#wcb-tab-postjob`, `#wcb-tab-apps`, `#wcb-tab-company`, `#wcb-tab-credits` when credits are on, `#wcb-tab-saved-jobs`, `#wcb-tab-saved-companies`, `#wcb-tab-saved-resumes`, `#wcb-tab-settings`, `#wcb-tab-notifications`) → `location.hash` becomes `#overview`, `#jobs`, `#post-job`, `#applications`, `#company`, `#credits`, `#saved-jobs`, `#saved-companies`, `#saved-resumes`, `#settings`, `#notifications`, `sessionStorage.wcb_employer_view` matches, and `history.length` does not grow (`tabRouter.go()` uses `replaceState`).
+14. Reload on `$WCB_SITE/employer-dashboard/#saved-jobs` → the Saved Jobs panel is the one painted; the Overview panel is never visible, not even for one frame (`html[data-wcb-tab-pending]` is set before first paint, cleared when the view module runs; with the view script blocked the panels reappear after about 1.5 seconds). With no hash, or `#overview`, the attribute is never set.
+15. Zero-count and job-switch behaviour of the Applications tab is walked in `customer/employer-applicants-list` steps 10-14.
+16. tail debug.log diff for this journey's window → expect ZERO new fatal / warning / `wp_register_ability` notice lines.
 
 ## Teardown
 

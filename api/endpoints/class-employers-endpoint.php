@@ -96,6 +96,31 @@ final class EmployersEndpoint extends RestController {
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_item' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/main',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'set_main' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/employers/me/companies',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_my_companies' ),
+				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
 			)
 		);
 
@@ -137,6 +162,7 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_jobs' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
+				'args'                => self::pagination_args() + self::company_filter_args(),
 			)
 		);
 
@@ -147,7 +173,18 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_applications' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
-				'args'                => self::pagination_args(),
+				'args'                => self::pagination_args() + self::company_filter_args() + array(
+					// Applications received in the last N days (the Overview's 'New This Week').
+					'since_days' => array(
+						'description'       => __( 'Only applications received in the last N days (0 = any time).', 'wp-career-board' ),
+						'type'              => 'integer',
+						'default'           => 0,
+						'minimum'           => 0,
+						'maximum'           => 365,
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 	}
@@ -400,6 +437,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
+		$make_main  = (bool) $request->get_param( 'make_main' ) || 0 === \WCB\Core\CompanyMetaShape::resolve_company_id( get_current_user_id() );
 		$company_id = wp_insert_post(
 			array(
 				'post_type'    => 'wcb_company',
@@ -429,7 +467,8 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $value ) );
+				$value = sanitize_text_field( (string) $value );
+				update_post_meta( $company_id, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 			}
 		}
 		$hq_value = $request->get_param( 'hq' );
@@ -439,14 +478,17 @@ final class EmployersEndpoint extends RestController {
 		// New companies start at trust level "new".
 		update_post_meta( $company_id, '_wcb_trust_level', 'new' );
 
-		// Link company to the employer user account.
-		update_user_meta( get_current_user_id(), '_wcb_company_id', $company_id );
+		// It becomes the main company only when asked or when there is none:
+		// adding a second company used to switch the main one silently.
+		if ( $make_main ) {
+			update_user_meta( get_current_user_id(), '_wcb_company_id', $company_id );
 
-		// Adopt any jobs the employer posted before this company existed — they
-		// never got _wcb_company_id (JobsEndpoint only stamps it when the user
-		// already has a company), so without this they stay invisible in My Jobs
-		// once the dashboard queries by company.
-		$this->backfill_orphan_jobs( get_current_user_id(), (int) $company_id );
+			// Adopt any jobs the employer posted before this company existed — they
+			// never got _wcb_company_id (JobsEndpoint only stamps it when the user
+			// already has a company), so without this they stay invisible in My Jobs
+			// once the dashboard queries by company.
+			$this->backfill_orphan_jobs( get_current_user_id(), (int) $company_id );
+		}
 
 		return rest_ensure_response( $this->prepare_company( get_post( $company_id ) ) );
 	}
@@ -516,7 +558,8 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				update_post_meta( $post->ID, $meta_key, sanitize_text_field( (string) $value ) );
+				$value = sanitize_text_field( (string) $value );
+				update_post_meta( $post->ID, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 				$changed = true;
 			}
 		}
@@ -583,6 +626,25 @@ final class EmployersEndpoint extends RestController {
 		return $is_owner_or_admin
 			? array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )
 			: array( 'publish' );
+	}
+
+	/**
+	 * Why a closed job was closed for its owner, when it wasn't their doing.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Post $job Job post.
+	 * @return string '' when there is nothing to explain.
+	 */
+	private static function closed_note( \WP_Post $job ): string {
+		if ( 'company_removed' !== get_post_meta( $job->ID, \WCB\Modules\Employers\EmployersModule::CLOSED_REASON, true ) ) {
+			return '';
+		}
+		return match ( $job->post_status ) {
+			'wcb_closed' => __( 'Closed because its company was removed. Edit it to choose another company, then reopen it.', 'wp-career-board' ),
+			'draft'      => __( 'Back to draft because its company was removed. Edit it to choose another company, then submit it for review.', 'wp-career-board' ),
+			default      => '',
+		};
 	}
 
 	/**
@@ -661,38 +723,46 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	public function get_my_jobs( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
-		$user_id    = get_current_user_id();
-		$company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( $user_id );
-		if ( $company_id ) {
-			$company = get_post( $company_id );
-			if ( $company instanceof \WP_Post && 'wcb_company' === $company->post_type ) {
-				$request->set_param( 'id', $company_id );
-				return $this->get_jobs( $request );
-			}
+		$company_id = $this->requested_company( $request );
+		if ( is_wp_error( $company_id ) ) {
+			return $company_id;
 		}
 
-		// No company yet — return jobs authored by the current user.
-		$per_page     = min( (int) ( $request->get_param( 'per_page' ) ?? 20 ), 100 );
-		$paged        = max( (int) ( $request->get_param( 'page' ) ?? 1 ), 1 );
-		$wcb_form_url = $this->get_job_form_page_url();
+		// Dashboard scope (EmployersModule::job_scope_sql()): jobs the employer
+		// posted or that belong to any company they run, not just the primary one.
+		global $wpdb;
+		list( $paged, $per_page ) = self::paging( $request );
+		$wcb_form_url             = $this->get_job_form_page_url();
+		$wcb_statuses             = self::owner_visible_statuses( true );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where is prepared; the page query adds only LIMIT/OFFSET.
+		$where = $wpdb->prepare(
+			"job.post_type = 'wcb_job' AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . ' )',
+			...$wcb_statuses
+		) . ' AND ' . \WCB\Modules\Employers\EmployersModule::job_scope_sql( get_current_user_id(), 'job', $company_id );
 
-		$query = new \WP_Query(
-			array(
-				'post_type'      => 'wcb_job',
-				'author'         => (int) $user_id,
-				'post_status'    => self::owner_visible_statuses( true ),
-				'posts_per_page' => $per_page,
-				'paged'          => $paged,
+		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} job WHERE {$where}" );
+		$ids   = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT job.ID FROM {$wpdb->posts} job WHERE {$where} ORDER BY job.post_date DESC, job.ID DESC LIMIT %d OFFSET %d",
+				$per_page,
+				( $paged - 1 ) * $per_page
 			)
 		);
+		// phpcs:enable
+		$posts = $ids
+			? get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => $wcb_statuses,
+					'post__in'       => array_map( 'intval', $ids ),
+					'orderby'        => 'post__in',
+					'posts_per_page' => count( $ids ),
+				)
+			)
+			: array();
 
-		// Batch-count applications for these jobs in ONE query, exactly as the
-		// company-scoped get_jobs() does. Without this the no-company branch
-		// hardcoded appCount 0 for every job, so an employer who posts a job
-		// BEFORE completing their company profile saw "No applicants" and a 0
-		// dashboard badge even with real applications on file.
-		global $wpdb;
-		$wcb_job_ids    = wp_list_pluck( $query->posts, 'ID' );
+		// Batch-count applications for this page of jobs in ONE query.
+		$wcb_job_ids    = wp_list_pluck( $posts, 'ID' );
 		$wcb_app_counts = array();
 		if ( ! empty( $wcb_job_ids ) ) {
 			$wcb_placeholders = implode( ',', array_fill( 0, count( $wcb_job_ids ), '%d' ) );
@@ -742,6 +812,7 @@ final class EmployersEndpoint extends RestController {
 					'status'           => $rejected ? 'rejected' : $public_status,
 					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
 					'rejected'         => $rejected,
+					'closedNote'       => self::closed_note( $p ),
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 					'permalink'        => get_permalink( $p->ID ),
@@ -760,10 +831,10 @@ final class EmployersEndpoint extends RestController {
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
-			$query->posts
+			$posts
 		);
 
-		return $this->build_envelope( 'jobs', $items, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
+		return $this->build_envelope( 'jobs', $items, $total, (int) ceil( $total / $per_page ), $paged );
 	}
 
 	/**
@@ -860,6 +931,7 @@ final class EmployersEndpoint extends RestController {
 					'status'           => $rejected ? 'rejected' : $public_status,
 					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
 					'rejected'         => $rejected,
+					'closedNote'       => self::closed_note( $p ),
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 					'permalink'        => get_permalink( $p->ID ),
@@ -880,6 +952,11 @@ final class EmployersEndpoint extends RestController {
 			},
 			$query->posts
 		);
+
+		// Applicant counts are the company's business, not the public's.
+		if ( ! $is_owner && ! $is_admin ) {
+			$items = array_map( static fn ( array $item ): array => array_diff_key( $item, array_flip( array( 'appCount', 'appLabel' ) ) ), $items );
+		}
 
 		return $this->build_envelope( 'jobs', $items, (int) $query->found_posts, (int) $query->max_num_pages, $paged );
 	}
@@ -948,37 +1025,54 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
-	 * Applications across the current user's authored jobs (company-independent).
-	 *
-	 * The company-scoped /employers/{id}/applications route leaves employers who
-	 * post jobs BEFORE creating a company profile with an empty dashboard Overview
-	 * (companyId is 0, so the client never fetches). This author-keyed sibling
-	 * powers that widget so applications surface regardless of whether a company
-	 * profile exists. Same status allowlist + envelope as the company view.
+	 * Applications across the employer's dashboard scope: jobs they posted or
+	 * that belong to any company they run (EmployersModule::job_scope_sql()),
+	 * optionally narrowed to one of those companies with `company_id`.
 	 *
 	 * @since 1.7.0
+	 * @since 1.8.1 Covers every company the employer runs; `company_id` filter.
 	 *
 	 * @param  \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response {
-		global $wpdb;
-		$user_id      = get_current_user_id();
-		$wcb_statuses = self::owner_visible_statuses( true );
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $from is prepared below; the page query adds only LIMIT/OFFSET.
-		$from = $wpdb->prepare(
-			"FROM {$wpdb->posts} app
-			 INNER JOIN {$wpdb->postmeta} pm_job
-			        ON pm_job.post_id = app.ID AND pm_job.meta_key = '_wcb_job_id'
-			 INNER JOIN {$wpdb->posts} job
-			        ON job.ID = CAST(pm_job.meta_value AS UNSIGNED) AND job.post_type = 'wcb_job'
-			       AND job.post_status IN ( " . implode( ', ', array_fill( 0, count( $wcb_statuses ), '%s' ) ) . ' )
-			       AND job.post_author = %d
-			 WHERE app.post_type   = \'wcb_application\'
-			   AND app.post_status = \'publish\'',
-			...array_merge( $wcb_statuses, array( $user_id ) )
-		);
+	public function get_my_applications( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$company_id = $this->requested_company( $request );
+		if ( is_wp_error( $company_id ) ) {
+			return $company_id;
+		}
 
+		global $wpdb;
+		$from  = \WCB\Modules\Employers\EmployersModule::applications_scope_sql( get_current_user_id(), $company_id );
+		$since = (int) $request->get_param( 'since_days' );
+		if ( $since > 0 ) {
+			// Same cut-off as dashboard_counts()' new_apps, so the list matches the figure.
+			$from .= $wpdb->prepare( ' AND app.post_date >= %s', gmdate( 'Y-m-d H:i:s', time() - $since * DAY_IN_SECONDS ) );
+		}
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- $from is prepared; the page query adds only LIMIT/OFFSET.
+		// Per-status totals over every job in scope (the Applications chips), before the status filter.
+		$by_status = $wpdb->get_results(
+			"SELECT COALESCE( NULLIF( st.meta_value, '' ), 'submitted' ) AS status, COUNT(*) AS cnt
+			 FROM ( SELECT app.ID {$from} ) scoped
+			 LEFT JOIN {$wpdb->postmeta} st ON st.post_id = scoped.ID AND st.meta_key = '_wcb_status'
+			 GROUP BY status",
+			ARRAY_A
+		);
+		$counts    = array(
+			'total'     => 0,
+			'by_status' => array(),
+		);
+		foreach ( (array) $by_status as $row ) {
+			$counts['by_status'][ (string) $row['status'] ] = (int) $row['cnt'];
+			$counts['total']                               += (int) $row['cnt'];
+		}
+
+		$status = sanitize_key( (string) $request->get_param( 'status' ) );
+		if ( '' !== $status ) {
+			$from .= $wpdb->prepare(
+				" AND COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = %s",
+				$status
+			);
+		}
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
 
 		list( $paged, $per_page ) = self::paging( $request );
@@ -990,9 +1084,16 @@ final class EmployersEndpoint extends RestController {
 				( $paged - 1 ) * $per_page
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable
 
-		return $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
+		$response = $this->build_applications_response( (array) $rows, $request, $total, $paged, $per_page );
+		$data     = (array) $response->get_data();
+		// Same shape as a job's list (JobsEndpoint::get_applications), so the
+		// Applications view pages and counts "All jobs" the same way (1.8.1).
+		$data['has_more'] = ( $paged * $per_page ) < $total;
+		$data['counts']   = $counts;
+		$response->set_data( $data );
+		return $response;
 	}
 
 	/**
@@ -1052,40 +1153,17 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( object $row ) use ( $request, &$wcb_groups_memo ): array {
-				$app_id         = (int) $row->ID;
-				$candidate_id   = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
-				$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
-				$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $app_id );
-				$job_id         = (int) get_post_meta( $app_id, '_wcb_job_id', true );
-
-				$prepared = array(
-					'id'                 => $app_id,
-					'job_id'             => $job_id,
-					'job_title'          => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
-					'applicant_name'     => $candidate_user
-					? $candidate_user->display_name
-					: (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
-					'applicant_email'    => $candidate_user
-					? $candidate_user->user_email
-					: (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-					// submitted_at stays a machine-parseable ISO 8601 timestamp: the
-					// dashboard sorts and date-filters it with new Date() in JS. The
-					// localised display string is a SEPARATE sibling so a translated
-					// month name never reaches new Date() (which would yield NaN and
-					// silently break the recency sort + "new this week" stat).
-					'submitted_at'       => get_the_date( 'c', $app_id ),
-					'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $app_id ),
-				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
+				$app_id = (int) $row->ID;
+				$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
 				if ( ! isset( $wcb_groups_memo[ $job_id ] ) ) {
 					$wcb_groups_memo[ $job_id ] = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 				}
-				$prepared['custom_fields'] = \WCB\Core\FormCustomFields::labelled_values(
-					$wcb_groups_memo[ $job_id ],
-					$app_id,
-					'post_meta',
-					ApplicationsEndpoint::FIELD_META_PREFIX
-				);
+				// Same fields as a job's own list (JobsEndpoint), plus which job it is.
+				$prepared = array(
+					'job_id'    => $job_id,
+					'job_title' => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
+				) + JobsEndpoint::employer_application_item( get_post( $app_id ), $wcb_groups_memo[ $job_id ] );
 
 				$application_post = get_post( $app_id );
 
@@ -1130,6 +1208,41 @@ final class EmployersEndpoint extends RestController {
 				'sanitize_callback' => 'absint',
 			),
 		);
+	}
+
+	/**
+	 * The optional `company_id` filter on the employer's own lists.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function company_filter_args(): array {
+		return array(
+			'company_id' => array(
+				'type'              => 'integer',
+				'default'           => 0,
+				'minimum'           => 0,
+				'validate_callback' => 'rest_validate_request_arg',
+				'sanitize_callback' => 'absint',
+			),
+		);
+	}
+
+	/**
+	 * The `company_id` filter, refused unless the employer runs that company.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param  \WP_REST_Request $request Full request object.
+	 * @return int|\WP_Error Company ID, 0 for all companies.
+	 */
+	private function requested_company( \WP_REST_Request $request ): int|\WP_Error {
+		$company_id = (int) $request->get_param( 'company_id' );
+		if ( $company_id > 0 && ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $company_id ] ) ) {
+			return new \WP_Error( 'wcb_company_forbidden', __( 'You do not manage this company.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+		return $company_id;
 	}
 
 	/**
@@ -1273,10 +1386,91 @@ final class EmployersEndpoint extends RestController {
 		if ( ! $post ) {
 			return $this->permission_error();
 		}
-		$is_owner = $this->is_current_user( (int) $post->post_author )
+		// Anyone who runs the company (its creator or a named co-owner) edits it.
+		$is_owner = 'wcb_company' === $post->post_type
+		&& isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $post->ID ] )
 		&& $this->check_ability( 'wcb/manage-company' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * Only a company's creator (or an admin) removes it: removing closes its
+	 * jobs, and a colleague who runs it must not close the creator's.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool|\WP_Error
+	 */
+	public function delete_item_permissions_check( $request ): bool|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+			return $this->permission_error();
+		}
+		$is_creator = $this->is_current_user( (int) $post->post_author ) && $this->check_ability( 'wcb/manage-company' );
+		return ( $is_creator || $this->check_ability( 'wcb/manage-settings' ) ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * GET /employers/me/companies: the companies the employer runs.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_my_companies( \WP_REST_Request $request ): \WP_REST_Response {
+		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( get_current_user_id() ) ) );
+	}
+
+	/**
+	 * POST /employers/{id}/main: make a company the employer's main one (the
+	 * one Post a Job preselects and the sidebar shows).
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function set_main( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$id   = (int) $request['id'];
+		$user = get_current_user_id();
+		if ( ! isset( \WCB\Modules\Employers\EmployersModule::owned_companies( $user )[ $id ] ) ) {
+			return new \WP_Error( 'wcb_company_not_yours', __( 'You can only choose a company you run.', 'wp-career-board' ), array( 'status' => 403 ) );
+		}
+		if ( ! in_array( get_post_status( $id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+			return new \WP_Error( 'wcb_company_offline', __( 'This company is not published, so it can\'t be your main company.', 'wp-career-board' ), array( 'status' => 409 ) );
+		}
+		update_user_meta( $user, '_wcb_company_id', $id );
+		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( $user ) ) );
+	}
+
+	/**
+	 * DELETE /employers/{id}: remove a company. It goes to the trash, which
+	 * closes its jobs (EmployersModule::on_status_change()); an admin can
+	 * restore it. A removed main company hands "main" to another one.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_item( $request ): \WP_REST_Response|\WP_Error {
+		$id   = (int) $request['id'];
+		$user = get_current_user_id();
+		if ( 'trash' !== get_post_status( $id ) && ! wp_trash_post( $id ) ) {
+			return new \WP_Error( 'wcb_company_not_removed', __( 'The company could not be removed. Please try again.', 'wp-career-board' ), array( 'status' => 500 ) );
+		}
+		if ( (int) get_user_meta( $user, '_wcb_company_id', true ) === $id ) {
+			$next = array_key_first( \WCB\Modules\Employers\EmployersModule::owned_companies( $user ) );
+			if ( null !== $next ) {
+				update_user_meta( $user, '_wcb_company_id', (int) $next );
+			} else {
+				delete_user_meta( $user, '_wcb_company_id' );
+			}
+		}
+		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( $user ) ) );
 	}
 
 	// --- Helpers ----------------------------------------------------------------
@@ -1344,7 +1538,7 @@ final class EmployersEndpoint extends RestController {
 			'size'           => $shape['size'],
 			'size_label'     => $shape['size_label'],
 			'hq'             => $shape['hq'],
-			'company_type'   => (string) get_post_meta( $post->ID, '_wcb_company_type', true ),
+			'company_type'   => \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $post->ID, '_wcb_company_type', true ) ),
 			'founded'        => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
 			'linkedin'       => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
 			'twitter'        => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),

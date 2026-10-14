@@ -18,7 +18,7 @@ Yes, from **Candidate Dashboard > My Applications**. You can withdraw until the 
 
 ## I applied as a guest. How do I see my application?
 
-Register with the same email you applied with. Your earlier guest applications move to the new account when it is created and appear in **My Applications**. If you already had an account when you applied as a guest, they stay under the guest email.
+Register with the same email you applied with, then confirm that email from the link we send you. Your earlier guest applications move to your account and appear in **My Applications**. If the email already belongs to an account, the apply form asks you to sign in instead of accepting a guest application.
 
 ## Who can see my resume file?
 

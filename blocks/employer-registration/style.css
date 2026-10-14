@@ -22,7 +22,7 @@
 }
 
 .wcb-reg-link {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade (4.36:1 with the raw primary) */
 	text-decoration: underline;
 }
 
@@ -187,7 +187,7 @@
 [class*="wp-block-wp-career-board"] button.wcb-reg-back:hover,
 [class*="wp-block-wcb-"] button.wcb-reg-back:hover {
 	border-color: var(--wcb-primary);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-reg-back:focus-visible {

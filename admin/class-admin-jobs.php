@@ -28,6 +28,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminJobs extends \WP_List_Table {
 
+	use SearchBox;
+
 	/**
 	 * Constructor — configure singular/plural labels.
 	 *
@@ -55,8 +57,6 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
-		$this->process_flag_action();
-		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-admin wcb-jobs-list">
@@ -83,8 +83,7 @@ class AdminJobs extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-jobs">
-				<label for="wcb-job-search-input" class="screen-reader-text"><?php esc_html_e( 'Search jobs', 'wp-career-board' ); ?></label>
-				<?php $this->search_box( __( 'Search Jobs', 'wp-career-board' ), 'wcb-job' ); ?>
+				<?php $this->render_search_box( 'wcb-job', __( 'Search Jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -733,14 +732,14 @@ class AdminJobs extends \WP_List_Table {
 	/**
 	 * Handle single-job resolve-flag row-action links.
 	 *
-	 * Runs before the table renders. Each link carries its own per-job nonce
+	 * Runs on load-{page}, before any output, so the redirect can send headers. Each link carries its own per-job nonce
 	 * and delegates to ModerationModule::resolve_job_flags() so the admin and
 	 * REST surfaces share one implementation.
 	 *
 	 * @since 1.2.1
 	 * @return void
 	 */
-	private function process_flag_action(): void {
+	public function process_flag_action(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$resolve = isset( $_GET['wcb_resolve_flag'] ) ? sanitize_key( wp_unslash( $_GET['wcb_resolve_flag'] ) ) : '';
 		if ( '' === $resolve ) {

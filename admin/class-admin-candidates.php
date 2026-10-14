@@ -26,6 +26,8 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminCandidates extends \WP_List_Table {
 
+	use SearchBox;
+
 	use ReportedMembers;
 
 	/**
@@ -85,18 +87,7 @@ class AdminCandidates extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-candidates">
-				<?php
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$wcb_s = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-				?>
-				<p class="search-box">
-					<label class="screen-reader-text" for="wcb-candidate-search-input">
-						<?php esc_html_e( 'Search Candidates', 'wp-career-board' ); ?>
-					</label>
-					<label for="wcb-candidate-search-input" class="screen-reader-text"><?php esc_html_e( 'Search candidates', 'wp-career-board' ); ?></label>
-					<input type="search" id="wcb-candidate-search-input" name="s" value="<?php echo esc_attr( $wcb_s ); ?>" placeholder="<?php esc_attr_e( 'Name or email…', 'wp-career-board' ); ?>">
-					<?php submit_button( __( 'Search Candidates', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
-				</p>
+				<?php $this->render_search_box( 'wcb-candidate', __( 'Search Candidates', 'wp-career-board' ), __( 'Name or email…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>

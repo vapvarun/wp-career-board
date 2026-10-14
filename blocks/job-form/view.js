@@ -4,6 +4,7 @@
  * Actions:
  *   updateField  — generic field updater via data-wcb-field attribute.
  *   toggleRemote — flip the remote boolean.
+ *   setDeadline  — employer-picked deadline (REST caps it at the board maximum).
  *   nextStep     — advance step; validates title on step 1.
  *   prevStep     — go back one step.
  *   submitJob    — POST job data to /wcb/v1/jobs.
@@ -24,6 +25,7 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
+import { formatSiteDate } from '@wcb/ui';
 
 /**
  * Translation reader.
@@ -158,31 +160,6 @@ const money = ( symbol, amount ) =>
  */
 const symbolFor = ( code ) =>
 	( state.currencySymbols && state.currencySymbols[ code ] ) || code + ' ';
-
-/**
- * Format an ISO (Y-m-d) date against the SITE locale.
- *
- * @param {string} iso ISO date string.
- * @return {string} Localised date, or the raw ISO string when unparseable.
- */
-const formatDate = ( iso ) => {
-	if ( ! iso ) {
-		return '';
-	}
-	try {
-		const d = new Date( iso + 'T00:00:00' );
-		if ( ! isNaN( d.getTime() ) ) {
-			return new Intl.DateTimeFormat( locale(), {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric',
-			} ).format( d );
-		}
-	} catch ( _e ) {
-		// Fall through to the raw ISO date.
-	}
-	return iso;
-};
 
 /**
  * Put a value into the job description's rich editor.
@@ -359,7 +336,7 @@ const { state } = store(
 			},
 			get hasCategory() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.categorySlug;
+				return state.categorySlugs.length > 0;
 			},
 			get hasSalary() {
 				const { state } = store( 'wcb-job-form' );
@@ -397,6 +374,12 @@ const { state } = store(
 				return 'location' === state.validationField && ! ! state.validationError;
 			},
 
+			// More than one company to post for: show the Company picker.
+			get hasCompanyChoice() {
+				const { state } = store( 'wcb-job-form' );
+				return ( state.companyList || [] ).length > 1;
+			},
+
 			// ── Edit mode ─────────────────────────────────────────────────────────
 			get isEditing() {
 				const { state } = store( 'wcb-job-form' );
@@ -414,20 +397,24 @@ const { state } = store(
 			},
 
 			// ── Credit getters ────────────────────────────────────────────────
+			// Posting is priced; editing a job is free unless it moves board
+			// (the server prices that move and answers wcb_insufficient_credits).
+			get creditApplies() {
+				const { state } = store( 'wcb-job-form' );
+				return ! state.editJobId || Number( state.boardId ) !== Number( state.editBoardId );
+			},
 			get hasCreditCost() {
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
 			},
-			// Banner visibility — true for paid boards AND for free boards,
-			// which get their own "free to post" sentence. Keeps the employer
-			// informed when switching to a zero-cost board.
+			// Only a board that charges gets the banner; a free board shows nothing.
 			get hasCreditBanner() {
 				const { state } = store( 'wcb-job-form' );
-				return state.creditCost > 0 || !! state.creditMessage;
+				return state.creditApplies && state.creditCost > 0;
 			},
 			get insufficientCredits() {
 				const { state } = store( 'wcb-job-form' );
-				return state.creditCost > 0 && state.creditBalance < state.creditCost;
+				return state.creditApplies && state.creditCost > 0 && state.creditBalance < state.creditCost;
 			},
 			// The banner sentence is chosen server-side, per board, in render.php:
 			// free / insufficient / deduction, each already run through _n() with
@@ -442,8 +429,7 @@ const { state } = store(
 			},
 
 			// Pre-publish: tell the employer when their listing will expire so
-			// the deadline isn't a surprise. Pairs with the read-only deadline
-			// field (admin policy, not employer-editable).
+			// the deadline isn't a surprise.
 			get listingWindowMessage() {
 				const { state } = store( 'wcb-job-form' );
 				if ( ! state.deadline ) {
@@ -455,7 +441,16 @@ const { state } = store(
 						'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).'
 					),
 					'%1$s',
-					formatDate( state.deadline )
+					formatSiteDate( state.deadline, state.locale )
+				);
+			},
+
+			get deadlineHelp() {
+				const { state } = store( 'wcb-job-form' );
+				return fill(
+					t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' ),
+					'%s',
+					formatSiteDate( state.deadlineMax, state.locale )
 				);
 			},
 
@@ -471,7 +466,7 @@ const { state } = store(
 				if ( ! state.deadline ) {
 					return '';
 				}
-				return fill( t( 'applyBy', 'Apply by %s' ), '%s', formatDate( state.deadline ) );
+				return fill( t( 'applyBy', 'Apply by %s' ), '%s', formatSiteDate( state.deadline, state.locale ) );
 			},
 
 			// ── AI generation ─────────────────────────────────────────────
@@ -498,16 +493,24 @@ const { state } = store(
 			},
 			get categoryDisplay() {
 				const { state } = store( 'wcb-job-form' );
-				return state.categorySlug ? ( state.categoryNames[ state.categorySlug ] || state.categorySlug ) : '';
+				return state.categorySlugs.map( ( slug ) => state.categoryNames[ slug ] || slug ).join( t( 'listSeparator', ', ' ) );
 			},
 		},
 
 		actions: {
+			setDeadline( event ) {
+				const { state } = store( 'wcb-job-form' );
+				state.deadline  = event.target.value;
+			},
+
 			updateField( event ) {
 				const { state } = store( 'wcb-job-form' );
 				const field     = event.target.dataset.wcbField;
 				if ( field ) {
 					state[ field ] = event.target.value;
+					if ( field === 'companyId' ) {
+						state.companyName = ( state.companyNames || {} )[ event.target.value ] || '';
+					}
 					if ( field === state.validationField && state.validationError ) {
 						setValidation( state, '', '' );
 					}
@@ -688,7 +691,7 @@ const { state } = store(
 				// Credit gate — block submission if balance is insufficient. The
 				// sentence (with its plural-correct credit noun and localised
 				// numbers) is resolved per board in render.php; JS only selects.
-				if ( state.creditCost > 0 && state.creditBalance < state.creditCost ) {
+				if ( state.insufficientCredits && ! state.editJobId ) {
 					const errors = state.creditErrors || {};
 					state.error  = errors[ String( state.boardId || 0 ) ]
 						|| t( 'errorInsufficientCredits', 'Insufficient credits to post on this board.' );
@@ -720,7 +723,7 @@ const { state } = store(
 						deadline:        state.deadline,
 						apply_url:       state.applyUrl,
 						apply_email:     state.applyEmail,
-						categories:      state.categorySlug ? [ state.categorySlug ] : [],
+						categories:      state.categorySlugs,
 						job_types:       state.typeSlug ? [ state.typeSlug ] : [],
 						locations:       state.locationSlug && state.locationSlug !== '__custom__'
 							? [ state.locationSlug ]
@@ -731,6 +734,7 @@ const { state } = store(
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						board_id:          state.boardId ? Number( state.boardId ) : 0,
+						company_id:        Number( state.companyId ) || 0,
 						custom_fields:     state.customFields || {},
 						hp:                hpEl ? hpEl.value : '',
 						wcb_captcha_token: captchaToken,
@@ -823,7 +827,7 @@ const { state } = store(
 				state.locationSlug     = '';
 				state.locationCustom   = '';
 				state.typeSlug         = '';
-				state.categorySlug     = '';
+				state.categorySlugs    = [];
 				state.expSlug          = '';
 				state.tags             = '';
 				state.remote           = false;

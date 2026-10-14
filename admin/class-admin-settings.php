@@ -709,11 +709,6 @@ class AdminSettings {
 										<div class="wcb-settings-row-control">
 											<input type="number" id="wcb-jobs-expire-days" name="wcb_settings[jobs_expire_days]" value="<?php echo isset( $settings['jobs_expire_days'] ) ? (int) $settings['jobs_expire_days'] : 30; ?>" min="1" max="365" style="width:80px">
 											<span class="description"><?php esc_html_e( 'How long a job stays open when the employer sets no deadline. Default 30. A board can set its own length, which wins over this one.', 'wp-career-board' ); ?></span>
-										</div>
-									</div>
-									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><?php esc_html_e( 'When a job ends', 'wp-career-board' ); ?></div>
-										<div class="wcb-settings-row-control">
 											<span class="description"><?php esc_html_e( 'At its deadline a job stops taking applications and leaves the listings, feeds and sitemap within the hour. Its page stays up as an expired page with similar open jobs, so shared links keep working. Employers can reopen it from their dashboard with a new deadline.', 'wp-career-board' ); ?></span>
 											<?php if ( empty( $settings['deadline_auto_close'] ) ) : ?>
 												<p class="description"><strong><?php esc_html_e( 'This site still lists jobs past their deadline (set before 1.8.0).', 'wp-career-board' ); ?></strong></p>
@@ -724,8 +719,8 @@ class AdminSettings {
 									<div class="wcb-settings-row">
 										<div class="wcb-settings-row-label"><label for="wcb-jobs-per-page"><?php esc_html_e( 'Jobs Per Page', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
-											<input type="number" id="wcb-jobs-per-page" name="wcb_settings[jobs_per_page]" value="<?php echo isset( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 10; ?>" min="1" max="100" style="width:80px">
-											<span class="description"><?php esc_html_e( 'Number of job listings shown per page in the job board block. Maximum 100.', 'wp-career-board' ); ?></span>
+											<input type="number" id="wcb-jobs-per-page" name="wcb_settings[jobs_per_page]" value="<?php echo isset( $settings['jobs_per_page'] ) ? (int) $settings['jobs_per_page'] : 12; ?>" min="1" max="100" style="width:80px">
+											<span class="description"><?php esc_html_e( 'Number of job listings shown per page in the job board block. Maximum 100. A multiple of 12 fills the 2, 3 and 4 column grids evenly.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

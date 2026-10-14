@@ -48,9 +48,11 @@ money/conversion path.
 8. Back in the browser, after the guest submit resolves → expect the panel to close and the applied badge
    `.wcb-applied-badge` ("Application Submitted") to show via `state.submitted`
    (`blocks/job-single/render.php:414-416`; `view.js:311-312`).
-9. Re-POST the SAME guest email to the SAME job within 24h → expect HTTP 409 `wcb_already_applied`
-   ("You have already applied to this job recently.") — the guest dedupe guard
-   (`api/endpoints/class-applications-endpoint.php:147-175`).
+9. Re-POST the SAME guest email to the SAME job within 24h → expect HTTP 200 with the SAME `id` and the same
+   `{ id, job_id, status: "submitted" }` body as step 7 (1.8.1: a repeat is answered like the first application,
+   no second row, no second email - the old 409 `wcb_already_applied` told anyone whether an email had applied).
+   Also: a guest email that belongs to an account gets 409 `wcb_guest_has_account` and a "Sign in to apply" link
+   (see `customer/apply-to-job`).
 10. Now switch personas: navigate to `/jobs/<slug>/?autologin=sarah.chen` → expect HTTP 200, logged-in candidate;
     the apply panel shows the cover-letter editor `#wcb-cover-letter` and NO guest name/email fields
     (`blocks/job-single/render.php:882`). If Pro/resume CPT is active a resume `<select>#wcb-resume-select`

@@ -3,7 +3,8 @@ id: admin-jobs-list-bulk-action
 priority: high
 personas: varundubey
 requires: mu:autologin, seed:jobs
-last_verified: 2026-05-09
+last_verified: 2026-10-13
+bug_ref: 10359867436
 needs: cli
 ---
 
@@ -16,8 +17,8 @@ needs: cli
 1. As `varundubey` (admin), navigate to `/wp-admin/admin.php?page=edit.php?post_type=wcb_job&autologin=1` (or `/wp-admin/edit.php?post_type=wcb_job`) → expect HTTP 200, jobs list table renders
 2. Create 2 smoke jobs in `publish` status for bulk-close:
    ```bash
-   JOB1=$(wp post create --post_type=wcb_job --post_title="Smoke Bulk Close 1" --post_status=publish --post_author=50 --porcelain)
-   JOB2=$(wp post create --post_type=wcb_job --post_title="Smoke Bulk Close 2" --post_status=publish --post_author=50 --porcelain)
+   JOB1=$(wp post create --post_type=wcb_job --post_title="Support Engineer, Billing - Austin" --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --post_author=50 --porcelain)
+   JOB2=$(wp post create --post_type=wcb_job --post_title="Support Engineer, Onboarding - Denver" --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=publish --post_author=50 --porcelain)
    echo "jobs: $JOB1 $JOB2"
    ```
    Capture both IDs.
@@ -26,7 +27,8 @@ needs: cli
 5. Verify DB: `wp post get $JOB1 --field=post_status` → expect `closed`. `wp post get $JOB2 --field=post_status` → expect `closed`
 6. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect neither `$JOB1` nor `$JOB2` appear in the response (closed jobs are not public per the listing endpoint contract)
 7. Navigate to `/wp-admin/edit.php?post_type=wcb_job?autologin=1` → filter by status `closed` → expect both smoke jobs appear in the closed list (they must not vanish from admin — D.wcb-closed-status guard)
-8. tail debug.log diff → expect ZERO new fatal/warning lines
+8. On `admin.php?page=wcb-jobs` with two `pending` jobs, approve one inline → the `.subsubsub` Pending/Published counts match `wp post list --post_type=wcb_job --post_status=pending --format=count` and `--post_status=publish --format=count` immediately, with no reload. Then run a bulk action on the other row and reload → the counts still match the database.
+9. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 

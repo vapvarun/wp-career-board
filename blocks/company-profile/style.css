@@ -349,7 +349,7 @@
 }
 
 .wcb-cp-desc a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 }
 
@@ -391,7 +391,7 @@
 }
 
 .wcb-cp-detail-item dd a {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade, as .wcb-company-link */
 	text-decoration: none;
 }
 
@@ -472,7 +472,7 @@
 
 .wcb-cp-job-title a:hover,
 .wcb-cp-job-title a:focus-visible {
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline !important;
 }
 
@@ -502,23 +502,6 @@
 
 .wcb-cp-job-apply {
 	flex-shrink: 0;
-	display: inline-flex;
-	align-items: center;
-	padding: var(--wcb-space-xs) var(--wcb-space-lg);
-	background: var(--wcb-primary-strong);
-	color: var(--wcb-on-primary, #ffffff);
-	border-radius: var(--wcb-radius-sm);
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-semibold);
-	text-decoration: none;
-	transition: background var(--wcb-transition-fast);
-	white-space: nowrap;
-}
-
-.wcb-cp-job-apply:hover {
-	background: var(--wcb-primary-dark);
-	color: var(--wcb-on-primary, #ffffff);
-	text-decoration: none;
 }
 
 /* -- No jobs message -- */
@@ -556,11 +539,6 @@
 
 	.wcb-cp-job-card {
 		flex-wrap: wrap;
-	}
-
-	.wcb-cp-job-apply {
-		width: 100%;
-		justify-content: center;
 	}
 }
 

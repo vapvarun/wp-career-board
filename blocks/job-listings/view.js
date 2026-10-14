@@ -7,6 +7,7 @@
 
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { categoryTree, filterList } from '@wcb/ui';
 
 let searchDebounceTimer = null;
 
@@ -243,6 +244,81 @@ function clearLegacyFilterBar( only = null ) {
 	document.dispatchEvent( new CustomEvent( 'wcb:filters-cleared', { detail: { keys: NAMES } } ) );
 }
 
+/**
+ * Mirror the current filters, keyword and sort into the address bar (one
+ * history entry per change), so the page can be shared, reloaded or stepped
+ * back through. Uses the same canonical names the server reads on first paint.
+ */
+function syncUrl() {
+	if ( state.authorId || state.savedBy ) {
+		return; // Dashboard lists are scoped by the block, not the URL.
+	}
+	const url    = new URL( window.location.href );
+	const params = wcbFilterParams( state.activeFilters || {} );
+	[ ...URL_FILTER_KEYS, 'paged', ...[ ...url.searchParams.keys() ].filter( ( key ) => key.startsWith( 'meta_' ) ) ].forEach( ( key ) => url.searchParams.delete( key ) );
+	Object.entries( params ).forEach( ( [ key, value ] ) => url.searchParams.set( key, value ) );
+	if ( state.searchQuery ) {
+		url.searchParams.set( 'search', state.searchQuery );
+	}
+	if ( state.sortBy ) {
+		url.searchParams.set( 'sort', state.sortBy );
+	}
+	// Same params in another order (the job-filters block pushed first): tidy
+	// the entry in place, so one filter change is one Back step.
+	const sorted = ( search ) => [ ...new URLSearchParams( search ) ].map( ( p ) => p.join( '=' ) ).sort().join( '&' );
+	// The job-filters block pushed an entry for this change: rewrite that one
+	// to the canonical URL, so one change is one Back step.
+	const ownEntry = filtersPushed;
+	filtersPushed  = false;
+	if ( ownEntry || sorted( url.search ) === sorted( window.location.search ) ) {
+		window.history.replaceState( null, '', url.toString() );
+	} else if ( url.toString() !== window.location.href ) {
+		window.history.pushState( null, '', url.toString() );
+	}
+	// Record what is on screen even when the job-filters block already pushed
+	// this URL, or Back would match the stale value and skip the reload.
+	renderedSearch = url.search;
+}
+
+// Categories tick as a tree (a parent ticks its children), the same as the
+// category picker. The cat_* chips hold the short form: a ticked parent
+// stands for its children.
+let catTree = null;
+const cats = () => ( catTree ||= categoryTree( state.filterOptions.categories || [] ) );
+const catChips = ( filters ) => Object.keys( filters ).filter( ( key ) => key.startsWith( 'cat_' ) ).map( ( key ) => filters[ key ] );
+const catSet = () => cats().expand( catChips( state.activeFilters ) );
+
+/**
+ * Filters with the category chips replaced by exactly these slugs.
+ *
+ * @param {Object<string,string>} filters Active filters.
+ * @param {string[]}              slugs   Chosen categories (short form).
+ * @return {Object<string,string>} New filters.
+ */
+function withCatChips( filters, slugs ) {
+	const next = { ...filters };
+	Object.keys( next ).filter( ( key ) => key.startsWith( 'cat_' ) || key === 'wcb_category' ).forEach( ( key ) => delete next[ key ] );
+	slugs.forEach( ( slug ) => {
+		next[ 'cat_' + slug ] = slug;
+	} );
+	return next;
+}
+
+// Every filter name the URL can carry (canonical and the aliases the server accepts).
+const URL_FILTER_KEYS = [ 'search', 's', 'wcb_search', 'category', 'wcb_category', 'type', 'wcb_job_type', 'location', 'wcb_location', 'experience', 'wcb_experience', 'tag', 'wcb_tag', 'remote', 'wcb_remote', 'board', 'board_id', 'sort', 'wcb_sort', 'salary_min', 'salary_max' ];
+
+// Back/Forward across filter changes: the server renders that exact state.
+// Hash-only history steps leave the query alone and are ignored.
+let renderedSearch = window.location.search;
+// Set while a wcb:search from the job-filters block (which pushes its own
+// history entry) is being applied; read once by syncUrl().
+let filtersPushed = false;
+window.addEventListener( 'popstate', () => {
+	if ( window.location.search !== renderedSearch ) {
+		window.location.reload();
+	}
+} );
+
 const { state, actions } = store( 'wcb-job-listings', {
 	state: {
 		// ── Derived: layout ──────────────────────────────────────────
@@ -279,10 +355,14 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return !! state.activeFilters[ 'exp_' + ctx.expSlug ];
 		},
 
-		/** Loop-context getter — valid inside data-wp-each on filterOptions.categories. */
+		/** Ticked: chosen, or under a chosen parent. Valid inside a category option. */
 		get isCatActive() {
-			const ctx = getContext();
-			return !! state.activeFilters[ 'cat_' + ctx.catSlug ];
+			return catSet().has( getContext().catSlug );
+		},
+
+		/** Partly ticked: some categories under it are chosen. */
+		get isCatMixed() {
+			return cats().mixed( catSet(), getContext().catSlug );
 		},
 
 		/** Loop-context getter — valid inside data-wp-each on filterOptions.tags. */
@@ -383,7 +463,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					// every locale — English included — saw a bare "1".
 					label = t( 'remoteLabel', 'Remote only' );
 				}
-				return { key, label };
+				return { key, label, removeLabel: wcbFill( t( 'removeFilter', 'Remove filter: %s' ), '%s', label ) };
 			} );
 		},
 
@@ -457,7 +537,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					state.alertError = data?.message || '';
 				}
 			} catch {
-				// Network failure: the button stays enabled to retry.
+				state.alertError = t( 'alertNetworkError', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.alertSaving = false;
 			}
@@ -538,20 +618,21 @@ const { state, actions } = store( 'wcb-job-listings', {
 			yield actions.applyFilters();
 		},
 
-		// ── Category chip ─────────────────────────────────────────────
-		* toggleCatChip() {
+		// Show more / Show less on a long filter group (context set in render.php).
+		toggleFilterGroup() {
 			const ctx = getContext();
-			const key = 'cat_' + ctx.catSlug;
-			if ( state.activeFilters[ key ] ) {
-				const next = { ...state.activeFilters };
-				delete next[ key ];
-				state.activeFilters = next;
-			} else {
-				state.activeFilters = {
-					...state.activeFilters,
-					[ key ]: ctx.catSlug,
-				};
-			}
+			ctx.expanded = ! ctx.expanded;
+		},
+
+		// ── Category chip ─────────────────────────────────────────────
+		// Narrow a long filter list as the visitor types (labels only, no request).
+		searchFilterList( event ) {
+			filterList( event.target.value, event.target.parentElement.querySelector( '.wcb-filter-panel__list' ) );
+		},
+
+		* toggleCatChip( event ) {
+			const set = cats().toggle( catSet(), getContext().catSlug, event.target.checked );
+			state.activeFilters = withCatChips( state.activeFilters, cats().compress( set ) );
 			yield actions.applyFilters();
 		},
 
@@ -669,11 +750,17 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Apply filters (reset to page 1) ───────────────────────────
 		* applyFilters() {
 			state.page = 1;
+			syncUrl();
+			// The category pickers (filters bar, hero) show what the results use.
+			document.dispatchEvent( new CustomEvent( 'wcb:categories', { detail: { slugs: catChips( state.activeFilters ) } } ) );
 			yield actions.fetchJobs();
 		},
 
 		// ── Load more (append next page) ──────────────────────────────
-		* loadMore() {
+		* loadMore( event ) {
+			// The control is a ?paged=N link for crawlers and no-JS visitors;
+			// with JS the next page is appended in place instead.
+			event?.preventDefault();
 			if ( ! state.hasMore || state.loading ) return;
 			state.page += 1;
 			yield actions.fetchJobs();
@@ -817,14 +904,33 @@ const { state, actions } = store( 'wcb-job-listings', {
 			// job-filters blocks): { detail: { query: string, filters: object } }
 			document.addEventListener( 'wcb:search', ( event ) => {
 				const params = event.detail ?? {};
+				filtersPushed = !! params.pushed;
 				if ( params.query !== undefined ) {
 					state.searchQuery = params.query;
 				}
 				// Merge external filter block values (wcb_category, wcb_location,
 				// wcb_experience, salary_min, salary_max, remote) into activeFilters.
 				if ( params.filters && typeof params.filters === 'object' ) {
-					const merged = Object.assign( {}, state.activeFilters );
+					let merged = Object.assign( {}, state.activeFilters );
+					// The filters block is single-select per taxonomy: its value
+					// replaces any chips of that taxonomy read from the URL
+					// (type_*, exp_* ...) instead of being added to them.
+					const prefixOf = { wcb_job_type: 'type_', wcb_experience: 'exp_', wcb_tag: 'tag_' };
+					for ( const key of Object.keys( params.filters ) ) {
+						const prefix = prefixOf[ key ];
+						if ( prefix ) {
+							Object.keys( merged ).filter( ( k ) => k.startsWith( prefix ) ).forEach( ( k ) => delete merged[ k ] );
+						}
+					}
+					// The category picker sends its whole choice (a comma list):
+					// it becomes the sidebar's ticks, so both show the same.
+					if ( 'wcb_category' in params.filters ) {
+						merged = withCatChips( merged, String( params.filters.wcb_category || '' ).split( ',' ).filter( Boolean ) );
+					}
 					for ( const [ key, value ] of Object.entries( params.filters ) ) {
+						if ( key === 'wcb_category' ) {
+							continue;
+						}
 						if ( value ) {
 							merged[ key ] = String( value );
 						} else {

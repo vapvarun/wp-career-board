@@ -622,7 +622,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '120000',
 					'_wcb_salary_max'      => '160000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '1',
 					'_wcb_deadline'        => $deadline_3m,
@@ -643,7 +643,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '110000',
 					'_wcb_salary_max'      => '145000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '1',
 					'_wcb_deadline'        => $deadline_2m,
@@ -664,7 +664,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '100000',
 					'_wcb_salary_max'      => '135000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '0',
 					'_wcb_deadline'        => $deadline_6w,
@@ -685,7 +685,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '130000',
 					'_wcb_salary_max'      => '175000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '1',
 					'_wcb_deadline'        => $deadline_3m,
@@ -707,7 +707,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '140000',
 					'_wcb_salary_max'      => '185000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '1',
 					'_wcb_deadline'        => $deadline_2m,
@@ -729,7 +729,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '95000',
 					'_wcb_salary_max'      => '130000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '0',
 					'_wcb_deadline'        => $deadline_6w,
@@ -751,7 +751,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '160000',
 					'_wcb_salary_max'      => '220000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '1',
 					'_wcb_deadline'        => $deadline_3m,
@@ -773,7 +773,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				'meta'    => array(
 					'_wcb_salary_min'      => '90000',
 					'_wcb_salary_max'      => '120000',
-					'_wcb_salary_currency' => 'USD',
+					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
 					'_wcb_salary_type'     => 'annual',
 					'_wcb_remote'          => '0',
 					'_wcb_deadline'        => $deadline_2m,

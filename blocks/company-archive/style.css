@@ -117,7 +117,7 @@
 .wcb-layout-btn.wcb-active,
 .wcb-view-btn.wcb-view-btn--active {
 	background: var(--wcb-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	box-shadow: var(--wcb-shadow-sm);
 }
 
@@ -130,15 +130,11 @@
 
 .wcb-ca-container.wcb-grid {
 	display: grid;
-	/* Force 3 explicit columns at desktop so Companies renders the same 3-up
-	 * grid as Find Candidates regardless of the parent chain padding deltas
-	 * Astra applies to `.wcb-page-article` (the wrapper our
-	 * `page-wcb-fullwidth.php` template puts the block in). An auto-fill
-	 * template here collapsed to 2-col because the sidebar filter panel
-	 * eats ~240px of the row, leaving < 3 × 280px. Mirrors the same fix
-	 * used in `blocks/resume-archive/style.css`. Falls back to 2-col / 1-col
-	 * at the narrower breakpoints handled by the @media block below. */
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	/* As many 300px+ columns as fit: 2 beside the filters sidebar, 3 without
+	 * it. Three forced columns beside the sidebar left ~110px for a name,
+	 * which broke mid-word ("Copperl / eaf"). Same rule on all three archives
+	 * (Find Jobs, Companies, Find Candidates). */
+	grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
 	gap: var(--wcb-space-xl);
 }
 
@@ -325,10 +321,11 @@
 
 .wcb-ca-logo.wcb-shown {
 	display: block;
+	box-sizing: border-box;
 	object-fit: contain;
-	background: var(--wcb-base);
-	border: 2px solid var(--wcb-base);
-	box-shadow: var(--wcb-shadow-sm);
+	/* The same thin frame as the job card's logo (.wcb-avatar--logo). */
+	background: var(--wcb-surface, #ffffff);
+	border: 1px solid var(--wcb-border);
 }
 
 .wcb-ca-avatar {
@@ -389,14 +386,19 @@
 	display: -webkit-box;
 }
 
-/* Meta: one plain line (industry · size · HQ), not three pills. It
- * truncates rather than wrapping, so a separator never starts a line. */
+/* Meta: industry · size · HQ as plain text, not pills. Items break between
+ * each other (never mid-name), up to two lines; an item that still doesn't
+ * fit is dropped whole. Each separator sits in the gap before its item, so
+ * on a line start it falls outside the box and is clipped away. */
 .wcb-ca-card-chips {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: var(--wcb-space-lg);
+	max-height: calc(2em * var(--wcb-leading-normal, 1.5));
+	line-height: var(--wcb-leading-normal, 1.5);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
-	white-space: nowrap;
 	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .wcb-ca-card-chips:not(:has(.wcb-shown)),
@@ -406,12 +408,16 @@
 
 .wcb-ca-chip.wcb-shown {
 	display: inline;
+	position: relative;
+	white-space: nowrap;
 }
 
 .wcb-ca-chip.wcb-shown ~ .wcb-ca-chip.wcb-shown::before {
 	content: "\00B7";
-	/* xs, not sm, before: the markup's own whitespace supplies the rest. */
-	margin-inline: var(--wcb-space-xs) var(--wcb-space-sm);
+	position: absolute;
+	inset-inline-start: calc(-1 * var(--wcb-space-lg));
+	width: var(--wcb-space-lg);
+	text-align: center;
 }
 
 /* -- Card footer -- */

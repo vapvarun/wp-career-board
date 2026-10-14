@@ -26,11 +26,14 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class AdminCompanies extends \WP_List_Table {
 
+	use SearchBox;
+
 	/**
-	 * Employer for each company on the current page: company ID => {id, display_name}.
+	 * Employers running each company on the current page: company ID => user ID => name.
 	 *
 	 * @since 1.8.0
-	 * @var array<int,array{id:int,display_name:string}>
+	 * @since 1.8.1 Every employer, not only the first.
+	 * @var array<int,array<int,string>>
 	 */
 	private array $employers = array();
 
@@ -68,7 +71,6 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return void
 	 */
 	public function render(): void {
-		$this->process_bulk_action();
 		$this->prepare_items();
 		?>
 		<div class="wrap wcb-admin wcb-companies-list">
@@ -93,18 +95,7 @@ class AdminCompanies extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-companies">
-				<?php
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$wcb_s = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-				?>
-				<p class="search-box">
-					<label class="screen-reader-text" for="wcb-company-search-input">
-						<?php esc_html_e( 'Search Companies', 'wp-career-board' ); ?>
-					</label>
-					<label for="wcb-company-search-input" class="screen-reader-text"><?php esc_html_e( 'Search companies', 'wp-career-board' ); ?></label>
-					<input type="search" id="wcb-company-search-input" name="s" value="<?php echo esc_attr( $wcb_s ); ?>" placeholder="<?php esc_attr_e( 'Company name…', 'wp-career-board' ); ?>">
-					<?php submit_button( __( 'Search Companies', 'wp-career-board' ), '', '', false, array( 'id' => 'search-submit' ) ); ?>
-				</p>
+				<?php $this->render_search_box( 'wcb-company', __( 'Search Companies', 'wp-career-board' ), __( 'Company name…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -245,14 +236,17 @@ class AdminCompanies extends \WP_List_Table {
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- two grouped lookups for the page; both meta_value columns are indexed as part of the usermeta/postmeta composite keys.
 		$meta_rows = $wpdb->get_results( $wpdb->prepare( "SELECT user_id, meta_value AS company_id FROM {$wpdb->usermeta} WHERE meta_key = '_wcb_company_id' AND meta_value IN ( {$in} )", $company_ids ) );
-		$job_rows  = $wpdb->get_results( $wpdb->prepare( "SELECT pm.meta_value AS company_id, COUNT(*) AS n FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE pm.meta_key = '_wcb_company_id' AND pm.meta_value IN ( {$in} ) AND p.post_type = 'wcb_job' AND p.post_status = 'publish' GROUP BY pm.meta_value", $company_ids ) );
+		// Everyone who runs the company (1.8.1): its creator and named co-owners, not only the main link.
+		$run_rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_author AS user_id, ID AS company_id FROM {$wpdb->posts} WHERE ID IN ( {$in} ) UNION SELECT meta_value, post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_company_owner' AND post_id IN ( {$in} )", ...array_merge( $company_ids, $company_ids ) ) );
+		$job_rows = $wpdb->get_results( $wpdb->prepare( "SELECT pm.meta_value AS company_id, COUNT(*) AS n FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE pm.meta_key = '_wcb_company_id' AND pm.meta_value IN ( {$in} ) AND p.post_type = 'wcb_job' AND p.post_status = 'publish' GROUP BY pm.meta_value", $company_ids ) );
 		// phpcs:enable
 
 		foreach ( (array) $job_rows as $row ) {
 			$this->job_counts[ (int) $row->company_id ] = (int) $row->n;
 		}
 
-		$user_ids = wp_list_pluck( (array) $meta_rows, 'user_id' );
+		$meta_rows = array_merge( (array) $meta_rows, (array) $run_rows );
+		$user_ids  = array_unique( wp_list_pluck( $meta_rows, 'user_id' ) );
 		if ( ! $user_ids ) {
 			return;
 		}
@@ -268,15 +262,11 @@ class AdminCompanies extends \WP_List_Table {
 				$names[ $user_id ] = $user->display_name;
 			}
 		}
-		foreach ( (array) $meta_rows as $row ) {
+		foreach ( $meta_rows as $row ) {
 			$company_id = (int) $row->company_id;
 			$user_id    = (int) $row->user_id;
-			// A company can only have one employer link in the UI; keep the first.
-			if ( isset( $names[ $user_id ] ) && ! isset( $this->employers[ $company_id ] ) ) {
-				$this->employers[ $company_id ] = array(
-					'id'           => $user_id,
-					'display_name' => $names[ $user_id ],
-				);
+			if ( isset( $names[ $user_id ] ) ) {
+				$this->employers[ $company_id ][ $user_id ] = $names[ $user_id ];
 			}
 		}
 	}
@@ -444,7 +434,8 @@ class AdminCompanies extends \WP_List_Table {
 	}
 
 	/**
-	 * Employer column — the user linked to this company via _wcb_company_id meta.
+	 * Employer column: everyone who runs the company (1.8.1: creator, co-owners
+	 * and anyone whose main company it is), each linked to their profile.
 	 *
 	 * @since 1.0.0
 	 *
@@ -452,17 +443,11 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_employer( $item ): string {
-		$emp = $this->employers[ (int) $item->ID ] ?? null;
-
-		if ( null !== $emp ) {
-			return sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( (string) get_edit_user_link( $emp['id'] ) ),
-				esc_html( $emp['display_name'] )
-			);
+		$links = array();
+		foreach ( $this->employers[ (int) $item->ID ] ?? array() as $user_id => $name ) {
+			$links[] = sprintf( '<a href="%s">%s</a>', esc_url( (string) get_edit_user_link( $user_id ) ), esc_html( $name ) );
 		}
-
-		return '—';
+		return $links ? implode( ', ', $links ) : '—';
 	}
 
 	/**
@@ -599,7 +584,7 @@ class AdminCompanies extends \WP_List_Table {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	protected function process_bulk_action(): void {
+	public function process_bulk_action(): void {
 		$action = $this->current_action();
 		if ( ! $action ) {
 			return;

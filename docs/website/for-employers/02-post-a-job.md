@@ -20,7 +20,7 @@ The job form is a 4-step wizard.
 
 - **Salary Range** - optional. Pick a currency, enter a minimum and maximum, and choose the period (Year, Month or Hour). Leave it blank to hide the salary from candidates.
 - **Remote-friendly position** - tick this for a remote job.
-- **Application Deadline** - filled in for you from the board's listing length. You cannot edit it in the form. Ask your site admin if you need a longer listing window.
+- **Application Deadline** - pre-filled with the board's listing length, which is also the latest date you can pick. Choose an earlier date to close the job sooner. A later date is not accepted; ask your site admin if you need a longer listing window.
 - **Apply URL** - optional. A full link starting with `http://` or `https://` where candidates apply on your own site. The public job page then shows an **Apply on Company Site** button in place of the on-site apply form.
 - **Apply Email** - optional. Shown as an **Apply Email** link on the public job page.
 
@@ -50,7 +50,7 @@ Open **My Jobs** and click **Edit** on the job. The form opens with the current 
 
 ## When a job ends
 
-A job runs until its deadline. That is the site's listing length, 30 days by default, unless the board sets its own length.
+A job runs until its deadline. By default that is the site's listing length, 30 days unless the board sets its own length. You can pick an earlier deadline in the form, but not a later one.
 
 On sites that end jobs at their deadline (the default on new sites), the job then leaves the job listings. Its page stays up and tells visitors it has expired, so links you shared keep working. Your dashboard shows it as **Expired** with a **Reopen** button, which starts a new listing period with a fresh deadline (the site may charge credits for it). You get a **Job Ending Soon** email 3 days before the deadline. On any site, a job stops taking applications once its deadline has passed. Applications you already received stay as they are, so you can keep reviewing them.
 

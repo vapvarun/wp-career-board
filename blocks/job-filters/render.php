@@ -15,57 +15,22 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification.Recommended
-$wcb_filter_category   = isset( $_GET['wcb_category'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_category'] ) )
-	: '';
-$wcb_filter_type       = isset( $_GET['wcb_job_type'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_job_type'] ) )
-	: '';
-$wcb_filter_location   = isset( $_GET['wcb_location'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_location'] ) )
-	: '';
-$wcb_filter_exp        = isset( $_GET['wcb_experience'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_experience'] ) )
-	: '';
-$wcb_filter_salary_min = isset( $_GET['salary_min'] )
-	? (int) $_GET['salary_min']
-	: 0;
-$wcb_filter_salary_max = isset( $_GET['salary_max'] )
-	? (int) $_GET['salary_max']
-	: 0;
-$wcb_filter_remote     = ! empty( $_GET['remote'] );
-// phpcs:enable WordPress.Security.NonceVerification.Recommended
+// Read the URL the way the listings block does (canonical names and their
+// wcb_* aliases), so a shared or Back-navigated link shows matching selects.
+$wcb_url               = \WCB\Modules\Jobs\JobSearch::from_url();
+$wcb_first             = static fn( string $key ): string => (string) strtok( (string) ( $wcb_url[ $key ] ?? '' ), ',' );
+$wcb_filter_category   = (string) ( $wcb_url['category'] ?? '' ); // Several at once: a comma list.
+$wcb_filter_type       = $wcb_first( 'type' );
+$wcb_filter_location   = $wcb_first( 'location' );
+$wcb_filter_exp        = $wcb_first( 'experience' );
+$wcb_filter_salary_min = (int) ( $wcb_url['salary_min'] ?? 0 );
+$wcb_filter_salary_max = (int) ( $wcb_url['salary_max'] ?? 0 );
+$wcb_filter_remote     = ! empty( $wcb_url['remote'] );
 
-$wcb_categories_raw  = get_terms(
-	array(
-		'taxonomy'   => 'wcb_category',
-		'hide_empty' => false,
-	)
-);
-$wcb_job_types_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_job_type',
-		'hide_empty' => false,
-	)
-);
-$wcb_locations_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_location',
-		'hide_empty' => false,
-	)
-);
-$wcb_experiences_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_experience',
-		'hide_empty' => false,
-	)
-);
-
-$wcb_categories  = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
-$wcb_job_types   = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
-$wcb_locations   = is_wp_error( $wcb_locations_raw ) ? array() : $wcb_locations_raw;
-$wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
+$wcb_categories  = \WCB\Core\Taxonomy::options( 'wcb_category' );
+$wcb_job_types   = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
+$wcb_locations   = \WCB\Core\Taxonomy::options( 'wcb_location' );
+$wcb_experiences = \WCB\Core\Taxonomy::options( 'wcb_experience' );
 
 // Filters block owns 'filters' in the shared wcb-search namespace.
 // Cast to object so JSON-encodes as {} even when no filters are active.
@@ -105,20 +70,19 @@ wp_interactivity_state(
 	</label>
 	<div class="wcb-filters-row">
 
-		<select class="wcb-filter-select" name="wcb_category" aria-label="<?php esc_attr_e( 'Category', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_category">
-			<option value=""><?php esc_html_e( 'All Categories', 'wp-career-board' ); ?></option>
-			<?php foreach ( $wcb_categories as $wcb_term ) : ?>
-				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_category, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
-				</option>
-			<?php endforeach; ?>
-		</select>
+		<?php
+		$wcb_picker_options  = $wcb_categories;
+		$wcb_picker_selected = $wcb_filter_category;
+		$wcb_picker_name     = '';
+		$wcb_picker_filter   = 'wcb_category';
+		require WCB_DIR . 'templates/parts/category-picker.php';
+		?>
 
 		<select class="wcb-filter-select" name="wcb_job_type" aria-label="<?php esc_attr_e( 'Job Type', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_job_type">
 			<option value=""><?php esc_html_e( 'All Types', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_job_types as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_type, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
@@ -127,7 +91,7 @@ wp_interactivity_state(
 			<option value=""><?php esc_html_e( 'All Locations', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_locations as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_location, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
@@ -136,14 +100,14 @@ wp_interactivity_state(
 			<option value=""><?php esc_html_e( 'All Experience Levels', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_experiences as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_exp, $wcb_term->slug ); ?>>
-					<?php echo esc_html( $wcb_term->name ); ?>
+					<?php echo esc_html( $wcb_term->label ); ?>
 				</option>
 			<?php endforeach; ?>
 		</select>
 
 		<div class="wcb-filter-salary">
-			<input type="number" class="wcb-filter-input" name="salary_min" min="0" step="1000" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Min salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_min ? (string) $wcb_filter_salary_min : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_min" />
-			<input type="number" class="wcb-filter-input" name="salary_max" min="0" step="1000" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Max salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_max ? (string) $wcb_filter_salary_max : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_max" />
+			<input type="number" class="wcb-filter-input" name="salary_min" min="0" step="any" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Min salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_min ? (string) $wcb_filter_salary_min : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_min" />
+			<input type="number" class="wcb-filter-input" name="salary_max" min="0" step="any" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Max salary', 'wp-career-board' ); ?>" value="<?php echo esc_attr( $wcb_filter_salary_max ? (string) $wcb_filter_salary_max : '' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="salary_max" />
 		</div>
 
 		<label class="wcb-filter-remote">

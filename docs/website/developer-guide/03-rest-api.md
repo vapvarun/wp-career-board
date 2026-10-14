@@ -1,6 +1,6 @@
 # REST API Reference
 
-Use the `wcb/v1` REST namespace to read and manage jobs, applications, candidates, employers and companies from your own code or app. Every endpoint class extends `WCB\Api\RestController`, which owns the shared response envelope and the abilities-aware permission helper. All routes below are relative to `/wp-json/wcb/v1`.
+Use the `wcb/v1` REST namespace to read and manage jobs, applications, candidates, employers and companies from your own code or app. Every endpoint class extends `WCB\Api\RestController`, which owns the shared response envelope and the abilities-aware permission helper. All routes below are relative to `/wp-json/wcb/v1`. Free registers 56 routes. A route shown with `PUT` uses WordPress's editable method set, so it also accepts `PATCH` and `POST`. The same 56 routes (80 route and method pairs) are described, with their parameters and response schemas, in the OpenAPI 3.1 file `docs/api/openapi.json` in the plugin repository. It is generated from the live route registrations with `wp eval-file bin/gen-openapi.php`.
 
 ## Authentication
 
@@ -17,7 +17,7 @@ fetch( '/wp-json/wcb/v1/jobs', {
 For server-to-server calls, generate an application password
 (Users -> Profile -> Application Passwords) and use HTTP Basic auth.
 
-A small set of endpoints permit guest access: the read-only jobs, companies, candidates, employers and search endpoints, the candidate and employer registration endpoints, and the apply endpoint. A guest can apply unless **Require login to apply** is on under **Settings > Applications**; then a logged-out request gets `401 wcb_login_required`. A logged-in user must hold the `wcb/apply-jobs` ability.
+A small set of endpoints permit guest access: the read-only jobs, companies, candidates, employers and search endpoints, the candidate and employer registration endpoints, and the apply endpoint. A guest can apply unless **Require login to apply** is on under **Settings > Applications**; then a logged-out request gets `401 wcb_login_required`. A logged-in user must hold the `wcb/apply-jobs` ability. A guest whose `guest_email` belongs to an account gets `409 wcb_guest_has_account` (the client should send them to sign in). A repeat guest application for the same job and email within 24 hours returns the same `200` body and application `id` as the first, so the route never reveals whether an email applied.
 
 Abuse prevention on submission endpoints comes from the anti-spam module: an always-on honeypot field plus an optional CAPTCHA provider (Cloudflare Turnstile, Google reCAPTCHA v3 or v2). Some public routes also have hourly per-IP limits. See [Abuse prevention](#abuse-prevention).
 
@@ -36,7 +36,22 @@ shape is consistent:
 ```
 
 The `wcb_*` prefix on error codes is the plugin's namespace -
-addons should mirror this convention with their own prefix.
+addons should mirror this convention with their own prefix. See [Error codes](07-error-codes.md) for every code the Free plugin returns, with its HTTP status and when it fires.
+
+## List responses
+
+List routes return an object, not a bare array: the items under a key named for the resource, plus paging fields.
+
+```json
+{
+    "jobs": [ ],
+    "total": 142,
+    "pages": 12,
+    "has_more": true
+}
+```
+
+The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` for `GET /companies` and `applications` for the application lists (which add `counts`). `GET /jobs` and `GET /companies` also return `results_label`, an already translated "N jobs found" string. The totals are also sent as the `X-WCB-Total` and `X-WCB-TotalPages` headers. Guests get `Cache-Control: public, max-age=300` on `GET /jobs`; signed-in users get `private`.
 
 ## Routes by area
 
@@ -87,7 +102,7 @@ Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relat
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
 | `POST` | `/candidates/register` | guest | Register a new candidate |
-| `GET` | `/candidates/{id}` | guest OK | Candidate profile |
+| `GET` | `/candidates/{id}` | guest OK | Candidate profile. A private profile answers `404 wcb_not_found` for everyone but the owner and administrators, exactly like a missing user |
 | `PUT` | `/candidates/{id}` | self or admin | Update profile |
 | `GET` | `/candidates/{id}/bookmarks` | self or admin | List saved jobs (read-only - toggle via `POST /jobs/{id}/bookmark`) |
 | `GET` | `/candidates/{id}/saved-companies` | self or admin | List saved companies (read-only - toggle via `POST /companies/{id}/bookmark`) |
@@ -98,8 +113,8 @@ Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relat
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
-| `POST` | `/auth/app-password` | guest | Trade a website login for a WordPress Application Password. Off unless **App Password Sign-In** is on; requires HTTPS. |
-| `DELETE` | `/auth/app-password` | logged-in | Revoke the credential making the request (app sign-out) |
+| `POST` | `/auth/app-password` | guest | Trade a website login for a WordPress Application Password. Send `username` (email or login) and `password`; `app_name` and `app_id` are optional, and a repeat sign-in with the same `app_id` replaces the credential instead of adding another. Returns `user_login`, `password` and `app_id`, with `no-store` caching. Off unless **App Password Sign-In** is on; requires HTTPS. A site with two-factor sign-in answers `409 wcb_second_factor`; an account waiting for deletion answers `403 wcb_account_pending_deletion` |
+| `DELETE` | `/auth/app-password` | logged-in | Revoke the credential making the request (app sign-out). Returns `revoked` (true or false) |
 | `POST` | `/auth/verify-email/resend` | guest | Send a new confirmation link to an unconfirmed account (5 an hour per IP) |
 
 ### Account
@@ -147,7 +162,7 @@ reference.
 | `POST` | `/employers` | `wcb/manage-company` | Create a company directly (not self-registration) |
 | `GET` | `/employers/{id}` | guest OK | Employer detail. `{id}` is the company ID |
 | `PUT` | `/employers/{id}` | the company's author with `wcb/manage-company`, or `wcb/manage-settings` | Update an employer profile |
-| `GET` | `/employers/{id}/jobs` | guest OK | Employer's job postings |
+| `GET` | `/employers/{id}/jobs` | guest OK | Employer's job postings. `appCount` and `appLabel` are included only for the company's owner and administrators |
 | `GET` | `/employers/{id}/applications` | the company's author with `wcb/view-applications`, or `wcb/manage-settings` | Applications across the employer's jobs |
 | `POST` | `/employers/{id}/logo` | same as update | Upload the company logo (file field `logo`) |
 | `GET` | `/employers/me/jobs` | `wcb/access-employer-dashboard` | The current employer's own jobs |
@@ -260,7 +275,7 @@ Public routes that cost something also have hourly per-IP limits, answered with 
 | `POST /auth/verify-email/resend` | 5 | - |
 | `POST /auth/app-password` | 20 attempts, 5 failures per bucket | `wcb_app_password_max_attempts_per_ip`, `wcb_app_password_max_failures` |
 
-Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Anti-Spam > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The leftmost address in the header is used, and an invalid one falls back to `REMOTE_ADDR`.
+Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Anti-Spam > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The rightmost address in the header is used (the one your own proxy appended; the client controls everything to its left), and an invalid one falls back to `REMOTE_ADDR`.
 
 Both sign-up routes also run `wcb_pre_registration` and core's `registration_errors` filter before an account is created.
 

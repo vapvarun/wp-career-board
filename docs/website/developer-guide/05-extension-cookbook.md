@@ -278,6 +278,38 @@ add_action( 'wcb_job_single_after_description', function ( int $job_id ) {
 } );
 ```
 
+## Point or hide the View resume link
+
+Admins see **View resume** on the Applications list, the application screen and the Candidates list. `wcb_candidate_resume_url` decides where it goes. Return `''` to hide it.
+
+```php
+add_filter( 'wcb_candidate_resume_url', function ( string $url, int $user_id, int $application_id ): string {
+    // Send staff to your ATS instead of the resume page.
+    $ats_id = get_user_meta( $user_id, 'my_ats_id', true );
+    return $ats_id ? 'https://ats.example.com/people/' . rawurlencode( (string) $ats_id ) : $url;
+}, 10, 3 );
+```
+
+## Give a new job the board's default deadline
+
+Code that creates jobs outside the REST API (an importer, a form plugin) should set the same deadline the plugin would. It applies the board's listing length and the `wcb_job_default_expiry_days` filter.
+
+```php
+$deadline = \WCB\Core\JobDeadline::default_end_for_board( $board_id ); // Y-m-d; 0 for no board.
+update_post_meta( $job_id, '_wcb_deadline', $deadline );
+```
+
+## List job terms in the site's order
+
+Category, type, location, experience and tag lists follow the **Order** number on each term, with children under their parent. Use the same helper instead of `get_terms()`:
+
+```php
+foreach ( \WCB\Core\Taxonomy::options( 'wcb_experience' ) as $term ) {
+    // $term->id, ->slug, ->name, ->depth (0 for top level), ->label (name prefixed by dashes per level).
+    printf( '<option value="%s">%s</option>', esc_attr( $term->slug ), esc_html( $term->label ) );
+}
+```
+
 ## Include your data in privacy exports and erasure
 
 Register a provider once. It is used by **Tools > Export Personal Data** and **Erase Personal Data**, and whenever a user is deleted.

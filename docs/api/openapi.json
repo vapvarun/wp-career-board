@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "WP Career Board REST API",
-        "version": "1.8.0",
+        "version": "1.8.1",
         "description": "REST API for WP Career Board (Free). Namespaced under `wcb/v1`. WP Career Board Pro adds its own routes to the same namespace; those are catalogued in the Pro plugin's own spec.\n\nThis document is generated from the live route registrations and scoped to the routes this plugin registers, so it never includes routes from Pro or any other plugin on the same install.",
         "contact": {
             "name": "Wbcom Designs",
@@ -1883,6 +1883,59 @@
                             "default": 20
                         },
                         "description": ""
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "description": ""
+                    },
+                    {
+                        "name": "since_days",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 365,
+                            "default": 0
+                        },
+                        "description": "Only applications received in the last N days (0 = any time)."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
+        "/wcb/v1/employers/me/companies": {
+            "get": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "get_wcb_v1_employers_me_companies",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
                     }
                 ],
                 "responses": {
@@ -1913,6 +1966,42 @@
                     },
                     {
                         "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        },
+                        "description": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 20
+                        },
+                        "description": ""
+                    },
+                    {
+                        "name": "company_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "description": ""
                     }
                 ],
                 "responses": {
@@ -2132,6 +2221,45 @@
                         "description": "Not found."
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "delete_wcb_v1_employers_id",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
             }
         },
         "/wcb/v1/employers/{id}/applications": {
@@ -2238,6 +2366,47 @@
                     "Employers"
                 ],
                 "operationId": "post_wcb_v1_employers_id_logo",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
+        "/wcb/v1/employers/{id}/main": {
+            "post": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "post_wcb_v1_employers_id_main",
                 "security": [
                     {
                         "appPassword": []
@@ -2731,6 +2900,9 @@
                                     "board_id": {
                                         "type": "string"
                                     },
+                                    "company_id": {
+                                        "type": "string"
+                                    },
                                     "apply_email": {
                                         "type": "string"
                                     },
@@ -2741,6 +2913,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -2853,6 +3031,9 @@
                                     "board_id": {
                                         "type": "string"
                                     },
+                                    "company_id": {
+                                        "type": "string"
+                                    },
                                     "apply_email": {
                                         "type": "string"
                                     },
@@ -2863,6 +3044,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -2941,6 +3128,9 @@
                                     "board_id": {
                                         "type": "string"
                                     },
+                                    "company_id": {
+                                        "type": "string"
+                                    },
                                     "apply_email": {
                                         "type": "string"
                                     },
@@ -2951,6 +3141,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }
@@ -3029,6 +3225,9 @@
                                     "board_id": {
                                         "type": "string"
                                     },
+                                    "company_id": {
+                                        "type": "string"
+                                    },
                                     "apply_email": {
                                         "type": "string"
                                     },
@@ -3039,6 +3238,12 @@
                                             "draft",
                                             "closed"
                                         ]
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }

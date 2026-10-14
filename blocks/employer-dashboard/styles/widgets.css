@@ -158,7 +158,7 @@
 
 .wcb-logo-upload-label:hover {
 	border-color: var(--wcb-primary);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-preview-logo-img {
@@ -227,7 +227,7 @@
 
 .wcb-credit-banner__link {
 	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 }

@@ -168,21 +168,41 @@ final class JobSearch {
 			if ( is_array( $value ) ) {
 				$value = implode( ',', array_map( 'strval', array_filter( $value, 'is_scalar' ) ) );
 			}
-			if ( is_scalar( $value ) && '' !== (string) $value && ! isset( $params[ $key ] ) ) {
-				$params[ $key ] = sanitize_text_field( (string) $value );
+			if ( ! is_scalar( $value ) || '' === (string) $value ) {
+				continue;
+			}
+			$value = sanitize_text_field( (string) $value );
+			if ( ! isset( $params[ $key ] ) ) {
+				$params[ $key ] = $value;
+			} elseif ( isset( self::TAXONOMIES[ $key ] ) ) {
+				// ?category=a&wcb_category=b (an old link plus a newer control): both count.
+				$params[ $key ] = implode( ',', array_unique( array_merge( explode( ',', $params[ $key ] ), explode( ',', $value ) ) ) );
 			}
 		}
 		return $params;
 	}
 
 	/**
-	 * Filter params from the current URL (listing block, archive).
+	 * Filter params from the current URL (listing block, filter controls, archive).
+	 *
+	 * On a job taxonomy archive (/job-category/design/) the archive's term is
+	 * the starting value of its filter, so the listing, its ticked boxes and its
+	 * pill all show it. A value in the URL replaces it: picking other categories
+	 * there shows those categories, and unticking the term shows every job,
+	 * exactly what the controls say. A reload without a value starts from the
+	 * archive's term again.
 	 *
 	 * @return array<string, mixed>
 	 */
 	public static function from_url(): array {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public, read-only filters.
-		return self::normalise( wp_unslash( $_GET ) );
+		$params = self::normalise( wp_unslash( $_GET ) );
+		$term   = is_tax( self::TAXONOMIES ) ? get_queried_object() : null;
+		$param  = $term instanceof \WP_Term ? array_search( $term->taxonomy, self::TAXONOMIES, true ) : false;
+		if ( $param && empty( $params[ $param ] ) ) {
+			$params[ $param ] = $term->slug;
+		}
+		return $params;
 	}
 
 	/**
@@ -383,7 +403,7 @@ final class JobSearch {
 			// Featured is what an employer pays for: it leads a keyword search too.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_fr ON ( wcb_fr.post_id = {$posts}.ID AND wcb_fr.meta_key = '_wcb_featured' )";
 			$clauses['fields'] .= ', ( ' . implode( ' + ', $score ) . ' ) AS wcb_relevance';
-			$clauses['orderby'] = "( wcb_fr.meta_value = '1' ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$clauses['orderby'] = "COALESCE( wcb_fr.meta_value = '1', 0 ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'salary' === $sort ) {
 			// Compared per year: $150-200 an hour is more than $50k a year.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_sal ON ( wcb_sal.post_id = {$posts}.ID AND wcb_sal.meta_key = '_wcb_salary_max' )";
@@ -440,7 +460,7 @@ final class JobSearch {
 		$bottom = self::yearly_sql( "COALESCE( NULLIF( wcb_fmin.meta_value, '' ), NULLIF( wcb_fmax.meta_value, '' ) )", 'wcb_ftyp.meta_value' );
 
 		$clauses['where'] .= " AND {$top} > 0";
-		$clauses['where'] .= $wpdb->prepare( " AND ( wcb_fcur.meta_value IS NULL OR wcb_fcur.meta_value IN ( '', %s ) )", strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) ) );
+		$clauses['where'] .= $wpdb->prepare( " AND ( wcb_fcur.meta_value IS NULL OR wcb_fcur.meta_value IN ( '', %s ) )", JobsMeta::default_currency() );
 		if ( $min ) {
 			$clauses['where'] .= $wpdb->prepare( " AND {$top} >= %d", $min ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $top is built from fixed aliases and constants.
 		}
@@ -468,7 +488,7 @@ final class JobSearch {
 		$hi       = (string) get_post_meta( $job_id, '_wcb_salary_max', true );
 		$type     = (string) get_post_meta( $job_id, '_wcb_salary_type', true );
 		$currency = strtoupper( (string) get_post_meta( $job_id, '_wcb_salary_currency', true ) );
-		if ( '' !== $currency && strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) ) !== $currency ) {
+		if ( '' !== $currency && JobsMeta::default_currency() !== $currency ) {
 			return false;
 		}
 		$top    = \WCB\Core\SalaryFormat::yearly( (float) ( '' !== $hi ? $hi : $lo ), $type );

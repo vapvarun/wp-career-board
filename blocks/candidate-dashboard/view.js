@@ -14,13 +14,13 @@
  *
  * @package WP_Career_Board
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, withScope } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
- * Tabs that are eligible to appear in the URL hash. Anything outside this
- * allowlist is ignored on read so a stale `#whatever` never lands the user
- * in an undefined tab state.
+ * Tabs that can appear in the URL hash (first = default). Anything else is
+ * ignored on read so a stale `#whatever` never lands in an undefined tab.
  */
 const VALID_TABS = [
 	'overview',
@@ -33,7 +33,10 @@ const VALID_TABS = [
 	'alerts',
 	'profile',
 	'settings',
+	'notifications',
 ];
+
+const tabs = tabRouter( VALID_TABS, 'wcb_candidate_tab' );
 
 /**
  * Translation reader.
@@ -48,31 +51,6 @@ const VALID_TABS = [
  * @return {string} Translated string.
  */
 const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
-
-/**
- * Read the active tab slug from the current URL hash, or null if missing/invalid.
- */
-function readHashTab() {
-	const raw = ( window.location.hash || '' ).replace( /^#/, '' );
-	return VALID_TABS.includes( raw ) ? raw : null;
-}
-
-/**
- * Sync the URL hash to a given tab slug without pushing a new history entry.
- * `replaceState` keeps Back/Forward predictable — one entry per real navigation,
- * not per tab click. Skip the write when the hash already matches.
- */
-function writeHashTab( tab ) {
-	if ( ! VALID_TABS.includes( tab ) ) {
-		return;
-	}
-	const target = '#' + tab;
-	if ( window.location.hash === target ) {
-		return;
-	}
-	const url = window.location.pathname + window.location.search + target;
-	window.history.replaceState( null, '', url );
-}
 
 /**
  * Format a number against the SITE locale, not the browser locale.
@@ -99,49 +77,6 @@ function formatNumber( value ) {
 		// function exists to avoid). A constant tag keeps output identical for
 		// every visitor regardless of their browser.
 		return new Intl.NumberFormat( 'en-US' ).format( n );
-	}
-}
-
-/**
- * Format a UTC MySQL datetime ("2026-09-28 17:24:41") as a short relative
- * time ("2h ago", "3d ago") against the SITE locale, falling back to a
- * localised absolute date once it's more than a week old. Bell notifications
- * bound the raw string directly with no formatting at all.
- *
- * @param {string} mysqlUtc UTC datetime as returned by current_time('mysql', true).
- * @return {string} Human-readable relative or absolute time, '' if unparsable.
- */
-function formatRelativeTime( mysqlUtc ) {
-	if ( ! mysqlUtc ) {
-		return '';
-	}
-	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
-	if ( Number.isNaN( then.getTime() ) ) {
-		return '';
-	}
-	const seconds = ( Date.now() - then.getTime() ) / 1000;
-	const locale  = state.locale || 'en-US';
-	if ( seconds < 7 * 86400 ) {
-		const units = [ [ 60, 'second' ], [ 60, 'minute' ], [ 24, 'hour' ], [ 7, 'day' ] ];
-		let value = seconds;
-		let unit  = 'second';
-		for ( const [ size, name ] of units ) {
-			if ( Math.abs( value ) < size ) {
-				break;
-			}
-			value /= size;
-			unit   = name;
-		}
-		try {
-			return new Intl.RelativeTimeFormat( locale, { numeric: 'auto' } ).format( -Math.round( value ), unit );
-		} catch {
-			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
-		}
-	}
-	try {
-		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
-	} catch {
-		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
 	}
 }
 
@@ -207,7 +142,7 @@ function buildSalaryPill( min, max ) {
 /**
  * Convert an alert's filters JSON string/object into readable pill labels.
  */
-function buildFilterPills( filters ) {
+function buildFilterPills( filters, labels ) {
 	if ( typeof filters === 'string' ) {
 		try {
 			filters = JSON.parse( filters );
@@ -217,6 +152,10 @@ function buildFilterPills( filters ) {
 	}
 	if ( ! filters || typeof filters !== 'object' ) {
 		return [];
+	}
+	// Pro sends term names ("Design, Marketing") beside the slugs.
+	if ( labels && typeof labels === 'object' ) {
+		filters = { ...filters, ...labels };
 	}
 	const pills = [];
 	if ( filters.category ) pills.push( filters.category );
@@ -235,42 +174,9 @@ function buildFilterPills( filters ) {
 const { state, actions } = store( 'wcb-candidate-dashboard', {
 	state: {
 		navOpen: false,
-		/**
-		 * Whether a deletion is already scheduled. Derived so the markup can
-		 * branch on one flag instead of comparing the status string in five
-		 * data-wp-class attributes.
-		 */
-		get deletionPending() {
-			return 'scheduled' === state.deletionStatus;
-		},
-		/**
-		 * The three visibility flags below are derived rather than written as
-		 * compound expressions in the markup. data-wp-class--* takes a single
-		 * state/derived reference - `state.foo` or `!state.foo` - and silently
-		 * does nothing with `a || b`, which is why the form would not open.
-		 */
-		get deletionNotPending() {
-			return ! state.deletionPending;
-		},
-		get deleteButtonHidden() {
-			return state.deletionPending || state.deleteFormOpen;
-		},
-		get deleteFormHidden() {
-			return ! state.deleteFormOpen || state.deletionPending;
-		},
-		/**
-		 * Scheduling revokes every session (AccountDeletionService destroys all
-		 * session tokens, so the suspended window cannot be used). The member is
-		 * therefore signed out the moment they confirm, and an in-page "Keep my
-		 * account" button would only ever 403. Right after scheduling we explain
-		 * how to cancel; on a later visit - when they have signed back in and the
-		 * server seeds deletionStatus - the cancel button is the right control.
-		 */
-		get showSignedOutNotice() {
-			return state.deletionPending && state.deletionJustScheduled;
-		},
-		get showCancelControl() {
-			return state.deletionPending && ! state.deletionJustScheduled;
+		// The email field differs from the saved one: ask for the current password.
+		get emailChanged() {
+			return state.accountEmail.trim() !== state.accountEmailSaved;
 		},
 		get activeTabLabel() {
 			const map = {
@@ -401,6 +307,10 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noSavedResumes() {
 			return ! state.savedResumesLoading && ! state.savedResumesError && state.savedResumes.length === 0;
 		},
+		// Before the list arrives: a skeleton, not an empty pane under 'N of M'.
+		get resumesPending() {
+			return ! state.resumesLoaded && ! state.error;
+		},
 		get hasResumes() {
 			return ! state.loading && Array.isArray( state.resumes ) && state.resumes.length > 0;
 		},
@@ -408,6 +318,29 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		// and the empty initial array must not read as "no resumes" (it contradicts the N/max count).
 		get noResumes() {
 			return state.resumesLoaded && ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
+		},
+
+		// Application row menu: Withdraw (until an outcome) and Remove (job gone).
+		get appCanWithdraw() {
+			return state.allowWithdraw && !! getContext().application?.canWithdraw;
+		},
+		get appHasActions() {
+			return state.appCanWithdraw || !! getContext().application?.jobRemoved;
+		},
+		get appMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
+		},
+		// Saved rows ('...' menu): named after the saved job, company or resume.
+		get savedMeta() {
+			return savedMetaLine( getContext() );
+		},
+		get savedMenuLabel() {
+			const ctx  = getContext();
+			const item = ctx.bookmark || ctx.job || ctx.company || ctx.resume || {};
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', item.title || item.name || '' );
+		},
+		get resumeMenuLabel() {
+			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().resume?.title || '' );
 		},
 
 		// Bell notification getters.
@@ -434,8 +367,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		 * save, build resume, set up alert) the card hides automatically.
 		 */
 		get isFirstTime() {
-			return ! state.loading
-				&& state.applications.length === 0
+			// Until the first fetch lands, keep what the server painted.
+			if ( state.loading || ! state.appsLoaded ) {
+				return state.firstTimeSeed;
+			}
+			return state.applications.length === 0
 				&& Number( state.savedJobsCount ) === 0
 				&& Number( state.resumeCount ) === 0
 				&& ( ! state.alertsCount || Number( state.alertsCount ) === 0 );
@@ -458,28 +394,32 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 	},
 
 	actions: {
-		*init() {
-			// Tab restoration priority: URL hash → sessionStorage → server default.
-			// Hash wins so deep-links / shared URLs / browser back-forward land on
-			// the intended tab regardless of any prior session activity.
-			const hashTab = readHashTab();
-			if ( hashTab ) {
-				state.tab = hashTab;
-			} else if ( state.tab === 'overview' ) {
-				const saved = sessionStorage.getItem( 'wcb_candidate_tab' );
-				if ( saved ) {
-					state.tab = saved;
-				}
-			}
-			writeHashTab( state.tab );
+		...rowMenuActions,
 
-			// Browser back/forward and manual hash edits stay in sync.
-			window.addEventListener( 'hashchange', () => {
-				const next = readHashTab();
-				if ( next && next !== state.tab ) {
+		*init() {
+			state.tab = tabs.initial( state.tab );
+			tabs.go( state.tab );
+
+			// Browser back/forward and manual hash edits stay in sync, through the
+			// same loaders the tab buttons use (a hash edit to #resumes showed the
+			// count with no list).
+			const loaders = {
+				bookmarks:         actions.switchToBookmarks,
+				resumes:           actions.switchToResumes,
+				'saved-companies': actions.switchToSavedCompanies,
+				'saved-resumes':   actions.switchToSavedResumes,
+			};
+			window.addEventListener( 'hashchange', withScope( () => {
+				const next = tabs.read();
+				if ( ! next || next === state.tab ) {
+					return;
+				}
+				if ( loaders[ next ] ) {
+					loaders[ next ]();
+				} else {
 					state.tab = next;
 				}
-			} );
+			} ) );
 
 			yield actions.fetchApplications();
 
@@ -495,7 +435,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.bookmarksLoaded = true;
 				}
 			} catch {
-				// Non-critical — overview saved jobs panel will show empty state.
+				// wcb-allow-silent: background prefetch; Non-critical — overview saved jobs panel will show empty state.
 			}
 
 			// Prefetch alerts count for Overview stat card and nav badge.
@@ -510,11 +450,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 						id:          a.id,
 						label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
 						frequency:   a.frequency,
-						filterPills: buildFilterPills( a.filters ),
+						filterPills: buildFilterPills( a.filters, a.filter_labels ),
 					} ) );
 				}
 			} catch {
-				// Non-critical.
+				// wcb-allow-silent: background prefetch; Non-critical.
 			}
 
 			// If resumes tab was restored from sessionStorage, fetch resumes now.
@@ -550,24 +490,21 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		switchToOverview() {
 			state.tab     = 'overview';
 			state.navOpen = false;
-			sessionStorage.removeItem( 'wcb_candidate_tab' );
-			writeHashTab( 'overview' );
+			tabs.go( 'overview' );
 		},
 
 		switchToApplications() {
 			state.tab     = 'applications';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'applications' );
-			writeHashTab( 'applications' );
+			tabs.go( 'applications' );
 		},
 
 		*switchToBookmarks() {
 			state.tab     = 'bookmarks';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'bookmarks' );
-			writeHashTab( 'bookmarks' );
+			tabs.go( 'bookmarks' );
 
 			if ( state.bookmarks.length ) {
 				return;
@@ -599,7 +536,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		switchToResumeBuilder() {
 			state.tab     = 'resume-builder';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'resume-builder' );
+			tabs.go( 'resume-builder' );
 		},
 
 		/**
@@ -610,8 +547,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'saved-companies';
 			state.navOpen = false;
 			state.savedCompaniesError = '';
-			sessionStorage.setItem( 'wcb_candidate_tab', 'saved-companies' );
-			writeHashTab( 'saved-companies' );
+			tabs.go( 'saved-companies' );
 
 			if ( state.savedCompanies.length ) {
 				return;
@@ -644,8 +580,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'saved-resumes';
 			state.navOpen = false;
 			state.savedResumesError = '';
-			sessionStorage.setItem( 'wcb_candidate_tab', 'saved-resumes' );
-			writeHashTab( 'saved-resumes' );
+			tabs.go( 'saved-resumes' );
 
 			if ( state.savedResumes.length ) {
 				return;
@@ -688,7 +623,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					score_label: t( 'scoreFormat', '%1$s%' ).replace( '%1$s', formatNumber( r.score_pct ) ),
 				} ) );
 			} catch {
-				// Silent — recommendations are non-critical.
+				// wcb-allow-silent: background prefetch; Silent — recommendations are non-critical.
 			} finally {
 				state.recsLoading = false;
 			}
@@ -720,7 +655,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					} );
 				}
 			} catch {
-				// Silent fail - user can retry.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -750,7 +685,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					} );
 				}
 			} catch {
-				// Silent fail - user can retry.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -758,19 +693,19 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab         = 'profile';
 			state.navOpen     = false;
 			state.profileSaved = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'profile' );
+			tabs.go( 'profile' );
 		},
 
 		switchToSettings() {
 			state.tab     = 'settings';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'settings' );
+			tabs.go( 'settings' );
 		},
 
 		*switchToNotifications() {
 			state.tab     = 'notifications';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'notifications' );
+			tabs.go( 'notifications' );
 			if ( state.bellEnabled && state.bellNotifications.length === 0 ) {
 				yield actions.fetchBellNotifications();
 			}
@@ -848,7 +783,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
-		*saveAccount() {
+		*saveAccount( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.accountSaving = true;
 			state.accountMsg    = '';
 			try {
@@ -872,6 +809,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.accountEmailPassword = '';
 					state.accountName    = data.display_name;
 					state.accountEmail   = data.email;
+					state.accountEmailSaved = data.email;
 					state.profileEmail   = data.email;
 					state.accountMsgType = 'success';
 					state.accountMsg     = t( 'accountUpdated', 'Account updated.' );
@@ -887,7 +825,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 		},
 
-		*changePassword() {
+		*changePassword( event ) {
+			// Submitted from its <form> (so password managers see the fields): stay on the page.
+			event?.preventDefault();
 			state.pwMsg = '';
 			if ( ! state.curPassword || ! state.newPassword ) {
 				state.pwMsgType = 'error';
@@ -941,7 +881,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'alerts';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'alerts' );
+			tabs.go( 'alerts' );
 
 			if ( state.alerts.length ) {
 				return;
@@ -965,7 +905,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					id:          a.id,
 					label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
 					frequency:   a.frequency,
-					filterPills: buildFilterPills( a.filters ),
+					filterPills: buildFilterPills( a.filters, a.filter_labels ),
 				} ) );
 			} catch {
 				state.error = t( 'errConnectionShort', 'Connection error.' );
@@ -991,7 +931,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					state.alerts = state.alerts.filter( ( a ) => a.id !== alertId );
 				}
 			} catch {
-				// Silent — row stays visible.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1015,7 +955,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					}
 				);
 			} catch {
-				// Silent — optimistic update already applied.
+				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
 			}
 		},
 
@@ -1032,7 +972,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.tab     = 'resumes';
 			state.error   = '';
 			state.navOpen = false;
-			sessionStorage.setItem( 'wcb_candidate_tab', 'resumes' );
+			tabs.go( 'resumes' );
 
 			if ( state.resumes.length ) {
 				return;
@@ -1293,7 +1233,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				} );
 				if ( res.ok ) {
 					const data              = yield res.json();
-					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: formatRelativeTime( n.created_at ) } ) );
+					state.bellNotifications = ( data.notifications || [] ).map( ( n ) => ( { ...n, created_at: relativeTime( state.locale, n.created_at ) } ) );
 					state.bellUnreadCount   = data.unread_count  || 0;
 				}
 			} finally {
@@ -1386,6 +1326,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.appsPage     = append ? state.appsPage + 1 : 1;
 				state.appsHasMore  = !! data?.has_more;
 				state.appsCounts   = data?.counts ?? { total: rows.length, by_status: {} };
+				state.appsLoaded   = true;
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
@@ -1443,168 +1384,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				}
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			}
-		},
-
-		/**
-		 * GDPR self-service: request a data export. Hits the privacy REST route
-		 * which calls wp_create_user_request() server-side. Visual feedback is
-		 * a one-shot toggle on state.privacyExportRequested — the actual export
-		 * is processed by the site admin.
-		 */
-		*requestExport() {
-			yield this.runPrivacyRequest( 'export' );
-		},
-
-		/**
-		 * GDPR self-service: request account erasure. Confirms first via the
-		 * shared modal, then hits the same privacy REST route.
-		 */
-		/**
-		 * Account deletion.
-		 *
-		 * This button used to call runPrivacyRequest( 'erase' ), i.e. WordPress's
-		 * core privacy ERASE request - which only queues something for an
-		 * administrator to action. Meanwhile the plugin's own deletion service
-		 * (14-day grace period, self-cancel, daily cron) was reachable only over
-		 * REST, so only the mobile app could use it. The web member got the
-		 * weaker of two mechanisms. These actions drive the real one.
-		 */
-		openDeleteForm() {
-			state.deleteFormOpen = true;
-			state.privacyError   = '';
-		},
-
-		closeDeleteForm() {
-			state.deleteFormOpen = false;
-			state.deletePassword = '';
-			state.deleteConfirm  = '';
-			state.privacyError   = '';
-		},
-
-		setDeletePassword( event ) {
-			state.deletePassword = event.target.value;
-		},
-
-		setDeleteConfirm( event ) {
-			state.deleteConfirm = event.target.value;
-		},
-
-		*confirmAccountDeletion() {
-			if ( state.privacyBusy ) {
-				return;
-			}
-			state.privacyBusy  = true;
-			state.privacyError = '';
-
-			try {
-				const response = yield wcbFetch( state.apiBase + '/me', {
-					method:  'DELETE',
-					headers: {
-						'X-WP-Nonce':   state.nonce,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( {
-						password: state.deletePassword,
-						confirm:  state.deleteConfirm,
-					} ),
-				} );
-
-				const body = yield response.json().catch( () => ( {} ) );
-
-				if ( ! response.ok ) {
-					// The route distinguishes a wrong password from a missing
-					// confirmation; surfacing its message beats a generic failure.
-					state.privacyError = body && body.message
-						? body.message
-						: t( 'errDelete', 'Could not schedule deletion. Please try again.' );
-					return;
-				}
-
-				state.deletionStatus         = body.status || 'scheduled';
-				state.deletionJustScheduled  = true;
-
-				// The route returns scheduled_for as ISO 8601 (gmdate 'c'), not a
-				// display string, so format it here against the site locale the
-				// block already seeds.
-				if ( body.scheduled_for ) {
-					const when = new Date( body.scheduled_for );
-					state.deletionScheduledFor = Number.isNaN( when.getTime() )
-						? String( body.scheduled_for )
-						: when.toLocaleDateString( state.locale || undefined, {
-							year:  'numeric',
-							month: 'long',
-							day:   'numeric',
-						} );
-				}
-				state.deleteFormOpen       = false;
-				state.deletePassword       = '';
-				state.deleteConfirm        = '';
-			} catch {
-				state.privacyError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			} finally {
-				state.privacyBusy = false;
-			}
-		},
-
-		*cancelAccountDeletion() {
-			if ( state.privacyBusy ) {
-				return;
-			}
-			state.privacyBusy  = true;
-			state.privacyError = '';
-
-			try {
-				const response = yield wcbFetch( state.apiBase + '/me/deletion', {
-					method:  'DELETE',
-					headers: { 'X-WP-Nonce': state.nonce },
-				} );
-				if ( ! response.ok ) {
-					state.privacyError = t( 'errDeleteCancel', 'Could not cancel the deletion. Please try again.' );
-					return;
-				}
-				state.deletionStatus       = 'active';
-				state.deletionScheduledFor = '';
-			} catch {
-				state.privacyError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			} finally {
-				state.privacyBusy = false;
-			}
-		},
-
-		/**
-		 * Internal: shared POST helper for both export and erase requests.
-		 *
-		 * @param {string} action 'export' or 'erase'.
-		 */
-		*runPrivacyRequest( action ) {
-			if ( state.privacyBusy ) {
-				return;
-			}
-			state.privacyBusy  = true;
-			state.privacyError = '';
-
-			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/candidates/me/privacy/' + String( action ),
-					{
-						method:  'POST',
-						headers: { 'X-WP-Nonce': state.nonce },
-					}
-				);
-				if ( ! response.ok ) {
-					state.privacyError = t( 'errPrivacy', 'Could not submit your privacy request. Please try again or contact support.' );
-					return;
-				}
-				if ( 'export' === action ) {
-					state.privacyExportRequested = true;
-				} else {
-					state.privacyEraseRequested = true;
-				}
-			} catch {
-				state.privacyError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			} finally {
-				state.privacyBusy = false;
 			}
 		},
 	},

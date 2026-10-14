@@ -70,8 +70,13 @@ final class JobsMeta {
 					'single'            => true,
 					'type'              => $schema[0],
 					'sanitize_callback' => $schema[1],
-					'auth_callback'     => static function (): bool {
-						return wp_is_ability_granted( 'wcb/post-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+					// Company, board and featured decide ownership and price, so
+					// through core REST only an admin sets them; the wcb/v1 job
+					// routes write them with their own ownership and payment checks.
+					'auth_callback'     => static function ( $allowed, string $meta_key ): bool {
+						$admin_only = array( '_wcb_company_id', '_wcb_company_name', '_wcb_board_id', '_wcb_featured' );
+						// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+						return wp_is_ability_granted( in_array( $meta_key, $admin_only, true ) ? 'wcb/manage-settings' : 'wcb/post-jobs' );
 					},
 				)
 			);
@@ -114,6 +119,17 @@ final class JobsMeta {
 		if ( array_key_exists( $value, \WCB\Admin\AdminSettings::get_currency_catalog() ) ) {
 			return $value;
 		}
+		return self::default_currency();
+	}
+
+	/**
+	 * The site's salary currency (Settings > Jobs), the fallback for any job
+	 * that has none of its own.
+	 *
+	 * @since  1.8.1
+	 * @return string ISO 4217 code.
+	 */
+	public static function default_currency(): string {
 		return strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
 	}
 
@@ -175,8 +191,9 @@ final class JobsMeta {
 			return $clauses;
 		}
 		global $wpdb;
+		// COALESCE: a job with no _wcb_featured row is unfeatured, same as '0' (NULL would sort last).
 		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS wcb_ff ON ( wcb_ff.post_id = {$wpdb->posts}.ID AND wcb_ff.meta_key = '_wcb_featured' )";
-		$clauses['orderby'] = "( wcb_ff.meta_value = '1' ) DESC" . ( '' !== $clauses['orderby'] ? ', ' . $clauses['orderby'] : '' );
+		$clauses['orderby'] = "COALESCE( wcb_ff.meta_value = '1', 0 ) DESC" . ( '' !== $clauses['orderby'] ? ', ' . $clauses['orderby'] : '' );
 		return $clauses;
 	}
 

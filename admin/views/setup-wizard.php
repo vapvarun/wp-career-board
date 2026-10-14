@@ -59,9 +59,20 @@ defined( 'ABSPATH' ) || exit;
 					<h2 class="wcb-settings-card-title"><?php echo esc_html( $wcb_step['title'] ); ?></h2>
 				</div>
 			<?php
+			// Normalise both sides: Windows realpath() returns backslashes, and a
+			// symlinked plugin resolves outside WP_PLUGIN_DIR (its own dir is allowed).
 			$wcb_real_path = realpath( $wcb_step['template'] );
-			if ( $wcb_real_path && str_starts_with( $wcb_real_path, WP_PLUGIN_DIR ) ) {
-				include $wcb_step['template'];
+			$wcb_allowed   = array_filter( array( WP_PLUGIN_DIR, WCB_DIR, defined( 'WCBP_DIR' ) ? WCBP_DIR : '' ) );
+			$wcb_in_root   = false;
+			foreach ( $wcb_allowed as $wcb_root ) {
+				$wcb_root_real = realpath( $wcb_root );
+				if ( $wcb_real_path && $wcb_root_real && str_starts_with( wp_normalize_path( $wcb_real_path ), trailingslashit( wp_normalize_path( $wcb_root_real ) ) ) ) {
+					$wcb_in_root = true;
+					break;
+				}
+			}
+			if ( $wcb_in_root ) {
+				include $wcb_real_path;
 			}
 			?>
 			</div>

@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 
 $wcb_auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
 $wcb_expire_days  = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-$wcb_currency     = \WCB\Admin\Settings::string( 'salary_currency', 'USD' );
+$wcb_currency     = \WCB\Modules\Jobs\JobsMeta::default_currency();
 ?>
 <div class="wcb-settings-row">
 	<div class="wcb-settings-row-label"><label for="wcb-wz-autopublish"><?php esc_html_e( 'Publish jobs without review', 'wp-career-board' ); ?></label></div>

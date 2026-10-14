@@ -81,7 +81,7 @@
 /* Filter chips and "Clear all" — survive Reign's link/button resets. */
 .wcb-chip:hover {
 	border-color: var( --wcb-primary );
-	color: var( --wcb-primary );
+	color: var( --wcb-primary-text );
 }
 
 .wcb-chip.wcb-chip-active {

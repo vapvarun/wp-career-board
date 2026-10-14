@@ -1,5 +1,7 @@
 # Multiple job boards
 
+> **PRO** - Requires WP Career Board Pro.
+
 You can run several separate job boards from one WordPress site, for example "Tech Jobs" and "Marketing Jobs". This needs WP Career Board Pro.
 
 ## What you can do

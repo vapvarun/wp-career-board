@@ -17,5 +17,8 @@
     "showJobTypeFilter":  { "type": "boolean", "default": true }
   },
   "style": "file:./style.css",
-  "render": "file:./render.php"
+  "render": "file:./render.php",
+  "supports": {
+    "interactivity": true
+  }
 }

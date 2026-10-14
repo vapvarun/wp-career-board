@@ -264,6 +264,12 @@
 	border-bottom: 1px solid var(--wcb-border);
 }
 
+/* A section whose body is a card (its empty state) puts its title on that
+   card's edge; over list rows the padding lines the title up with row text. */
+.wcb-panel:has(> .wcb-empty-state.wcb-shown:not(.wcb-empty-state--plain)) > .wcb-panel-header {
+	padding-inline: 0;
+}
+
 .wcb-panel-body {
 	padding: 2.5rem var(--wcb-space-3xl);
 }
@@ -305,6 +311,105 @@
 	gap: var(--wcb-space-md);
 	font-size: var(--wcb-text-base);
 	color: var(--wcb-text-secondary);
+}
+
+/* Settings sections after the first (Change Password, Email, Privacy). */
+.wcb-page-header--section {
+	margin-top: var(--wcb-space-xl);
+}
+
+/* A row of buttons under a form field: sized to content, left-aligned. */
+.wcb-form-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-profile-resume-note {
+	margin: 0;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-bg-subtle);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-profile-email {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	margin: 0;
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+/* Privacy & My Data (templates/parts/privacy-settings.php, both dashboards). */
+.wcb-privacy-settings {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+}
+
+/* The delete card: its own danger-tinted frame, so it never reads as one
+   more everyday setting. (0,5,0): a dashboard tab strips every panel's frame
+   at (0,4,0). */
+.wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-privacy-settings .wcb-danger-zone {
+	/* Frame on the section heading's line, content on the fields' line
+	   (one reading column; padding matches the form panels). */
+	padding: var(--wcb-space-lg) var(--wcb-space-xl);
+	border: 1px solid var(--wcb-danger-border, #fecaca);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-danger-bg-soft, var(--wcb-base));
+}
+
+.wcb-dashboard .wcb-privacy-panel {
+	gap: var(--wcb-space-xl);
+}
+
+.wcb-privacy-note {
+	display: none;
+	margin: 0;
+	color: var(--wcb-danger-fg, #991b1b);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-privacy-note.wcb-shown {
+	display: block;
+}
+
+.wcb-delete-account-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-settings-note {
+	margin: 0 0 var(--wcb-space-md);
+	color: var(--wcb-text-secondary);
+	line-height: 1.5;
+}
+
+/* Privacy: delete-account confirmation stacks its fields with room to breathe. */
+.wcb-delete-account-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+	margin-block-start: var(--wcb-space-lg);
+	max-width: 32rem;
+}
+
+/* Space between one field and the next label (the shared form CSS zeroes label margins). */
+.wcb-delete-account-form .wcb-field-input + .wcb-field-label {
+	margin-block-start: var(--wcb-space-md);
+}
+
+.wcb-settings-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-md);
+	margin-block-start: var(--wcb-space-md);
 }
 
 @media (max-width: 640px) {
@@ -402,6 +507,128 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-xs);
+}
+
+/* ── Job form categories (templates/parts/job-category-field.php) ─────
+ *
+ * The multi-pick shown when a job may have more than one category: chosen
+ * categories as removable chips over a scrollable, indented checkbox list.
+ * It spans the whole form grid row.
+ */
+.wcb-job-cats {
+	grid-column: 1 / -1;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.wcb-job-cats__legend {
+	padding: 0;
+}
+
+.wcb-job-cats__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	margin: var(--wcb-space-sm) 0;
+	padding: 0;
+	list-style: none;
+}
+
+.wcb-job-cats__chips:not(:has(li)) {
+	display: none;
+}
+
+.wcb-job-cats__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	max-width: 100%;
+	margin: 0;
+	padding-block: 2px;
+	padding-inline: var(--wcb-space-md) 2px;
+	border: 1px solid var(--wcb-primary-ring);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-primary-soft);
+	color: var(--wcb-contrast);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	overflow-wrap: anywhere;
+}
+
+.wcb-job-cats__remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	inline-size: 28px;
+	block-size: 28px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--wcb-radius-full);
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.wcb-job-cats__remove:hover {
+	background: var(--wcb-primary-ring);
+}
+
+.wcb-job-cats__remove:focus-visible,
+.wcb-job-cats__option input:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-job-cats__search {
+	margin-block-end: var(--wcb-space-sm);
+}
+
+/* Two classes: the block-wide `[class*="wp-block-wp-career-board"] ul` reset would zero the inset. */
+.wcb-job-cats .wcb-job-cats__list {
+	max-block-size: 16rem;
+	margin: 0;
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
+	overflow-y: auto;
+	list-style: none;
+	border: 1px solid var(--wcb-border-strong);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+}
+
+.wcb-job-cats__option {
+	margin: 0;
+	padding-block: var(--wcb-space-xs);
+}
+
+.wcb-job-cats__option--depth-1 {
+	padding-inline-start: var(--wcb-space-xl);
+}
+
+.wcb-job-cats__option--depth-2 {
+	padding-inline-start: calc(var(--wcb-space-xl) * 2);
+}
+
+.wcb-job-cats__option--depth-3 {
+	padding-inline-start: calc(var(--wcb-space-xl) * 3);
+}
+
+.wcb-job-cats__option:has(input:disabled) .wcb-checkbox-label {
+	color: var(--wcb-text-secondary);
+	cursor: not-allowed;
+}
+
+.wcb-job-cats__option input:disabled {
+	cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+	.wcb-job-cats .wcb-job-cats__list {
+		max-block-size: 13rem;
+	}
 }
 
 /* ── Load More — shared across archive blocks ───────────────────────── */
@@ -692,7 +919,7 @@
 [class*="wp-block-wp-career-board"] .wcb-view-switcher .wcb-layout-btn.wcb-active,
 [class*="wp-block-wcb-"] .wcb-view-switcher .wcb-layout-btn.wcb-active {
 	background: var(--wcb-base);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	box-shadow: var(--wcb-shadow-sm);
 }
 
@@ -862,7 +1089,7 @@
 [class*="wp-block-wcb-"] .wcb-link {
 	border: none;
 	background: transparent;
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 /* ── Theme-Link Defence — Global ─────────────────────────────────────── */
@@ -959,10 +1186,28 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--wcb-space-lg);
-	max-width: 32rem;
-	margin-inline: auto;
-	padding: var(--wcb-space-4xl) var(--wcb-space-lg);
+	max-width: 28rem;
+	margin: var(--wcb-space-3xl) auto;
+	padding: var(--wcb-space-3xl) var(--wcb-space-xl);
+	/* The registration-closed card's look, for every "not for you yet" screen. */
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
 	text-align: center;
+}
+
+.wcb-db-gate > svg {
+	width: var(--wcb-icon-2xl, 32px);
+	height: var(--wcb-icon-2xl, 32px);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-db-gate__title {
+	margin: 0;
+	font-size: var(--wcb-text-xl);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	line-height: var(--wcb-leading-tight, 1.25);
 }
 
 .wcb-db-gate p {
@@ -972,9 +1217,93 @@
 	line-height: var(--wcb-leading-relaxed);
 }
 
-.wcb-db-gate__actions,
-.wcb-db-gate .wcb-btn + .wcb-btn {
-	margin-inline-start: var(--wcb-space-sm);
+.wcb-db-gate__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--wcb-space-sm);
+}
+
+/* "More actions" menu on a row (a <details>): My Jobs, Companies, My
+   Applications, My Resumes. Behaviour lives in @wcb/ui rowMenuActions. */
+.wcb-row-menu {
+	position: relative;
+	flex: 0 0 auto;
+	width: 40px; /* the toggle's width; a closed <details> otherwise sized itself wider */
+}
+
+.wcb-row-menu > .wcb-row-menu__toggle {
+	list-style: none;
+	box-sizing: border-box;
+	width: 40px;
+	min-width: 40px;
+	padding-inline: 0;
+	justify-content: center;
+	cursor: pointer;
+}
+
+.wcb-row-menu__toggle::-webkit-details-marker {
+	display: none;
+}
+
+.wcb-row-menu__list {
+	position: absolute;
+	inset-inline-end: 0;
+	top: calc(100% + var(--wcb-space-xs));
+	z-index: 20;
+	display: flex;
+	flex-direction: column;
+	min-width: 11rem;
+	padding: var(--wcb-space-xs);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	box-shadow: var(--wcb-shadow-md);
+}
+
+.wcb-row-menu--up .wcb-row-menu__list {
+	top: auto;
+	bottom: calc(100% + var(--wcb-space-xs));
+}
+
+/* Toggle near the start of its row: open from its start edge instead. */
+.wcb-row-menu--start .wcb-row-menu__list {
+	inset-inline-start: 0;
+	inset-inline-end: auto;
+}
+
+.wcb-row-menu__item {
+	display: flex;
+	align-items: center;
+	min-height: 40px;
+	padding: 0 var(--wcb-space-md);
+	border: 0;
+	border-radius: var(--wcb-radius-sm);
+	background: transparent;
+	color: var(--wcb-contrast);
+	font: inherit;
+	font-size: var(--wcb-text-sm);
+	text-align: start;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.wcb-row-menu__item:hover,
+.wcb-row-menu__item:focus-visible {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-contrast);
+	text-decoration: none;
+}
+
+.wcb-row-menu__item--danger,
+.wcb-row-menu__item--danger:hover {
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
+@media (max-width: 640px) {
+	.wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-privacy-settings .wcb-danger-zone {
+		padding-inline: var(--wcb-space-lg);
+	}
 }
 
 /* ── Application status badges ─────────────────────────────────────────

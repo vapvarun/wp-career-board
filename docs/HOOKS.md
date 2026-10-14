@@ -1,4 +1,6 @@
-# WP Career Board — Hook Reference
+# WP Career Board - Hook Reference
+
+> The maintained user-facing version of this reference is [website/developer-guide/02-hooks-reference.md](website/developer-guide/02-hooks-reference.md). This file is the developer working copy; if the two differ, the website page wins.
 
 Customer-facing extension points for theme integrators and add-on
 developers. Stable across Free + Pro: every form-field hook listed here
@@ -10,7 +12,7 @@ works the same whether the form is in Free or Pro.
 
 ## The Field-Group Schema
 
-Every "form-fields" filter returns the same shape — an array of *groups*,
+Every "form-fields" filter returns the same shape - an array of *groups*,
 each containing *fields*:
 
 ```php
@@ -22,11 +24,11 @@ return array(
             array(
                 'key'         => '_wcb_partner_id', // post-meta key (or arbitrary ID for non-meta data)
                 'label'       => __( 'Partner', 'my-theme' ),
-                'type'        => 'select',          // text | email | tel | url | number | date | textarea | select | checkbox
-                'required'    => true,              // optional — defaults false
+                'type'        => 'select',          // text | email | tel | url | number | date | textarea | select | checkbox | radio | multiselect | repeater
+                'required'    => true,              // optional - defaults false
                 'placeholder' => __( 'Choose…', 'my-theme' ),
                 'description' => __( 'Helper text below the field', 'my-theme' ),
-                'options'     => array(             // required for `select`; ignored for other types
+                'options'     => array(             // required for `select`, `radio` and `multiselect`; ignored for other types
                     1 => 'Acme',
                     2 => 'Beta',
                 ),
@@ -61,7 +63,7 @@ applies to Pro's resume-builder + resume-form-simple sharing
 ### Where the answers show up
 
 Since 1.7.1, answers to `wcb_application_form_fields_groups` fields are not
-just stored — they are surfaced on all three entry points: the
+just stored - they are surfaced on all three entry points: the
 `custom_fields` key of every application REST envelope
 (`/applications/{id}` and `/employers/me/applications`), an "Application
 answers" pane in the employer dashboard's applicant detail, and the
@@ -72,14 +74,14 @@ registering stops being displayed (its meta row is left alone).
 Values are written and read through `\WCB\Core\FormCustomFields`.
 `save_values()`, `load_values()` and `labelled_values()` all take an
 optional trailing `string $key_prefix` applied to the meta key after
-`sanitize_key()` — applications pass
+`sanitize_key()` - applications pass
 `ApplicationsEndpoint::FIELD_META_PREFIX` (`_wcb_application_field_`), every
 other form passes nothing and keeps writing the bare field key.
 
 ## Initial-state filters (modify Interactivity API state)
 
-For state keys beyond field values — e.g. computed flags, lookup data
-pre-fetched server-side — use the per-form initial-state filter:
+For state keys beyond field values - e.g. computed flags, lookup data
+pre-fetched server-side - use the per-form initial-state filter:
 
 | Form | Filter |
 |---|---|
@@ -95,7 +97,7 @@ add_filter( 'wcb_job_form_initial_state', function( $state, $attributes ) {
 }, 10, 2 );
 ```
 
-## Action hooks (raw HTML injection — escape hatch)
+## Action hooks (raw HTML injection - escape hatch)
 
 Use these only when the declarative filter above can't model your need
 (e.g. interactive widgets that aren't simple form fields).
@@ -109,7 +111,7 @@ Use these only when the declarative filter above can't model your need
 | Job Form simple | `wcb_job_form_simple_extra_fields` |
 | Application form (legacy) | `wcb_application_form_fields` |
 
-The application action is **legacy** — prefer the new
+The application action is **legacy** - prefer the new
 `wcb_application_form_fields_groups` filter for new code.
 
 ## Listings + REST hooks
@@ -119,14 +121,14 @@ sponsors, brands, etc.):
 
 | Hook | Purpose |
 |---|---|
-| `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs`. Any `_wcb_*` namespaced key is allowed by default (since 1.2.0); this filter is for opting in custom or non-WCB meta keys. |
+| `wcb_jobs_allowed_meta_filters` | Allowlist post-meta keys for `?meta_<key>=<value>` REST query params on `/wcb/v1/jobs`. Since 1.8.1 the default `meta__wcb_*` path on the REST route accepts only `_wcb_*` keys registered for `wcb_job` with `show_in_rest` (private keys such as the apply email are ignored); this filter is for opting in custom or non-WCB meta keys. |
 | `wcb_jobs_post_filter` | Post-process the prepared job array before REST response |
 | `wcb_job_response` | Shape an individual job's REST response (legacy alias; prefer `wcb_rest_prepare_job`) |
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
 | `wcb_job_listings_board_options` | Add custom chips to the listings filter bar |
 | `wcb_job_listing_data` | Shape per-card data on the listings block |
-| `wcb_board_options_for_employer` | `(array $options, int $user_id)` — restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. |
-| `wcb_page_needs_frontend_assets` | `(bool $needs)` — opt a request context into the shared `frontend.css` / `frontend-tokens.css` / `frontend-components.css` stylesheets when the post_content-based detector cannot see WCB block markup. Use for BuddyPress profile / group tabs, page-builder lazy renderers, and any surface that calls `render_block()` after `wp_head` has run. Without this, primitives like `.wcb-hidden` do not resolve and Interactivity toggles render both states stacked. |
+| `wcb_board_options_for_employer` | `(array $options, int $user_id)` - restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. |
+| `wcb_page_needs_frontend_assets` | `(bool $needs)` - opt a request context into the shared `frontend.css` / `frontend-tokens.css` / `frontend-components.css` stylesheets when the post_content-based detector cannot see WCB block markup. Use for BuddyPress profile / group tabs, page-builder lazy renderers, and any surface that calls `render_block()` after `wp_head` has run. Without this, primitives like `.wcb-hidden` do not resolve and Interactivity toggles render both states stacked. |
 
 ## REST response filters (`wcb_rest_prepare_*`)
 
@@ -138,11 +140,11 @@ patching the Free codebase.
 | Filter | Resource | Args | Purpose |
 |---|---|---|---|
 | `wcb_rest_prepare_job` | Job | `(array $data, WP_Post $job, WP_REST_Request\|null $request)` | Decorate the prepared job response. Sibling to legacy `wcb_job_response` (still fires for back-compat). |
-| `wcb_rest_prepare_application` | Application | `(array $data, WP_Post $app, WP_REST_Request\|null $request, string $viewer_role)` | Decorate the prepared application response. `viewer_role` is `candidate`, `employer`, or `admin` — indicates which role-aware shape was generated so consumers can decorate safely without leaking employer-only fields back to candidates. Also fires on the candidate dashboard list (`viewer_role = 'candidate'`) and the employer applications list (`viewer_role = 'employer'`). |
+| `wcb_rest_prepare_application` | Application | `(array $data, WP_Post $app, WP_REST_Request\|null $request, string $viewer_role)` | Decorate the prepared application response. `viewer_role` is `candidate`, `employer`, or `admin` - indicates which role-aware shape was generated so consumers can decorate safely without leaking employer-only fields back to candidates. Also fires on the candidate dashboard list (`viewer_role = 'candidate'`) and the employer applications list (`viewer_role = 'employer'`). |
 | `wcb_rest_prepare_company` | Company | `(array $data, WP_Post $company, WP_REST_Request\|null $request)` | Decorate the prepared company response. Fired both by the companies endpoint and the employer endpoint's company sub-resource. |
 | `wcb_rest_prepare_candidate` | Candidate | `(array $data, WP_User $user, WP_REST_Request\|null $request)` | Decorate the prepared candidate response. |
 
-Example — append a custom field to every job response:
+Example - append a custom field to every job response:
 
 ```php
 add_filter( 'wcb_rest_prepare_job', function ( array $data, WP_Post $job ): array {
@@ -151,7 +153,7 @@ add_filter( 'wcb_rest_prepare_job', function ( array $data, WP_Post $job ): arra
 }, 10, 2 );
 ```
 
-Example — only decorate the employer view of an application (so the
+Example - only decorate the employer view of an application (so the
 candidate response stays minimal):
 
 ```php
@@ -201,12 +203,12 @@ one inbox across every plugin): `wcb_notification_created` carries the
 contract payload as its **second argument**, alongside the original payload
 array documented above. Existing listeners registered with
 `accepted_args = 1` (CB Pro's push module, BuddyNext's bridge) never receive
-it — PHP only passes as many arguments as a listener asks for.
+it - PHP only passes as many arguments as a listener asks for.
 
 ```php
 add_action( 'wcb_notification_created', function ( array $legacy, ?array $contract ) {
     if ( null === $contract ) {
-        return; // A transactional or admin-only email — no community object.
+        return; // A transactional or admin-only email - no community object.
     }
     // $contract: recipient_id, type, actor_id, object_type ('job'|'application'),
     // object_id, message, url, group_key, notification_id.
@@ -214,7 +216,7 @@ add_action( 'wcb_notification_created', function ( array $legacy, ?array $contra
 ```
 
 `CommunityNotificationContract::build()` (`modules/notifications/class-community-notification-contract.php`)
-is the one place the payload is assembled — every `AbstractEmail::send()` call
+is the one place the payload is assembled - every `AbstractEmail::send()` call
 site that names an `object_type` in its `$context` argument gets a contract
 payload; a call with no `object_type` (email verification, admin moderation
 alerts, the job-pending-review notice) gets `null` and is skipped, since
@@ -223,8 +225,8 @@ those are not community-facing events.
 | Filter/action | Args | Purpose |
 |---|---|---|
 | `wcb_community_notification_types` | `( array $types )` returns `slug => array{label,description,default_on}` | Declares every type Free's emails can fire, for a settings screen with one switch per type. |
-| `wcb_community_notification_visible` | `( array $visible, int $viewer_id, array $targets )` returns `key => bool` | Answers whether the viewer may still see a bell row about a `job` or `application` object — hidden once trashed, or (for the employer's copy only) once the candidate withdraws. |
-| `wcb_community_notification_removed` | `( string $object_type, int $object_id )` | Fires once a `job` or `application` is **permanently** deleted (never on trash/unpublish — that is what `wcb_community_notification_visible` covers). |
+| `wcb_community_notification_visible` | `( array $visible, int $viewer_id, array $targets )` returns `key => bool` | Answers whether the viewer may still see a bell row about a `job` or `application` object - hidden once trashed, or (for the employer's copy only) once the candidate withdraws. |
+| `wcb_community_notification_removed` | `( string $object_type, int $object_id )` | Fires once a `job` or `application` is **permanently** deleted (never on trash/unpublish - that is what `wcb_community_notification_visible` covers). |
 
 @since 1.8.0.
 
@@ -455,20 +457,32 @@ inert until a site filters it.
 Two contract notes that are easy to break in a refactor:
 
 1. **Skipped wholesale when `wcb_credits_enabled` is true.** Credits and
-   the quota are alternative volume controls, never stacked — an
+   the quota are alternative volume controls, never stacked - an
    employer must not pay a credit and still be refused.
 2. **The republish check excludes the job being republished** from its
    own count, so reopening a listing while under the cap of the
    employer's *other* live jobs succeeds. Counting it would make the
    last slot permanently unusable.
 
-Counted via `posts_per_page => 1` + `found_posts` — one COUNT, never a
+Counted via `posts_per_page => 1` + `found_posts` - one COUNT, never a
 hydrated result set (an agency account can hold thousands of listings).
+
+## Deadlines, term order and resume links (1.8.1)
+
+| Hook or helper | Args | Purpose |
+|---|---|---|
+| `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
+| `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
+| `wcb_candidate_resume_url` | `$url, $user_id, $application_id` | The **View resume** link on the Applications list, the application screen and the Candidates list. Return `''` to hide it. |
+| `wcb_job_pipeline_url` | `$url, $job_id` | The **Pipeline** link on each My Jobs row. Empty in Free; Pro fills it. |
+| `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
+
+The term meta key is `wcb_order` (integer, `show_in_rest`). It is registered on `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience` and `wcb_tag`, and edited in the **Order** field of each term screen.
 
 ## Convention
 
-- **`wcb_*`** — customer-facing extension surface. Stable.
-- **`wcbp_*`** — Pro-internal hooks. May change between Pro versions; not
+- **`wcb_*`** - customer-facing extension surface. Stable.
+- **`wcbp_*`** - Pro-internal hooks. May change between Pro versions; not
   intended for theme integrators.
 - All form-fields filters return the same group/field schema documented at
   the top of this file. Use it once, use it everywhere.
@@ -489,9 +503,9 @@ They sit alongside their feature, not in the api/endpoints directory:
 
 | Routes | File:line | Why it carves out |
 |---|---|---|
-| `POST /wcb/v1/wizard/create-pages`, `/wizard/sample-data`, `/wizard/complete`, `/wizard/remove-sample-data` | `admin/class-setup-wizard.php:189,199,216,226` | First-run admin wizard. The class lives under `WCB\Admin\` because it owns the admin-side activation hook + the localized JS handle (`wcb-wizard`); pulling its 4 routes into `api/endpoints/` would split one feature across two namespaces. |
-| `POST /wcb/v1/jobs/(id)/approve`, `/jobs/(id)/reject` | `modules/moderation/class-moderation-module.php:60,73` | Moderation lives as a self-contained module under `WCB\Modules\Moderation\`. The two routes are part of that module's contract (alongside its filter `wcb_moderate_jobs_ability_check`); moving them to `api/endpoints/` would orphan them from the rest of the module. |
-| `POST /wcb/v1/wizard/activate-license`, `/wizard/setup-credits`, `/wizard/create-pro-pages` | Pro: `wp-career-board-pro/admin/class-pro-setup-wizard.php:167,184,206` | Same reasoning as Free's setup wizard — Pro extension steps that belong with the wizard's admin code, not in `api/endpoints/`. |
+| `POST /wcb/v1/wizard/create-pages`, `/wizard/settings`, `/wizard/sample-data`, `/wizard/remove-sample-data`, `/wizard/complete` | `admin/class-setup-wizard.php:258-311` | First-run admin wizard. The class lives under `WCB\Admin\` because it owns the admin-side activation hook + the localized JS handle (`wcb-wizard`); pulling its 5 routes into `api/endpoints/` would split one feature across two namespaces. |
+| `POST /wcb/v1/jobs/(id)/approve`, `/jobs/(id)/reject`, `/jobs/(id)/report`, `/jobs/(id)/resolve-flag` | `modules/moderation/class-moderation-module.php:77-131` | Moderation lives as a self-contained module under `WCB\Modules\Moderation\`. The four routes are part of that module's contract (alongside its filter `wcb_moderate_jobs_ability_check`); moving them to `api/endpoints/` would orphan them from the rest of the module. |
+| `POST /wcb/v1/wizard/activate-license`, `/wizard/setup-credits`, `/wizard/create-pro-pages` | Pro: `wp-career-board-pro/admin/class-pro-setup-wizard.php:167,184,206` | Same reasoning as Free's setup wizard - Pro extension steps that belong with the wizard's admin code, not in `api/endpoints/`. |
 
 These are the documented exceptions to the "all REST routes go through
 Endpoint classes registered in `register_rest_routes()`" rule. New REST
@@ -508,7 +522,7 @@ stored application passwords only, so the core route that mints one already
 requires one, and every core path to a first credential runs through wp-admin
 under cookie auth.
 
-It is not a second authentication system — `wp_authenticate()` does the actual
+It is not a second authentication system - `wp_authenticate()` does the actual
 authentication exactly as wp-login.php does, so every `authenticate` filter on
 the site still runs. This class only decides what to hand back once core says yes.
 
@@ -525,7 +539,7 @@ Three contract notes worth keeping:
 
 1. **The default is OFF, and that is not conservatism for its own sake.** This
    route accepts real account passwords, and most sites never install the app.
-   Turning it on for everyone to serve the minority that do is the wrong trade —
+   Turning it on for everyone to serve the minority that do is the wrong trade -
    especially since `AppConnect`'s browser hand-off is the primary sign-in flow
    and needs no switch at all. The app's sign-in screen hides password entry when
    the site reports the feature off, so members see the secure path, not a broken
@@ -539,12 +553,12 @@ Three contract notes worth keeping:
    `REMOTE_ADDR` is the only value a PHP process can trust; behind a proxy it is
    the proxy's address, identical for every visitor, which turns the per-IP
    ceiling into a site-wide outage. But reading a forwarded header by default is
-   the opposite mistake — anyone can send one, making the limiter bypassable. So
+   the opposite mistake - anyone can send one, making the limiter bypassable. So
    the owner names the header their own proxy always overwrites:
 
    ```php
    add_filter( 'wcb_app_password_client_ip_header', fn() => 'HTTP_CF_CONNECTING_IP' );
    ```
 
-   The leftmost address is taken and validated, so a malformed header degrades to
+   The rightmost address is taken (the hop your own proxy appended; the client writes everything to its left) and validated, so a malformed header degrades to
    `REMOTE_ADDR` rather than poisoning a rate-limit bucket key.

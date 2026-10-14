@@ -178,10 +178,12 @@ wp_interactivity_state(
 	<div class="wcb-reg-form-wrap" data-wp-class--wcb-hidden="state.submitted">
 		<div class="wcb-role-picker" data-wp-class--wcb-hidden="state.role">
 			<h2 class="wcb-reg-title"><?php esc_html_e( 'Join WP Career Board', 'wp-career-board' ); ?></h2>
+			<?php if ( ! $wcb_is_logged_in ) : ?>
 			<p class="wcb-reg-subtitle">
 				<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>
 				<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
 			</p>
+			<?php endif; ?>
 			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to...', 'wp-career-board' ); ?></p>
 			<div class="wcb-role-options">
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate" aria-label="<?php esc_attr_e( 'Find a Job', 'wp-career-board' ); ?>">
@@ -209,10 +211,12 @@ wp_interactivity_state(
 				</button>
 				<div>
 					<h2 class="wcb-reg-title" data-wp-text="state.roleTitle"></h2>
+					<?php if ( ! $wcb_is_logged_in ) : ?>
 					<p class="wcb-reg-subtitle">
 						<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>
 						<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
 					</p>
+					<?php endif; ?>
 				</div>
 			</div>
 

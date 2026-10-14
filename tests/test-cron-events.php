@@ -302,6 +302,48 @@ if ( get_userdata( $wcb_due_id ) ) {
 	wp_delete_user( $wcb_due_id );
 }
 
+// wcb_backfill_candidate_role (1.8.1): an applicant from before 1.8.1 still
+// holding only the subscriber role gets wcb_candidate; an admin does not.
+WP_CLI::log( '' );
+WP_CLI::log( '--- wcb_backfill_candidate_role ---' );
+$wcb_old_applicant = wp_insert_user(
+	array(
+		'user_login' => 'wcb_test_backfill_' . wp_generate_password( 6, false ),
+		'user_email' => 'wcb_backfill_' . wp_generate_password( 6, false ) . '@example.test',
+		'user_pass'  => wp_generate_password(),
+		'role'       => 'subscriber',
+	)
+);
+$wcb_backfill_app = wp_insert_post(
+	array(
+		'post_type'   => 'wcb_application',
+		'post_status' => 'publish',
+		'post_title'  => 'Backfill test application',
+		'post_author' => $wcb_old_applicant,
+	)
+);
+// The save already granted the role; take it away to stand in for pre-1.8.1 data.
+( new WP_User( $wcb_old_applicant ) )->set_role( 'subscriber' );
+$wcb_admin_app = wp_insert_post(
+	array(
+		'post_type'   => 'wcb_application',
+		'post_status' => 'publish',
+		'post_title'  => 'Backfill test admin application',
+		'post_author' => 1,
+	)
+);
+// Batches walk author IDs upward from a cursor; start just below this user so
+// a large site's earlier batches do not hide the result.
+do_action( 'wcb_backfill_candidate_role', $wcb_old_applicant - 1 );
+clean_user_cache( $wcb_old_applicant );
+wcb_assert( in_array( 'wcb_candidate', (array) get_userdata( $wcb_old_applicant )->roles, true ), 'backfill gives an earlier applicant the candidate role' );
+wcb_assert( ! in_array( 'wcb_candidate', (array) get_userdata( 1 )->roles, true ), 'backfill leaves an administrator without the candidate role' );
+do_action( 'wcb_backfill_candidate_role', 0 );
+wcb_assert( ! in_array( 'wcb_candidate', (array) get_userdata( 1 )->roles, true ), 'backfill from the start leaves an administrator without the candidate role' );
+wp_delete_post( $wcb_backfill_app, true );
+wp_delete_post( $wcb_admin_app, true );
+wp_delete_user( $wcb_old_applicant );
+
 WP_CLI::log( '' );
 WP_CLI::log( '========================================' );
 WP_CLI::log( '  Cron Event Test Summary' );

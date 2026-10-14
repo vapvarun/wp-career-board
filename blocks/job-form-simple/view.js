@@ -10,6 +10,7 @@
  */
 
 import { store } from '@wordpress/interactivity';
+import { formatSiteDate } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
 
@@ -69,14 +70,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
-		// Banner visibility — the credits system is only in play when this board
-		// charges (creditCost > 0) or the employer holds a balance (creditBalance
-		// > 0). Sites that don't use credits leave both at 0, so the banner stays
-		// hidden instead of showing a "Free to post. Balance: 0." non-message.
-		// Do NOT gate on the presence of a seeded i18n string — creditFree is always
-		// seeded, which made this a compile-time-constant `true`.
+		// Only a board that charges gets the banner; a free board shows nothing.
 		get hasCreditBanner() {
-			return state.creditCost > 0 || state.creditBalance > 0;
+			return state.creditCost > 0;
 		},
 
 		// Dynamic message — numbers come live from state.creditCost /
@@ -87,14 +83,15 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			const cost    = state.creditCost;
 			const balance = state.creditBalance;
 			if ( ! cost ) {
-				// Balance is irrelevant to a free posting - see render.php's creditFree string.
-				return t( 'creditFree', 'Free to post on this board.' );
+				return '';
 			}
 			// Plural form resolved in PHP by _n() against the real count — see
 			// render.php's $wcb_credit_noun. JS never branches on `count === 1`.
 			const noun = state.creditNoun || '';
 			if ( balance < cost ) {
-				return t( 'creditInsufficient', 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.' )
+				return ( state.creditPurchaseUrl
+					? t( 'creditInsufficient', 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.' )
+					: t( 'creditInsufficientNoBuy', 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.' ) )
 					.replace( '%1$s', noun )
 					.replace( '%2$s', nf( balance ) );
 			}
@@ -112,13 +109,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			if ( ! state.deadline ) {
 				return '';
 			}
-			// The deadline is read-only and server-owned, so its human-readable
-			// form is pre-rendered by wp_date() against the SITE locale and the
-			// site's date_format. Never re-derive it with toLocaleDateString(),
-			// which would format against the visitor's BROWSER locale.
-			const formatted = state.deadlineLabel || state.deadline;
 			return t( 'listingWindow', 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).' )
-				.replace( '%1$s', formatted );
+				.replace( '%1$s', formatSiteDate( state.deadline, state.locale ) );
+		},
+
+		get deadlineHelp() {
+			return t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' )
+				.replace( '%s', formatSiteDate( state.deadlineMax, state.locale ) );
 		},
 
 		get locationIsCustom() {
@@ -127,10 +124,17 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 	},
 
 	actions: {
+		setDeadline( event ) {
+			state.deadline = event.target.value;
+		},
+
 		updateField( event ) {
 			const key = event.target.getAttribute( 'data-wcb-field' );
 			if ( key && key in state ) {
 				state[ key ] = event.target.value;
+				if ( key === 'companyId' ) {
+					state.companyName = ( state.companyNames || {} )[ event.target.value ] || '';
+				}
 				// When the employer switches boards, re-derive the credit
 				// cost AND currency from the seeded per-board maps so the
 				// deduction banner and the salary currency dropdown update
@@ -272,12 +276,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					deadline:          state.deadline,
 					apply_url:         state.applyUrl,
 					apply_email:       state.applyEmail,
-					categories:        state.categorySlug ? [ state.categorySlug ] : [],
+					categories:        state.categorySlugs,
 					job_types:         state.typeSlug ? [ state.typeSlug ] : [],
 					locations:         state.locationSlug ? [ state.locationSlug ] : [],
 					experience:        state.expSlug ? [ state.expSlug ] : [],
 					tags:              tagSlugs,
 					board_id:          state.boardId ? Number( state.boardId ) : 0,
+					company_id:        Number( state.companyId ) || 0,
 					custom_fields:     state.customFields,
 					hp:                hpEl ? hpEl.value : '',
 					wcb_captcha_token: captchaToken,
@@ -323,15 +328,12 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.description = '';
 					state.salaryMin   = '';
 					state.salaryMax   = '';
-					// state.deadline / state.deadlineLabel are server-owned (readonly
-					// input, pre-computed from the wcb_job_default_expiry_days chain and
-					// wp_date()-formatted). Leave them intact so the next post keeps a
-					// valid deadline and the two stay in sync.
+					state.deadline    = state.deadlineMax;
 					state.applyUrl    = '';
 					state.applyEmail  = '';
 					state.locationSlug = '';
 					state.typeSlug     = '';
-					state.categorySlug = '';
+					state.categorySlugs = [];
 					state.expSlug      = '';
 					state.tags         = '';
 					state.remote       = false;

@@ -1,5 +1,7 @@
 # Job map
 
+> **PRO** - Requires WP Career Board Pro.
+
 You can show your job locations on a map, with a place search and a radius filter, using the Job Map block. This needs WP Career Board Pro.
 
 ## What you can do

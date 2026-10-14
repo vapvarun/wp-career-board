@@ -26,50 +26,18 @@ defined( 'ABSPATH' ) || exit;
 $wcb_can_post_job = wp_is_ability_granted( 'wcb/post-jobs' );
 
 if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
-	$wcb_emp_reg_page = \WCB\Admin\Pages::get_id( 'employer_registration_page' );
-	?>
-	<div class="wcb-job-form-gate">
-	<?php if ( ! is_user_logged_in() ) : ?>
-		<p><?php esc_html_e( 'Please sign in as an employer to post a job.', 'wp-career-board' ); ?></p>
-		<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Sign In', 'wp-career-board' ); ?></a>
-	<?php else : ?>
-		<p><?php esc_html_e( 'Posting a job is for employers. Register as an employer to start hiring - it only takes a minute.', 'wp-career-board' ); ?></p>
-		<?php if ( $wcb_emp_reg_page > 0 ) : ?>
-		<a href="<?php echo esc_url( (string) get_permalink( $wcb_emp_reg_page ) ); ?>" class="wcb-btn wcb-btn--primary"><?php esc_html_e( 'Register as an employer', 'wp-career-board' ); ?></a>
-		<?php endif; ?>
-	<?php endif; ?>
-	</div>
-	<?php
+	require WCB_DIR . 'templates/parts/post-job-gate.php';
 	return;
 }
 
 // ── Taxonomy terms ─────────────────────────────────────────────────────────
-$wcb_categories_raw  = get_terms(
-	array(
-		'taxonomy'   => 'wcb_category',
-		'hide_empty' => false,
-	)
-);
-$wcb_job_types_raw   = get_terms(
-	array(
-		'taxonomy'   => 'wcb_job_type',
-		'hide_empty' => false,
-	)
-);
-$wcb_experiences_raw = get_terms(
-	array(
-		'taxonomy'   => 'wcb_experience',
-		'hide_empty' => false,
-	)
-);
-
-$wcb_categories = is_wp_error( $wcb_categories_raw ) ? array() : $wcb_categories_raw;
-$wcb_job_types  = is_wp_error( $wcb_job_types_raw ) ? array() : $wcb_job_types_raw;
+$wcb_categories = \WCB\Core\Taxonomy::options( 'wcb_category' );
+$wcb_job_types  = \WCB\Core\Taxonomy::options( 'wcb_job_type' );
 // Location dropdown is scoped to the employer: company HQ + reserved
 // 'remote' / 'other' terms. Admins (wcb/manage-settings) get the full taxonomy.
 // See \WCB\Core\Locations::get_dropdown_terms() for the resolution logic.
 $wcb_locations   = \WCB\Core\Locations::get_dropdown_terms( get_current_user_id() );
-$wcb_experiences = is_wp_error( $wcb_experiences_raw ) ? array() : $wcb_experiences_raw;
+$wcb_experiences = \WCB\Core\Taxonomy::options( 'wcb_experience' );
 
 // ── Slug → display-name maps (used by preview card getters in view.js) ─────
 $wcb_type_names = array();
@@ -106,15 +74,12 @@ $wcb_e_exps   = array();
 $wcb_e_tags   = array();
 
 if ( $wcb_edit_id > 0 ) {
-	$wcb_edit_job        = get_post( $wcb_edit_id );
-	$wcb_user_company_id = $wcb_company_id;
-	$wcb_job_company_id  = (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true );
-	$wcb_same_company    = $wcb_user_company_id > 0 && $wcb_user_company_id === $wcb_job_company_id;
+	$wcb_edit_job = get_post( $wcb_edit_id );
 
+	// Same rule as the REST update route: the poster, or anyone running the job's company.
 	$wcb_can_edit = $wcb_edit_job instanceof \WP_Post
 	&& 'wcb_job' === $wcb_edit_job->post_type
-	&& ( (int) $wcb_edit_job->post_author === $wcb_user_id
-	|| $wcb_same_company
+	&& ( \WCB\Modules\Employers\EmployersModule::owns_job( $wcb_user_id, $wcb_edit_job )
 	|| wp_is_ability_granted( 'wcb/manage-settings' ) );
 
 	if ( ! $wcb_can_edit ) {
@@ -129,6 +94,20 @@ if ( $wcb_edit_id > 0 ) {
 	$wcb_e_tags  = wp_get_object_terms( $wcb_edit_id, 'wcb_tag', array( 'fields' => 'slugs' ) );
 }
 
+// ── Company picker: the companies this employer runs. An edit keeps the
+// job's own company selected, even one outside that list (an admin editing),
+// unless that company is gone: then the main company (set above) is offered.
+$wcb_companies   = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_user_id, true );
+$wcb_job_company = $wcb_edit_job ? (int) get_post_meta( $wcb_edit_id, '_wcb_company_id', true ) : 0;
+if ( $wcb_job_company > 0 && in_array( get_post_status( $wcb_job_company ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) {
+	$wcb_company_id = $wcb_job_company;
+	if ( ! isset( $wcb_companies[ $wcb_job_company ] ) ) {
+		// Raw title: companyNames feeds data-wp-text, which would print '&#038;'.
+		$wcb_companies[ $wcb_job_company ] = (string) get_post_field( 'post_title', $wcb_job_company );
+	}
+}
+$wcb_company_name = $wcb_companies[ $wcb_company_id ] ?? $wcb_company_name;
+
 // ── Currency catalog — pulled from the canonical source in AdminSettings so
 // admin settings + Pro additions (JPY/BRL/MXN/etc.) are guaranteed to match
 // what the post-form lets employers pick. Each entry is array{name,symbol}.
@@ -137,7 +116,7 @@ $wcb_currency_catalog = \WCB\Admin\AdminSettings::get_currency_catalog();
 // ── Default currency: site-wide admin setting wins for every employer. The
 // per-job currency stored on an existing post still wins when editing, and the
 // Pro per-board currency still wins when posting against a board (see below).
-$wcb_preferred        = strtoupper( \WCB\Admin\Settings::string( 'salary_currency', 'USD' ) );
+$wcb_preferred        = \WCB\Modules\Jobs\JobsMeta::default_currency();
 $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog )
 	? $wcb_preferred
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );
@@ -192,6 +171,11 @@ if ( post_type_exists( 'wcb_board' ) ) {
 	 */
 	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
 }
+// Editing: preselect the job's own board, or saving would move (and re-price) it.
+$wcb_edit_board_id = $wcb_edit_job ? \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( get_post_meta( $wcb_edit_id, '_wcb_board_id', true ) ) : 0;
+if ( $wcb_edit_board_id > 0 ) {
+	$wcb_board_id = $wcb_edit_board_id;
+}
 if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
 	$wcb_default_board_post = function_exists( 'get_option' ) ? (int) get_option( 'wcb_default_board_id', 0 ) : 0;
 	$wcb_board_id           = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
@@ -211,6 +195,21 @@ $wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wc
 if ( ! array_key_exists( $wcb_board_id, $wcb_board_credit_costs ) ) {
 	$wcb_board_credit_costs[ $wcb_board_id ] = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 }
+// Site admins post for free (JobPayment::is_exempt()), so every board reads as free to them.
+if ( \WCB\Modules\Jobs\JobPayment::is_exempt( $wcb_edit_id ) ) {
+	$wcb_board_credit_costs = array_map( '__return_zero', $wcb_board_credit_costs );
+}
+
+// A new job opens on a board the employer can afford, not on a paid default
+// that greets a 0-credit employer with "This board requires 3 credits".
+if ( ! $wcb_edit_job && empty( $attributes['boardId'] ) && ( $wcb_board_credit_costs[ $wcb_board_id ] ?? 0 ) > $wcb_credit_balance ) {
+	foreach ( $wcb_board_options as $wcb_opt ) {
+		if ( ( $wcb_board_credit_costs[ (int) $wcb_opt['id'] ] ?? 0 ) <= $wcb_credit_balance ) {
+			$wcb_board_id = (int) $wcb_opt['id'];
+			break;
+		}
+	}
+}
 
 /**
  * Pluralised credit noun, resolved with the real count.
@@ -228,21 +227,25 @@ $wcb_credit_noun = static function ( int $wcb_n ): string {
 
 $wcb_credit_messages = array();
 $wcb_credit_errors   = array();
+// Only point at buying when the site actually sells credits.
+$wcb_credit_short = '' !== (string) apply_filters( 'wcb_credit_purchase_url', '' )
+	/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+	? __( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' )
+	/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
+	: __( 'This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits.', 'wp-career-board' );
 foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_cost ) {
 	$wcb_cost = (int) $wcb_cost;
 
 	if ( $wcb_cost <= 0 ) {
-		// The balance is irrelevant to a free posting - showing it (often "0")
-		// next to "Free" reads like a warning rather than the good news it is.
-		$wcb_credit_messages[ (string) $wcb_bid ] = __( 'Free to post on this board.', 'wp-career-board' );
+		// A free board needs no notice; the banner only speaks when posting costs.
+		$wcb_credit_messages[ (string) $wcb_bid ] = '';
 		$wcb_credit_errors[ (string) $wcb_bid ]   = '';
 		continue;
 	}
 
 	if ( $wcb_credit_balance < $wcb_cost ) {
 		$wcb_credit_messages[ (string) $wcb_bid ] = sprintf(
-			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
-			__( 'This board requires %1$s. Your balance: %2$s. Please purchase more credits.', 'wp-career-board' ),
+			$wcb_credit_short,
 			$wcb_credit_noun( $wcb_cost ),
 			number_format_i18n( $wcb_credit_balance )
 		);
@@ -285,6 +288,7 @@ $wcb_initial_state = apply_filters(
 	'wcb_job_form_initial_state',
 	array(
 		'editJobId'         => $wcb_edit_id,
+		'editBoardId'       => $wcb_edit_board_id,
 		'step'              => 1,
 		'title'             => $wcb_edit_job ? $wcb_edit_job->post_title : '',
 		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
@@ -293,24 +297,14 @@ $wcb_initial_state = apply_filters(
 		'currencyCode'      => $wcb_edit_job
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
-		'salaryType'        => $wcb_edit_job ? ( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly' ) : 'yearly',
+		'salaryType'        => $wcb_edit_job && in_array( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ), array( 'yearly', 'monthly', 'hourly' ), true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly',
 		'requireLocation'   => \WCB\Admin\Settings::bool( 'require_job_location', false ),
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
-		// Application deadline is admin-controlled, not employer-editable. For
-		// new submissions we compute the deadline using the same filter chain
-		// the REST callback applies on save, so the read-only display matches
-		// what the server will store. For edits we surface the existing value
-		// untouched.
-		'deadline'          => $wcb_edit_job
-			? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true )
-			: ( static function () use ( $wcb_board_id ): string {
-				$wcb_preview_request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
-				$wcb_preview_request->set_param( 'board_id', $wcb_board_id );
-				$wcb_default_days    = (int) \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
-				$wcb_resolved_days   = (int) apply_filters( 'wcb_job_default_expiry_days', $wcb_default_days, $wcb_preview_request );
-				$wcb_resolved_days   = $wcb_resolved_days > 0 ? $wcb_resolved_days : 30;
-				return gmdate( 'Y-m-d', strtotime( '+' . $wcb_resolved_days . ' days' ) );
-			} )(),
+		// The employer may pick any deadline up to the board's listing length
+		// (owner decision, 1.8.1); REST clamps to the same maximum on save.
+		'deadline'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ),
+		'deadlineMax'       => max( $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : '', \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
+		'deadlineMin'       => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
 		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
@@ -320,10 +314,22 @@ $wcb_initial_state = apply_filters(
 		// callback wp_inserts a matching term so the listings filter still works.
 		'locationCustom'    => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_location_custom', true ) : '',
 		'typeSlug'          => ! is_wp_error( $wcb_e_types ) && $wcb_e_types ? $wcb_e_types[0] : '',
-		'categorySlug'      => ! is_wp_error( $wcb_e_cats ) && $wcb_e_cats ? $wcb_e_cats[0] : '',
+		// Every category the job has, even past the limit, so an edit never drops one.
+		'categorySlugs'     => ! is_wp_error( $wcb_e_cats ) ? $wcb_e_cats : array(),
 		'expSlug'           => ! is_wp_error( $wcb_e_exps ) && $wcb_e_exps ? $wcb_e_exps[0] : '',
 		'tags'              => ! is_wp_error( $wcb_e_tags ) ? implode( ', ', $wcb_e_tags ) : '',
+		'companyId'         => $wcb_company_id,
 		'companyName'       => $wcb_company_name,
+		'companyNames'      => (object) $wcb_companies,
+		// The picker's options; the employer dashboard updates it when a company is added or removed.
+		'companyList'       => array_map(
+			static fn ( $id, $name ): array => array(
+				'id'   => (int) $id,
+				'name' => (string) $name,
+			),
+			array_keys( $wcb_companies ),
+			$wcb_companies
+		),
 		'submitting'        => false,
 		'submitted'         => false,
 		'jobUrl'            => '',
@@ -424,10 +430,13 @@ $wcb_initial_state = apply_filters(
 				// Listing window banner.
 				/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
 				'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+				/* translators: %s: latest allowed deadline date. */
+				'deadlineHelp'             => __( 'Pick any date up to %s, the longest this board allows.', 'wp-career-board' ),
 
 				// Preview card meta row.
 				/* translators: %s: localized application deadline date. */
 				'applyBy'                  => __( 'Apply by %s', 'wp-career-board' ),
+				'listSeparator'            => _x( ', ', 'separator between category names', 'wp-career-board' ),
 			)
 		),
 	),
@@ -508,7 +517,8 @@ $wcb_step_labels = array(
 		<div>
 			<p class="wcb-form-success__title" data-wp-class--wcb-form-success__title--pending="state.jobPending">
 				<span data-wp-class--wcb-hidden="state.jobPending">
-					<?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?>
+					<span data-wp-class--wcb-hidden="state.isEditing"><?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.isEditing"><?php esc_html_e( 'Job updated.', 'wp-career-board' ); ?></span>
 				</span>
 				<span data-wp-class--wcb-hidden="!state.jobPending">
 					<?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?>
@@ -559,6 +569,24 @@ $wcb_step_labels = array(
 			</div>
 			<?php endif; ?>
 
+			<div class="wcb-form-field<?php echo count( $wcb_companies ) > 1 ? '' : ' wcb-hidden'; ?>" data-wp-class--wcb-hidden="!state.hasCompanyChoice">
+				<label class="wcb-form-label" for="wcb-company-id">
+					<?php esc_html_e( 'Company', 'wp-career-board' ); ?>
+				</label>
+				<select
+					id="wcb-company-id"
+					class="wcb-field"
+					data-wcb-field="companyId"
+					data-wp-bind--value="state.companyId"
+					data-wp-on--change="actions.updateField"
+				>
+					<template data-wp-each--co="state.companyList" data-wp-each-key="context.co.id">
+						<option data-wp-bind--value="context.co.id" data-wp-text="context.co.name"></option>
+					</template>
+				</select>
+			</div>
+			
+
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-job-title">
 					<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
@@ -598,6 +626,7 @@ $wcb_step_labels = array(
 					<?php endif; ?>
 				</div>
 				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Describe the role, responsibilities and requirements…', 'wp-career-board' ); ?>">
+					<?php require __DIR__ . '/editor-toolbar.php'; ?>
 					<div class="wcb-editor-holder" id="wcb-editor-job-desc" aria-describedby="wcb-job-desc-error" data-wp-bind--aria-invalid="state.descriptionInvalid"></div>
 					<textarea
 						id="wcb-job-desc"
@@ -614,7 +643,7 @@ $wcb_step_labels = array(
 				</div>
 				<p class="wcb-field-error" id="wcb-job-desc-error" role="alert" hidden data-wp-bind--hidden="!state.descriptionInvalid" data-wp-text="state.validationError"></p>
 				<span class="wcb-form-hint">
-					<?php esc_html_e( 'Use the inline toolbar (select text) and block menu (+) to format - headings, lists, links, quotes.', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Format with the toolbar above. For headings and quotes, use the + beside a line.', 'wp-career-board' ); ?>
 				</span>
 			</div>
 
@@ -738,12 +767,6 @@ $wcb_step_labels = array(
 				</label>
 			</div>
 
-			<!--
-				Deadline is admin-controlled, not employer-editable. The displayed
-				value is computed server-side using the same wcb_job_default_expiry_days
-				filter chain the REST callback applies on save (per-board override
-				if set, falls back to the global jobs_expire_days setting).
-			-->
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-deadline">
 					<?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?>
@@ -753,13 +776,12 @@ $wcb_step_labels = array(
 					type="date"
 					class="wcb-field wcb-field--date"
 					data-wp-bind--value="state.deadline"
-					readonly
-					aria-readonly="true"
-					tabindex="-1"
+					data-wp-bind--min="state.deadlineMin"
+					data-wp-bind--max="state.deadlineMax"
+					data-wp-on--change="actions.setDeadline"
+					aria-describedby="wcb-deadline-help"
 				/>
-				<p class="wcb-form-help">
-					<?php esc_html_e( 'Auto-filled from the job-board policy. Contact your site admin to extend the listing window.', 'wp-career-board' ); ?>
-				</p>
+				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-text="state.deadlineHelp"></p>
 			</div>
 
 			<!-- Apply URL -->
@@ -828,25 +850,12 @@ $wcb_step_labels = array(
 			</h2>
 
 			<div class="wcb-form-grid">
-				<div class="wcb-form-field">
-					<label class="wcb-form-label" for="wcb-category">
-						<?php esc_html_e( 'Category', 'wp-career-board' ); ?>
-					</label>
-					<select
-						id="wcb-category"
-						class="wcb-field"
-						data-wcb-field="categorySlug"
-						data-wp-bind--value="state.categorySlug"
-						data-wp-on--change="actions.updateField"
-					>
-						<option value=""><?php esc_html_e( 'Select a category', 'wp-career-board' ); ?></option>
-						<?php foreach ( $wcb_categories as $wcb_term ) : ?>
-							<option value="<?php echo esc_attr( $wcb_term->slug ); ?>">
-							<?php echo esc_html( $wcb_term->name ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
+				<?php
+				$wcb_jobcat_form  = 'wcb-job-form';
+				$wcb_jobcat_id    = 'wcb-category';
+				$wcb_jobcat_terms = $wcb_categories;
+				require WCB_DIR . 'templates/parts/job-category-field.php';
+				?>
 
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-job-type">

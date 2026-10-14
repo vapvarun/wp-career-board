@@ -5,15 +5,15 @@
         "version": "1.8.0"
     },
     "generated": {
-        "at": "2026-09-30T08:22:46+00:00",
-        "manifest_at": "2026-09-30T00:00:00Z",
+        "at": "2026-10-13T18:30:46+00:00",
+        "manifest_at": "2026-10-13T00:00:00Z",
         "manifest_branch": "1.8.0"
     },
     "categories": {
         "rest": {
-            "total": 74,
-            "covered": 42,
-            "uncovered": 32,
+            "total": 77,
+            "covered": 47,
+            "uncovered": 30,
             "skipped": 0,
             "covered_items": [
                 {
@@ -30,6 +30,10 @@
                 },
                 {
                     "method": "PUT",
+                    "route": "/wcb/v1/jobs/(?P<id>\\d+)"
+                },
+                {
+                    "method": "PATCH",
                     "route": "/wcb/v1/jobs/(?P<id>\\d+)"
                 },
                 {
@@ -109,6 +113,18 @@
                     "route": "/wcb/v1/employers/(?P<id>\\d+)"
                 },
                 {
+                    "method": "PATCH",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)"
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)"
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)/main"
+                },
+                {
                     "method": "GET",
                     "route": "/wcb/v1/employers/(?P<id>\\d+)/jobs"
                 },
@@ -123,6 +139,10 @@
                 {
                     "method": "GET",
                     "route": "/wcb/v1/employers/me/jobs"
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/employers/me/companies"
                 },
                 {
                     "method": "GET",
@@ -188,11 +208,6 @@
             "uncovered_items": [
                 {
                     "method": "PATCH",
-                    "route": "/wcb/v1/jobs/(?P<id>\\d+)",
-                    "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/jobs/(?P<id>\\d+)\""
-                },
-                {
-                    "method": "PATCH",
                     "route": "/wcb/v1/applications/(?P<id>\\d+)/status",
                     "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/applications/(?P<id>\\d+)/status\""
                 },
@@ -230,11 +245,6 @@
                     "method": "PATCH",
                     "route": "/wcb/v1/candidates/(?P<id>\\d+)",
                     "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/candidates/(?P<id>\\d+)\""
-                },
-                {
-                    "method": "PATCH",
-                    "route": "/wcb/v1/employers/(?P<id>\\d+)",
-                    "stub_command": "bin/qa-stub-gen.php rest PATCH \"/wcb/v1/employers/(?P<id>\\d+)\""
                 },
                 {
                     "method": "POST",
@@ -358,7 +368,7 @@
             "total": 93,
             "covered": 20,
             "uncovered": 73,
-            "skipped": 179,
+            "skipped": 180,
             "covered_items": [
                 {
                     "name": "wcb_pro_active",
@@ -811,8 +821,8 @@
             "_note": "Tracks only hooks with non-empty consumed_by. Skipped hooks are pure extensibility surface."
         },
         "cron": {
-            "total": 10,
-            "covered": 8,
+            "total": 11,
+            "covered": 9,
             "uncovered": 2,
             "skipped": 0,
             "covered_items": [
@@ -839,6 +849,9 @@
                 },
                 {
                     "hook": "wcb_prune_logs"
+                },
+                {
+                    "hook": "wcb_backfill_candidate_role"
                 }
             ],
             "uncovered_items": [
@@ -879,15 +892,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 182,
-        "items_covered": 75,
-        "items_uncovered": 107,
-        "items_skipped": 179,
-        "coverage_percent": 41.200000000000003
+        "items_total": 186,
+        "items_covered": 81,
+        "items_uncovered": 105,
+        "items_skipped": 180,
+        "coverage_percent": 43.5
     },
     "drift": {
         "previous_uncovered": 106,
-        "current_uncovered": 107,
-        "delta": 1
+        "current_uncovered": 105,
+        "delta": -1
     }
 }

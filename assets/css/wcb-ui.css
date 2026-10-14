@@ -245,7 +245,7 @@
 
 .wcb-btn--ghost {
 	background: transparent;
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #2563eb);
 	border-color: transparent;
 }
 
@@ -437,8 +437,13 @@
 	resize: vertical;
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email),
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-sort-select, .wcb-filter-select, .wcb-search-hero__select, .wcb-jm-radius-select, .wcb-alert-freq) {
+/* Every single-line select in our blocks draws the plugin's caret in its own
+   gutter. A list of classes left the rest (status, Move to, company filter)
+   with the theme's caret painted over the label (Basecamp 10401140048).
+   The second selector matches the field rule's (0,3,1) so its padding
+   shorthand can't take the caret's gutter back on form selects. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:not([multiple], [size]),
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:not([multiple], [size]):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
 	-webkit-appearance: none;
 	appearance: none;
 	padding-inline-end: var(--wcb-space-3xl);
@@ -449,8 +454,7 @@
 	cursor: pointer;
 }
 
-[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email),
-[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:is(.wcb-sort-select, .wcb-filter-select, .wcb-search-hero__select, .wcb-jm-radius-select, .wcb-alert-freq) {
+[dir="rtl"] :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) select:not([multiple], [size]) {
 	background-position: left var(--wcb-space-md) center;
 }
 
@@ -464,8 +468,11 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)::placeholder {
-	color: var(--wcb-text-tertiary);
+/* Every placeholder in our blocks, search boxes included (themes set their
+   own, 2.85:1 in Reign dark). Secondary text clears 4.5:1 in light and dark. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input, textarea)::placeholder {
+	color: var(--wcb-text-secondary);
+	opacity: 1;
 }
 
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email):is([readonly], :disabled) {
@@ -505,6 +512,12 @@
 	gap: var(--wcb-space-xs);
 	min-width: 0;
 	margin: 0;
+}
+
+/* A button in a form keeps its own width, left-aligned (a field unit is a
+   column flexbox, which stretched Save to the full width of the form). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-form-field > .wcb-btn {
+	align-self: flex-start;
 }
 
 /* Field units stack 16px apart, in one column or a two-column row. */
@@ -918,7 +931,7 @@
 }
 
 .wcb-cd-bookmark-title a:hover {
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #2563eb);
 	text-decoration: underline;
 }
 
@@ -929,10 +942,6 @@
 	gap: var(--wcb-space-xs);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary, #6b7280);
-}
-
-.wcb-cd-bookmark-meta-sep {
-	color: var(--wcb-text-tertiary, #94a3b8);
 }
 
 .wcb-cd-bookmark-actions {
@@ -979,6 +988,13 @@
 [class*="wp-block-wp-career-board"] .wcb-ca-card .wcb-ca-name,
 [class*="wp-block-wcb-"] .wcb-ra-card .wcb-ra-card-name {
 	padding-inline-end: calc( 40px + var( --wcb-space-sm, 8px ) );
+	/* At most two lines, broken between words only, so cards in a row line up. */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	overflow-wrap: normal;
+	word-break: normal;
 }
 
 /* Section card titles (.wcb-card-title) need more breathing room than the
@@ -1178,7 +1194,7 @@
 	padding: 0;
 	font-size: var(--wcb-text-xs);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-primary, #2563eb);
+	color: var(--wcb-primary-text, #2563eb);
 	cursor: pointer;
 	text-decoration: underline;
 }
@@ -1226,6 +1242,52 @@
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
 
+.wcb-filter-panel__list li[data-depth="1"] { padding-inline-start: var(--wcb-space-lg); }
+.wcb-filter-panel__list li[data-depth="2"] { padding-inline-start: calc(var(--wcb-space-lg) * 2); }
+.wcb-filter-panel__list li[data-depth="3"] { padding-inline-start: calc(var(--wcb-space-lg) * 3); }
+
+/* "in Parent": read by screen readers always, shown while searching. */
+.wcb-filter-parent {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.is-searching .wcb-filter-parent {
+	position: static;
+	width: auto;
+	height: auto;
+	overflow: visible;
+	clip-path: none;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary, #667085);
+}
+
+.is-searching li { padding-inline-start: 0; }
+
+.wcb-filter-empty {
+	margin: 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary, #667085);
+}
+
+.wcb-filter-empty:not(:empty) { padding: var(--wcb-space-sm) var(--wcb-space-xs); }
+
+.wcb-filter-panel__search {
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: var(--wcb-space-sm);
+	padding: var(--wcb-space-xs) var(--wcb-space-sm);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-sm);
+	background: var(--wcb-base, #ffffff);
+	color: var(--wcb-contrast, #0f172a);
+	font-size: var(--wcb-text-sm);
+}
+
 .wcb-filter-panel__option:hover {
 	background: var(--wcb-bg-hover, #f1f5f9);
 	color: var(--wcb-contrast, #0f172a);
@@ -1244,6 +1306,138 @@
 	cursor: pointer;
 	margin: 0;
 	flex-shrink: 0;
+}
+
+/* ── Category picker (job filters bar, search hero) ─────────────────────
+ * templates/parts/category-picker.php. The list reuses the filter panel's
+ * option rows; the panel overlays the content below it. */
+.wcb-cat-picker {
+	position: relative;
+	min-width: 0;
+}
+
+.wcb-cat-picker__toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+	min-height: var(--wcb-control-h);
+	margin: 0;
+	padding-block: 0;
+	padding-inline: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	font-family: inherit;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-normal);
+	line-height: var(--wcb-leading-tight);
+	text-align: start;
+	text-transform: none;
+	letter-spacing: normal;
+	box-shadow: none;
+	cursor: pointer;
+	transition: border-color var(--wcb-transition-snappy);
+}
+
+.wcb-cat-picker__toggle:hover,
+.wcb-cat-picker__toggle:focus,
+.wcb-cat-picker__toggle[aria-expanded="true"] {
+	border-color: var(--wcb-primary);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+}
+
+.wcb-cat-picker__toggle:focus-visible {
+	outline: 2px solid transparent !important;
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-cat-picker__label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wcb-cat-picker__toggle svg {
+	flex-shrink: 0;
+	transition: transform var(--wcb-transition-snappy);
+}
+
+.wcb-cat-picker__toggle[aria-expanded="true"] svg {
+	transform: rotate(180deg);
+}
+
+.wcb-cat-picker__panel {
+	position: absolute;
+	inset-block-start: calc(100% + var(--wcb-space-xs));
+	inset-inline-start: 0;
+	z-index: 50;
+	box-sizing: border-box;
+	width: max(100%, 300px);
+	max-width: calc(100vw - 2 * var(--wcb-space-lg));
+	padding: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-base);
+	color: var(--wcb-contrast);
+	box-shadow: var(--wcb-shadow-lg);
+	text-align: start;
+}
+
+.wcb-cat-picker__panel[hidden] {
+	display: none;
+}
+
+.wcb-cat-picker__fieldset {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.wcb-cat-picker .wcb-filter-panel__list {
+	max-height: min(320px, 50vh);
+	overscroll-behavior: contain;
+}
+
+.wcb-cat-picker .wcb-filter-panel__option {
+	min-height: 36px;
+	color: var(--wcb-contrast);
+}
+
+.wcb-cat-picker .wcb-filter-panel__option:has(input:focus-visible) {
+	box-shadow: var(--wcb-shadow-focus);
+}
+
+.wcb-cat-picker__actions {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	margin-block-start: var(--wcb-space-sm);
+	padding-block-start: var(--wcb-space-sm);
+	border-block-start: 1px solid var(--wcb-border);
+}
+
+@media (max-width: 640px) {
+	.wcb-cat-picker__panel {
+		inset-inline-end: 0;
+		width: auto;
+		max-width: none;
+	}
+
+	.wcb-cat-picker .wcb-filter-panel__option {
+		min-height: 40px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wcb-cat-picker__toggle,
+	.wcb-cat-picker__toggle svg {
+		transition: none;
+	}
 }
 
 /* ── Tablet / mobile collapse for the filter panel ───────────────────────
@@ -1481,8 +1675,24 @@
 	overflow-wrap: anywhere;
 }
 
+/* A tile that opens its list is a <button>: keep the card look, show it's
+   pressable (border tint on hover, the focus ring on keyboard focus). */
 .wcb-stat-card--link {
 	cursor: pointer;
+	width: 100%;
+	font: inherit;
+	text-align: start;
+	color: inherit;
+	transition: border-color var(--wcb-transition-fast);
+}
+
+.wcb-stat-card--link:hover {
+	border-color: var(--wcb-primary);
+}
+
+.wcb-stat-card--link:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
 }
 
 /* Narrow: six tracks so every row fills without a lone stretched tile.
@@ -1505,8 +1715,8 @@
 	}
 }
 
-/* Phone: three tiles no longer fit a label ("Applications" broke mid-word),
-   so every tile becomes a full-width compact row, label left, count right. */
+/* Phone: three across broke "Applications" mid-word, one per row pushed the
+   content a screen down, so two per row; an odd last tile takes the row. */
 @container wcb-stats (max-width: 480px) {
 	.wcb-stats-row {
 		gap: var(--wcb-space-sm);
@@ -1517,11 +1727,12 @@
 	.wcb-stat-card:first-child:nth-last-child(3) ~ .wcb-stat-card,
 	.wcb-stat-card:first-child:nth-last-child(5),
 	.wcb-stat-card:first-child:nth-last-child(5) ~ .wcb-stat-card:nth-child(-n+3) {
-		grid-column: 1 / -1;
-		flex-direction: row-reverse;
-		align-items: center;
-		justify-content: space-between;
+		grid-column: span 3;
 		padding: var(--wcb-space-md) var(--wcb-space-lg);
+	}
+
+	.wcb-stat-card:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
 	}
 
 	.wcb-stat-value {
@@ -1624,6 +1835,20 @@
 	flex-direction: column;
 	gap: 2px;
 	padding: 0 var(--wcb-space-sm) var(--wcb-space-lg);
+}
+
+/* A labelled group of nav items (role="group"); same rhythm as the nav itself. */
+.wcb-nav-group {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+/* A one-item group: a divider instead of a heading that would repeat the item. */
+.wcb-nav-group--rule {
+	margin-block-start: var(--wcb-space-sm);
+	padding-block-start: var(--wcb-space-sm);
+	border-block-start: 1px solid var(--wcb-border);
 }
 
 .wcb-nav-section-label {
@@ -1782,6 +2007,12 @@
 		padding: var(--wcb-space-xs) var(--wcb-space-sm);
 	}
 
+	/* Group headings stay in the open menu: "Jobs" under Saved needs its "Saved". */
+	.wcb-sidebar.wcb-nav-open .wcb-nav-section-label:not(.screen-reader-text) {
+		display: block;
+		padding-block-start: var(--wcb-space-sm);
+	}
+
 	.wcb-sidebar.wcb-nav-open .wcb-sidebar-cta {
 		display: flex;
 		width: calc( 100% - ( var(--wcb-space-md) * 2 ) );
@@ -1885,13 +2116,15 @@
 	overflow: hidden;
 }
 
-/* A panel inside the active tab drops its own frame (no box in a box). */
+/* A panel inside the active tab drops its own frame (no box in a box), and with
+   no rounded corner to clip it lets a row's '...' menu open past the last row. */
 .wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-panel {
 	background: transparent;
 	border: 0;
 	border-radius: 0;
 	box-shadow: none;
 	margin-bottom: 0;
+	overflow: visible;
 }
 
 .wcb-dashboard .wcb-panel--form {
@@ -1912,7 +2145,7 @@
 	font: inherit;
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text); /* text-safe shade: raw primary missed 4.5:1 on tinted panels */
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -1954,7 +2187,7 @@
 	border-radius: var(--wcb-radius-sm);
 	background: none;
 	font-size: var(--wcb-text-sm);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 	cursor: pointer;
 }
 
@@ -2086,7 +2319,6 @@
 	.wcb-chip,
 	.wcb-panel-link,
 	.wcb-bell-action,
-	.wcb-cd-withdraw-btn,
 	.wcb-filter-panel__clear,
 	.wcb-active-chip,
 	.wcb-apps-filter-bar .wcb-filter-pill {
@@ -2173,7 +2405,47 @@
 	border-radius: var(--wcb-radius-full);
 	background: var(--wcb-bg-hover);
 	color: var(--wcb-text-secondary);
-	text-transform: capitalize;
+	/* No text-transform: labels arrive translated and cased ('Full-time', not 'Full-Time'). */
 	white-space: nowrap;
 	flex-shrink: 0;
+}
+
+/* Dashboards: hide the panels while a restored tab replaces the server
+ * default (DashboardTabs::print_guard). The delayed reveal is a safety net
+ * so a failed script never leaves the panels hidden. */
+html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
+	visibility: hidden;
+	animation: wcb-tab-reveal 0s 1.5s forwards;
+}
+
+@keyframes wcb-tab-reveal {
+	to {
+		visibility: visible;
+	}
+}
+
+/* Request-failed toast (@wcb/ui showError). */
+.wcb-toast {
+	position: fixed;
+	inset-block-end: var(--wcb-space-xl);
+	inset-inline: var(--wcb-space-lg);
+	z-index: 100000;
+	box-sizing: border-box;
+	max-width: 32rem;
+	margin-inline: auto;
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border-radius: var(--wcb-radius-lg);
+	/* White label stays; the fill is darkened (lightness capped, as
+	 * --wcb-primary-strong does) so any theme's danger red keeps 4.5:1. */
+	background: #b91c1c;
+	background: oklch(from var(--wcb-danger) min(l, 0.5) c h);
+	color: #ffffff;
+	font-size: var(--wcb-text-sm);
+	line-height: 1.4;
+	text-align: center;
+	box-shadow: var(--wcb-shadow-lg);
+}
+
+.wcb-toast[hidden] {
+	display: none;
 }

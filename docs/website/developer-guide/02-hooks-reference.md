@@ -32,6 +32,7 @@ Use these actions and filters to change how WP Career Board behaves, react to ev
 | `wcb_job_allow_new_terms` | Filter | Whether a submission may create new category, type, location or experience terms. Default: moderators only. Tags are always free-form. Args: `$allow, $request`. |
 | `wcb_job_payment` | Filter | Return `true` when the job is paid or free, or a `WP_Error` (402) when it is not. `$event` is `create`, `resubmit`, `republish`, `board_change` or `feature`. Pro's credits answer it. Args: `$paid, $job_id, $event`. |
 | `wcb_job_imported` | Action | After a job is imported from WP Job Manager, once its meta and terms are written. Args: `$new_id`. |
+| `wcb_job_pipeline_url` | Filter | The URL of the **Pipeline** link on each row of the employer dashboard's My Jobs list. Free returns an empty string, which hides the link; Pro returns the job's pipeline board. Args: `$url, $job_id`. |
 
 ## Job search and listings
 
@@ -114,6 +115,7 @@ A ban (the `_wcb_employer_banned` user meta, from any writer) hides the member's
 | `wcb_application_form_fields_groups` | Filter | Add field groups to the apply form. The plugin renders, validates and saves them as `_wcb_application_field_<key>`. Args: `$groups, $job_id`. |
 | `wcb_guest_applications_claimed` | Action | An account took over the guest applications sent from its email address. This happens once the address is proven (email confirmed, or a password set from an emailed link), or at once for an account an admin or WP-CLI created. Args: `$user_id, $claimed_application_ids`. |
 | `wcb_resume_pdf_attachment_id` | Filter | The attachment ID used as a candidate's resume PDF. Args: `$id` (0), `$resume_id, $candidate_id`. |
+| `wcb_candidate_resume_url` | Filter | The frontend resume link that admins and employers get as **View resume** on the Applications list, the application screen and the Candidates list. By default it is the resume attached to the application, else the candidate's latest published resume, and empty when the viewer may not read it. Return `''` to hide the link or another URL to point it elsewhere. Args: `$url, $user_id, $application_id` (`0` outside an application). |
 
 Application statuses are `submitted`, `reviewing`, `shortlisted`, `rejected`, `hired`, `withdrawn`, `job_removed` and `position_closed`.
 
@@ -324,6 +326,24 @@ Free checks these filters to see whether Pro is active. Pro returns the real val
 | `wcb_scale_budgets` | Filter | `$budgets` | Per-query time budgets (ms) for `wp wcb scale benchmark`. |
 | `wcb_scale_ops` | Filter | `$ops, $per_page` | Add a named callable (`name => callable`) for the benchmark to time. Add a matching entry in `wcb_scale_budgets`; an operation without a budget is timed but never fails the run. |
 
+## Scheduled tasks
+
+The plugin schedules these WP-Cron events. List them with `wp cron event list`, or run one with `wp cron event run <hook>`. Add your own callback to a hook to do extra work after the built-in one; do not schedule them again.
+
+| Event | Runs | What it does |
+|---|---|---|
+| `wcb_check_job_expiry` | Hourly | Expires published jobs past their deadline, 200 at a time. See the Jobs table above |
+| `wcb_send_deadline_reminders` | Daily | Emails the "job ending soon" and saved-job reminders |
+| `wcb_expire_featured_jobs` | Daily | Ends featured placement after **Featured Duration (days)** |
+| `wcb_process_account_deletions` | Daily | Deletes accounts whose grace period is over |
+| `wcb_prune_logs` | Daily | Deletes email history older than **Keep Email History (days)** |
+| `wcb_prune_job_views` | Daily | Deletes job-view analytics older than `wcb_job_views_retention_days` |
+| `wcb_close_job_applications` | Once, when a job closes | Moves a closing job's undecided applications to their closed status |
+| `wcb_reopen_job_applications` | Once, when a job reopens | Gives a reopened job's closed applications their earlier status back |
+| `wcb_index_job_search_text` | Once after install or update | Indexes the text of jobs saved before the search index existed |
+| `wcb_private_files_migrate` | Once after update, repeating until done | Moves existing candidate files into private storage |
+| `wcb_backfill_candidate_role` | Once after update, repeating until done | Gives the Candidate role to members who applied before 1.8.1 |
+
 ## Browser events
 
 Two blocks coordinate through `document`-level `CustomEvent`s, so listeners (including Pro's job-map block) can react without a shared Interactivity store.
@@ -338,6 +358,16 @@ document.addEventListener( 'wcb:results', ( event ) => {
     console.log( 'Visible job IDs:', event.detail.jobIds );
 } );
 ```
+
+## Deadlines and term order
+
+| Hook or helper | Args | Purpose |
+|---|---|---|
+| `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
+| `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
+| `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
+
+The term meta key is `wcb_order` (integer, `show_in_rest`). It is registered on `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience` and `wcb_tag`, and edited in the **Order** field of each term screen.
 
 ## Listening pattern
 

@@ -36,6 +36,42 @@
 	color: var(--wcb-base);
 }
 
+/* -- Needs attention -- */
+.wcb-attention {
+	margin-bottom: var(--wcb-space-xl);
+}
+
+.wcb-attention-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.wcb-attention-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
+}
+
+.wcb-attention-item:last-child {
+	border-bottom: none;
+}
+
+.wcb-attention-item__text {
+	min-width: 0;
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+.wcb-attention-empty {
+	margin: 0;
+	padding: var(--wcb-space-md) var(--wcb-space-xl);
+	color: var(--wcb-text-secondary);
+}
+
 /* -- Overview rows -- */
 .wcb-overview-app-row,
 .wcb-overview-job-row {
@@ -207,6 +243,25 @@
 	box-shadow: var(--wcb-shadow-focus);
 }
 
+/* In the My Jobs toolbar the search takes the room left after the chips. */
+.wcb-filter-bar .wcb-job-search {
+	flex: 1 1 8rem;
+	min-width: 8rem;
+	min-height: 40px;
+}
+
+/* Company filter (employers running several companies). Base look is the shared
+ * .wcb-sort-select; on phones it takes the full row like the search field. */
+@media (max-width: 640px) {
+	.wcb-dashboard .wcb-page-header .wcb-company-filter,
+	.wcb-dashboard .wcb-filter-bar .wcb-company-filter,
+	.wcb-filter-bar .wcb-job-search {
+		width: 100%;
+		max-width: none;
+		flex-basis: 100%;
+	}
+}
+
 /* -- Jobs list -- */
 .wcb-jobs-list {
 	display: none;
@@ -247,9 +302,108 @@
 	flex-wrap: wrap;
 }
 
+/* My Jobs row: fixed columns so every title gets the same room and every
+   status badge starts at the same x (title | facts | actions). The badge says
+   the status, so there is no status dot. */
+.wcb-jobs-list .wcb-job-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 15rem auto;
+	align-items: center;
+}
+
+.wcb-job-facts {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-xs) var(--wcb-space-sm);
+	min-width: 0;
+}
+
+/* Why a job closed when its owner didn't close it ("company removed"). */
+.wcb-job-note {
+	display: block;
+	max-width: 60ch;
+	color: var(--wcb-text-secondary);
+	white-space: normal;
+}
+
+/* Companies (1.8.1): one card per company the employer runs. */
+.wcb-page-intro {
+	margin: 0 0 var(--wcb-space-lg);
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-base);
+	max-width: 65ch;
+}
+
+.wcb-company-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-company-card {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-md);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+}
+
+.wcb-company-card--main {
+	border-color: var(--wcb-primary);
+}
+
+.wcb-company-card__logo {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+}
+
+.wcb-company-card__logo img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: inherit;
+}
+
+.wcb-company-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	flex: 1;
+	min-width: 0;
+}
+
+.wcb-company-card__name {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
+.wcb-company-card__stats {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-company-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-sm);
+	flex-shrink: 0;
+}
+
 /* Apps chip (jobs list) */
 .wcb-apps-chip {
-	font-size: var(--wcb-text-base);
+	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-medium);
 	color: var(--wcb-text-secondary);
 	background: var(--wcb-bg-hover);
@@ -282,6 +436,59 @@
 
 .wcb-apps-selector.wcb-shown {
 	display: flex;
+}
+
+/* Folded: one row naming the chosen job; the search and list open below. */
+.wcb-apps-selector-summary {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	min-height: 44px;
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	cursor: pointer;
+	list-style: none;
+}
+
+.wcb-apps-selector-summary::-webkit-details-marker {
+	display: none;
+}
+
+.wcb-apps-selector-summary::after {
+	content: "";
+	margin-inline-start: auto;
+	width: 8px;
+	height: 8px;
+	border-inline-end: 2px solid var(--wcb-text-secondary);
+	border-block-end: 2px solid var(--wcb-text-secondary);
+	transform: rotate(45deg);
+	transition: transform var(--wcb-transition-fast, 120ms);
+}
+
+.wcb-apps-selector[open] > .wcb-apps-selector-summary {
+	border-block-end: 1px solid var(--wcb-border);
+}
+
+.wcb-apps-selector[open] > .wcb-apps-selector-summary::after {
+	transform: rotate(-135deg);
+}
+
+.wcb-apps-selector-summary:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: -2px;
+}
+
+.wcb-apps-selector-summary__label {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-apps-selector-summary__value {
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .wcb-apps-selector-header {
@@ -349,7 +556,7 @@
 
 .wcb-apps-job-item:hover:not(.wcb-active) {
 	background: var(--wcb-bg-hover);
-	color: var(--wcb-primary);
+	color: var(--wcb-primary-text);
 }
 
 .wcb-apps-job-item:focus {
@@ -729,6 +936,26 @@
 	margin-top: var(--wcb-space-xl);
 }
 
+/* In the applicant pane a section is a band under a divider, not a card: the
+   split panel is already the box (no box in a box). */
+.wcb-applicant-detail .wcb-detail-section {
+	padding: var(--wcb-space-xl) 0 0;
+	background: none;
+	border: 0;
+	border-top: 1px solid var(--wcb-border);
+	border-radius: 0;
+}
+
+/* 'Pick an applicant' sits in the pane, which is already the frame. */
+.wcb-applicant-detail > .wcb-empty-state {
+	background: none;
+	border: 0;
+}
+
+.wcb-app-notes__hint {
+	margin: calc(-1 * var(--wcb-space-xs)) 0 var(--wcb-space-md);
+}
+
 .wcb-detail-section-label,
 .wcb-section-label {
 	display: block;
@@ -742,7 +969,6 @@
 
 .wcb-cover-letter {
 	background: var(--wcb-bg-subtle);
-	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-sm);
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
 	font-size: var(--wcb-text-base);
@@ -780,6 +1006,11 @@
 }
 
 @media (max-width: 640px) {
+	.wcb-attention-item,
+	.wcb-attention-empty {
+		padding-inline: var(--wcb-space-lg);
+	}
+
 	.wcb-app-answer {
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--wcb-space-xs);
@@ -895,6 +1126,7 @@
 	margin-top: var(--wcb-space-sm);
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start; /* Save Profile sized to its label, like Settings */
 	gap: var(--wcb-space-md);
 }
 
@@ -928,10 +1160,18 @@
 		flex-direction: column;
 	}
 
+	/* Stacked: the list grows with the page (paged at 50) instead of a short
+	   box scrolling inside the page's own scroll. */
 	.wcb-applicant-list {
 		border-inline-end: none;
 		border-bottom: 1px solid var(--wcb-border);
-		max-height: 240px;
+		overflow-y: visible;
+	}
+
+	/* Picking an applicant scrolls here; clear the theme's sticky header.
+	   shortcut: fixed 9rem covers Reign/BuddyX headers; read the header height if a theme exceeds it. */
+	.wcb-applicant-detail {
+		scroll-margin-top: 9rem;
 	}
 
 	/* The dashboard main area is narrower than the viewport, so its field
@@ -942,31 +1182,45 @@
 }
 
 @media (max-width: 640px) {
-	/* My Jobs row -- stack info above badge + chip + actions */
-	.wcb-job-row {
+	/* Company card: logo + name on one line, actions below. */
+	.wcb-company-card {
 		flex-wrap: wrap;
-		gap: var(--wcb-space-sm) var(--wcb-space-sm);
+		padding: var(--wcb-space-md);
 	}
 
-	.wcb-job-info {
-		flex: 0 0 calc(100% - 28px);
+	.wcb-company-card__actions {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.wcb-company-card__actions .wcb-hidden {
+		display: none;
 	}
 
 	.wcb-job-title {
 		white-space: normal;
 	}
 
-	/* flex-wrap left an uneven 3+1 row (button widths vary, so 4 actions could
-	   wrap 3-then-1) — a 2-column grid keeps action rows even. */
-	.wcb-job-actions {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		width: 100%;
+	/* Title on its own line, then status/applicants and the two actions on
+	   one line: about 110px a job instead of a 2x3 button grid. */
+	.wcb-jobs-list .wcb-job-row {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			"info info"
+			"facts actions";
+		row-gap: var(--wcb-space-sm);
+		column-gap: var(--wcb-space-sm);
+		padding: var(--wcb-space-md);
 	}
 
-	.wcb-job-actions .wcb-btn {
-		width: 100%;
+	.wcb-jobs-list .wcb-job-actions .wcb-btn:not(.wcb-row-menu__toggle) {
+		padding-inline: var(--wcb-space-md);
 	}
+
+	.wcb-jobs-list .wcb-job-row > .wcb-job-info   { grid-area: info; }
+	.wcb-jobs-list .wcb-job-row > .wcb-job-facts  { grid-area: facts; }
+	.wcb-jobs-list .wcb-job-row > .wcb-job-actions { grid-area: actions; flex-wrap: nowrap; }
 
 	/* AI rank button spans the list width when the split panel stacks */
 	.wcb-ai-rank-btn {
@@ -1000,6 +1254,8 @@
 /* ── Hiring-team rating and notes (W19) ────────────────────────────────── */
 .wcb-rating {
 	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
 	gap: var(--wcb-space-xs);
 	margin-bottom: var(--wcb-space-sm);
 }
@@ -1008,7 +1264,9 @@
 	padding: 0 var(--wcb-space-xs);
 	border: 0;
 	background: none;
-	color: var(--wcb-text-secondary);
+	/* Off = an outlined star, so an unrated applicant never reads as 5 stars. */
+	color: transparent;
+	-webkit-text-stroke: 1.5px var(--wcb-text-secondary);
 	font-size: 1.4rem;
 	line-height: 1;
 	cursor: pointer;
@@ -1016,6 +1274,13 @@
 
 .wcb-rating__star--on {
 	color: var(--wcb-warning, #d97706);
+	-webkit-text-stroke-color: var(--wcb-warning, #d97706);
+}
+
+.wcb-rating__none {
+	margin-inline-start: var(--wcb-space-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-rating__star:focus-visible {

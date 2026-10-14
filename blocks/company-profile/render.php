@@ -87,23 +87,8 @@ $wcb_trust_info = $wcb_trust_map[ $wcb_trust ] ?? null;
 // about `5001+`, the shared helper did not (Basecamp 10074197007, item 3).
 $wcb_size_label = \WCB\Core\CompanyMetaShape::size_label( $wcb_size );
 
-// ── Company type labels ───────────────────────────────────────────────────────
-/*
- * `_wcb_company_type` stores a machine slug ("self-employed", "nonprofit"…).
- * The Company Details list used to echo that slug straight out, so every
- * locale saw the untranslated English slug. Labels mirror the admin meta box
- * verbatim so translators reuse the same source strings.
- */
-$wcb_type_labels = array(
-	'public'        => __( 'Public Company', 'wp-career-board' ),
-	'private'       => __( 'Privately Held', 'wp-career-board' ),
-	'self-employed' => __( 'Self-Employed / Freelance', 'wp-career-board' ),
-	'nonprofit'     => __( 'Non-profit', 'wp-career-board' ),
-	'government'    => __( 'Government Agency', 'wp-career-board' ),
-	'educational'   => __( 'Educational Institution', 'wp-career-board' ),
-	'partnership'   => __( 'Partnership', 'wp-career-board' ),
-);
-$wcb_type_label  = $wcb_type_labels[ $wcb_type ] ?? $wcb_type;
+// ── Company type label (slug or legacy label in, translated label out) ────
+$wcb_type_label = \WCB\Core\CompanyMetaShape::types()[ \WCB\Core\CompanyMetaShape::type_slug( (string) $wcb_type ) ] ?? '';
 
 // ── Bookmark state ───────────────────────────────────────────────────────────
 // Mirrors the archive-card bookmark + Find Jobs single hero so a customer who
@@ -134,8 +119,9 @@ wp_interactivity_state(
 		'apiBase'       => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 		'restNonce'     => wp_create_nonce( 'wp_rest' ),
 		'i18n'          => array(
-			'save'  => __( 'Save', 'wp-career-board' ),
-			'saved' => __( 'Saved', 'wp-career-board' ),
+			'saveFailed' => __( 'Could not save', 'wp-career-board' ),
+			'save'       => __( 'Save', 'wp-career-board' ),
+			'saved'      => __( 'Saved', 'wp-career-board' ),
 		),
 	)
 );
@@ -158,7 +144,7 @@ wp_interactivity_state(
 		 * LinkedIn pills below the meta.
 		 */
 		?>
-		<?php if ( is_user_logged_in() ) : ?>
+		<?php if ( wp_is_ability_granted( 'wcb/bookmark-jobs' ) ) : // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled; same gate as the bookmark route. ?>
 			<button
 				type="button"
 				class="wcb-bookmark-hero-btn wcb-cp-hero-save"
@@ -251,7 +237,7 @@ wp_interactivity_state(
 					<?php endif; ?>
 					<?php if ( $wcb_twitter ) : ?>
 						<a class="wcb-cp-link wcb-cp-link--twitter" href="<?php echo esc_url( $wcb_twitter ); ?>" target="_blank" rel="noopener noreferrer">
-							<?php echo \WCB\Core\Icon::svg( 'twitter' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+							<?php echo \WCB\Core\Icon::svg( 'brand-x' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
 							<?php esc_html_e( 'X / Twitter', 'wp-career-board' ); ?>
 						</a>
 					<?php endif; ?>
@@ -270,13 +256,13 @@ wp_interactivity_state(
 			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'About', 'wp-career-board' ); ?></h2>
 				<div class="wcb-cp-desc">
-					<?php echo wp_kses_post( wpautop( $wcb_desc ) ); ?>
+					<?php echo wp_kses_post( \WCB\Core\Text::dash_lists( wpautop( $wcb_desc ) ) ); ?>
 				</div>
 			</section>
 		<?php endif; ?>
 
 		<?php /* Company Details */ ?>
-		<?php if ( $wcb_industry || $wcb_size || $wcb_type || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
+		<?php if ( $wcb_industry || $wcb_size || $wcb_type_label || $wcb_founded || $wcb_hq || $wcb_website ) : ?>
 			<section class="wcb-cp-section wcb-detail-section">
 				<h2 class="wcb-cp-section-title"><?php esc_html_e( 'Company Details', 'wp-career-board' ); ?></h2>
 				<dl class="wcb-cp-details-grid">
@@ -401,7 +387,7 @@ wp_interactivity_state(
 								</span>
 							</div>
 						</div>
-						<a class="wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					</article>
 				</template>
 			</div>

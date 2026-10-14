@@ -306,17 +306,13 @@ final class PrivateFiles {
 					'meta_value'     => (string) $attachment_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- indexed by wcb_meta_key_value.
 				)
 			);
-			$user_company = CompanyMetaShape::resolve_company_id( $user_id );
 			foreach ( $applications as $application_id ) {
 				if ( (int) get_post_meta( (int) $application_id, '_wcb_candidate_id', true ) === $user_id ) {
 					return true;
 				}
 				$job_id = (int) get_post_meta( (int) $application_id, '_wcb_job_id', true );
 				$job    = $job_id > 0 ? get_post( $job_id ) : null;
-				if ( $job instanceof \WP_Post && (int) $job->post_author === $user_id ) {
-					return true;
-				}
-				if ( $user_company > 0 && (int) get_post_meta( $job_id, '_wcb_company_id', true ) === $user_company ) {
+				if ( $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $user_id, $job ) ) {
 					return true;
 				}
 			}
@@ -366,8 +362,11 @@ final class PrivateFiles {
 		}
 
 		nocache_headers();
-		header( 'Content-Type: ' . ( get_post_mime_type( $attachment_id ) ? get_post_mime_type( $attachment_id ) : 'application/octet-stream' ) );
-		header( 'Content-Disposition: inline; filename="' . sanitize_file_name( basename( $path ) ) . '"' );
+		$mime = get_post_mime_type( $attachment_id ) ? (string) get_post_mime_type( $attachment_id ) : 'application/octet-stream';
+		header( 'Content-Type: ' . $mime );
+		// Images preview in the browser; documents always download, so a file
+		// can never run as a page on this site's origin.
+		header( 'Content-Disposition: ' . ( str_starts_with( $mime, 'image/' ) ? 'inline' : 'attachment' ) . '; filename="' . sanitize_file_name( basename( $path ) ) . '"' );
 		header( 'Content-Length: ' . (string) filesize( $path ) );
 		header( 'X-Content-Type-Options: nosniff' );
 		readfile( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming a file the user is allowed to download.

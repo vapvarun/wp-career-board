@@ -43,6 +43,13 @@ class EmailVerification {
 	private const TTL = 7 * DAY_IN_SECONDS;
 
 	/**
+	 * Cookie marking the browser that registered (see maybe_verify()).
+	 *
+	 * @since 1.8.1
+	 */
+	private const BROWSER_COOKIE = 'wcb_verify_browser';
+
+	/**
 	 * A resent link is sent at most this often per account.
 	 *
 	 * @var int
@@ -100,6 +107,23 @@ class EmailVerification {
 				'time' => time(),
 			)
 		);
+
+		// Remember the browser that asked, so the link signs in only there
+		// (see maybe_verify()).
+		if ( ! headers_sent() ) {
+			setcookie(
+				self::BROWSER_COOKIE,
+				wp_hash( $token . '|browser' ),
+				array(
+					'expires'  => time() + self::TTL,
+					'path'     => COOKIEPATH,
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => is_ssl(),
+					'httponly' => true,
+					'samesite' => 'Lax',
+				)
+			);
+		}
 
 		/**
 		 * Fires when a new account needs to confirm its email.
@@ -196,6 +220,16 @@ class EmailVerification {
 		 * @param int $user_id Account ID.
 		 */
 		do_action( 'wcb_email_verified', $user_id );
+
+		// Sign in only the browser that created the account. Anywhere else the
+		// address is confirmed and the member signs in normally, so opening
+		// someone else's link can never sign you into their account.
+		$browser = isset( $_COOKIE[ self::BROWSER_COOKIE ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ self::BROWSER_COOKIE ] ) ) : '';
+		if ( '' === $browser || ! hash_equals( wp_hash( $token . '|browser' ), $browser ) ) {
+			wp_safe_redirect( wp_login_url( self::dashboard_url( $user_id ) ) );
+			exit;
+		}
+		setcookie( self::BROWSER_COOKIE, '', time() - HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id, false );

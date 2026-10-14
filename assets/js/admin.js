@@ -151,6 +151,28 @@
 	// Job moderation — T22a: styled modal + rejection reason
 	// -------------------------------------------------------------------------
 
+	// The status links (All / Pending / Published ...) are counted by PHP; take
+	// them from a fresh copy of this screen so they never drift from the server.
+	function refreshStatusCounts() {
+		var current = document.querySelector( '.wrap .subsubsub' );
+		if ( ! current ) {
+			return;
+		}
+		window.fetch( window.location.href, { credentials: 'same-origin' } )
+			.then( function ( res ) {
+				return res.ok ? res.text() : '';
+			} )
+			.then( function ( html ) {
+				var fresh = new window.DOMParser().parseFromString( html, 'text/html' ).querySelector( '.wrap .subsubsub' );
+				if ( fresh ) {
+					current.replaceWith( fresh );
+				}
+			} )
+			.catch( function () {
+				// Counts refresh on the next page load.
+			} );
+	}
+
 	function initJobModeration() {
 		document.addEventListener( 'click', function ( e ) {
 			var btn = e.target.closest( '.wcb-approve-job, .wcb-reject-job' );
@@ -195,6 +217,7 @@
 					row.style.opacity = '0.4';
 					setTimeout( function () { row.remove(); }, 600 );
 				}
+				refreshStatusCounts();
 			} ).catch( function ( err ) {
 				if ( err === undefined ) {
 					return; // User cancelled.

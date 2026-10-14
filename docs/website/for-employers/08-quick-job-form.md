@@ -43,7 +43,7 @@ For Elementor, Divi, Bricks and Beaver Builder, see [Page-builder embeds](./11-p
 | Skills / Tags | No | Comma-separated |
 | Salary Range | No | Currency, minimum, maximum and period (Year, Month or Hour) |
 | Remote-friendly position | No | Tick for a remote job |
-| Application Deadline | No | Filled in for you from the board's listing length. You cannot edit it |
+| Application Deadline | No | Pre-filled with the board's listing length. Pick any earlier date; a later date is not accepted |
 | Apply URL | No | External apply link. It must start with `http://` or `https://` |
 | Apply Email | No | An address candidates can email to apply |
 | Custom fields | Depends | Whatever your `wcb_job_form_fields` filter adds. See [Custom fields](../admin-guide/12-custom-fields.md) |

@@ -48,6 +48,77 @@ final class CandidatesModule {
 		// applicant, and author archives showed their names.
 		add_filter( 'rest_user_query', array( $this, 'hide_applicants_from_user_rest' ), 10, 2 );
 		add_action( 'template_redirect', array( $this, 'guard_candidate_author_archive' ), 0 );
+
+		// A candidate is anyone who has applied or has a resume (owner decision,
+		// 1.8.1), so the role follows the first of either and every screen can
+		// keep its fast role query. Saves cover REST, import, CLI and guest claims alike.
+		foreach ( array( 'save_post_wcb_application', 'save_post_wcb_resume' ) as $wcb_hook ) {
+			add_action(
+				$wcb_hook,
+				static function ( int $post_id, \WP_Post $post ): void {
+					unset( $post_id );
+					self::grant_role( (int) $post->post_author );
+				},
+				10,
+				2
+			);
+		}
+		add_action( self::BACKFILL_HOOK, array( self::class, 'backfill_roles' ) );
+	}
+
+	/**
+	 * Cron hook that grants the candidate role to applicants from before 1.8.1.
+	 *
+	 * @since 1.8.1
+	 */
+	public const BACKFILL_HOOK = 'wcb_backfill_candidate_role';
+
+	/**
+	 * Give a member the candidate role once they apply or create a resume.
+	 *
+	 * Administrators are left alone: their own test applications should not
+	 * add them to the Candidates screen.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id Applicant or resume author.
+	 * @return void
+	 */
+	public static function grant_role( int $user_id ): void {
+		$user = $user_id > 0 ? get_userdata( $user_id ) : false;
+		if ( ! $user || in_array( 'wcb_candidate', (array) $user->roles, true ) || $user->has_cap( 'manage_options' ) ) {
+			return;
+		}
+		\WCB\Core\Roles::grant_member_role( $user, 'wcb_candidate' );
+	}
+
+	/**
+	 * Grant the candidate role to existing applicants and resume authors.
+	 *
+	 * Runs in the background after the 1.8.1 upgrade, 200 authors a batch,
+	 * walking author IDs upward so skipped users (admins) never stall it.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $after Last author ID handled by the previous batch.
+	 * @return void
+	 */
+	public static function backfill_roles( int $after = 0 ): void {
+		global $wpdb;
+		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off background batch.
+			$wpdb->prepare(
+				"SELECT DISTINCT post_author FROM {$wpdb->posts}
+				WHERE post_type IN ( 'wcb_application', 'wcb_resume' ) AND post_author > %d
+				ORDER BY post_author ASC LIMIT 200",
+				$after
+			)
+		);
+		foreach ( $ids as $id ) {
+			self::grant_role( (int) $id );
+		}
+		if ( 200 === count( $ids ) ) {
+			wp_schedule_single_event( time() + 30, self::BACKFILL_HOOK, array( (int) end( $ids ) ) );
+		}
 	}
 
 	/**
@@ -167,6 +238,131 @@ final class CandidatesModule {
 				'map_meta_cap'          => true,
 			)
 		);
+	}
+
+	/**
+	 * A candidate's picture: the photo on their resume, else their avatar.
+	 *
+	 * The resume photo is the one the candidate chose for job seeking, so every
+	 * Career Board surface (cards, applications, profiles) shows it. Pass the
+	 * resume when the caller already has it and may show it; otherwise only
+	 * their latest PUBLIC resume is used, so a private resume's photo never
+	 * surfaces on a profile.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id   Candidate user ID.
+	 * @param int $size      Size in pixels.
+	 * @param int $resume_id Resume to take the photo from (optional).
+	 * @return string Image URL.
+	 */
+	public static function avatar_url( int $user_id, int $size = 96, int $resume_id = 0 ): string {
+		$url = self::photo_url( $user_id, $size, $resume_id );
+		return '' !== $url ? $url : (string) get_avatar_url( $user_id, array( 'size' => $size ) );
+	}
+
+	/**
+	 * The name other people see for a member (employers, the public, bells).
+	 *
+	 * WordPress sets display_name to the login when a member never gave a
+	 * name, so showing it as-is leaked logins ('varundubey applied for ...').
+	 * A display name that is just the login, nicename or email falls back to
+	 * first + last name, then to $fallback. A member's own screens still show
+	 * what they set.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int    $user_id  User ID.
+	 * @param string $fallback Text when no real name exists ('' = "A candidate").
+	 * @return string Plain text, never a login.
+	 */
+	public static function public_name( int $user_id, string $fallback = '' ): string {
+		$fallback = '' !== $fallback ? $fallback : __( 'A candidate', 'wp-career-board' );
+		$user     = $user_id > 0 ? get_userdata( $user_id ) : false;
+		if ( ! $user instanceof \WP_User ) {
+			return $fallback;
+		}
+		$name = trim( (string) $user->display_name );
+		if ( '' !== $name && ! in_array( strtolower( $name ), array_map( 'strtolower', array( $user->user_login, $user->user_nicename, $user->user_email ) ), true ) ) {
+			return $name;
+		}
+		$full = trim( $user->first_name . ' ' . $user->last_name );
+		return '' !== $full ? $full : $fallback;
+	}
+
+	/**
+	 * The candidate's resume photo, or '' when they have none.
+	 *
+	 * Public candidate surfaces show initials then, never the grey Gravatar
+	 * silhouette (owner rule, 1.8.1). avatar_url() keeps the Gravatar fallback
+	 * for wp-admin.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id   Candidate user ID.
+	 * @param int $size      Size in pixels.
+	 * @param int $resume_id Resume to take the photo from (optional).
+	 * @return string Image URL or ''.
+	 */
+	public static function photo_url( int $user_id, int $size = 96, int $resume_id = 0 ): string {
+		if ( ! $resume_id && $user_id ) {
+			$latest    = get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'publish',
+					'author'         => $user_id,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_key'       => '_wcb_resume_public', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => '1',                  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
+			$resume_id = (int) ( $latest[0] ?? 0 );
+		}
+		$photo = $resume_id ? (int) get_post_meta( $resume_id, '_wcb_resume_photo_id', true ) : 0;
+		$url   = $photo ? wp_get_attachment_image_url( $photo, array( $size, $size ) ) : '';
+
+		return $url ? (string) $url : '';
+	}
+
+	/**
+	 * Frontend resume an admin or employer should open for a candidate: the
+	 * one attached to the application, else their latest published resume.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param int $user_id        Candidate user ID.
+	 * @param int $application_id Application the link is for (optional).
+	 * @return string Resume URL, or '' when there is none.
+	 */
+	public static function resume_url( int $user_id, int $application_id = 0 ): string {
+		$resume_id = $application_id ? (int) get_post_meta( $application_id, '_wcb_resume_id', true ) : 0;
+		if ( ! $resume_id || 'publish' !== get_post_status( $resume_id ) ) {
+			$latest    = $user_id ? get_posts(
+				array(
+					'post_type'      => 'wcb_resume',
+					'post_status'    => 'publish',
+					'author'         => $user_id,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				)
+			) : array();
+			$resume_id = (int) ( $latest[0] ?? 0 );
+		}
+		$url = $resume_id && self::resume_is_readable( $resume_id ) ? (string) get_permalink( $resume_id ) : '';
+
+		/**
+		 * Filters the resume link shown for a candidate in admin.
+		 *
+		 * @since 1.8.1
+		 *
+		 * @param string $url            Resume URL ('' hides the link).
+		 * @param int    $user_id        Candidate user ID.
+		 * @param int    $application_id Application ID, or 0.
+		 */
+		return (string) apply_filters( 'wcb_candidate_resume_url', $url, $user_id, $application_id );
 	}
 
 	/**

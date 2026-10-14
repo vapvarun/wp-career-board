@@ -67,10 +67,6 @@
 	box-shadow: none;
 }
 
-.wcb-search-input::placeholder {
-	color: var(--wcb-text-tertiary);
-}
-
 .wcb-search-button {
 	display: inline-flex;
 	align-items: center;

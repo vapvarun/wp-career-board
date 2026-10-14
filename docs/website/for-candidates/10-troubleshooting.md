@@ -30,7 +30,8 @@ Most sites also allow guest applications. See [Apply as a guest](./09-guest-appl
 ## It says I have already applied
 
 - **As a signed-in member,** you can have one open application per job. Withdraw the existing one from **My Applications** to apply again.
-- **As a guest,** the same email cannot apply to the same job again within 24 hours.
+- **As a guest,** applying again with the same email within 24 hours does not create a second application; you see the same confirmation as the first time.
+- **"This email already has an account. Sign in to apply."** The email you typed belongs to a member. Click **Sign in to apply**, sign in, and apply from your account so the application lands in your dashboard.
 
 ## My resume upload failed
 

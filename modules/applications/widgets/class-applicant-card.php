@@ -76,15 +76,20 @@ final class ApplicantCard extends AbstractWidget {
 
 		if ( $candidate_id ) {
 			$user        = get_userdata( $candidate_id );
-			$name        = $user instanceof \WP_User ? $user->display_name : __( 'Unknown candidate', 'wp-career-board' );
+			$name        = $user instanceof \WP_User ? \WCB\Modules\Candidates\CandidatesModule::public_name( $user->ID ) : __( 'Unknown candidate', 'wp-career-board' );
 			$email       = $user instanceof \WP_User ? $user->user_email : '';
-			$avatar_html = get_avatar( $candidate_id, 64 );
+			$avatar_html = sprintf(
+				'<img src="%1$s" alt="" class="avatar avatar-64 photo" width="64" height="64" loading="lazy" />',
+				esc_url( \WCB\Modules\Candidates\CandidatesModule::avatar_url( $candidate_id, 128, (int) get_post_meta( $post->ID, '_wcb_resume_id', true ) ) )
+			);
 			$profile_url = $user instanceof \WP_User ? get_edit_user_link( $user->ID ) : '';
+			$resume_url  = \WCB\Modules\Candidates\CandidatesModule::resume_url( $candidate_id, $post->ID );
 		} else {
 			$name        = $guest_name !== '' ? $guest_name : __( 'Guest applicant', 'wp-career-board' );
 			$email       = $guest_email;
 			$avatar_html = get_avatar( $email !== '' ? $email : 0, 64 );
 			$profile_url = '';
+			$resume_url  = '';
 		}
 
 		$applied_at = mysql2date( get_option( 'date_format', 'F j, Y' ) . ' ' . get_option( 'time_format', 'g:i a' ), $post->post_date );
@@ -117,11 +122,14 @@ final class ApplicantCard extends AbstractWidget {
 						<?php endif; ?>
 					</p>
 				<?php endif; ?>
-				<?php if ( '' !== $profile_url ) : ?>
+				<?php if ( '' !== $resume_url || '' !== $profile_url ) : ?>
 					<p class="wcb-app-card__row">
-						<a class="button button-secondary" href="<?php echo esc_url( $profile_url ); ?>">
-							<?php esc_html_e( 'View candidate profile', 'wp-career-board' ); ?>
-						</a>
+						<?php if ( '' !== $resume_url ) : ?>
+							<a class="button button-secondary" href="<?php echo esc_url( $resume_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'View resume', 'wp-career-board' ); ?></a>
+						<?php endif; ?>
+						<?php if ( '' !== $profile_url ) : ?>
+							<a class="button button-link" href="<?php echo esc_url( $profile_url ); ?>"><?php esc_html_e( 'Edit user', 'wp-career-board' ); ?></a>
+						<?php endif; ?>
 					</p>
 				<?php endif; ?>
 			</div>

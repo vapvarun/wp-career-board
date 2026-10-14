@@ -115,12 +115,25 @@ abstract class RestController extends \WP_REST_Controller {
 	 * @return bool True when the caller is over the limit (the request is not counted).
 	 */
 	protected function ip_limit_reached( string $bucket, int $limit ): bool {
+		return $this->rate_limit_reached( $bucket, \WCB\Auth\AppCredentials::client_ip(), $limit );
+	}
+
+	/**
+	 * Count one request from a subject (an IP, a user ID) against an hourly
+	 * limit. The one rate limiter for Free and Pro routes.
+	 *
+	 * @since 1.8.1
+	 * @param string $bucket  Transient prefix naming the limit.
+	 * @param string $subject Who is counted, e.g. an IP or "user:12".
+	 * @param int    $limit   Requests per hour; 0 disables the limit.
+	 * @return bool True when the subject is over the limit (the request is not counted).
+	 */
+	protected function rate_limit_reached( string $bucket, string $subject, int $limit ): bool {
 		if ( $limit <= 0 ) {
 			return false;
 		}
 		global $wpdb;
-		$ip   = \WCB\Auth\AppCredentials::client_ip();
-		$key  = $bucket . md5( wp_salt() . $ip );
+		$key  = $bucket . md5( wp_salt() . $subject );
 		$lock = 'wcb_' . md5( DB_NAME . $wpdb->prefix . $key );
 
 		// The count is read-modify-write: a burst from one IP would otherwise

@@ -66,6 +66,10 @@ echo "=== Applications Role Split Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-applications-role-split.php
 echo ""
 
+echo "=== Employer Multi-Company Scope Tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-employer-multi-company.php
+echo ""
+
 echo "=== Cron Event Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cron-events.php
 echo ""

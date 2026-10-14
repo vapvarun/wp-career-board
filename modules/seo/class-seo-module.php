@@ -165,7 +165,7 @@ class SeoModule {
 			'@context'           => 'https://schema.org',
 			'@type'              => 'JobPosting',
 			'title'              => self::plain( (string) $data['title'] ),
-			'description'        => wpautop( wp_kses_post( (string) $data['description'] ) ),
+			'description'        => wpautop( wp_kses_post( strip_shortcodes( (string) $data['description'] ) ) ),
 			'datePosted'         => get_post_time( 'c', true, $job ),
 			'validThrough'       => self::valid_through( (string) $data['closes_at'] ),
 			'employmentType'     => array_values( array_unique( array_intersect_key( self::EMPLOYMENT_TYPES, array_flip( (array) $data['job_types'] ) ) ) ),
@@ -295,8 +295,21 @@ class SeoModule {
 	 * @return bool
 	 */
 	public static function has_location( \WP_Post $job ): bool {
-		list( $places, $remote ) = self::locations( $job, '1' === (string) get_post_meta( $job->ID, '_wcb_remote', true ) );
+		list( $places, $remote ) = self::job_places( $job );
 		return $places || $remote;
+	}
+
+	/**
+	 * A job's places and whether it is remote, as the JobPosting markup reads
+	 * them. Pro's job feed uses the same answer so the two never disagree.
+	 *
+	 * @since 1.8.1
+	 *
+	 * @param \WP_Post $job Job.
+	 * @return array{0: array<int, array<string, mixed>>, 1: bool} Places and remote.
+	 */
+	public static function job_places( \WP_Post $job ): array {
+		return self::locations( $job, '1' === (string) get_post_meta( $job->ID, '_wcb_remote', true ) );
 	}
 
 	/**
