@@ -129,7 +129,8 @@ class EmailAppRejected extends AbstractEmail {
 				'object_type' => 'application',
 				'object_id'   => $app_id,
 				'actor_id'    => $actor,
-			)
+			),
+			$to['locale']
 		);
 	}
 }

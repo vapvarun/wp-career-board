@@ -29,7 +29,7 @@ Free sends these emails. Each one can be switched off and edited under **Career 
 
 Guests who applied with an email address get the guest confirmation, status and not-selected emails. A guest who left no email cannot be notified.
 
-Every email is written in the recipient's own language: dates and status names follow the recipient's locale, not the locale of whoever triggered it.
+Every email is written in the recipient's own language: dates, numbers and status names follow the recipient's locale, not the locale of whoever triggered it. Members get their profile language. A guest gets the language they applied or saved a job alert in (older guest applications get the site language). The notification address gets the language of the account with that address, or the site language when no account has it.
 
 ## Managing notifications
 

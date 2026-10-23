@@ -227,15 +227,21 @@ abstract class AbstractEmail {
 	 *                                      (object_type, object_id, actor_id, group_key).
 	 *                                      Omit for a transactional or admin-only email —
 	 *                                      no `object_type` means no bell row.
+	 * @param string                                   $locale  Language for an address with no account, such as the
+	 *                                                          one a guest used when applying. Empty means the site language.
 	 * @return void
 	 */
-	protected function send( string $to, array|\Closure $vars, int $user_id = 0, array $context = array() ): void {
+	protected function send( string $to, array|\Closure $vars, int $user_id = 0, array $context = array(), string $locale = '' ): void {
 		if ( ! $this->is_enabled() || ( $user_id > 0 && $this->is_optional() && in_array( $this->get_id(), self::opted_out( $user_id ), true ) ) ) {
 			return;
 		}
 		// A member gets the email in their own language, not the language of
-		// whoever triggered it (an admin, a cron run).
-		$switched = $user_id > 0 && switch_to_user_locale( $user_id );
+		// whoever triggered it (an admin, a cron run). So does an account
+		// behind a bare address (the notification address); a guest gets the
+		// language they used, and anyone else the site language.
+		$owner    = $user_id > 0 ? false : get_user_by( 'email', $to );
+		$account  = $owner instanceof \WP_User ? (int) $owner->ID : $user_id;
+		$switched = $account > 0 ? switch_to_user_locale( $account ) : switch_to_locale( '' !== $locale ? $locale : get_locale() );
 		$this->dispatch( $to, $vars instanceof \Closure ? $vars() : $vars, $user_id, false, $context );
 		if ( $switched ) {
 			restore_previous_locale();

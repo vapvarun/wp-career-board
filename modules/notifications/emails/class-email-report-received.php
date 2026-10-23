@@ -117,11 +117,12 @@ class EmailReportReceived extends AbstractEmail {
 		if ( ! ModerationModule::alert_due( $count ) ) {
 			return;
 		}
+		$hidden = 'reports' === HiddenContent::reason( $job_id );
 		$this->notify(
 			get_the_title( $job_id ),
-			ModerationModule::report_reasons()[ $reason ] ?? $reason,
+			static fn(): string => ModerationModule::report_reasons()[ $reason ] ?? $reason,
 			$count,
-			'reports' === HiddenContent::reason( $job_id ) ? __( 'The job has been taken off the site until you review it. Dismissing the reports puts it back.', 'wp-career-board' ) : '',
+			static fn(): string => $hidden ? __( 'The job has been taken off the site until you review it. Dismissing the reports puts it back.', 'wp-career-board' ) : '',
 			admin_url( 'admin.php?page=wcb-jobs&wcb_flag=open' )
 		);
 	}
@@ -142,9 +143,9 @@ class EmailReportReceived extends AbstractEmail {
 		$page = in_array( 'wcb_candidate', (array) $user->roles, true ) ? 'wcb-candidates' : 'wcb-employers';
 		$this->notify(
 			$user->display_name,
-			\WCB\Api\Endpoints\MembersEndpoint::report_reasons()[ $reason ] ?? $reason,
+			static fn(): string => \WCB\Api\Endpoints\MembersEndpoint::report_reasons()[ $reason ] ?? $reason,
 			$count,
-			'',
+			static fn(): string => '',
 			admin_url( 'admin.php?page=' . $page . '&wcb_reported=1' )
 		);
 	}
@@ -153,21 +154,22 @@ class EmailReportReceived extends AbstractEmail {
 	 * Send to the notification address (or the site admin email).
 	 *
 	 * @param string $item   What was reported.
-	 * @param string $reason Reason label.
+	 * @param \Closure $reason Returns the reason label.
 	 * @param int    $count  Open reports.
-	 * @param string $note   Hidden note.
+	 * @param \Closure $note   Returns the hidden note.
 	 * @param string $url    Review URL.
 	 * @return void
 	 */
-	private function notify( string $item, string $reason, int $count, string $note, string $url ): void {
+	private function notify( string $item, \Closure $reason, int $count, \Closure $note, string $url ): void {
 		$notification_email = \WCB\Admin\Settings::string( 'notification_email', '' );
 		$this->send(
 			'' !== $notification_email ? $notification_email : (string) get_option( 'admin_email', '' ),
-			array(
+			// Reason labels and the note are translated in the reader's language.
+			static fn(): array => array(
 				'item'         => $item,
-				'reason'       => $reason,
-				'report_count' => (string) $count,
-				'hidden_note'  => $note,
+				'reason'       => $reason(),
+				'report_count' => number_format_i18n( $count ),
+				'hidden_note'  => $note(),
 				'review_url'   => $url,
 			),
 			0

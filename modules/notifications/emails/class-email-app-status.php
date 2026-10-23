@@ -105,7 +105,7 @@ class EmailAppStatus extends AbstractEmail {
 	 * @since 1.8.0
 	 *
 	 * @param int $app_id Application ID.
-	 * @return array{email:string, name:string, user_id:int}|null
+	 * @return array{email:string, name:string, user_id:int, locale:string}|null
 	 */
 	public static function recipient( int $app_id ): ?array {
 		$candidate = get_userdata( (int) get_post_meta( $app_id, '_wcb_candidate_id', true ) );
@@ -114,6 +114,7 @@ class EmailAppStatus extends AbstractEmail {
 				'email'   => $candidate->user_email,
 				'name'    => $candidate->display_name,
 				'user_id' => (int) $candidate->ID,
+				'locale'  => '',
 			);
 		}
 		$email = (string) get_post_meta( $app_id, '_wcb_guest_email', true );
@@ -121,6 +122,7 @@ class EmailAppStatus extends AbstractEmail {
 			'email'   => $email,
 			'name'    => (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
 			'user_id' => 0,
+			'locale'  => (string) get_post_meta( $app_id, '_wcb_guest_locale', true ),
 		) : null;
 	}
 
@@ -174,7 +176,8 @@ class EmailAppStatus extends AbstractEmail {
 				'object_type' => 'application',
 				'object_id'   => $app_id,
 				'actor_id'    => $actor,
-			)
+			),
+			$to['locale']
 		);
 	}
 }

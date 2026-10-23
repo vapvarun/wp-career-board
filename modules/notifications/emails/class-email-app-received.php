@@ -115,19 +115,15 @@ class EmailAppReceived extends AbstractEmail {
 		$dashboard     = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
 		$dashboard_url = $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' );
 
-		if ( $candidate_id > 0 ) {
-			$userdata       = get_userdata( $candidate_id );
-			$candidate_name = $userdata instanceof \WP_User ? $userdata->display_name : __( 'Guest', 'wp-career-board' );
-		} else {
-			$meta_name      = (string) get_post_meta( $app_id, '_wcb_guest_name', true );
-			$candidate_name = $meta_name ? $meta_name : __( 'Guest', 'wp-career-board' );
-		}
+		$userdata       = $candidate_id > 0 ? get_userdata( $candidate_id ) : false;
+		$candidate_name = $userdata instanceof \WP_User ? $userdata->display_name : ( $candidate_id > 0 ? '' : (string) get_post_meta( $app_id, '_wcb_guest_name', true ) );
 
 		$this->send(
 			$employer->user_email,
-			array(
+			// "Guest" is translated after send() switches to the employer's language.
+			static fn(): array => array(
 				'job_title'      => $job->post_title,
-				'candidate_name' => $candidate_name,
+				'candidate_name' => '' !== $candidate_name ? $candidate_name : __( 'Guest', 'wp-career-board' ),
 				'dashboard_url'  => $dashboard_url,
 			),
 			$employer->ID,

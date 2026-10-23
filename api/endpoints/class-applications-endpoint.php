@@ -438,6 +438,8 @@ final class ApplicationsEndpoint extends RestController {
 			update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );
 			if ( $is_guest ) {
 				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+				// Later emails (status changes) go out in the language the guest applied in.
+				update_post_meta( $app_id, '_wcb_guest_locale', determine_locale() );
 			}
 
 			// Resume checks run inside the lock too: a request that fails them
