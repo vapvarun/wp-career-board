@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.8';
+	const DB_VERSION = '1.3.9';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -498,6 +498,33 @@ final class Install {
 
 				// Jobs located Remote but saved as on-site; needs the taxonomy (init@10).
 				add_action( 'init', array( Locations::class, 'backfill_remote_flags' ), 25 );
+			}
+
+			// 1.3.9 - jobs saved without a board (wp-admin, import) belong to the
+			// default board but carried no meta, so the board filter and the
+			// Boards counts missed them. One INSERT stores it; new saves stamp it.
+			$wcb_default_board = (int) get_option( 'wcb_default_board_id', 0 );
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.9', '<' ) && $wcb_default_board > 0 ) {
+				global $wpdb;
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair, one statement at any size.
+				$wpdb->query(
+					$wpdb->prepare(
+						"INSERT INTO {$wpdb->postmeta} ( post_id, meta_key, meta_value )
+						SELECT p.ID, '_wcb_board_id', %s FROM {$wpdb->posts} p
+						LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_wcb_board_id'
+						WHERE p.post_type = 'wcb_job' AND m.meta_id IS NULL",
+						(string) $wcb_default_board
+					)
+				);
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- same repair for a stored empty board.
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE {$wpdb->postmeta} m INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id AND p.post_type = 'wcb_job'
+						SET m.meta_value = %s WHERE m.meta_key = '_wcb_board_id' AND m.meta_value IN ( '', '0' )",
+						(string) $wcb_default_board
+					)
+				);
+				wp_cache_flush_group( 'post_meta' );
 			}
 
 			// Only bump the stored DB version if every expected table now

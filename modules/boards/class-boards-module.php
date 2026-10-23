@@ -30,6 +30,27 @@ final class BoardsModule {
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'ensure_default_board' ), 20 );
+		add_action( 'save_post_wcb_job', array( self::class, 'stamp_default_board' ), 99 );
+	}
+
+	/**
+	 * Store the default board on a job saved without one.
+	 *
+	 * A job with no board belongs to the default board, but the board filter
+	 * and the Boards counts read the stored meta, so every save path (wp-admin,
+	 * import, wp_insert_post) stores it. Runs late so a board chosen on the
+	 * same save wins.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return void
+	 */
+	public static function stamp_default_board( int $job_id ): void {
+		$default = self::get_default_board_id();
+		if ( $default > 0 && ! (int) get_post_meta( $job_id, '_wcb_board_id', true ) ) {
+			update_post_meta( $job_id, '_wcb_board_id', $default );
+		}
 	}
 
 	/**
