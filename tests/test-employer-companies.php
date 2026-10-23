@@ -122,6 +122,21 @@ wcb_assert( 409 === $wcb_r->get_status(), "a draft company can't become main (go
 $wcb_r = wcb_rest( 'PATCH', "/wcb/v1/jobs/{$wcb_job}", array( 'company_id' => $wcb_first ), $wcb_lead );
 wcb_assert( 200 === $wcb_r->get_status(), 'a published company still works as before' );
 
+// Card 10401941306: a company handed to someone else drops the old link.
+$wcb_owns         = static fn ( int $u, int $c ): bool => isset( \WCB\Modules\Employers\EmployersModule::owned_companies( $u )[ $c ] );
+$wcb_admin_co     = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'Larkspur Freight', 'post_author' => 1 ) );
+$wcb_created[]    = $wcb_admin_co;
+update_user_meta( $wcb_other, '_wcb_company_id', $wcb_admin_co );
+wp_update_post( array( 'ID' => $wcb_admin_co, 'post_title' => 'Larkspur Freight Co' ) );
+wcb_assert( $wcb_owns( $wcb_other, $wcb_admin_co ), 'an employer linked to a company an admin created keeps it across a plain save' );
+wp_update_post( array( 'ID' => $wcb_admin_co, 'post_author' => $wcb_peer ) );
+wcb_assert( ! $wcb_owns( $wcb_other, $wcb_admin_co ) && 0 === $wcb_main_of( $wcb_other ), 'handing the company to another author drops the old link' );
+wcb_assert( $wcb_owns( $wcb_peer, $wcb_admin_co ), 'the new author owns it' );
+add_post_meta( $wcb_admin_co, '_wcb_company_owner', $wcb_other );
+update_user_meta( $wcb_other, '_wcb_company_id', $wcb_admin_co );
+delete_post_meta( $wcb_admin_co, '_wcb_company_owner', $wcb_other );
+wcb_assert( ! $wcb_owns( $wcb_other, $wcb_admin_co ), 'a co-owner taken off the company loses it' );
+
 // Teardown.
 foreach ( array_filter( $wcb_created ) as $wcb_id ) {
 	wp_delete_post( (int) $wcb_id, true );
