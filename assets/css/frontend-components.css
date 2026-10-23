@@ -265,9 +265,11 @@
 }
 
 /* A section whose body is a card (its empty state) puts its title on that
-   card's edge; over list rows the padding lines the title up with row text. */
+   card's edge, with no divider over the card's own border; over list rows the
+   padding lines the title up with row text. */
 .wcb-panel:has(> .wcb-empty-state.wcb-shown:not(.wcb-empty-state--plain)) > .wcb-panel-header {
 	padding-inline: 0;
+	border-bottom: 0;
 }
 
 .wcb-panel-body {
