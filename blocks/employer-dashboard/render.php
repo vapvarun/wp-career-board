@@ -1036,7 +1036,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 									<li class="wcb-note">
 										<p class="wcb-note__text" data-wp-text="context.note.text"></p>
 										<span class="wcb-note__meta" data-wp-text="context.note.author_name"></span>
-										<button type="button" class="wcb-note__delete" data-wp-on--click="actions.deleteNote" aria-label="<?php esc_attr_e( 'Delete note', 'wp-career-board' ); ?>">&times;</button>
+										<button type="button" class="wcb-note__delete" data-wp-bind--hidden="!context.note.can_delete" data-wp-on--click="actions.deleteNote" aria-label="<?php esc_attr_e( 'Delete note', 'wp-career-board' ); ?>">&times;</button>
 									</li>
 								</template>
 							</ul>

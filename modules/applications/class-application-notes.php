@@ -40,10 +40,11 @@ final class ApplicationNotes {
 	public const RATING = '_wcb_rating';
 
 	/**
-	 * Notes, oldest first, with the author's name.
+	 * Notes, oldest first, with the author's name and whether the signed-in
+	 * user may delete each one (so no client offers a delete the server refuses).
 	 *
 	 * @param int $app_id Application ID.
-	 * @return array<int, array{id:string, author:int, author_name:string, text:string, at:string}>
+	 * @return array<int, array{id:string, author:int, author_name:string, text:string, at:string, can_delete:bool}>
 	 */
 	public static function notes( int $app_id ): array {
 		// One meta row per note.
@@ -54,10 +55,13 @@ final class ApplicationNotes {
 			)
 		);
 		usort( $notes, static fn ( array $a, array $b ): int => strcmp( (string) $a['at'], (string) $b['at'] ) );
+		$viewer = get_current_user_id();
+		$staff  = wp_is_ability_granted( 'wcb/manage-settings' );
 		return array_map(
-			static function ( array $note ): array {
+			static function ( array $note ) use ( $viewer, $staff ): array {
 				$user                = get_userdata( (int) $note['author'] );
 				$note['author_name'] = $user instanceof \WP_User ? $user->display_name : __( 'Former member', 'wp-career-board' );
+				$note['can_delete']  = self::can_delete( $note, $viewer, $staff );
 				return $note;
 			},
 			$notes
@@ -98,13 +102,24 @@ final class ApplicationNotes {
 	 * @return bool
 	 */
 	public static function delete( int $app_id, string $note_id, int $user, bool $staff ): bool {
-		$allowed = static fn ( array $n ): bool => $n['id'] === $note_id && ( $staff || (int) $n['author'] === $user );
 		foreach ( (array) get_post_meta( $app_id, self::NOTES, false ) as $row ) {
-			if ( is_array( $row ) && isset( $row['id'] ) && $allowed( $row ) ) {
+			if ( is_array( $row ) && isset( $row['id'] ) && $row['id'] === $note_id && self::can_delete( $row, $user, $staff ) ) {
 				return delete_post_meta( $app_id, self::NOTES, $row );
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * A note is deleted by its author, or by staff.
+	 *
+	 * @param array<string, mixed> $note  Note row.
+	 * @param int                  $user  Acting user.
+	 * @param bool                 $staff Whether the user is staff.
+	 * @return bool
+	 */
+	private static function can_delete( array $note, int $user, bool $staff ): bool {
+		return $staff || ( $user > 0 && (int) $note['author'] === $user );
 	}
 
 	/**

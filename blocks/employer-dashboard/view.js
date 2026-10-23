@@ -1337,8 +1337,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				method: 'DELETE',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
+			const data = yield response.json().catch( () => ( {} ) );
 			if ( response.ok ) {
-				state.appNotes = yield response.json();
+				state.appNotes = data;
+			} else {
+				showError( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+				// Someone may have removed it already: show the notes as they are now.
+				const fresh = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes', { headers: { 'X-WP-Nonce': state.nonce } } );
+				if ( fresh.ok && state.selectedAppId === appId ) {
+					state.appNotes = yield fresh.json();
+				}
 			}
 		},
 
