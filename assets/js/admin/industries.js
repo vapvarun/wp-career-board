@@ -1,5 +1,5 @@
 /**
- * Settings > Companies: edit the industry list.
+ * Settings > Industries: edit the industry list.
  *
  * Loaded on the settings page (wcb-admin-industries); the translated strings
  * arrive as `wcbIndustries.i18n`, the REST base and nonce as `wcbAdmin`.

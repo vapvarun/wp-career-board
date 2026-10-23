@@ -14,7 +14,7 @@ bug_ref: 10340678963, 10340678827, 10344034506, 10355318941
 
 ## Steps
 
-1. Settings > Listings: Email Verification on, Settings > General: "Anyone can register" on
+1. Settings > Sign-ups: Email Verification on, Settings > General: "Anyone can register" on
 2. Logged out, open the registration page, create an account → "Check your inbox" panel with a "Resend the link" button; no auth cookie; header still shows Login
 3. `wp eval "echo is_wp_error(wp_authenticate('<login>','<pw>'))?'blocked':'ok';"` → `blocked` (`wcb_email_unverified`)
 4. Mailpit: "Confirm your email address" arrives; its link `/?wcb_verify=<id>.<token>` signs in and lands on the dashboard; opening it again goes to the login page, not an error

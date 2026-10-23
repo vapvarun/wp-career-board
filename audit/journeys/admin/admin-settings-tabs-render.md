@@ -3,8 +3,8 @@ id: admin-settings-tabs-render
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-10-13
-bug_ref: 10389445099, 10389517647
+last_verified: 2026-10-23
+bug_ref: 10389445099, 10389517647, 10421607738
 needs: cli
 ---
 
@@ -42,6 +42,7 @@ needs: cli
 6. Verify that navigating to a non-existent tab (`?tab=zzz_nonexistent`) falls through gracefully — the settings page still renders (likely showing the default first-tab content) without a PHP warning
 7. **Card inner edge (1.8.1, Basecamp 10389445099, 10389517647).** On every tab that has a Save row inside a settings card (with Pro: AI Settings, Job Feed, Credits) the footer `.wcb-settings-footer` that is a direct child of `.wcb-settings-card` (or of a `form` directly inside it) has `padding` 16px 24px and a 1px top border, so its button's left edge equals the left edge of the rows above it and nothing touches the card border. A stat grid placed straight in a card (`.wcb-settings-card > .wcb-stats-grid`, for example Pro Analytics) keeps 20px top/bottom and 24px side margins. Check 1440px and 390px, light and dark mode, and RTL. Pro's Analytics note paragraphs keep the card's inner edge too (see Pro `admin/walkthrough-analytics`).
 8. Jobs tab text (1.8.1): there is no "When a job ends" row; its explanation sits inside the **Default listing length** row, and **Jobs Per Page** defaults to 12 on a new install (see `admin/admin-settings-jobs-tab-save`).
+8a. **Help text names real tabs (1.8.2, Basecamp 10421607738).** Every "Settings > X" in help text names a tab label as shown in the tab strip, never a slug: with Pro, Credits > Featured upgrade cost reads "Featured Duration under Settings > Jobs" (the slug is `listings`), and Settings > Jobs has **Featured Duration (days)**. Sweep: `grep -rhoE "Settings (>|&gt;) [A-Z][A-Za-z -]+" --include='*.php' admin modules` against the tab labels.
 9. Diff `debug.log` → expect ZERO new fatal/warning/notice lines across all tab visits
 
 ## Teardown
