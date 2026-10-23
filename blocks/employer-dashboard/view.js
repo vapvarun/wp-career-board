@@ -124,6 +124,18 @@ const jobStatusLabel = ( job ) => {
 	}
 };
 
+/**
+ * Where to buy credits after a refusal for too few of them: the URL the 402
+ * carries, else the site's (both come from `wcb_credit_purchase_url`, which
+ * Pro fills when credits are on sale). '' for any other refusal.
+ *
+ * @param {Object} data REST error body.
+ * @return {string} Purchase URL or ''.
+ */
+const buyUrlFor = ( data ) => ( data && 'wcb_insufficient_credits' === data.code )
+	? ( data.data?.purchase_url || state.creditPurchaseUrl || '' )
+	: '';
+
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
@@ -1627,7 +1639,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} catch ( cancelled ) {
 				return;
 			}
-			state.error = '';
+			state.error  = '';
+			state.buyUrl = '';
 			try {
 				const response = yield wcbFetch( state.apiBase + '/jobs/' + String( jobId ) + '/feature', {
 					method:  'POST',
@@ -1635,9 +1648,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} );
 				const data = yield response.json();
 				if ( ! response.ok ) {
-					// 402 carries the Credits tab link; the low-balance banner and
-					// the Credits nav item offer it too.
-					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+					state.error  = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+					state.buyUrl = buyUrlFor( data );
 					return;
 				}
 				const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
@@ -1744,9 +1756,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		...rowMenuActions,
 
 		// The server said no (402 credits, 409 company removed): show its reason.
+		// Too few credits goes inline with a Buy credits link; a toast fades
+		// before anyone could follow one.
 		*reportRefusal( response ) {
-			const data = yield response.json().catch( () => ( {} ) );
-			showError( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			const data    = yield response.json().catch( () => ( {} ) );
+			const message = data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+			if ( 'wcb_insufficient_credits' === data.code ) {
+				state.error  = message;
+				state.buyUrl = buyUrlFor( data );
+				return;
+			}
+			showError( message );
 		},
 
 		updateField( event ) {
