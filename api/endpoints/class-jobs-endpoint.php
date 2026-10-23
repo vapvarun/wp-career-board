@@ -76,6 +76,18 @@ final class JobsEndpoint extends RestController {
 			)
 		);
 
+		// The job page counts its own view from the browser, so a full-page
+		// cache that never runs PHP still counts it. Public, like reading the job.
+		register_rest_route(
+			$this->namespace,
+			'/jobs/(?P<id>\d+)/view',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'record_view' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/jobs/(?P<id>\d+)/bookmark',
@@ -1295,6 +1307,28 @@ final class JobsEndpoint extends RestController {
 				'id'      => $post->ID,
 			)
 		);
+	}
+
+	/**
+	 * Count a view of a live job, sent by the job page once it loads.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function record_view( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_job' !== $post->post_type || 'publish' !== $post->post_status ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Job not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$this->record_job_view( $post->ID );
+		return new \WP_REST_Response( null, 204 );
 	}
 
 	/**

@@ -3729,6 +3729,40 @@
                 }
             }
         },
+        "/wcb/v1/jobs/{id}/view": {
+            "post": {
+                "tags": [
+                    "Jobs"
+                ],
+                "operationId": "post_wcb_v1_jobs_id_view",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
         "/wcb/v1/me": {
             "delete": {
                 "tags": [

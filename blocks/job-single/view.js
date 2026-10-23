@@ -444,4 +444,24 @@ const { state } = store( 'wcb-job-single', {
 			}
 		},
 	},
+	callbacks: {
+		// Count the view from the browser, so a cached page still counts it.
+		// A prerendered page waits until the visitor actually opens it.
+		countView() {
+			if ( ! state.countView ) {
+				return;
+			}
+			const send = () => {
+				const url = state.apiBase + '/jobs/' + String( state.jobId ) + '/view';
+				if ( ! navigator.sendBeacon || ! navigator.sendBeacon( url ) ) {
+					fetch( url, { method: 'POST', keepalive: true, credentials: 'omit' } ).catch( () => {} );
+				}
+			};
+			if ( document.prerendering ) {
+				document.addEventListener( 'prerenderingchange', send, { once: true } );
+			} else {
+				send();
+			}
+		},
+	},
 } );

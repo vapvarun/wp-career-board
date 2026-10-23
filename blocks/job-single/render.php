@@ -320,6 +320,7 @@ wp_interactivity_state(
 	'wcb-job-single',
 	array(
 		'jobId'                => $wcb_job_id,
+		'countView'            => ! $wcb_is_job_owner && 'publish' === $wcb_job->post_status,
 		'apiBase'              => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                => wp_create_nonce( 'wp_rest' ),
 		'panelOpen'            => false,
@@ -386,6 +387,7 @@ wp_interactivity_state(
 <div
 	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-job-single' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-single"
+	data-wp-init="callbacks.countView"
 >
 
 	<?php /* ── Hero banner ──────────────────────────────────────────────── */ ?>

@@ -80,6 +80,15 @@
         "purpose": "Delete a job"
       },
       {
+        "route": "/wcb/v1/jobs/(?P<id>\\d+)/view",
+        "methods": [
+          "POST"
+        ],
+        "handler": "WCB\\Api\\Endpoints\\JobsEndpoint::record_view",
+        "permission": "__return_true (public)",
+        "purpose": "Count a view of a live job; the job page sends it on load (204; 404 when the job is not live)"
+      },
+      {
         "route": "/wcb/v1/jobs/(?P<id>\\d+)/bookmark",
         "methods": [
           "POST"

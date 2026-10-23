@@ -5,14 +5,14 @@
         "version": "1.8.0"
     },
     "generated": {
-        "at": "2026-10-13T18:30:46+00:00",
+        "at": "2026-10-23T17:02:53+00:00",
         "manifest_at": "2026-10-13T00:00:00Z",
         "manifest_branch": "1.8.0"
     },
     "categories": {
         "rest": {
-            "total": 77,
-            "covered": 47,
+            "total": 78,
+            "covered": 48,
             "uncovered": 30,
             "skipped": 0,
             "covered_items": [
@@ -39,6 +39,10 @@
                 {
                     "method": "DELETE",
                     "route": "/wcb/v1/jobs/(?P<id>\\d+)"
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/jobs/(?P<id>\\d+)/view"
                 },
                 {
                     "method": "POST",
@@ -892,11 +896,11 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 186,
-        "items_covered": 81,
+        "items_total": 187,
+        "items_covered": 82,
         "items_uncovered": 105,
         "items_skipped": 180,
-        "coverage_percent": 43.5
+        "coverage_percent": 43.899999999999999
     },
     "drift": {
         "previous_uncovered": 106,
