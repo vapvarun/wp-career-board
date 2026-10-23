@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.9';
+	const DB_VERSION = '1.4.0';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -525,6 +525,12 @@ final class Install {
 					)
 				);
 				wp_cache_flush_group( 'post_meta' );
+			}
+
+			// 1.4.0 - saved industry labels that are just a shipped name, in the
+			// saver's language, become "the default" so every reader sees their own.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.0', '<' ) ) {
+				add_action( 'init', array( Industries::class, 'forget_default_labels' ), 25 );
 			}
 
 			// Only bump the stored DB version if every expected table now
