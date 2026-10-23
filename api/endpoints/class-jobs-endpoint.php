@@ -756,15 +756,32 @@ final class JobsEndpoint extends RestController {
 		// employer can't pay it.
 		$wcb_new_board = $request->get_param( 'board_id' );
 		if ( null !== $wcb_new_board ) {
-			$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
-			// Compare resolved boards: a job with no board meta already lives on the default board.
-			if ( \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_new_board ) !== \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_old_board ) ) {
-				update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
-				$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
-				if ( is_wp_error( $wcb_paid ) ) {
-					update_post_meta( $post->ID, '_wcb_board_id', $wcb_old_board );
-					return $wcb_paid;
+			// One move per job at a time, with the old board read inside the
+			// lock: a refused move restored the board it read before another
+			// move landed, leaving the job on the dearer board at the cheaper
+			// price (Basecamp 10401941213).
+			global $wpdb;
+			$wcb_move_lock = 'wcb_' . md5( DB_NAME . $wpdb->prefix . 'wcb_board_move_' . $post->ID );
+			if ( 1 !== (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 10 )', $wcb_move_lock ) ) ) {
+				return new \WP_Error(
+					'wcb_job_busy',
+					__( 'This job is being updated. Please try again in a moment.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+			try {
+				$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
+				// Compare resolved boards: a job with no board meta already lives on the default board.
+				if ( \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_new_board ) !== \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_old_board ) ) {
+					update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
+					$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
+					if ( is_wp_error( $wcb_paid ) ) {
+						update_post_meta( $post->ID, '_wcb_board_id', $wcb_old_board );
+						return $wcb_paid;
+					}
 				}
+			} finally {
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $wcb_move_lock ) );
 			}
 		}
 
