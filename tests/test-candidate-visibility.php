@@ -127,6 +127,16 @@ wcb_assert( '+1-555-0100' === ( $wcb_hired['resume_data']['phone'] ?? '' ), 'app
 wcb_assert( 404 === wcb_rest( 'GET', "/wcb/v1/candidates/{$wcb_emp}", array(), 0 )->get_status(), 'a non-candidate id is 404' );
 wp_set_current_user( 0 );
 
+// Author archive: hidden while the candidate has only applications and resumes,
+// kept once they write (a blog post, a Member Blog profile).
+$wcb_author_status = static fn (): int => (int) wp_remote_retrieve_response_code( wp_remote_get( add_query_arg( 'x', wp_rand(), get_author_posts_url( $wcb_cand ) ), array( 'redirection' => 0 ) ) );
+wcb_assert( 404 === $wcb_author_status(), 'a candidate with only an application has no author page' );
+$wcb_post = (int) wp_insert_post( array( 'post_type' => 'post', 'post_status' => 'publish', 'post_title' => 'CV blog ' . $wcb_s, 'post_author' => $wcb_cand ) );
+wcb_assert( 200 === $wcb_author_status(), 'a candidate who published a blog post keeps their author page' );
+wp_delete_post( $wcb_post, true );
+$wcb_sitemap = (array) apply_filters( 'wp_sitemaps_users_query_args', array( 'has_published_posts' => array( 'post', 'wcb_job', 'wcb_resume' ) ) );
+wcb_assert( array( 'post', 'wcb_job' ) === $wcb_sitemap['has_published_posts'], 'the users sitemap does not count resumes and applications as authoring' );
+
 // Teardown.
 wp_delete_post( $wcb_app, true );
 wp_delete_post( $wcb_job, true );
