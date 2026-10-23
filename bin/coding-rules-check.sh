@@ -328,5 +328,17 @@ else
 	ok "Rule 15: accent text uses --wcb-primary-text"
 fi
 
+# --- Rule 16: our admin notices carry wcb-notice ---
+# Free's admin/shared.css hides every .notice:not(.wcb-notice) on Career Board
+# screens so other plugins' banners stay out, which also hides one of ours that
+# forgets the class (the CSV import result and credit lookup went blank that way).
+BARE_NOTICE=$([ -n "$PHP_FILES" ] && grep -nE 'class="notice[ "]' $PHP_FILES 2>/dev/null | grep -v 'wcb-notice' || true)
+if [ -n "$BARE_NOTICE" ]; then
+	echo "$BARE_NOTICE" | sed 's/^/    /'
+	report "Rule 16: admin notice without wcb-notice - Career Board screens hide it"
+else
+	ok "Rule 16: admin notices carry wcb-notice"
+fi
+
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"
 exit "$FAILED"

@@ -121,7 +121,7 @@ class Admin {
 		 */
 		$items = (array) apply_filters( 'wcb_safer_defaults_notice', $items );
 		?>
-		<div class="notice notice-info">
+		<div class="notice wcb-notice notice-info">
 			<p><strong><?php esc_html_e( 'WP Career Board 1.8.0: new sites start with safer defaults. Yours kept its settings. Review these when you have a minute:', 'wp-career-board' ); ?></strong></p>
 			<ul class="ul-disc">
 				<?php foreach ( $items as $item ) : ?>

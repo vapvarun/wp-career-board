@@ -381,7 +381,7 @@ class EmailSettings {
 		add_action(
 			'admin_notices',
 			static function () {
-				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Email settings saved.', 'wp-career-board' ) . '</p></div>';
+				echo '<div class="notice wcb-notice notice-success is-dismissible"><p>' . esc_html__( 'Email settings saved.', 'wp-career-board' ) . '</p></div>';
 			}
 		);
 	}

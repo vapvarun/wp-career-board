@@ -72,7 +72,7 @@ if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
 			if ( ! function_exists( 'wp_is_ability_granted' ) || ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				return;
 			}
-			echo '<div class="notice notice-error"><p>' .
+			echo '<div class="notice wcb-notice notice-error"><p>' .
 				esc_html__( 'WP Career Board is missing files from its update library, so automatic updates are turned off. Reinstall WP Career Board to restore them.', 'wp-career-board' ) .
 				'</p></div>';
 		}
