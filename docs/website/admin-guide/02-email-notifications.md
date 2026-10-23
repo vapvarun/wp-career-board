@@ -96,7 +96,7 @@ You can check whether emails are going out in the **Email activity log** card at
 
 ## Emails added by Pro
 
-WP Career Board Pro adds these emails to the same **Emails** tab, with the same subject, message, on/off and test controls: Job Alert Digest, Confirm Job Alert (guest), Credit Top-Up Confirmation, Credit Purchase Receipt, Credit Refund, Low Credit Balance Warning and Featured Listing Ended. Read the Pro documentation for when each one is sent.
+WP Career Board Pro adds these emails to the same **Emails** tab, with the same subject, message, on/off and test controls: Job Alert Digest, Confirm Job Alert (guest), Credit Top-Up Confirmation, Credit Purchase Receipt, Credit Refund, Low Credit Balance Warning and Featured Listing Ended. The four credit emails are listed only while credits are on for Career Board. Read the Pro documentation for when each one is sent.
 
 ## Deadline reminders {#deadline-reminders}
 
