@@ -106,13 +106,17 @@
 }
 
 /* ── Premium Tables ── */
-.wcb-admin .wp-list-table {
+/* .wcb-plain-table: a hand-built table with this look but not core's list-table
+   phone layout, which turns each row into a flex strip (it expects WP_List_Table markup). */
+.wcb-admin .wp-list-table,
+.wcb-admin .wcb-plain-table {
     border-radius: var(--wcb-radius-lg, 8px);
     overflow: hidden;
     box-shadow: var(--wcb-shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
     border: 1px solid var(--wcb-border, #e2e8f0);
 }
-.wcb-admin .wp-list-table thead th {
+.wcb-admin .wp-list-table thead th,
+.wcb-admin .wcb-plain-table thead th {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -121,10 +125,12 @@
     background: var(--wcb-bg-subtle, #f8fafc);
     border-bottom: 2px solid var(--wcb-border, #e2e8f0);
 }
-.wcb-admin .wp-list-table tbody tr:hover {
+.wcb-admin .wp-list-table tbody tr:hover,
+.wcb-admin .wcb-plain-table tbody tr:hover {
     background: var(--wcb-bg-subtle, #f8fafc);
 }
-.wcb-admin .wp-list-table tfoot th {
+.wcb-admin .wp-list-table tfoot th,
+.wcb-admin .wcb-plain-table tfoot th {
     background: var(--wcb-bg-subtle, #f8fafc);
 }
 
