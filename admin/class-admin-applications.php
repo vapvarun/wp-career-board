@@ -117,6 +117,15 @@ class AdminApplications extends \WP_List_Table {
 						<a href="<?php echo esc_url( remove_query_arg( array( 'job_id', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all jobs', 'wp-career-board' ); ?>">&times;</a>
 					</span>
 				<?php endif; ?>
+				<?php if ( $this->candidate_filter() > 0 ) : ?>
+					<span class="wcb-filter-chip">
+						<?php
+						/* translators: %s: candidate display name */
+						printf( esc_html__( 'Candidate: %s', 'wp-career-board' ), esc_html( (string) get_the_author_meta( 'display_name', $this->candidate_filter() ) ) );
+						?>
+						<a href="<?php echo esc_url( remove_query_arg( array( 'candidate_id', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all candidates', 'wp-career-board' ); ?>">&times;</a>
+					</span>
+				<?php endif; ?>
 				<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
 			</p>
 
@@ -281,6 +290,12 @@ class AdminApplications extends \WP_List_Table {
 				'value' => (string) $this->job_filter(),
 			);
 		}
+		if ( $this->candidate_filter() > 0 ) {
+			$clauses[] = array(
+				'key'   => '_wcb_candidate_id',
+				'value' => (string) $this->candidate_filter(),
+			);
+		}
 
 		// Custom search: match by job title or candidate name/email (not post title).
 		if ( $search ) {
@@ -372,6 +387,17 @@ class AdminApplications extends \WP_List_Table {
 	}
 
 	/**
+	 * Candidate the list is narrowed to (Career Board > Candidates links here), 0 for all.
+	 *
+	 * @since 1.8.2
+	 * @return int
+	 */
+	private function candidate_filter(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
+		return isset( $_GET['candidate_id'] ) ? absint( $_GET['candidate_id'] ) : 0;
+	}
+
+	/**
 	 * The current filters as query args, for links that must keep them.
 	 *
 	 * @since 1.8.0
@@ -379,7 +405,7 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	private function filter_args(): array {
 		$args = array();
-		foreach ( array( 'app_status', 'job_id', 'post_status', 's' ) as $key ) {
+		foreach ( array( 'app_status', 'job_id', 'candidate_id', 'post_status', 's' ) as $key ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filters.
 			if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
 				$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -399,16 +425,29 @@ class AdminApplications extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		// Views keep the job filter; switching status or Trash drops the others.
-		$base_url = add_query_arg( array_intersect_key( $this->filter_args(), array( 'job_id' => 1 ) ), admin_url( 'admin.php?page=wcb-applications' ) );
+		// Views keep the job and candidate filters; switching status or Trash drops the others.
+		$base_url = add_query_arg(
+			array_intersect_key(
+				$this->filter_args(),
+				array(
+					'job_id'       => 1,
+					'candidate_id' => 1,
+				)
+			),
+			admin_url( 'admin.php?page=wcb-applications' )
+		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
 		$trash   = $this->is_trash_view();
 
-		$counts = $this->job_filter() > 0
-			? \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $this->job_filter() )
-			: $this->get_status_counts();
+		if ( $this->job_filter() > 0 ) {
+			$counts = \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $this->job_filter() );
+		} elseif ( $this->candidate_filter() > 0 ) {
+			$counts = \WCB\Modules\Applications\ApplicationStatus::counts( 'candidate', $this->candidate_filter() );
+		} else {
+			$counts = $this->get_status_counts();
+		}
 
 		$views = array();
 

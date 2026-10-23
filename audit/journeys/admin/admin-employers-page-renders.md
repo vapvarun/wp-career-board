@@ -31,6 +31,7 @@ needs: cli
    ```
    Navigate to the employers list and confirm the bulk-action dropdown is rendered
 8. Verify WP_List_Table columns: search the page source for `<th scope="col"` entries — expect at minimum 5 columns (cb, name, company, website, registered)
+8a. **Active Jobs count opens that employer's live jobs (card:10420280748).** Click an employer's Active Jobs number (e.g. 4) → `admin.php?page=wcb-jobs&author=<id>&post_status=publish` lists exactly that many rows, shows an `Employer: <name> ×` chip, and the status, Flagged and Awaiting payment views count only that employer and keep `author`; search keeps it too. The chip's × returns to every job. 1440 and 390.
 9. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown

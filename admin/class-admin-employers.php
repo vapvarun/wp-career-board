@@ -649,8 +649,9 @@ class AdminEmployers extends \WP_List_Table {
 				esc_url(
 					add_query_arg(
 						array(
-							'page'   => 'wcb-jobs',
-							'author' => $item->ID,
+							'page'        => 'wcb-jobs',
+							'author'      => $item->ID,
+							'post_status' => 'publish',
 						),
 						admin_url( 'admin.php' )
 					)

@@ -469,7 +469,15 @@ class AdminCandidates extends \WP_List_Table {
 		if ( $count > 0 ) {
 			return sprintf(
 				'<a href="%s">%d</a>',
-				esc_url( add_query_arg( array( 'page' => 'wcb-applications' ), admin_url( 'admin.php' ) ) ),
+				esc_url(
+					add_query_arg(
+						array(
+							'page'         => 'wcb-applications',
+							'candidate_id' => $item->ID,
+						),
+						admin_url( 'admin.php' )
+					)
+				),
 				$count
 			);
 		}

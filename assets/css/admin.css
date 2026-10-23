@@ -1438,8 +1438,9 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	flex-shrink: 0;
 }
 
-/* Applications list: active job filter + Export all matching. */
-.wcb-applications-toolbar {
+/* Applications list: active job filter + Export all matching; Jobs list: active employer filter. */
+.wcb-applications-toolbar,
+.wcb-list-filters {
 	clear: both;
 	display: flex;
 	flex-wrap: wrap;

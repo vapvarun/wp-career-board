@@ -81,8 +81,23 @@ class AdminJobs extends \WP_List_Table {
 
 			<?php $this->views(); ?>
 
+			<?php if ( $this->author_filter() > 0 ) : ?>
+				<p class="wcb-list-filters">
+					<span class="wcb-filter-chip">
+						<?php
+						/* translators: %s: employer display name */
+						printf( esc_html__( 'Employer: %s', 'wp-career-board' ), esc_html( (string) get_the_author_meta( 'display_name', $this->author_filter() ) ) );
+						?>
+						<a href="<?php echo esc_url( remove_query_arg( array( 'author', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all employers', 'wp-career-board' ); ?>">&times;</a>
+					</span>
+				</p>
+			<?php endif; ?>
+
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-jobs">
+				<?php if ( $this->author_filter() > 0 ) : ?>
+					<input type="hidden" name="author" value="<?php echo esc_attr( (string) $this->author_filter() ); ?>">
+				<?php endif; ?>
 				<?php $this->render_search_box( 'wcb-job', __( 'Search jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -194,6 +209,9 @@ class AdminJobs extends \WP_List_Table {
 		if ( $search ) {
 			$query_args['s'] = $search;
 		}
+		if ( $this->author_filter() > 0 ) {
+			$query_args['author'] = $this->author_filter();
+		}
 
 		// "Flagged" view — jobs with open report flags, regardless of status.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -238,13 +256,15 @@ class AdminJobs extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$counts   = wp_count_posts( 'wcb_job' );
-		$all      = ( isset( $counts->publish ) ? (int) $counts->publish : 0 )
+		$author = $this->author_filter();
+		$counts = $author > 0 ? $this->author_counts( $author ) : wp_count_posts( 'wcb_job' );
+		$all    = ( isset( $counts->publish ) ? (int) $counts->publish : 0 )
 					+ ( isset( $counts->pending ) ? (int) $counts->pending : 0 )
 					+ ( isset( $counts->draft ) ? (int) $counts->draft : 0 )
 					+ ( isset( $counts->wcb_expired ) ? (int) $counts->wcb_expired : 0 )
 					+ ( isset( $counts->wcb_closed ) ? (int) $counts->wcb_closed : 0 );
-		$base_url = admin_url( 'admin.php?page=wcb-jobs' );
+		// Views keep the employer filter (Career Board > Employers links here).
+		$base_url = $author > 0 ? add_query_arg( 'author', $author, admin_url( 'admin.php?page=wcb-jobs' ) ) : admin_url( 'admin.php?page=wcb-jobs' );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['post_status'] ) ? sanitize_text_field( wp_unslash( $_GET['post_status'] ) ) : '';
@@ -294,6 +314,7 @@ class AdminJobs extends \WP_List_Table {
 				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed' ),
 				'meta_key'       => '_wcb_flag_status', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => 'open', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'author'         => $author,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 			)
@@ -316,6 +337,7 @@ class AdminJobs extends \WP_List_Table {
 				'post_status'    => 'pending',
 				'meta_key'       => \WCB\Modules\Jobs\JobPayment::AWAITING, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'author'         => $author,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 			)
@@ -508,6 +530,40 @@ class AdminJobs extends \WP_List_Table {
 
 		$out .= $this->row_actions( $row_actions );
 		return $out;
+	}
+
+	/**
+	 * Employer the list is narrowed to (Career Board > Employers links here), 0 for all.
+	 *
+	 * @since 1.8.2
+	 * @return int
+	 */
+	private function author_filter(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
+		return isset( $_GET['author'] ) ? absint( $_GET['author'] ) : 0;
+	}
+
+	/**
+	 * One employer's job counts per status, in the shape wp_count_posts() returns.
+	 *
+	 * @since 1.8.2
+	 * @param int $author Employer user ID.
+	 * @return object
+	 */
+	private function author_counts( int $author ): object {
+		$counts = new \stdClass();
+		foreach ( array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed', 'trash' ) as $status ) {
+			$counts->$status = ( new \WP_Query(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => $status,
+					'author'         => $author,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				)
+			) )->found_posts;
+		}
+		return $counts;
 	}
 
 	/**
