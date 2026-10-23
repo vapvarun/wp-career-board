@@ -202,7 +202,8 @@ final class EmployersModule {
 				'post_status'    => 'any',
 				'author'         => $user_id,
 				'fields'         => 'ids',
-				'posts_per_page' => 200,
+				// shortcut: same 200-company cap as owned_companies().
+				'posts_per_page' => 200, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 			)
 		);
 		foreach ( $companies as $company_id ) {

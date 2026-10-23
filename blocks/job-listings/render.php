@@ -256,16 +256,16 @@ $wcb_break_filtered = sprintf(
 	__( 'Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs.', 'wp-career-board' ),
 	\WCB\Modules\Jobs\JobsMeta::default_currency()
 );
-$wcb_break_sorted   = sprintf(
+$wcb_break_sorted = sprintf(
 	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort. */
 	__( 'Paid in other currencies. These follow the %s jobs, highest first within each currency.', 'wp-career-board' ),
 	\WCB\Modules\Jobs\JobsMeta::default_currency()
 );
 $wcb_prev_out = false;
 foreach ( $wcb_jobs_state as $wcb_i => $wcb_card ) {
-	$wcb_out                                     = $wcb_by_pay && \WCB\Modules\Jobs\JobsMeta::default_currency() !== ( $wcb_card['salary_currency'] ?? '' );
+	$wcb_out                                    = $wcb_by_pay && \WCB\Modules\Jobs\JobsMeta::default_currency() !== ( $wcb_card['salary_currency'] ?? '' );
 	$wcb_jobs_state[ $wcb_i ]['currency_break'] = $wcb_out && ! $wcb_prev_out;
-	$wcb_prev_out                                = $wcb_out;
+	$wcb_prev_out                               = $wcb_out;
 }
 
 
@@ -500,17 +500,17 @@ $wcb_state = array(
 			)
 		),
 		array(
-			'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
-			'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
+			'bookmarkRemove'        => __( 'Saved', 'wp-career-board' ),
+			'bookmarkAdd'           => __( 'Save job', 'wp-career-board' ),
 			'currencyBreakFiltered' => $wcb_break_filtered,
 			'currencyBreakSorted'   => $wcb_break_sorted,
-			'anyLabel'          => __( 'Any', 'wp-career-board' ),
+			'anyLabel'              => __( 'Any', 'wp-career-board' ),
 			// Label for the removable "Remote only" pill. The pill used to
 			// print the raw filter value, so every locale saw a bare "1".
-			'remoteLabel'       => __( 'Remote only', 'wp-career-board' ),
+			'remoteLabel'           => __( 'Remote only', 'wp-career-board' ),
 			/* translators: %s: the filter's label, e.g. "Full-time". */
-			'removeFilter'      => __( 'Remove filter: %s', 'wp-career-board' ),
-			'alertNetworkError' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'removeFilter'          => __( 'Remove filter: %s', 'wp-career-board' ),
+			'alertNetworkError'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		)
 	),
 );
