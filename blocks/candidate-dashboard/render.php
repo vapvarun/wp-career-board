@@ -1002,7 +1002,7 @@ wp_interactivity_state(
 						<span class="wcb-resume-card-title" data-wp-text="context.resume.title"></span>
 						<span class="wcb-resume-card-date" data-wp-text="context.resume.dateLabel"></span>
 					</div>
-					<?php // One main action (Open PDF or Edit) and the rest in a menu, like My Jobs. ?>
+					<?php // One main action (Open CV for an uploaded file, Edit for a built resume) and the rest in a menu, like My Jobs. ?>
 					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">
 						<a
 							class="wcb-btn wcb-btn--outline wcb-btn--sm"
@@ -1010,7 +1010,7 @@ wp_interactivity_state(
 							data-wp-class--wcb-hidden="!context.resume.isPdf"
 							target="_blank"
 							rel="noopener"
-						><?php esc_html_e( 'Open PDF', 'wp-career-board' ); ?></a>
+						><?php esc_html_e( 'Open CV', 'wp-career-board' ); ?></a>
 						<button
 							type="button"
 							class="wcb-btn wcb-btn--outline wcb-btn--sm"
@@ -1031,10 +1031,10 @@ wp_interactivity_state(
 									rel="noopener"
 								><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
 								<label class="wcb-row-menu__item wcb-resume-reupload" data-wp-class--wcb-hidden="!context.resume.isPdf">
-									<?php esc_html_e( 'Re-upload PDF', 'wp-career-board' ); ?>
+									<?php esc_html_e( 'Replace CV', 'wp-career-board' ); ?>
 									<input
 										type="file"
-										accept="application/pdf"
+										accept=".pdf,.doc,.docx"
 										data-wp-on--change="actions.reuploadResumePdf"
 										class="wcb-resume-reupload-input"
 									/>
@@ -1159,8 +1159,8 @@ wp_interactivity_state(
 					<button type="button" class="wcb-panel-link" aria-label="<?php esc_attr_e( 'Change email in Settings', 'wp-career-board' ); ?>" data-wp-on--click="actions.switchToSettings"><?php esc_html_e( 'Change', 'wp-career-board' ); ?></button>
 				</p>
 			</div>
-			<?php // What employers see (photo, skills, experience) lives on the resume, not here. ?>
-			<p class="wcb-profile-resume-note">
+			<?php // What employers see (photo, skills, experience) lives on the resume, not here. Same gate as the My Resumes tab. ?>
+			<p class="wcb-profile-resume-note" data-wp-bind--hidden="!state.resumesEnabled">
 				<?php esc_html_e( 'Employers see your photo, skills and experience from your resume.', 'wp-career-board' ); ?>
 				<button type="button" class="wcb-panel-link" data-wp-on--click="actions.switchToResumes"><?php esc_html_e( 'Edit my resume', 'wp-career-board' ); ?></button>
 			</p>

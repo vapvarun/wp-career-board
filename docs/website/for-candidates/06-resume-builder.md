@@ -13,8 +13,8 @@ From this tab you can:
 - Click **+ New Resume**, enter a title and click **Create**.
 - Click **Upload CV** to add a PDF, DOC or DOCX file as a resume.
 - Click **Edit** to open a built resume in the resume builder.
-- Click **View** to see a built resume, or **Open PDF** to open an uploaded one.
-- Click **Re-upload PDF** to replace an uploaded PDF.
+- Click **View** to see a built resume, or **Open CV** to open an uploaded one.
+- Click **Replace CV** to replace an uploaded CV (PDF, DOC or DOCX).
 - Click **Delete**, then **Confirm**, to remove a resume.
 
 The number of resumes you can keep is limited. The site owner sets the limit in **Max Resumes Per Candidate** under **Career Board > Settings > Resumes**, and the default is 2. The tab shows the limit and disables **+ New Resume** when you reach it.
