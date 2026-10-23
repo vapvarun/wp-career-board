@@ -638,7 +638,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Selected applicant detail.
 		get noAppSelected() {
-			return state.selectedAppId === null;
+			return ! state.selectedApp;
 		},
 		get selectedApp() {
 			return state.selectedAppId === null
@@ -1474,6 +1474,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						: {} ),
 				} ) );
 				state.applications = append ? [ ...state.applications, ...apps ] : apps;
+				// A status chip, search or sort can drop the open applicant: let go
+				// of them, so rating, notes and status never act on someone the
+				// list no longer shows.
+				if ( ! append && ! apps.some( ( a ) => a.id === state.selectedAppId ) ) {
+					state.selectedAppId = null;
+				}
 				// Side by side (desktop), open the newest applicant instead of an empty pane.
 				if ( ! append && null === state.selectedAppId && apps.length && window.matchMedia( '(min-width: 1025px)' ).matches ) {
 					state.selectedAppId = apps[ 0 ].id;
