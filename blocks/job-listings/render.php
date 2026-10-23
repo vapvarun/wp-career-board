@@ -510,6 +510,8 @@ $wcb_state = array(
 			'remoteLabel'           => __( 'Remote only', 'wp-career-board' ),
 			/* translators: %s: the filter's label, e.g. "Full-time". */
 			'removeFilter'          => __( 'Remove filter: %s', 'wp-career-board' ),
+			/* translators: %s: the search keyword, shown as a removable pill. */
+			'keywordChip'           => __( '"%s"', 'wp-career-board' ),
 			'alertNetworkError'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		)
 	),

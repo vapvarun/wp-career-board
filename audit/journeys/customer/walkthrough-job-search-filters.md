@@ -23,7 +23,7 @@ whole search+filter mechanism in one pass guards the entry funnel that feeds the
    archive `/jobs/` (`has_archive => 'jobs'`) renders the same block and is an equivalent entry point.
 2. Type `engineer` (or any seeded title term) into the search field `#wcb-search-input` and submit the form
    `form.wcb-search-form` → the input syncs via `data-wp-on--input="actions.updateQuery"` and submit runs
-   `data-wp-on--submit="actions.search"`, which pushes `?wcb_search=engineer` into the URL and dispatches the
+   `data-wp-on--submit="actions.search"`, which pushes `?search=engineer` into the URL (dropping any `wcb_search` or `s`) and dispatches the
    `wcb:search` CustomEvent (`blocks/job-search/render.php:36-59`, `blocks/job-search/view.js:18-40`). Expect the
    card grid `.wcb-jobs-container` to re-render filtered results and the count `.wcb-results-count` to update —
    the job-listings store listens for `wcb:search` → `applyFilters` → `fetchJobs` (`blocks/job-listings/view.js:583-602`).
@@ -68,6 +68,7 @@ whole search+filter mechanism in one pass guards the entry funnel that feeds the
     the store to hydrate `state.searchQuery` from the `?wcb_search` URL param on init and auto-fetch the filtered
     results, so a shared/bookmarked search link survives a reload for the logged-in candidate
     (`blocks/job-listings/view.js:567-579`).
+13a. **The keyword survives a reload (card:10412857828).** Search `zzzzqq`, then reload, then open `/find-jobs/?wcb_search=zzzzqq` (an older link) → each time `#wcb-search-input` shows `zzzzqq`, a `"zzzzqq"` pill is in `.wcb-active-filters`, and Clear all plus the empty state's Clear filters are visible. Removing the pill or Clear all empties the box, drops `search` from the URL and shows all jobs; a Search submit right after sends no keyword. 1440 and 390.
 14. **Shared link ticks the filters (1.8.1, Basecamp 10359893313).** Open `$WCB_SITE/find-jobs/?type=<type-a>,<type-b>&category=<cat>&remote=1` (slugs from `wp term list`) in a fresh tab → in `.wcb-filter-panel` the matching checkboxes for both types, the category and Remote only are ticked, and `.wcb-active-chip` shows one removable pill per value with the term NAME (no raw slugs, no bare "1"). The first paint already shows the filtered set: view-source has as many `article.wcb-job-card` as `GET /wp-json/wcb/v1/jobs?type=<a>,<b>&category=<cat>&remote=1` reports (up to the page size). Unticking one type removes exactly its pill.
 15. **Filter changes update the address bar.** Tick an Experience checkbox → `location.search` gains `experience=<slug>` without a page reload and `history.length` grows by one (`pushState`); type a keyword → `search=<kw>`; change sort → `sort=<value>`; clear all → the params are removed. Dashboard lists (employer My Jobs, candidate Saved) do NOT touch the URL.
 16. **Back restores.** After three filter changes press Back → the page reloads (the `popstate` handler reloads when the query string differs) and shows the PREVIOUS state: checkboxes, pills, keyword and results all match that URL. Forward does the same. A hash-only step does not reload.
@@ -91,7 +92,7 @@ wp transient delete --all
 - Entry slug: `find-jobs` is the canonical `jobs_archive_page` (`admin/class-pages.php:46`); the `wcb_job` CPT
   also serves `/jobs/` (`has_archive => 'jobs'`). Both render the `.wcb-job-listings` block, so either URL works.
 - Search input + form selectors: `#wcb-search-input`, `form.wcb-search-form`, `actions.updateQuery` /
-  `actions.search` — `blocks/job-search/render.php:36-59`. The block pushes `?wcb_search=` and dispatches the
+  `actions.search` — `blocks/job-search/render.php:36-59`. The block pushes `?search=` and dispatches the
   `wcb:search` event (`blocks/job-search/view.js:18-40`); job-listings hydrates from the URL + listens for the
   event (`blocks/job-listings/view.js:567-602`).
 - Filter controls (all in `.wcb-filter-panel`, checkbox `input` inside `.wcb-filter-panel__option`):

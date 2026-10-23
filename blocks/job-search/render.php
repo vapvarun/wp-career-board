@@ -15,11 +15,9 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.Security.NonceVerification.Recommended
-$wcb_search_query = isset( $_GET['wcb_search'] )
-	? sanitize_text_field( wp_unslash( $_GET['wcb_search'] ) )
-	: '';
-// phpcs:enable WordPress.Security.NonceVerification.Recommended
+// The keyword under any of its URL names (search, wcb_search, s), the same
+// one the job listings filter by, so the box shows what the results use.
+$wcb_search_query = trim( (string) ( \WCB\Modules\Jobs\JobSearch::from_url()['search'] ?? '' ) );
 
 // Search block owns 'query' only; job-filters block owns 'filters'.
 wp_interactivity_state(

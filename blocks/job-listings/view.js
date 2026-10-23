@@ -231,7 +231,7 @@ function wcbSliderMax( input ) {
 function clearLegacyFilterBar( only = null ) {
 	if ( typeof document === 'undefined' ) return;
 
-	const ALL   = [ 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag', 'salary_min', 'salary_max', 'wcb_remote', 'remote' ];
+	const ALL   = [ 'wcb_search', 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag', 'salary_min', 'salary_max', 'wcb_remote', 'remote' ];
 	const NAMES = only ? ALL.filter( ( name ) => only.includes( name ) ) : ALL;
 
 	NAMES.forEach( ( name ) => {
@@ -240,6 +240,11 @@ function clearLegacyFilterBar( only = null ) {
 				el.checked = false;
 			} else {
 				el.value = '';
+			}
+			// The search box keeps its own state: tell it, or its next submit
+			// sends the cleared keyword again.
+			if ( 'wcb_search' === name ) {
+				el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 			}
 		} );
 	} );
@@ -350,11 +355,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		// ── Derived: filter state ─────────────────────────────────────
+		// The keyword counts as a filter: it narrows the results like any chip.
 		get noActiveFilters() {
-			return Object.keys( state.activeFilters ).length === 0;
+			return Object.keys( state.activeFilters ).length === 0 && ! state.searchQuery;
 		},
 		get hasActiveFilters() {
-			return Object.keys( state.activeFilters ).length > 0;
+			return ! state.noActiveFilters;
 		},
 
 		/**
@@ -433,7 +439,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 		/** Array of { key, label } for active filter pills. */
 		get activeFilterChips() {
-			return Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
+			const keyword = state.searchQuery
+				? [ { key: 'search', label: wcbFill( t( 'keywordChip', '"%s"' ), '%s', state.searchQuery ), removeLabel: wcbFill( t( 'removeFilter', 'Remove filter: %s' ), '%s', state.searchQuery ) } ]
+				: [];
+			return keyword.concat( Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
 				let label = value;
 				if ( key.startsWith( 'type_' ) ) {
 					const slug = key.slice( 5 );
@@ -490,7 +499,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					label = t( 'remoteLabel', 'Remote only' );
 				}
 				return { key, label, removeLabel: wcbFill( t( 'removeFilter', 'Remove filter: %s' ), '%s', label ) };
-			} );
+			} ) );
 		},
 
 		// `resultsLabel` is NOT a getter: it is a plain seeded value that
@@ -713,6 +722,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 			const ctx = getContext();
 			const key = ctx.chip?.key;
 			if ( ! key ) return;
+			if ( 'search' === key ) {
+				state.searchQuery = '';
+				clearLegacyFilterBar( [ 'wcb_search' ] );
+				yield actions.applyFilters();
+				return;
+			}
 			const next = { ...state.activeFilters };
 			delete next[ key ];
 			state.activeFilters = next;

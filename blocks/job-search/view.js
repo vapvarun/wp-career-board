@@ -20,10 +20,13 @@ const { state } = store( 'wcb-search', {
 
 			const params = new URLSearchParams( window.location.search );
 
+			// One name for the keyword, the one the job listings write.
+			params.delete( 'wcb_search' );
+			params.delete( 's' );
 			if ( state.query ) {
-				params.set( 'wcb_search', state.query );
+				params.set( 'search', state.query );
 			} else {
-				params.delete( 'wcb_search' );
+				params.delete( 'search' );
 			}
 
 			const wcbSearchQs = params.toString();
