@@ -197,7 +197,9 @@
 }
 .wcb-admin .form-table select,
 .wcb-admin .wcb-settings-row-control select {
-    padding-right: 30px;
+    padding-inline-end: 30px;
+    /* Core caps selects at 25rem, wider than a phone column. */
+    max-width: 100%;
 }
 .wcb-admin .form-table input:focus,
 .wcb-admin .form-table select:focus,
