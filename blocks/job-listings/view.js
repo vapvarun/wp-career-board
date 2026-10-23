@@ -28,6 +28,26 @@ let searchDebounceTimer = null;
 const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
 
 /**
+ * Flag the first job of each run paid in another currency. Under a salary
+ * filter or the salary sort the server lists those after the site-currency
+ * jobs, and the flagged card shows the note that opens the group (render.php
+ * flags the first page the same way).
+ *
+ * @param {Array<Object>} jobs Jobs in list order.
+ * @return {Array<Object>} The same jobs with `currency_break` set.
+ */
+const wcbMarkCurrencyBreak = ( jobs ) => {
+	const byPay = state.isSalaryActive || state.sortBy === 'salary';
+	let prev    = false;
+	return jobs.map( ( job ) => {
+		const other = byPay && !! job.salary_currency && job.salary_currency !== state.defaultCurrency;
+		const mark  = { ...job, currency_break: other && ! prev };
+		prev        = other;
+		return mark;
+	} );
+};
+
+/**
  * Substitute a printf-style placeholder without letting `$` sequences in the
  * replacement (currency symbols such as "$60k") be read as capture-group refs.
  *
@@ -386,6 +406,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 		get isSalaryActive() {
 			return !! ( state.activeFilters.salary_min || state.activeFilters.salary_max );
+		},
+
+		get currencyBreakNote() {
+			return state.isSalaryActive
+				? t( 'currencyBreakFiltered', 'Paid in other currencies.' )
+				: t( 'currencyBreakSorted', 'Paid in other currencies.' );
 		},
 
 		get salaryMinDisplay() {
@@ -823,11 +849,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 				state.totalCount = total;
 				wcbApplyResultsLabel( data );
-				if ( state.page === 1 ) {
-					state.jobs = jobs;
-				} else {
-					state.jobs = [ ...state.jobs, ...jobs ];
-				}
+				state.jobs = wcbMarkCurrencyBreak( state.page === 1 ? jobs : [ ...state.jobs, ...jobs ] );
 
 				// Truth source for the Load More button — recompute from the
 				// final cumulative count instead of trusting the per-response

@@ -83,6 +83,29 @@
 	gap: var(--wcb-space-xl);
 }
 
+/* Opens the group of jobs paid in other currencies (salary filter / sort):
+ * a full-width row in the grid, a plain line in the list. */
+.wcb-currency-break {
+	grid-column: 1 / -1;
+	margin: 0;
+	margin-block-start: var(--wcb-space-md);
+	padding-block-start: var(--wcb-space-lg);
+	border-block-start: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
+	color: var(--wcb-text-secondary);
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-currency-break[hidden] {
+	display: none;
+}
+
+@media ( max-width: 640px ) {
+	.wcb-currency-break {
+		margin-block-start: 0;
+		padding-block-start: var(--wcb-space-md);
+	}
+}
+
 /* Optional 4-up grid — set per block instance via the editor "Grid columns"
  * control. Reflows to 2-col / 1-col at the same breakpoints as the 3-up
  * default (see the responsive ladder below). */

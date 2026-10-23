@@ -186,6 +186,7 @@ $wcb_state = apply_filters(
 		'salaryMin'         => '',
 		'salaryMax'         => '',
 		'currencyCode'      => $wcb_initial_currency,
+		'defaultCurrency'   => $wcb_default_currency,
 		'salaryType'        => 'yearly',
 		'remote'            => false,
 		'deadline'          => $wcb_deadline,

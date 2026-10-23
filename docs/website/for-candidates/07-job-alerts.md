@@ -52,7 +52,7 @@ A new job matches when it fits every part of your alert:
 - **Keyword** - every word of your search appears in the job's title, description or company name.
 - **Category**, **job type**, **location**, **experience level** and **tags** - the job has one of the values you chose.
 - **Job board** - the job is on the board you searched.
-- **Salary** - the job's pay range overlaps your minimum and maximum. The alert compares the salary numbers as entered and does not convert between hourly, monthly and yearly pay or between currencies. Jobs with no salary still match.
+- **Salary** - the job's pay range overlaps your minimum and maximum, compared per year (hourly pay counts as 2,080 hours, monthly as 12 months). Only jobs paid in the site's default currency match, and jobs with no salary do not match.
 - **Remote only** - the job is marked remote.
 
 ## The alert email

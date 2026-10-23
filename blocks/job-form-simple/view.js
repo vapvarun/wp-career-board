@@ -270,7 +270,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					description:       state.description,
 					salary_min:        state.salaryMin,
 					salary_max:        state.salaryMax,
-					salary_currency:   state.currencyCode || 'USD',
+					salary_currency:   state.currencyCode || state.defaultCurrency,
 					salary_type:       state.salaryType || 'yearly',
 					remote:            state.remote,
 					deadline:          state.deadline,

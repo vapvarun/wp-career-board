@@ -283,7 +283,7 @@ const { state } = store(
 				if ( ! min && ! max ) {
 					return '';
 				}
-				const symbol = symbolFor( state.currencyCode || 'USD' );
+				const symbol = symbolFor( state.currencyCode || state.defaultCurrency );
 				const suffix = state.salaryType === 'monthly'
 					? t( 'salaryPerMonth', '/mo' )
 					: state.salaryType === 'hourly'
@@ -717,7 +717,7 @@ const { state } = store(
 						description:     state.description,
 						salary_min:      state.salaryMin,
 						salary_max:      state.salaryMax,
-						salary_currency: state.currencyCode || 'USD',
+						salary_currency: state.currencyCode || state.defaultCurrency,
 						salary_type:     state.salaryType || 'yearly',
 						remote:          state.remote,
 						deadline:        state.deadline,

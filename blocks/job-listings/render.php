@@ -212,6 +212,8 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'board_name'      => '',
 		'salary_min'      => $wcb_salary_min,
 		'salary_max'      => $wcb_salary_max,
+		// Mirrors REST: the job's currency, or the site's when it has none.
+		'salary_currency' => $wcb_salary_currency ? strtoupper( $wcb_salary_currency ) : \WCB\Modules\Jobs\JobsMeta::default_currency(),
 		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : \WCB\Modules\Jobs\JobsMeta::default_currency(), $wcb_salary_type ),
 		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
 		// (fetchJobs() replaces this state with the REST payload); the card binds
@@ -242,6 +244,28 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	 * @param \WP_Post            $post Job post object.
 	 */
 	$wcb_jobs_state[] = (array) apply_filters( 'wcb_job_listing_data', $wcb_job_card, $wcb_job_post );
+}
+
+// Under a salary filter or the salary sort, jobs paid in other currencies
+// follow the site-currency ones (JobSearch::clauses()); a note opens that
+// group. view.js marks the same card after every fetch.
+$wcb_salary_on      = ! empty( $wcb_url_params['salary_min'] ) || ! empty( $wcb_url_params['salary_max'] );
+$wcb_by_pay         = $wcb_salary_on || 'salary' === ( $wcb_url_params['sort'] ?? '' );
+$wcb_break_filtered = sprintf(
+	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies when a salary range is set. */
+	__( 'Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs.', 'wp-career-board' ),
+	\WCB\Modules\Jobs\JobsMeta::default_currency()
+);
+$wcb_break_sorted   = sprintf(
+	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort. */
+	__( 'Paid in other currencies. These follow the %s jobs, highest first within each currency.', 'wp-career-board' ),
+	\WCB\Modules\Jobs\JobsMeta::default_currency()
+);
+$wcb_prev_out = false;
+foreach ( $wcb_jobs_state as $wcb_i => $wcb_card ) {
+	$wcb_out                                     = $wcb_by_pay && \WCB\Modules\Jobs\JobsMeta::default_currency() !== ( $wcb_card['salary_currency'] ?? '' );
+	$wcb_jobs_state[ $wcb_i ]['currency_break'] = $wcb_out && ! $wcb_prev_out;
+	$wcb_prev_out                                = $wcb_out;
 }
 
 
@@ -430,6 +454,9 @@ $wcb_state = array(
 	'metaFilter'        => $wcb_meta_filter_attr,
 	'salaryMin'         => 0,
 	'salaryMax'         => 0,
+	'defaultCurrency'   => \WCB\Modules\Jobs\JobsMeta::default_currency(),
+	// view.js's get currencyBreakNote() takes over on hydration.
+	'currencyBreakNote' => $wcb_salary_on ? $wcb_break_filtered : $wcb_break_sorted,
 	// Symbol used for the salary-filter chip + slider tooltips. Salary
 	// filtering is currency-agnostic (compares raw min/max numbers across
 	// jobs of any currency), so we surface the SITE default currency's
@@ -475,6 +502,8 @@ $wcb_state = array(
 		array(
 			'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
 			'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
+			'currencyBreakFiltered' => $wcb_break_filtered,
+			'currencyBreakSorted'   => $wcb_break_sorted,
 			'anyLabel'          => __( 'Any', 'wp-career-board' ),
 			// Label for the removable "Remote only" pill. The pill used to
 			// print the raw filter value, so every locale saw a bare "1".
@@ -794,6 +823,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		$wcb_job_post = null;
 		?>
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
+			<p class="wcb-currency-break" role="note" data-wp-bind--hidden="!context.job.currency_break" data-wp-text="state.currencyBreakNote"></p>
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 
 				<div class="wcb-avatar wcb-card-avatar" aria-hidden="true" data-wp-class--wcb-avatar--logo="context.job.company_logo">

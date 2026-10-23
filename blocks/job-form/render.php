@@ -294,6 +294,7 @@ $wcb_initial_state = apply_filters(
 		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
 		'salaryMin'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_min', true ) : '',
 		'salaryMax'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_max', true ) : '',
+		'defaultCurrency'   => $wcb_default_currency,
 		'currencyCode'      => $wcb_edit_job
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
