@@ -360,17 +360,6 @@ final class AppCredentials {
 	 */
 	public static function client_ip(): string {
 		/**
-		 * Filter which `$_SERVER` key carries the real client IP.
-		 *
-		 * Empty (the default) means trust only REMOTE_ADDR. Set this ONLY when
-		 * a proxy you control always overwrites the header — an unvalidated
-		 * forwarded header is attacker-controlled.
-		 *
-		 * @since 1.7.2
-		 *
-		 * @param string $header A `$_SERVER` key, e.g. `HTTP_CF_CONNECTING_IP`.
-		 */
-		/**
 		 * Filter which `$_SERVER` key carries the real client IP, for every
 		 * per-IP limit and count in the plugin. Defaults to the owner's choice
 		 * in Settings > Anti-Spam > Visitor IP address.
@@ -388,9 +377,19 @@ final class AppCredentials {
 			$raw  = (string) wp_unslash( $_SERVER[ $header ] );
 			$hops = array_map( 'trim', explode( ',', $raw ) );
 			// X-Forwarded-For is "client, proxy1, proxy2": the client writes the
-			// left end, so only the hop the site's own proxy appended (the right
+			// left end, so only hops the site's own proxies appended (the right
 			// end) can be trusted. Single-value headers have one entry anyway.
-			$ip = (string) end( $hops );
+			/**
+			 * Filter how many proxies the site runs behind, counted from the
+			 * server outwards. 1 (the default) reads the right-most hop; 2 reads
+			 * the one before it, for a CDN in front of a load balancer.
+			 *
+			 * @since 1.8.2
+			 *
+			 * @param int $trusted_hops Proxies that append to the header.
+			 */
+			$trusted = max( 1, (int) apply_filters( 'wcb_client_ip_trusted_hops', 1 ) );
+			$ip      = (string) $hops[ max( 0, count( $hops ) - $trusted ) ];
 
 			if ( '' !== $ip && rest_is_ip_address( $ip ) ) {
 				return $ip;

@@ -535,11 +535,13 @@ class Admin {
 			<?php endif; ?>
 						</span>
 					</li>
-					<li class="wcb-gs-item">
-						<i data-lucide="circle" class="wcb-gs-icon"></i>
+					<li class="wcb-gs-item <?php echo $total_emp > 0 ? 'wcb-gs-done' : ''; ?>">
+						<i data-lucide="<?php echo $total_emp > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 			<?php esc_html_e( 'Invite an employer', 'wp-career-board' ); ?>
-							&mdash; <a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
+			<?php if ( 0 === $total_emp ) : ?>
+								&mdash; <a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
+			<?php endif; ?>
 						</span>
 					</li>
 				</ul>

@@ -532,6 +532,7 @@ the site still runs. This class only decides what to hand back once core says ye
 | `wcb_app_password_max_failures` | filter | `$max` | Failed sign-ins per bucket before lockout. Default 5. |
 | `wcb_app_password_max_attempts_per_ip` | filter | `$max` | Total attempts per IP per hour. Default 20. |
 | `wcb_app_password_client_ip_header` | filter | `$header` | `$_SERVER` key carrying the real client IP. Empty by default. |
+| `wcb_client_ip_trusted_hops` | filter | `$trusted_hops` | Proxies that append to a forwarded header, counted from the server. Default 1. |
 | `wcb_app_credential_issued` | action | `$user_id, $app_id, $app_name` | A member exchanged their password for a credential. |
 | `wcb_app_credential_revoked` | action | `$user_id, $uuid` | A member revoked their own credential (app sign-out). |
 

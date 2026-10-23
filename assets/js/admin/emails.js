@@ -175,7 +175,7 @@
 
 		var cells = [
 			{ cls: 'wcb-email-log-col-when',      text: formatWhen( row.sent_at ) },
-			{ cls: 'wcb-email-log-col-template',  inner: 'code', text: row.event_type || '—' },
+			{ cls: 'wcb-email-log-col-template',  text: ( cfg.templates || {} )[ row.event_type ] || row.event_type || '—' },
 			{ cls: 'wcb-email-log-col-recipient', text: row.recipient || '—' },
 			{ cls: 'wcb-email-log-col-subject',   text: row.subject || '—' },
 			{

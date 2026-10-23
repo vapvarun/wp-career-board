@@ -64,7 +64,7 @@ final class CompanionRegistry {
 				),
 				'jetonomy'        => array(
 					'label'     => __( 'Jetonomy', 'wp-career-board' ),
-					'why'       => __( 'Discussions and Q&A spaces around your job board.', 'wp-career-board' ),
+					'why'       => __( 'Discussion forums and Q&A for your members.', 'wp-career-board' ),
 					'detect'    => static fn() => function_exists( 'jetonomy' ) || class_exists( '\\Jetonomy\\Plugin' ),
 					'free'      => array(
 						'item_id'  => 1660320,
@@ -72,7 +72,7 @@ final class CompanionRegistry {
 						'basename' => 'jetonomy/jetonomy.php',
 					),
 					'store_url' => 'https://wbcomdesigns.com/downloads/jetonomy/',
-					'unlocks'   => __( 'Community forums and Q&A tied to job listings.', 'wp-career-board' ),
+					'unlocks'   => __( 'Forums and Q&A on the same site, using the same member accounts.', 'wp-career-board' ),
 				),
 				'wb-gamification' => array(
 					'label'     => __( 'WB Gamification', 'wp-career-board' ),
@@ -88,7 +88,7 @@ final class CompanionRegistry {
 				),
 				'learnomy'        => array(
 					'label'     => __( 'Learnomy', 'wp-career-board' ),
-					'why'       => __( 'Courses and certificates tied to job roles.', 'wp-career-board' ),
+					'why'       => __( 'Online courses and certificates for your members.', 'wp-career-board' ),
 					'detect'    => static fn() => defined( 'LEARNOMY_VERSION' ) || class_exists( '\\Learnomy\\Learnomy' ),
 					'free'      => array(
 						'item_id'  => 1662698,
@@ -96,7 +96,7 @@ final class CompanionRegistry {
 						'basename' => 'learnomy/learnomy.php',
 					),
 					'store_url' => 'https://wbcomdesigns.com/downloads/learnomy/',
-					'unlocks'   => __( 'Skill-building courses linked to job requirements.', 'wp-career-board' ),
+					'unlocks'   => __( 'Courses on the same site, using the same member accounts.', 'wp-career-board' ),
 				),
 				'wpmediaverse'    => array(
 					'label'     => __( 'MediaVerse', 'wp-career-board' ),
@@ -108,7 +108,7 @@ final class CompanionRegistry {
 						'basename' => 'wpmediaverse/wpmediaverse.php',
 					),
 					'store_url' => 'https://wbcomdesigns.com/downloads/mediaverse/',
-					'unlocks'   => __( 'Direct messages between employers and candidates.', 'wp-career-board' ),
+					'unlocks'   => __( 'Media galleries and messaging on the same site, using the same member accounts.', 'wp-career-board' ),
 				),
 				'wb-listora'      => array(
 					'label'     => __( 'Listora', 'wp-career-board' ),

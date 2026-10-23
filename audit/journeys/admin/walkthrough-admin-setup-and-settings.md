@@ -49,7 +49,8 @@ admin setup-and-configure functionality is browser-coverable in one pass.
 
 11. **Sample-data control on Settings** — back on `#section-listings`, because sample data now exists (`SetupWizard::has_sample_data()` is true), expect the `#wcb-sample-data-block` card with the "Remove Sample Data" button `#wcb-remove-sample-data`. Click it, confirm the modal, and expect `POST $WCB_SITE/wp-json/wcb/v1/wizard/remove-sample-data` returning HTTP 200 with counts `{ jobs, companies, candidates, terms }`; the card is then replaced by the `#wcb-install-sample-block` "Install Sample Data" form (which posts `action=wcb_install_demo` to `admin-post.php` with the `wcb_install_demo` nonce). (Skip the click if the run must leave seeded data in place.)
 
-12. Click the page-header "Run Setup Wizard" button (`a.wcb-btn` → `admin.php?page=wcb-setup`) → expect HTTP 200 and, since setup is already complete and `wcb_rerun` is absent, the "Setup Already Completed" card with the "Re-run Setup Wizard" link (`admin.php?page=wcb-setup&wcb_rerun=1`).
+12. Click the page-header "Run Setup Wizard" button (`a.wcb-btn` → `admin.php?page=wcb-setup&wcb_rerun=1`) → expect HTTP 200 and the wizard steps, the same place the footer "Re-run Setup Wizard" link opens (card:10407662564). Both links carry `wcb_rerun=1`.
+12a. **Getting started ticks (card:10407360877).** With no published job (so the card shows) and at least one `wcb_employer` user, "Invite an employer" shows `circle-check` with the `wcb-gs-done` class and no "+ Add User" link; with zero employers it shows `circle` and the link. The count is the one in the Employers tile.
 
 13. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 

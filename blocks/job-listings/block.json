@@ -5,7 +5,7 @@
   "version": "0.1.1",
   "title": "Job Listings",
   "category": "widgets",
-  "description": "Reactive job listings grid with infinite scroll and bookmark toggle.",
+  "description": "Reactive job listings grid with a Load more button and bookmark toggle.",
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {

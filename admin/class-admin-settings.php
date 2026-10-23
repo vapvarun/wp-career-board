@@ -613,7 +613,7 @@ class AdminSettings {
 					<p class="wcb-page-header__desc"><?php esc_html_e( 'Career Board settings and configuration', 'wp-career-board' ); ?></p>
 				</div>
 				<div class="wcb-page-header__actions">
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="wcb-btn">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup&wcb_rerun=1' ) ); ?>" class="wcb-btn">
 						<i data-lucide="settings" class="wcb-icon--sm"></i>
 		<?php esc_html_e( 'Run Setup Wizard', 'wp-career-board' ); ?>
 					</a>
@@ -701,7 +701,7 @@ class AdminSettings {
 										<div class="wcb-settings-row-label"><label for="wcb-report-auto-hide"><?php esc_html_e( 'Hide a job after this many reports', 'wp-career-board' ); ?></label></div>
 										<div class="wcb-settings-row-control">
 											<input type="number" id="wcb-report-auto-hide" name="wcb_settings[report_auto_hide_threshold]" value="<?php echo (int) ( $settings['report_auto_hide_threshold'] ?? 3 ); ?>" min="0" max="50" style="width:80px">
-											<span class="description"><?php esc_html_e( 'When this many different members report a job, it is taken off the site as "Pending" until you review it under Career Board > Jobs > Flagged. Dismissing the reports puts it back. 0 never hides a job automatically. You are emailed on the first report and when a job is hidden.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'When this many different members report a job, it is taken off the site as "Pending" until you review it under Career Board > Jobs > Flagged. Only members with standing count toward this: an account at least a week old, or one that has applied to or published a job. The Flags column shows every report. Dismissing the reports puts it back. 0 never hides a job automatically. You are emailed on the first report and when a job is hidden.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -711,7 +711,7 @@ class AdminSettings {
 											<span class="description"><?php esc_html_e( 'How long a job stays open when the employer sets no deadline. Default 30. A board can set its own length, which wins over this one.', 'wp-career-board' ); ?></span>
 											<span class="description"><?php esc_html_e( 'At its deadline a job stops taking applications and leaves the listings, feeds and sitemap within the hour. Its page stays up as an expired page with similar open jobs, so shared links keep working. Employers can reopen it from their dashboard with a new deadline.', 'wp-career-board' ); ?></span>
 											<?php if ( empty( $settings['deadline_auto_close'] ) ) : ?>
-												<p class="description"><strong><?php esc_html_e( 'This site still lists jobs past their deadline (set before 1.8.0).', 'wp-career-board' ); ?></strong></p>
+												<p class="description"><strong><?php esc_html_e( 'This site still lists jobs past their deadline. New sites end every job at its deadline; sites set up earlier keep their previous behaviour until you switch.', 'wp-career-board' ); ?></strong></p>
 												<p><a class="button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wcb_enable_expiry', '1' ), 'wcb_enable_expiry' ) ); ?>"><?php esc_html_e( 'End jobs at their deadline', 'wp-career-board' ); ?></a></p>
 											<?php endif; ?>
 										</div>
@@ -728,12 +728,12 @@ class AdminSettings {
 										<div class="wcb-settings-row-control">
 											<?php $wcb_default_sort = \WCB\Admin\Settings::string( 'jobs_default_sort', 'newest' ); ?>
 											<select id="wcb-jobs-default-sort" name="wcb_settings[jobs_default_sort]">
-												<option value="newest" <?php selected( $wcb_default_sort, 'newest' ); ?>><?php esc_html_e( 'Featured, then newest', 'wp-career-board' ); ?></option>
+												<option value="newest" <?php selected( $wcb_default_sort, 'newest' ); ?>><?php esc_html_e( 'Newest first', 'wp-career-board' ); ?></option>
 												<option value="closing" <?php selected( $wcb_default_sort, 'closing' ); ?>><?php esc_html_e( 'Closing soonest', 'wp-career-board' ); ?></option>
 												<option value="salary" <?php selected( $wcb_default_sort, 'salary' ); ?>><?php esc_html_e( 'Highest salary', 'wp-career-board' ); ?></option>
 												<option value="oldest" <?php selected( $wcb_default_sort, 'oldest' ); ?>><?php esc_html_e( 'Oldest first', 'wp-career-board' ); ?></option>
 											</select>
-											<span class="description"><?php esc_html_e( 'How job lists are ordered before a visitor picks a sort. A keyword search always shows the best matches first.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'How job lists are ordered before a visitor picks a sort. Newest first lists featured jobs at the top. A keyword search always shows the best matches first.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -803,7 +803,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'Ask for a location on every job that is not remote', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Google for Jobs leaves out jobs with no location unless they are remote. When on, a job cannot be posted without a location or the Remote option.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Google for Jobs leaves out jobs with no location unless they are remote. When on, a job cannot be posted without a location or the Remote option. New sites start with this on; sites set up earlier keep their previous setting.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -934,7 +934,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'New candidates and employers confirm their email before they can sign in', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Stops fake sign-ups using addresses the person does not own. Uses the "Confirm Your Email" message under Emails; if that message is turned off, sign-ups are not held.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Stops fake sign-ups using addresses the person does not own. Uses the "Confirm Your Email" message under Emails; if that message is turned off, sign-ups are not held. New sites start with this on; sites set up earlier keep their previous setting.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

@@ -71,13 +71,21 @@ class EmailSettings {
 			true
 		);
 
+		$templates = array();
+		foreach ( (array) apply_filters( 'wcb_registered_emails', array() ) as $email ) {
+			if ( $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
+				$templates[ $email->get_id() ] = $email->get_title();
+			}
+		}
+
 		wp_localize_script(
 			'wcb-admin-emails',
 			'wcbAdminEmails',
 			array(
-				'restBase' => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'i18n'     => array(
+				'restBase'  => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
+				'nonce'     => wp_create_nonce( 'wp_rest' ),
+				'templates' => $templates,
+				'i18n'      => array(
 					'sending'          => __( 'Sending…', 'wp-career-board' ),
 					'sent'             => __( 'Sent', 'wp-career-board' ),
 					'failed'           => __( 'Failed', 'wp-career-board' ),

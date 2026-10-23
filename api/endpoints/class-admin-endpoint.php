@@ -232,14 +232,21 @@ final class AdminEndpoint extends RestController {
 			return $this->permission_error();
 		}
 
+		// "(test send)" flags a sent test in the inbox; the preview pane needs no flag.
+		$is_preview = (bool) $request->get_param( 'preview' );
+		$mark       = static fn( string $text ): string => $is_preview
+			? $text
+			/* translators: %s: sample text in a test email, such as a job title. */
+			: sprintf( __( '%s (test send)', 'wp-career-board' ), $text );
+
 		$sample_job = '<li style="margin-bottom:10px;padding:12px 16px;background:#f9fafb;border-radius:6px;"><a href="' . esc_url( home_url( '/' ) ) . '" style="font-weight:600;color:#4f46e5;text-decoration:none;">%s</a></li>';
 		$job_list   = '<ul style="padding-left:0;list-style:none;margin:0 0 24px;">'
-			. sprintf( $sample_job, esc_html__( 'Sample Job One (test send)', 'wp-career-board' ) )
-			. sprintf( $sample_job, esc_html__( 'Sample Job Two (test send)', 'wp-career-board' ) )
+			. sprintf( $sample_job, esc_html( $mark( __( 'Sample Job One', 'wp-career-board' ) ) ) )
+			. sprintf( $sample_job, esc_html( $mark( __( 'Sample Job Two', 'wp-career-board' ) ) ) )
 			. '</ul>';
 
 		$test_vars = array(
-			'job_title'      => __( 'Sample Job Title (test send)', 'wp-career-board' ),
+			'job_title'      => $mark( __( 'Sample Job Title', 'wp-career-board' ) ),
 			'company_name'   => get_bloginfo( 'name' ),
 			'candidate'      => $user->display_name,
 			'candidate_name' => $user->display_name,
@@ -255,7 +262,7 @@ final class AdminEndpoint extends RestController {
 			'repost_url'     => home_url( '/' ),
 			'approve_url'    => admin_url( 'edit.php?post_type=wcb_job' ),
 			'topup_url'      => home_url( '/' ),
-			'reason'         => __( 'Listing did not meet the posting guidelines (test send).', 'wp-career-board' ),
+			'reason'         => $is_preview ? __( 'Listing did not meet the posting guidelines.', 'wp-career-board' ) : __( 'Listing did not meet the posting guidelines (test send).', 'wp-career-board' ),
 			'job_list'       => $job_list,
 			'count'          => 2,
 			'credits_added'  => 50,
@@ -266,11 +273,11 @@ final class AdminEndpoint extends RestController {
 			'login_url'      => wp_login_url(),
 			'delete_date'    => date_i18n( (string) get_option( 'date_format', 'F j, Y' ), time() + 7 * DAY_IN_SECONDS ),
 			'credits'        => 5,
-			'refund_message' => __( '5 credits held for a job listing have been returned to your account (test send).', 'wp-career-board' ),
+			'refund_message' => $is_preview ? __( '5 credits held for a job listing have been returned to your account.', 'wp-career-board' ) : __( '5 credits held for a job listing have been returned to your account (test send).', 'wp-career-board' ),
 			'is_test'        => true,
 		);
 
-		if ( $request->get_param( 'preview' ) ) {
+		if ( $is_preview ) {
 			return rest_ensure_response( $target->preview( $test_vars, (string) $request->get_param( 'subject' ), (string) $request->get_param( 'body' ) ) );
 		}
 

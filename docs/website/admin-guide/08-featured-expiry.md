@@ -15,7 +15,7 @@ The length is counted from the day the job was marked Featured, using the value 
 
 ## Where featured jobs list
 
-Featured jobs list first when the job order is **Featured, then newest**. That is the default order, and it applies to every page of results including "Load more". A keyword search shows the best matches first, and the **Closing soonest**, **Highest salary** and **Oldest first** orders do not put featured jobs first.
+Featured jobs list first when the job order is **Newest first**. That is the default order, and it applies to every page of results including "Load more". A keyword search shows the best matches first, and the **Closing soonest**, **Highest salary** and **Oldest first** orders do not put featured jobs first.
 
 ## When the boost ends
 

@@ -97,7 +97,7 @@ Overridable via `locate_template` (theme can replace):
 | admin/class-admin-settings.php:158 | ? |
 | admin/class-admin-settings.php:262 | ? |
 | admin/class-admin-settings.php:275 | ? |
-| api/endpoints/class-admin-endpoint.php:257 | Listing did not meet the posting guidelines (test send). |
+| api/endpoints/class-admin-endpoint.php:265 | Listing did not meet the posting guidelines (test send). |
 | modules/notifications/class-abstract-email.php:188 | ? |
 | modules/notifications/class-abstract-email.php:205 | ? |
 | modules/notifications/class-abstract-email.php:217 | ? |

@@ -177,7 +177,12 @@ wp_interactivity_state(
 	<?php /* ── Step 1: Role picker ── */ ?>
 	<div class="wcb-reg-form-wrap" data-wp-class--wcb-hidden="state.submitted">
 		<div class="wcb-role-picker" data-wp-class--wcb-hidden="state.role">
-			<h2 class="wcb-reg-title"><?php esc_html_e( 'Join WP Career Board', 'wp-career-board' ); ?></h2>
+			<h2 class="wcb-reg-title">
+				<?php
+				/* translators: %s: site name. */
+				echo esc_html( sprintf( __( 'Join %s', 'wp-career-board' ), get_bloginfo( 'name' ) ) );
+				?>
+			</h2>
 			<?php if ( ! $wcb_is_logged_in ) : ?>
 			<p class="wcb-reg-subtitle">
 				<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>

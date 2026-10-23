@@ -341,6 +341,7 @@ class AntiSpamModule {
 								<?php endforeach; ?>
 							</select>
 							<p class="description"><?php esc_html_e( 'Choose a proxy only if your site really is behind it. Anyone can send these headers, so on a direct connection they would let a visitor dodge the limits.', 'wp-career-board' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Behind two layers, such as a CDN in front of a load balancer, pick the CDN\'s own header: Cloudflare for CF-Connecting-IP. X-Forwarded-For would read the CDN\'s address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the wcb_client_ip_trusted_hops filter set to 2.', 'wp-career-board' ); ?></p>
 						</div>
 					</div>
 				</div>
