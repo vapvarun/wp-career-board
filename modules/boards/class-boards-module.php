@@ -29,7 +29,7 @@ final class BoardsModule {
 	 */
 	public function boot(): void {
 		add_action( 'init', array( $this, 'register_post_type' ) );
-		add_action( 'init', array( $this, 'ensure_default_board' ), 20 );
+		add_action( 'init', array( self::class, 'ensure_default_board' ), 20 );
 		add_action( 'save_post_wcb_job', array( self::class, 'stamp_default_board' ), 99 );
 	}
 
@@ -100,7 +100,7 @@ final class BoardsModule {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public function ensure_default_board(): void {
+	public static function ensure_default_board(): void {
 		if ( get_option( 'wcb_default_board_id', 0 ) ) {
 			return;
 		}
@@ -154,6 +154,15 @@ final class BoardsModule {
 	 * @return int
 	 */
 	public static function get_default_board_id(): int {
-		return (int) get_option( 'wcb_default_board_id', 0 );
+		$board_id = (int) get_option( 'wcb_default_board_id', 0 );
+		// A deleted or trashed default board passes the role on to the oldest
+		// live board, or a new Main Board, so new jobs never land on a dead
+		// board (Basecamp 10439305049).
+		if ( $board_id && ( 'wcb_board' !== get_post_type( $board_id ) || 'trash' === get_post_status( $board_id ) ) ) {
+			delete_option( 'wcb_default_board_id' );
+			self::ensure_default_board();
+			$board_id = (int) get_option( 'wcb_default_board_id', 0 );
+		}
+		return $board_id;
 	}
 }

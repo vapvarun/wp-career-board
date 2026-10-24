@@ -4,7 +4,7 @@ priority: high
 personas: anonymous
 requires: seed:jobs
 last_verified: 2026-10-13
-bug_ref: 10359893313
+bug_ref: 10359893313, 10439305049
 needs: cli
 ---
 
@@ -21,7 +21,8 @@ needs: cli
 5. **Other callers** — GET `/wp-json/wcb/v1/jobs?board_id=<board-id>` → expect the same count as step 3 (both param spellings resolve to the same `_wcb_board_id` meta_query)
 6. Browser: on a site with ≥2 boards, `/find-jobs/` renders a Board chip group; clicking a board chip narrows the visible cards and shows an active "× <board>" chip
 7. URL state: on a site with two or more boards click a board chip on `/find-jobs/` → `location.search` gains `board=<board-id>` (pushState, no reload); reloading that URL first-paints only that board's jobs (card count equals step 3's `<on-board>`, up to the page size) with the "× <board>" pill; Back returns to the unfiltered list.
-8. tail debug.log diff → expect ZERO new fatal/warning lines
+8. Default board deleted: create a board, make it `wcb_default_board_id`, trash it → `BoardsModule::get_default_board_id()` returns the oldest live board (a new Main Board if none), the option is rewritten, and a job saved with no board gets that live board in `_wcb_board_id`; with Pro, re-activating it removes stage, field-group and alert rows of boards that no longer exist (card:10439305049).
+9. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 
