@@ -137,7 +137,7 @@ class EmailSettings {
 						<label for="wcb-email-footer-text"><?php esc_html_e( 'Footer Text', 'wp-career-board' ); ?></label>
 					</div>
 					<div class="wcb-settings-row-control">
-						<textarea id="wcb-email-footer-text" name="wcb_email[brand][footer_text]" rows="2" style="width:400px"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
+						<textarea id="wcb-email-footer-text" name="wcb_email[brand][footer_text]" rows="2" class="wcb-email-footer-textarea"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
 					</div>
 				</div>
 		</div>
@@ -146,13 +146,12 @@ class EmailSettings {
 			<div class="wcb-settings-card-header">
 				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email templates', 'wp-career-board' ); ?></h2>
 			</div>
-			<div style="padding: 0 24px 16px;">
+			<div class="wcb-email-templates-body">
 				<div class="wcb-email-templates-wrap">
-				<table class="widefat striped" style="margin-top:12px">
+				<table class="widefat striped wcb-email-templates">
 					<thead>
 						<tr>
 							<th><?php esc_html_e( 'Email', 'wp-career-board' ); ?></th>
-							<th><?php esc_html_e( 'Recipient', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Subject', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Message', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Enabled', 'wp-career-board' ); ?></th>
@@ -182,10 +181,17 @@ class EmailSettings {
 			$subject = isset( $saved['subject'] ) ? $saved['subject'] : '';
 			?>
 						<tr>
-							<td><strong><?php echo esc_html( $email->get_title() ); ?></strong></td>
-							<td><?php echo esc_html( $recipients[ $email->get_recipient() ] ?? ucfirst( $email->get_recipient() ) ); ?></td>
 							<td>
-								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" style="width:100%;max-width:400px;">
+								<strong><?php echo esc_html( $email->get_title() ); ?></strong>
+								<span class="wcb-email-recipient">
+								<?php
+								/* translators: %s: who receives the email, e.g. Candidate. */
+								echo esc_html( sprintf( __( 'Recipient: %s', 'wp-career-board' ), $recipients[ $email->get_recipient() ] ?? ucfirst( $email->get_recipient() ) ) );
+								?>
+								</span>
+							</td>
+							<td>
+								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" class="wcb-email-subject">
 							</td>
 							<td>
 								<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-body-toggle" data-target="wcb-email-body-<?php echo esc_attr( $id ); ?>" aria-expanded="false" aria-controls="wcb-email-body-<?php echo esc_attr( $id ); ?>">
@@ -209,7 +215,7 @@ class EmailSettings {
 							</td>
 						</tr>
 						<tr class="wcb-email-body-row" id="wcb-email-body-<?php echo esc_attr( $id ); ?>" hidden>
-							<td colspan="6">
+							<td colspan="5">
 								<label class="wcb-email-body-label" for="wcb-email-body-field-<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Message body (HTML)', 'wp-career-board' ); ?></label>
 								<textarea id="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" class="wcb-email-body-textarea" name="wcb_email[<?php echo esc_attr( $id ); ?>][body]" rows="8" placeholder="<?php esc_attr_e( 'Leave blank to send the ready-made default message. Click Load default to start from it.', 'wp-career-board' ); ?>"><?php echo esc_textarea( isset( $saved['body'] ) ? (string) $saved['body'] : '' ); ?></textarea>
 								<div class="wcb-email-tags">
@@ -231,7 +237,7 @@ class EmailSettings {
 					</tbody>
 				</table>
 				</div>
-				<p class="description" style="margin-top: 12px;">
+				<p class="description wcb-email-templates-note">
 		<?php
 		/* translators: %s: current admin email address */
 		echo esc_html( sprintf( __( 'Test sends are dispatched to your admin email (%s) and recorded in the activity log below.', 'wp-career-board' ), wp_get_current_user()->user_email ) );

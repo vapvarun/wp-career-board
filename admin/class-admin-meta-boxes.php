@@ -573,14 +573,14 @@ class AdminMetaBoxes {
 		?>
 		<div class="wcb-trust-box">
 			<label for="wcb_trust_level"><?php esc_html_e( 'Trust Level', 'wp-career-board' ); ?></label>
-			<select id="wcb_trust_level" name="wcb_trust_level" style="width:100%; margin-top:4px;">
+			<select id="wcb_trust_level" name="wcb_trust_level">
 				<?php foreach ( $wcb_trusted_labels as $wcb_val => $wcb_label ) : ?>
 					<option value="<?php echo esc_attr( $wcb_val ); ?>" <?php selected( $wcb_trust, $wcb_val ); ?>>
 						<?php echo esc_html( $wcb_label ); ?>
 					</option>
 				<?php endforeach; ?>
 			</select>
-			<p class="description" style="margin-top:6px;"><?php esc_html_e( '"Verified" shows the checkmark badge on job listings.', 'wp-career-board' ); ?></p>
+			<p class="description"><?php esc_html_e( '"Verified" shows the checkmark badge on job listings.', 'wp-career-board' ); ?></p>
 		</div>
 		<?php
 	}

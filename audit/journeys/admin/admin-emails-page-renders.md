@@ -40,6 +40,7 @@ needs: browser
    wp option get wcb_settings --format=json | python3 -c "import json,sys; d=json.load(sys.stdin); d['notification_email']='$(wp option get admin_email)'; print(json.dumps(d))" | xargs -d '\n' wp option update wcb_settings
    ```
 7a. **Log and preview read as an owner (card:10420281996, card:10407661790).** In the activity log every Template cell is plain text holding the template's title ("Job Rejected", "Application Received (Employer)"), not a `code` id; an id no longer registered shows the id. Preview any template: no "(test send)" in its subject or body. Send test of the same template: the email in Mailpit still carries "(test send)" on the sample job title.
+7b. **Every default subject reads in full (card:10430711101).** At 1440 the Email templates table has five columns (Email, Subject, Message, Enabled, Test); each Email cell shows its recipient under the title ("Recipient: Employer"); no Subject field's text is wider than its box. At 390 the table scrolls inside its card, the page does not scroll sideways.
 8. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown

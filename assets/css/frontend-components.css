@@ -76,6 +76,13 @@
 	text-decoration: none;
 }
 
+/* Links drawn as buttons, at (0,3,1): Astra underlines content links with
+   `.ast-single-post .entry-content a` (0,2,1), which beats the rule above
+   (Basecamp 10436093928). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) a:is(.wcb-btn, .wcb-job-alert-card__btn, .wcb-cp-link):any-link {
+	text-decoration: none;
+}
+
 [class*="wp-block-wp-career-board"] h1,
 [class*="wp-block-wp-career-board"] h2,
 [class*="wp-block-wp-career-board"] h3,

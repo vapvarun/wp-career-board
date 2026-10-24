@@ -75,6 +75,17 @@
 	padding-inline-start: 1.5em;
 }
 
+/* Markers back while editing: the block list reset in frontend-components.css
+   (0,1,1) beats Editor.js's own .cdx-list--* (0,1,0), so lists showed bare
+   lines here but bullets on the job page (Basecamp 10430753987). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-editor-holder ul {
+	list-style: disc;
+}
+
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) .wcb-editor-holder ol {
+	list-style: decimal;
+}
+
 .wcb-editor-holder li {
 	margin-bottom: 0.25em;
 }

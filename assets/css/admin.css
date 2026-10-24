@@ -518,6 +518,27 @@
 	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
 }
 
+/* Stack label over field when the tab panel itself is narrow: between ~780px
+   and ~1000px the admin menu and tab nav leave the field column about 190px,
+   too little for URLs, keys or the credit packs (Basecamp 10431561385).
+   Measured on the panel, not the viewport, because the admin menu sets its
+   width. Every tab's rows sit in a .wcb-settings-section, Pro's included. */
+.wcb-settings-section {
+	container: wcb-settings / inline-size;
+}
+
+@container wcb-settings (max-width: 600px) {
+	.wcb-settings-row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 8px;
+	}
+
+	.wcb-settings-row-label {
+		padding-right: 0;
+		padding-top: 0;
+	}
+}
+
 .wcb-settings-row:last-child {
 	border-bottom: none;
 }
@@ -796,6 +817,19 @@
 	font-weight: 600;
 	font-size: 13px;
 	color: var(--wcb-contrast, #1e293b);
+}
+
+/* border-box keeps the select inside the editor sidebar; core's padding and
+   border made width:100% overflow and clip the arrow (Basecamp 10431344323). */
+.wcb-trust-box select {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	margin-block-start: var(--wcb-space-xs, 4px);
+}
+
+.wcb-trust-box .description {
+	margin-block-start: 6px;
 }
 
 /* ── Styled confirm modal — T22a ── */

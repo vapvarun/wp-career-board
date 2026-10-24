@@ -58,6 +58,8 @@
     background: var(--wcb-base, #ffffff); color: var(--wcb-contrast, #1e293b);
     cursor: pointer; text-decoration: none; transition: all 0.12s ease;
 }
+/* display above outranks the browser's [hidden] rule (Basecamp 10430704186). */
+.wcb-btn[hidden] { display: none; }
 .wcb-btn:hover { background: var(--wcb-bg-hover, #f1f5f9); color: var(--wcb-contrast, #1e293b); text-decoration: none; }
 .wcb-btn:active { transform: scale(0.97); }
 .wcb-btn:focus-visible { outline: 2px solid var(--wcb-primary, #2563eb); outline-offset: 2px; }
@@ -200,6 +202,13 @@
     border-radius: var(--wcb-radius-md, 6px);
     padding: 6px 12px;
     transition: border-color var(--wcb-transition-snappy, 0.15s ease), box-shadow var(--wcb-transition-snappy, 0.15s ease);
+}
+/* A field never runs past its column: core's .regular-text is a fixed 25em
+   and the settings grid lets the control column shrink below it on tablets
+   (Basecamp 10431561385). Pro's tabs render in the same rows. */
+.wcb-admin .wcb-settings-row-control :is(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+    box-sizing: border-box;
+    max-width: 100%;
 }
 .wcb-admin .form-table select,
 .wcb-admin .wcb-settings-row-control select {

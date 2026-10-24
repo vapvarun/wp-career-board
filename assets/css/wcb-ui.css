@@ -185,7 +185,6 @@
 	outline: 2px solid transparent !important;
 	box-shadow: var(--wcb-shadow-focus);
 }
-
 /* Mouse press only: some block themes (TT25) draw a 2px white outline on
    :focus. Keyboard focus keeps the ring above. */
 :is(.wcb-btn, .wcb-search-button, .wcb-search-hero__button, .wcb-jm-location-btn):focus:not(:focus-visible) {
@@ -429,7 +428,10 @@
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+/* `[class]` brings this to (0,3,1): the field rule above counts its
+   input:not([type=...]) arm, so a bare textarea override lost and left the
+   text against the top border (Basecamp 10436294696). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea[class]:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
 	height: auto;
 	min-height: 120px;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -1684,6 +1686,14 @@
 	text-align: start;
 	color: inherit;
 	transition: border-color var(--wcb-transition-fast);
+}
+
+/* A theme's button:hover / button:focus (0,1,1) fills the tile (Astra blue,
+   Kadence navy); keep the card's own surface (Basecamp 10436072102). */
+.wcb-stat-card--link:is(:hover, :focus) {
+	background: var(--wcb-base, #ffffff);
+	color: inherit;
+	box-shadow: none;
 }
 
 .wcb-stat-card--link:hover {

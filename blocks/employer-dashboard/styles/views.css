@@ -224,8 +224,12 @@
 	display: none;
 }
 
-/* Job search input */
-.wcb-job-search {
+/* Job search input. Block-scoped at (0,2,1) like the shared fields, so a
+   theme's input[type="search"] (0,1,1) can't square it off (Kadence,
+   Basecamp 10436196754). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-job-search {
+	box-sizing: border-box;
+	margin: 0;
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-sm) var(--wcb-space-md);
@@ -237,7 +241,7 @@
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-.wcb-job-search:focus {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input:is(.wcb-job-search, .wcb-apps-job-search):focus {
 	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
@@ -247,7 +251,7 @@
 .wcb-filter-bar .wcb-job-search {
 	flex: 1 1 8rem;
 	min-width: 8rem;
-	min-height: 40px;
+	min-height: var(--wcb-control-h);
 }
 
 /* Company filter (employers running several companies). Base look is the shared
@@ -500,7 +504,9 @@
 	background: var(--wcb-bg-subtle);
 }
 
-.wcb-apps-job-search {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-apps-job-search {
+	box-sizing: border-box;
+	margin: 0;
 	flex: 1;
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -510,12 +516,6 @@
 	color: var(--wcb-contrast);
 	background: var(--wcb-base);
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
-}
-
-.wcb-apps-job-search:focus {
-	outline: 2px solid transparent !important;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-apps-selector-hint {
@@ -1281,6 +1281,18 @@
 	margin-inline-start: var(--wcb-space-sm);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
+}
+
+/* A theme's button:hover / button:focus (0,1,1) fills the star (Astra blue
+   square, Basecamp 10436356200); a star stays a bare glyph. */
+.wcb-rating__star:is(:hover, :focus) {
+	background: none;
+	color: transparent;
+	box-shadow: none;
+}
+
+.wcb-rating__star--on:is(:hover, :focus) {
+	color: var(--wcb-warning, #d97706);
 }
 
 .wcb-rating__star:focus-visible {

@@ -601,6 +601,17 @@
 	width: 100%;
 	accent-color: var(--wcb-primary);
 }
+
+/* Kadence styles input[type=range] as a text field (padding, border, radius,
+   background); keep the native slider (Basecamp 10436185528). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input[type="range"].wcb-salary-popover__slider {
+	height: auto;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
 .wcb-salary-popover__reset {
 	align-self: flex-end;
 	background: none;
