@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 // Job alerts are a Pro feature. This card ships as one of three DEFAULT cards in
 // the company-profile sidebar, so on a Free-only site every company profile
 // rendered a "Get Job Alerts" call to action pointing at
-// candidate-dashboard/?tab=alerts - a tab that is gated off without Pro. The
+// the candidate dashboard's alerts tab - a tab that is gated off without Pro. The
 // member arrived at a dashboard with no such tab.
 //
 // The sibling surfaces already gate on this filter; this one did not. Rendering
@@ -45,11 +45,12 @@ if ( '' === $wcb_url ) {
 	if ( $wcb_dashboard_id > 0 ) {
 		$wcb_dashboard_url = (string) get_permalink( $wcb_dashboard_id );
 		if ( $wcb_dashboard_url ) {
-			$wcb_url = add_query_arg( 'tab', 'alerts', $wcb_dashboard_url );
+			// The dashboard routes by hash, never ?tab= (Basecamp 10412868653).
+			$wcb_url = $wcb_dashboard_url . '#alerts';
 		}
 	}
 	if ( '' === $wcb_url ) {
-		$wcb_url = home_url( '/candidate-dashboard/?tab=alerts' );
+		$wcb_url = home_url( '/candidate-dashboard/#alerts' );
 	}
 }
 

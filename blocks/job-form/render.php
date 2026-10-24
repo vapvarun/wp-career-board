@@ -1038,6 +1038,11 @@ $wcb_step_labels = array(
 					</span>
 				</div>
 
+				<div class="wcb-preview-card__desc" data-wp-bind--hidden="!state.descriptionPreview">
+					<h4 class="wcb-preview-card__desc-title"><?php esc_html_e( 'Description', 'wp-career-board' ); ?></h4>
+					<p class="wcb-preview-card__desc-text" data-wp-text="state.descriptionPreview"></p>
+				</div>
+
 				<?php
 				/**
 				 * Action: add custom content to the step 4 preview card.

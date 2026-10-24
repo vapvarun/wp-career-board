@@ -369,6 +369,16 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return 'description' === state.validationField && ! ! state.validationError;
 			},
+			// Step 4 shows the description as text: parsed, never run or injected,
+			// with paragraph and list breaks kept (Basecamp 10430670040).
+			get descriptionPreview() {
+				const { state } = store( 'wcb-job-form' );
+				const doc = new DOMParser().parseFromString( state.description || '', 'text/html' );
+				doc.querySelectorAll( 'br' ).forEach( ( el ) => el.replaceWith( '\n' ) );
+				doc.querySelectorAll( 'li' ).forEach( ( el ) => el.prepend( '• ' ) );
+				doc.querySelectorAll( 'p, li, h1, h2, h3, h4, h5, h6, blockquote, div' ).forEach( ( el ) => el.append( '\n' ) );
+				return doc.body.textContent.replace( /\n{3,}/g, '\n\n' ).trim();
+			},
 			get locationInvalid() {
 				const { state } = store( 'wcb-job-form' );
 				return 'location' === state.validationField && ! ! state.validationError;

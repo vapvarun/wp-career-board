@@ -786,15 +786,23 @@ wp_interactivity_state(
 					<?php endif; ?>
 				</dl>
 
-				<?php // The hero holds the one filled action; the sidebar repeats it outlined. ?>
-				<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
+				<?php
+				/*
+				 * The hero holds the one filled action; the sidebar repeats it outlined so it
+				 * stays in reach (the sidebar is sticky) after the hero scrolls away, and sits
+				 * after the description on phones. A site that wants only the hero button
+				 * returns false here (Basecamp 10417182252).
+				 */
+				$wcb_sidebar_cta = (bool) apply_filters( 'wcb_job_single_sidebar_cta', true, $wcb_job_id );
+				?>
+				<?php if ( $wcb_sidebar_cta && $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
 					<a
 						href="<?php echo esc_url( add_query_arg( 'job_apps', $wcb_job_id, $wcb_dashboard_url ) ); ?>"
 						class="wcb-btn wcb-btn--secondary wcb-btn--full"
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
-				<?php elseif ( $wcb_show_apply && ! $wcb_deadline_passed ) : ?>
+				<?php elseif ( $wcb_sidebar_cta && $wcb_show_apply && ! $wcb_deadline_passed ) : ?>
 					<?php // A closed job says so once, in the hero and the body notice. ?>
 					<?php if ( $wcb_apply_external ) : ?>
 						<a

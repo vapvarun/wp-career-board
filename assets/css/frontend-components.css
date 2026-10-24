@@ -719,6 +719,14 @@
 	border: 0;
 }
 
+/* A file input is hidden behind its styled label, so the label shows the focus:
+   inside the label (Upload CV, Replace CV, apply resume) or right after it
+   (company logo, profile photo). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(label:has(> input[type="file"]:focus-visible), input[type="file"]:focus-visible + label) {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
 /* ── Listings Header / Search / Sort — shared archive primitives ──────── */
 
 /*

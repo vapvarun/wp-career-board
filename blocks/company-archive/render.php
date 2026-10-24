@@ -421,6 +421,9 @@ $wcb_empty = array(
 	'clear_action'      => 'actions.clearFilters',
 	'clear_hidden_bind' => 'callbacks.noActiveFilters',
 	'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+	'empty_title'       => __( 'No companies yet', 'wp-career-board' ),
+	'empty_body'        => __( 'Companies appear here once employers set up their profiles.', 'wp-career-board' ),
+	'filtered_bind'     => 'callbacks.hasActiveFilters',
 	// Without this the "no companies match" panel is in the SSR markup with no
 	// `hidden` attribute, so it paints for one frame on a page that DOES have
 	// companies, until Interactivity binds `wp_bind_hidden`.

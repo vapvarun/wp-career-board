@@ -821,7 +821,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="closed" data-wp-class--wcb-filter-active="state.isFilterClosed" data-wp-bind--aria-pressed="state.isFilterClosed" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Closed', 'wp-career-board' ); ?></button>
 				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isFilterRejected" data-wp-bind--aria-pressed="state.isFilterRejected" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></button>
 				<?php // One toolbar row on desktop: status chips, then search and the company filter. ?>
-				<input type="search" class="wcb-job-search" aria-label="<?php esc_attr_e( 'Search your jobs', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-on--input="actions.setJobSearch" />
+				<input type="search" class="wcb-job-search" aria-label="<?php esc_attr_e( 'Search your jobs', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-bind--value="state.jobSearch" data-wp-on--input="actions.setJobSearch" />
 				<?php $wcb_company_filter(); ?>
 			</div>
 
@@ -846,6 +846,13 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 				<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs yet', 'wp-career-board' ); ?></p>
 				<p class="wcb-empty-state__body"><?php esc_html_e( 'Post your first job and it will appear here.', 'wp-career-board' ); ?></p>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
+			</div>
+
+			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noFilteredJobs">
+				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs match these filters', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__body"><?php esc_html_e( 'Try another status or clear the search.', 'wp-career-board' ); ?></p>
+				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.clearJobFilters"><?php esc_html_e( 'Clear filters', 'wp-career-board' ); ?></button>
 			</div>
 
 			<div class="wcb-jobs-list" aria-live="polite" data-wp-class--wcb-shown="state.hasJobs" data-wp-on-document--click="actions.closeRowMenusOutside">
@@ -1184,10 +1191,11 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 						<label class="wcb-field-label"><?php esc_html_e( 'Company Logo', 'wp-career-board' ); ?></label>
 						<div class="wcb-logo-field">
 							<img class="wcb-logo-current" data-wp-class--wcb-shown="state.companyLogoUrl" data-wp-bind--src="state.companyLogoUrl" alt="" width="64" height="64" />
+							<?php // Visually hidden, not display:none, so Tab reaches it (Basecamp 10412904033). ?>
+							<input id="wcb-company-logo" type="file" class="wcb-sr-only" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
 							<label class="wcb-logo-upload-label" for="wcb-company-logo">
 								<span data-wp-text="state.logoUploadLabel"></span>
 							</label>
-							<input id="wcb-company-logo" type="file" class="wcb-logo-input" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
 						</div>
 					</div>
 					<?php // .wcb-field-hint is display:block, so it must be hidden, not "shown". ?>

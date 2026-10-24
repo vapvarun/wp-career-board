@@ -2291,13 +2291,6 @@
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-notifications__empty {
-	padding: var(--wcb-space-xl);
-	text-align: center;
-	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary);
-}
-
 @media (max-width: 1024px) {
 	.wcb-dashboard .wcb-main {
 		padding: var(--wcb-space-xl);
@@ -2457,5 +2450,23 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 }
 
 .wcb-toast[hidden] {
+	display: none;
+}
+
+/* ── Required marker and inline field error ──────────────────────────────
+   One look on every form (Post a Job, registration). Basecamp 10412873869. */
+.wcb-required {
+	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
+	font-weight: var(--wcb-font-bold);
+	margin-inline-start: 2px;
+}
+
+.wcb-field-error {
+	margin: var(--wcb-space-xs) 0 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
+.wcb-field-error[hidden] {
 	display: none;
 }

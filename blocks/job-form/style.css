@@ -19,12 +19,6 @@
 	scroll-margin-top: 7.5rem;
 }
 
-.wcb-field-error {
-	margin: var(--wcb-space-xs) 0 0;
-	font-size: var(--wcb-text-sm);
-	color: var(--wcb-danger-fg, #991b1b);
-}
-
 /* The invalid border uses the plugin's own dark red (a theme's error colour can be
    under 3:1 on white) and stays red while the field has focus. The description's
    border is on the .wcb-editor wrapper, not on its holder. !important because a
@@ -200,12 +194,6 @@
 	border: 0;
 }
 
-.wcb-required {
-	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
-	font-weight: var(--wcb-font-bold);
-	margin-inline-start: 2px; /* hairline gap */
-}
-
 /* No `outline: none` on plain `:focus` - modern browsers default to no
  * visible focus ring on mouse click and `:focus-visible` below adds an
  * explicit outline for keyboard users. Older browsers without
@@ -362,6 +350,36 @@
 	gap: var(--wcb-space-md) var(--wcb-space-2xl);
 	padding-top: var(--wcb-space-md);
 	border-top: 1px solid var(--wcb-border);
+}
+
+.wcb-preview-card__desc {
+	padding-top: var(--wcb-space-md);
+	margin-top: var(--wcb-space-md);
+	border-top: 1px solid var(--wcb-border);
+}
+
+.wcb-preview-card__desc-title {
+	margin: 0 0 var(--wcb-space-xs);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-preview-card__desc-text {
+	margin: 0;
+	max-height: 20em;
+	overflow-y: auto;
+	white-space: pre-line;
+	overflow-wrap: anywhere;
+	font-size: var(--wcb-text-base);
+	line-height: 1.6;
+	color: var(--wcb-contrast);
+}
+
+@media (max-width: 640px) {
+	.wcb-preview-card__desc-text {
+		max-height: 16em;
+	}
 }
 
 .wcb-preview-card .wcb-cbadge {

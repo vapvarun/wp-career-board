@@ -889,7 +889,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<div class="wcb-card-footer">
 					<?php do_action( 'wcb_before_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
-						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label" data-wp-text="context.job.deadline_label"></span>
+						<?php // Labelled, or a future date beside "3 weeks ago" reads as a mistake (Basecamp 10431286004). ?>
+						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label"><?php esc_html_e( 'Apply by', 'wp-career-board' ); ?> <span data-wp-text="context.job.deadline_label"></span></span>
 						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
@@ -918,6 +919,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			'clear_action'      => 'actions.clearFilters',
 			'clear_hidden_bind' => 'state.noActiveFilters',
 			'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+			'empty_title'       => __( 'No jobs posted yet', 'wp-career-board' ),
+			'empty_body'        => __( 'New openings appear here as soon as employers post them.', 'wp-career-board' ),
+			'filtered_bind'     => 'state.hasActiveFilters',
+			'ssr_filtered'      => '' !== (string) ( $wcb_url_params['search'] ?? '' ) || array() !== (array) $wcb_state['activeFilters'],
 		);
 		require WCB_DIR . 'templates/parts/archive-empty-state.php';
 		?>

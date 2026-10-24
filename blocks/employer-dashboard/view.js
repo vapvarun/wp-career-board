@@ -344,9 +344,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			// still has real jobs to show — never gate on company existence.
 			return ! state.loading && state.filteredJobs.length > 0;
 		},
-		// Chips and search filter something only once there are jobs.
+		// Chips and search filter something only once there are jobs. A company
+		// filter with no jobs keeps the bar, or its own select would vanish.
 		get hasAnyJobs() {
-			return state.jobs.length > 0;
+			return state.jobs.length > 0 || !! state.companyFilter;
 		},
 		get noJobs() {
 			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
@@ -359,7 +360,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.noCompany && ! state.hasJobs;
 		},
 		get showPostFirstJob() {
-			return ! state.noCompany && state.noJobs;
+			return ! state.noCompany && state.noJobs && ! state.hasAnyJobs;
+		},
+		// A status, search or company filter that matches none of the employer's
+		// jobs is not "no jobs yet" (Basecamp 10412854820).
+		get noFilteredJobs() {
+			return state.noJobs && state.hasAnyJobs;
 		},
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
@@ -740,8 +746,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get hasRecentApps() {
 			return state.overviewRecentApps.length > 0;
 		},
+		// Overview empty text waits for the first load, or an employer with live
+		// jobs reads "No active jobs" beside "8 Live" (Basecamp 10430648050).
 		get noRecentApps() {
-			return state.overviewRecentApps.length === 0;
+			return ! state.loading && state.overviewRecentApps.length === 0;
 		},
 		get overviewActiveJobs() {
 			return state.jobs.filter( ( j ) => j.status === 'publish' ).slice( 0, 3 );
@@ -750,7 +758,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.overviewActiveJobs.length > 0;
 		},
 		get noActiveJobs() {
-			return state.overviewActiveJobs.length === 0;
+			return ! state.loading && state.overviewActiveJobs.length === 0;
 		},
 		// Needs attention: live jobs closing within 7 days (site-calendar dates
 		// compared as Y-m-d), soonest first. shortcut: reads the loaded page of
@@ -766,7 +774,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} ) );
 		},
 		get nothingNeedsAttention() {
-			return ! state.awaitingApps && 0 === state.closingSoonJobs.length;
+			return ! state.loading && ! state.awaitingApps && 0 === state.closingSoonJobs.length;
 		},
 		get newThisWeek() {
 			// Server COUNT(*) over the whole scope, never the loaded page of applications.
@@ -1297,6 +1305,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		setJobSearch( event ) {
 			state.jobSearch = event.target.value;
+		},
+
+		*clearJobFilters() {
+			state.jobFilter = 'all';
+			state.jobSearch = '';
+			if ( state.companyFilter ) {
+				yield actions.setCompanyFilter( { target: { value: '0' } } );
+			}
 		},
 
 		setNoteDraft( event ) {
