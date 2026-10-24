@@ -35,7 +35,7 @@ Erasing a person's data removes their Career Board profile data, uploaded files 
 
 ## Account deletion and the privacy tab
 
-Members can delete their own account from their dashboard. It is locked at once and deleted after a 14 day grace period (the default). Under **Career Board → Settings → Privacy** you can see who is waiting, cancel a deletion on their behalf with **Keep account**, and read the request log of every export and erase the plugin processed. Visitor IP addresses in that log are stored only as a one-way hash.
+Members can delete their own account from their dashboard. It is locked at once and deleted after a 14 day grace period (the default). Under **Career Board → Settings → Privacy** you can see who is waiting, cancel a deletion on their behalf with **Keep account**, and read the request log of every export, erase and account deletion the plugin processed. A request from someone with no account shows as **Guest (no account)**. Visitor IP addresses in that log are stored only as a one-way hash.
 
 Add-ons that store personal data register with the `wcb_personal_data_providers` filter once, and are covered by the WordPress export and erase tools and by account deletion. See the Developer Guide hooks reference.
 

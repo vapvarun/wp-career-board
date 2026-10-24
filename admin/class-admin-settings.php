@@ -1575,9 +1575,10 @@ class AdminSettings {
 					<?php foreach ( $rows as $row ) : ?>
 						<?php
 						$user  = get_userdata( (int) $row->user_id );
-						$label = 'erase' === $row->action
-							? __( 'Erase personal data', 'wp-career-board' )
-							: __( 'Export personal data', 'wp-career-board' );
+						$label = array(
+							'erase'  => __( 'Erase personal data', 'wp-career-board' ),
+							'delete' => __( 'Account deleted, personal data erased', 'wp-career-board' ),
+						)[ $row->action ] ?? __( 'Export personal data', 'wp-career-board' );
 						?>
 						<tr>
 							<td><?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row->created_at ) ); ?></td>
@@ -1585,6 +1586,8 @@ class AdminSettings {
 							<td>
 								<?php if ( $user ) : ?>
 									<a href="<?php echo esc_url( get_edit_user_link( $user->ID ) ); ?>"><?php echo esc_html( $user->user_login ); ?></a>
+								<?php elseif ( 0 === (int) $row->user_id ) : ?>
+									<?php esc_html_e( 'Guest (no account)', 'wp-career-board' ); ?>
 								<?php else : ?>
 									<?php
 									printf(

@@ -265,7 +265,8 @@ $wcb_user_resumes            = array();
 $wcb_resume_page_url         = '';
 $wcb_career_board_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
 if ( post_type_exists( 'wcb_resume' ) ) {
-	$wcb_resume_posts = get_posts(
+	// A guest has no resumes: 'author' => 0 would match every member's.
+	$wcb_resume_posts = $wcb_current_user_id <= 0 ? array() : get_posts(
 		array(
 			'post_type'      => 'wcb_resume',
 			'post_status'    => 'publish',

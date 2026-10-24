@@ -64,7 +64,7 @@ Sign-ups from one connection are limited to 5 an hour. Developers can change tha
 The **Privacy** tab shows two lists:
 
 - **Pending account deletions** - members who asked to delete their account, with the date it runs and a **Keep account** button to cancel it for them. The grace period is 14 days by default.
-- **Privacy request log** - every personal-data export and erase request the plugin processed, kept as evidence. Visitor IP addresses are stored only as a one-way hash.
+- **Privacy request log** - every personal-data export and erase request the plugin processed, and every deleted account, kept as evidence. Requests from people with no account show as **Guest (no account)**. Visitor IP addresses are stored only as a one-way hash.
 
 See [GDPR & Privacy](./04-gdpr.md).
 
