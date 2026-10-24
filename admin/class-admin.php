@@ -296,6 +296,9 @@ class Admin {
 	 * @return string
 	 */
 	public function highlight_parent_for_taxonomies( string $parent_file ): string {
+		if ( '' !== self::edit_screen_submenu() ) {
+			return 'wp-career-board';
+		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
 		if ( isset( $_GET['post_type'] ) && 'wcb_job' === sanitize_key( (string) $_GET['post_type'] )
 			&& isset( $_GET['taxonomy'] )
@@ -312,6 +315,30 @@ class Admin {
 	}
 
 	/**
+	 * The Career Board submenu an Add New / Edit screen belongs to, or ''.
+	 *
+	 * Our post types are registered with show_in_menu false, so on post.php
+	 * and post-new.php WordPress finds no menu to open (Basecamp 10430677630).
+	 *
+	 * @since 1.8.2
+	 * @return string
+	 */
+	private static function edit_screen_submenu(): string {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'post' !== $screen->base ) {
+			return '';
+		}
+		$submenus = array(
+			'wcb_job'         => 'wcb-jobs',
+			'wcb_application' => 'wcb-applications',
+			'wcb_company'     => 'wcb-companies',
+			'wcb_resume'      => 'edit.php?post_type=wcb_resume',
+			'wcb_board'       => 'wcb-settings',
+		);
+		return $submenus[ $screen->post_type ] ?? '';
+	}
+
+	/**
 	 * Highlight the matching submenu item (Job Categories / Job Types / etc.)
 	 * while on its corresponding edit-tags.php screen.
 	 *
@@ -325,6 +352,9 @@ class Admin {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
 		if ( 'wp-career-board' !== $parent_file ) {
 			return $submenu_file;
+		}
+		if ( '' !== self::edit_screen_submenu() ) {
+			return self::edit_screen_submenu();
 		}
 		if ( ! isset( $_GET['taxonomy'] ) ) {
 			return $submenu_file;

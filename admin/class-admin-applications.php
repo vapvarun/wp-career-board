@@ -30,6 +30,8 @@ class AdminApplications extends \WP_List_Table {
 
 	use SearchBox;
 
+	use ListEmptyState;
+
 	/**
 	 * Most job / candidate IDs a search feeds into the meta_query below.
 	 *
@@ -126,7 +128,9 @@ class AdminApplications extends \WP_List_Table {
 						<a href="<?php echo esc_url( remove_query_arg( array( 'candidate_id', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all candidates', 'wp-career-board' ); ?>">&times;</a>
 					</span>
 				<?php endif; ?>
-				<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
+				<?php if ( $this->get_pagination_arg( 'total_items' ) > 0 ) : ?>
+					<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
+				<?php endif; ?>
 			</p>
 
 			<form method="get">
@@ -513,11 +517,15 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->filter_args() ) {
+			$this->filtered_empty_state( 'mail', __( 'No applications match your filters.', 'wp-career-board' ), 'wcb-applications' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="mail" class="wcb-empty-state__icon"></i>
-			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications found.', 'wp-career-board' ); ?></p>
-			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Applications appear here once candidates apply to your jobs. Try adjusting the search or status filter above.', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Applications appear here once candidates apply to your jobs.', 'wp-career-board' ); ?></p>
 		</div>
 		<?php
 	}
@@ -789,7 +797,8 @@ class AdminApplications extends \WP_List_Table {
 		);
 
 		foreach ( $app_ids as $app_id ) {
-			if ( ! current_user_can( 'edit_post', $app_id ) ) {
+			// The IDs come from the request: act on applications only.
+			if ( 'wcb_application' !== get_post_type( $app_id ) || ! current_user_can( 'edit_post', $app_id ) ) {
 				continue;
 			}
 			if ( 'trash' === $action ) {

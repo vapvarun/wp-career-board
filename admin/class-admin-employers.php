@@ -30,6 +30,8 @@ class AdminEmployers extends \WP_List_Table {
 
 	use ReportedMembers;
 
+	use ListEmptyState;
+
 	/**
 	 * Memoized employer user-ID set (role holders ∪ job authors).
 	 *
@@ -103,6 +105,9 @@ class AdminEmployers extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-employers">
+				<?php foreach ( $this->view_args() as $wcb_key => $wcb_val ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
+				<?php endforeach; ?>
 				<?php $this->render_search_box( 'wcb-employer', __( 'Search Employers', 'wp-career-board' ), __( 'Name, email, or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -204,7 +209,7 @@ class AdminEmployers extends \WP_List_Table {
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-employers' ) );
+		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-employers' ) ) );
 		exit;
 	}
 
@@ -236,6 +241,10 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'wcb_reported', 'wcb_banned' ) ) ) {
+			$this->filtered_empty_state( 'briefcase-business', __( 'No employers match your filters.', 'wp-career-board' ), 'wcb-employers' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="briefcase-business" class="wcb-empty-state__icon"></i>
@@ -260,7 +269,7 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	protected function get_views(): array {
 		$ids = $this->employer_user_ids();
-		return $ids ? $this->member_views( 'wcb-employers', count( $ids ), array( 'include' => $ids ) ) : array();
+		return $ids ? $this->member_views( 'wcb-employers', count( $ids ), array( 'include' => $ids ), __( 'Banned', 'wp-career-board' ) ) : array();
 	}
 
 	// -------------------------------------------------------------------------
@@ -328,8 +337,8 @@ class AdminEmployers extends \WP_List_Table {
 			'number'  => $per_page,
 			'offset'  => ( $current_page - 1 ) * $per_page,
 		);
-		if ( $this->reported_active() ) {
-			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		if ( $this->view_meta_query() ) {
+			$query_args['meta_query'] = $this->view_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
 		$query       = new \WP_User_Query( $query_args );
 		$this->items = $query->get_results();

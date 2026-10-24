@@ -30,6 +30,8 @@ class AdminCandidates extends \WP_List_Table {
 
 	use ReportedMembers;
 
+	use ListEmptyState;
+
 	/**
 	 * Public resume link per candidate on this page (Pro).
 	 *
@@ -87,6 +89,9 @@ class AdminCandidates extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-candidates">
+				<?php foreach ( $this->view_args() as $wcb_key => $wcb_val ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
+				<?php endforeach; ?>
 				<?php $this->render_search_box( 'wcb-candidate', __( 'Search Candidates', 'wp-career-board' ), __( 'Name or email…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -206,7 +211,7 @@ class AdminCandidates extends \WP_List_Table {
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-candidates' ) );
+		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-candidates' ) ) );
 		exit;
 	}
 
@@ -221,6 +226,10 @@ class AdminCandidates extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'wcb_reported', 'wcb_banned' ) ) ) {
+			$this->filtered_empty_state( 'users', __( 'No candidates match your filters.', 'wp-career-board' ), 'wcb-candidates' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="users" class="wcb-empty-state__icon"></i>
@@ -250,7 +259,7 @@ class AdminCandidates extends \WP_List_Table {
 				'count_total' => true,
 			)
 		) )->get_total();
-		return $this->member_views( 'wcb-candidates', $count, $args );
+		return $this->member_views( 'wcb-candidates', $count, $args, __( 'Suspended', 'wp-career-board' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -288,8 +297,8 @@ class AdminCandidates extends \WP_List_Table {
 			$query_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
 		}
 
-		if ( $this->reported_active() ) {
-			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		if ( $this->view_meta_query() ) {
+			$query_args['meta_query'] = $this->view_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
 
 		$query       = new \WP_User_Query( $query_args );

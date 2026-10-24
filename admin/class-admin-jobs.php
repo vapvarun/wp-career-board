@@ -30,6 +30,8 @@ class AdminJobs extends \WP_List_Table {
 
 	use SearchBox;
 
+	use ListEmptyState;
+
 	/**
 	 * Constructor — configure singular/plural labels.
 	 *
@@ -95,9 +97,9 @@ class AdminJobs extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-jobs">
-				<?php if ( $this->author_filter() > 0 ) : ?>
-					<input type="hidden" name="author" value="<?php echo esc_attr( (string) $this->author_filter() ); ?>">
-				<?php endif; ?>
+				<?php foreach ( $this->view_args() as $wcb_key => $wcb_val ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
+				<?php endforeach; ?>
 				<?php $this->render_search_box( 'wcb-job', __( 'Search jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -147,6 +149,16 @@ class AdminJobs extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_bulk_actions(): array {
+		// The Trash view offers what a trashed job can become, like core's lists.
+		if ( $this->is_trash_view() ) {
+			return wp_is_ability_granted( 'wcb/manage-settings' ) // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+				? array(
+					'untrash' => __( 'Restore', 'wp-career-board' ),
+					'delete'  => __( 'Delete Permanently', 'wp-career-board' ),
+				)
+				: array();
+		}
+
 		$actions = array(
 			'approve' => __( 'Approve', 'wp-career-board' ),
 		);
@@ -367,11 +379,15 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'post_status', 'author', 'wcb_flag', 'wcb_payment' ) ) ) {
+			$this->filtered_empty_state( 'briefcase', __( 'No jobs match your filters.', 'wp-career-board' ), 'wcb-jobs' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="briefcase" class="wcb-empty-state__icon"></i>
-			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs found.', 'wp-career-board' ); ?></p>
-			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Post your first job listing or adjust the filters above.', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Post your first job listing to get started.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Add New Job', 'wp-career-board' ); ?>
 			</a>
@@ -778,11 +794,50 @@ class AdminJobs extends \WP_List_Table {
 					continue;
 				}
 				wp_trash_post( $job_id );
+			} elseif ( 'untrash' === $action ) {
+				if ( ! $can_trash || ! current_user_can( 'edit_post', $job_id ) ) {
+					continue;
+				}
+				wp_untrash_post( $job_id );
+			} elseif ( 'delete' === $action ) {
+				if ( ! $can_trash || ! current_user_can( 'delete_post', $job_id ) ) {
+					continue;
+				}
+				wp_delete_post( $job_id, true );
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
+		// Back to the view the action ran on, so a Trash cleanup stays in Trash.
+		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-jobs' ) ) );
 		exit;
+	}
+
+	/**
+	 * Whether the list shows the Trash.
+	 *
+	 * @since 1.8.2
+	 * @return bool
+	 */
+	private function is_trash_view(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view switch.
+		return isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'];
+	}
+
+	/**
+	 * The status and employer filters of the current view.
+	 *
+	 * @since 1.8.2
+	 * @return array<string, string>
+	 */
+	private function view_args(): array {
+		$args = array();
+		foreach ( array( 'post_status', 'author' ) as $key ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view args.
+			if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
+				$args[ $key ] = sanitize_key( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+		}
+		return $args;
 	}
 
 	/**

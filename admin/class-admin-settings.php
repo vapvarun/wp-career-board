@@ -668,6 +668,25 @@ class AdminSettings {
 			<?php endforeach; ?>
 					</nav>
 		<?php endif; ?>
+		<?php
+		/**
+		 * Filter the documentation link in the settings sidebar.
+		 *
+		 * @since 1.8.2
+		 *
+		 * @param string $url Documentation URL.
+		 */
+		$wcb_docs_url = (string) apply_filters( 'wcb_docs_url', 'https://docs.wbcomdesigns.com/products/wp-career-board/' );
+		?>
+					<nav class="wcb-settings-nav-group" aria-label="<?php esc_attr_e( 'Help', 'wp-career-board' ); ?>">
+						<span class="wcb-settings-nav-group__label"><?php esc_html_e( 'Help', 'wp-career-board' ); ?></span>
+						<a href="<?php echo esc_url( $wcb_docs_url ); ?>" target="_blank" rel="noopener noreferrer" class="wcb-settings-nav-item">
+							<i data-lucide="book-open"></i>
+							<?php esc_html_e( 'Documentation', 'wp-career-board' ); ?>
+							<span class="screen-reader-text"><?php esc_html_e( '(opens in a new tab)', 'wp-career-board' ); ?></span>
+							<i data-lucide="external-link" class="wcb-icon wcb-nav-lock-icon"></i>
+						</a>
+					</nav>
 				</aside>
 
 				<!-- Content -->
