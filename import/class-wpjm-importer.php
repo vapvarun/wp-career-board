@@ -343,7 +343,6 @@ class WpjmImporter {
 
 		// ── Meta mapping ─────────────────────────────────────────────────────
 		$meta_map = array(
-			'_job_salary'          => '_wcb_salary_min',
 			'_job_salary_currency' => '_wcb_salary_currency',
 			'_job_expires'         => '_wcb_deadline',
 			'_featured'            => '_wcb_featured',
@@ -372,9 +371,12 @@ class WpjmImporter {
 			wp_set_object_terms( $new_id, $wpjm_location, 'wcb_location' );
 		}
 
-		// salary_max: WPJM stores one salary value — copy to both min and max.
-		$salary = get_post_meta( $source_id, '_job_salary', true );
-		if ( '' !== $salary ) {
+		// WPJM stores one free-text salary ("$80,000", "80k"): it becomes both
+		// min and max. Text that is not one amount (a range, "Negotiable") is
+		// left unset rather than guessed.
+		$salary = \WCB\Modules\Jobs\JobsMeta::parse_amount( (string) get_post_meta( $source_id, '_job_salary', true ) );
+		if ( null !== $salary ) {
+			update_post_meta( $new_id, '_wcb_salary_min', $salary );
 			update_post_meta( $new_id, '_wcb_salary_max', $salary );
 		}
 

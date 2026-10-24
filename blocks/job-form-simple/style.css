@@ -159,27 +159,6 @@
 	color: var(--wcb-warning-fg, #92400e);
 }
 
-/* ── Custom-field groups (wcb_job_form_fields) ───────────────────────── */
-
-.wcb-form-simple .wcb-form-custom-fields {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-lg);
-}
-
-/* Group labels render as <h3> from the shared FormCustomFields renderer.
- * Match the section eyebrow so they don't inherit oversized theme headings. */
-.wcb-form-simple .wcb-form-custom-fields__heading {
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--wcb-text-secondary);
-	margin: var(--wcb-space-sm) 0 0;
-	padding: 0;
-}
-.wcb-form-simple .wcb-form-custom-fields__heading:first-child { margin-top: 0; }
-
 /* ── Success state ───────────────────────────────────────────────────── */
 
 .wcb-form-simple__success {

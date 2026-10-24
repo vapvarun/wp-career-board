@@ -518,6 +518,73 @@
 	gap: var(--wcb-space-xs);
 }
 
+/* ── Custom-field groups — the FormCustomFields renderer ──────────────
+ *
+ * One rhythm for Field Builder fields in every form that embeds them (job,
+ * company, candidate, resume, application): space between fields, label over
+ * input, a group heading sized as a section eyebrow rather than the theme's
+ * <h3>, and range types side by side. The doubled class outranks
+ * `.entry-content h3` on classic themes without !important.
+ */
+.wcb-form-custom-fields {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+	min-width: 0;
+}
+
+.wcb-form-custom-fields .wcb-form-custom-fields__heading {
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--wcb-text-secondary);
+	margin: var(--wcb-space-md) 0 0;
+	padding: 0 0 var(--wcb-space-xs);
+	border-block-end: 1px solid var(--wcb-border);
+}
+
+.wcb-form-custom-fields .wcb-form-custom-fields__heading:first-child {
+	margin-block-start: 0;
+}
+
+.wcb-form-field--custom {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+	margin: 0;
+}
+
+.wcb-form-field--custom .wcb-radio-group,
+.wcb-form-field--custom .wcb-multiselect-group {
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-field-range {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wcb-space-md);
+}
+
+.wcb-field-range__part {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+}
+
+.wcb-field-range__label {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+@media (max-width: 480px) {
+	.wcb-field-range {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 /* ── Job form categories (templates/parts/job-category-field.php) ─────
  *
  * The multi-pick shown when a job may have more than one category: chosen

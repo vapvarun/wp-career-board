@@ -131,6 +131,30 @@ final class JobsMeta {
 	}
 
 	/**
+	 * Read a salary typed by a person: "80,000", "$80000", "80k", "1.2m".
+	 *
+	 * Commas are thousands separators and a dot is the decimal point; a
+	 * leading currency symbol or code is ignored. Shared by the CSV and WP Job
+	 * Manager importers, whose salary cells are free text.
+	 *
+	 * @since  1.8.2
+	 * @param  string $text Raw salary text.
+	 * @return string|null Amount, or null when the text is not a single amount.
+	 */
+	public static function parse_amount( string $text ): ?string {
+		$text = preg_replace( '/^[^\d.]+/u', '', strtolower( (string) preg_replace( '/[\s,]+/u', '', $text ) ) );
+		if ( ! preg_match( '/^(\d+(?:\.\d+)?)([km]?)$/', (string) $text, $m ) ) {
+			return null;
+		}
+		$scale = array(
+			''  => 1,
+			'k' => 1000,
+			'm' => 1000000,
+		);
+		return (string) ( (float) $m[1] * $scale[ $m[2] ] );
+	}
+
+	/**
 	 * Keep a currency code from the catalog, else the site default.
 	 *
 	 * @since  1.8.0
