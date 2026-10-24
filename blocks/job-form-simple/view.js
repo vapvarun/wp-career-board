@@ -245,6 +245,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
 					return;
 				}
+				if ( Number( state.salaryMin ) > 0 && Number( state.salaryMax ) > 0 && Number( state.salaryMin ) > Number( state.salaryMax ) ) {
+					state.error = t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' );
+					return;
+				}
 
 				// Credit gate.
 				if ( state.hasInsufficientCredits ) {

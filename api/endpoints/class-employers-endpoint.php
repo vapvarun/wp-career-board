@@ -537,6 +537,16 @@ final class EmployersEndpoint extends RestController {
 		$name = $request->get_param( 'name' );
 		if ( null !== $name ) {
 			$data['post_title'] = sanitize_text_field( (string) $name );
+			if ( '' === trim( $data['post_title'] ) ) {
+				return new \WP_Error( 'wcb_missing_name', __( 'Company name is required.', 'wp-career-board' ), array( 'status' => 400 ) );
+			}
+		}
+		$custom = $request->get_param( 'custom_fields' );
+		if ( is_array( $custom ) ) {
+			$wcb_field_error = \WCB\Core\FormCustomFields::required_error( (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID ), $custom, (int) $post->ID );
+			if ( $wcb_field_error ) {
+				return $wcb_field_error;
+			}
 		}
 		$desc = $request->get_param( 'description' );
 		if ( null !== $desc ) {
@@ -570,7 +580,6 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
-		$custom = $request->get_param( 'custom_fields' );
 		if ( is_array( $custom ) ) {
 			$groups = (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID );
 			\WCB\Core\FormCustomFields::save_values( $groups, (int) $post->ID, $custom );

@@ -49,6 +49,7 @@ appears in Find Jobs. The whole post-a-job functionality is browser-coverable in
 11. Approve the job by publishing it (Quick Edit → Status: Published, or bulk "Approve") → expect the row to move to Published and the `wcb_job_created`/publish transition to fire.
 
 12. As `employer.figma` (or anonymous), navigate to `$WCB_SITE/find-jobs/` → expect HTTP 200 and the now-published job title visible in the listings (the jobs archive queries `post_status = publish` only — pending jobs never appear here).
+12a. **Post a Job refuses what the API refuses (card:10417436809, card:10417401942, card:10417400763, card:10417402598, card:10421957903, card:10418355276).** Step 2 with Min 90000 and Max 50000: Next shows "The minimum salary is more than the maximum." under the salary row and focuses Max (1440 and 390). API, as the job's employer: `PATCH /wcb/v1/jobs/{id}` with `title: ""` is 400 `wcb_missing_title` and the title is kept; `remote: "false"` stores not remote; `location_custom` alone replaces the job's locations (with `locations` it is added to them); `salary_min` above the stored max is 400 `wcb_salary_range`; a required Pro job field left empty on create is 400 `wcb_required_fields`, while an update that does not touch it passes; `GET /wcb/v1/jobs?per_page=101` is 400, as on WordPress's own routes. Regression test: `tests/test-write-validation.php`.
 
 13. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 

@@ -22,6 +22,7 @@ bug_ref: 10389803878, 10389801810, 10389500513, 10389802926
 6. Deliberate evergreen: tick **No expiry (stays open until closed)** (`name=wcb_no_expiry`), Update → `_wcb_deadline` is empty and the job never expires (run `wp cron event run wcb_check_job_expiry`; the job stays `publish`). Reopen the editor: the box is ticked for a saved job with no deadline, and NOT ticked for a brand-new job (`auto-draft`).
 7. Explicit date still wins: set `#wcb_deadline` to a date 20 days out with No expiry unticked → stored exactly. Ticking No expiry while a date is typed clears the deadline (the checkbox wins).
 8. Currency tamper: submit the editor form with `wcb_salary_currency=xx` (devtools, a value not in the catalog) → `_wcb_salary_currency` is stored as the site currency (`GBP`), never `xx` (`JobsMeta::sanitize_currency`).
+8a. **No untitled job goes live, and the salary range stays low-high (card:10412612838, card:10417402598).** Career Board > Jobs > Add New, leave the title empty, click Publish: the screen reloads as a Draft with the error "Add a title before publishing. It was saved as a draft." Same for Add Board (Settings > Boards) and Add New Resume. A company in the block editor with body text but no title shows "Publishing failed. Add a title before publishing." In a titled job, enter Salary Min 90000 and Max 50000 and Update: the saved pair reads 50000 / 90000. Regression test: `tests/test-write-validation.php`.
 9. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown

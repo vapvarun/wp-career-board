@@ -418,6 +418,7 @@ $wcb_initial_state = apply_filters(
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
 				'errorDescriptionRequired' => __( 'Job description is required before you can continue.', 'wp-career-board' ),
 				'errorLocationRequired'    => __( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
+				'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
 				'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
 				'errorAiFailed'            => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
 				// Count-free fallback for the credit gate; the numbered,
@@ -732,6 +733,8 @@ $wcb_step_labels = array(
 							data-wcb-field="salaryMax"
 							data-wp-bind--value="state.salaryMax"
 							data-wp-on--input="actions.updateField"
+							aria-describedby="wcb-salary-error"
+							data-wp-bind--aria-invalid="state.salaryInvalid"
 						/>
 					</div>
 					<div class="wcb-field-group">
@@ -754,6 +757,7 @@ $wcb_step_labels = array(
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Leave blank to hide salary from candidates.', 'wp-career-board' ); ?>
 				</span>
+				<p class="wcb-field-error" id="wcb-salary-error" role="alert" hidden data-wp-bind--hidden="!state.salaryInvalid" data-wp-text="state.validationError"></p>
 			</div>
 
 			<!-- Remote -->

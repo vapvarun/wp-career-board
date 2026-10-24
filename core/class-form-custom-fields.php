@@ -165,6 +165,38 @@ final class FormCustomFields {
 	}
 
 	/**
+	 * The error for required fields left empty, or null when none are.
+	 *
+	 * One answer for every form: jobs, companies, candidates, resumes and
+	 * application questions. Values already saved count, so a partial
+	 * update does not have to resubmit every field.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param array<int, array<string, mixed>> $groups     Field groups the form shows.
+	 * @param array<string, mixed>             $submitted  Submitted values.
+	 * @param int                              $owner_id   Record being updated, 0 on create.
+	 * @param string                           $reader     'post_meta' | 'user_meta'.
+	 * @param string                           $key_prefix Meta key prefix the values use.
+	 * @return \WP_Error|null
+	 */
+	public static function required_error( array $groups, array $submitted, int $owner_id = 0, string $reader = 'post_meta', string $key_prefix = '' ): ?\WP_Error {
+		$missing = self::missing_required( $groups, array_merge( self::load_values( $groups, $owner_id, $reader, $key_prefix ), $submitted ) );
+		if ( ! $missing ) {
+			return null;
+		}
+		return new \WP_Error(
+			'wcb_required_fields',
+			/* translators: %s: comma-separated field labels. */
+			sprintf( __( 'Please answer: %s', 'wp-career-board' ), implode( ', ', $missing ) ),
+			array(
+				'status' => 400,
+				'fields' => array_keys( $missing ),
+			)
+		);
+	}
+
+	/**
 	 * Drop answers that are not one of a choice field's options.
 	 *
 	 * Select, radio and multi-choice answers must be one of the field's own

@@ -94,7 +94,7 @@ const num = ( value, options ) => new Intl.NumberFormat( locale(), options ).for
  * Attach a validation message to one field ('' clears it).
  *
  * @param {Object} state   Store state.
- * @param {string} field   title | description | location, or '' to clear.
+ * @param {string} field   title | description | salary | location, or '' to clear.
  * @param {string} message Message shown under that field.
  */
 const setValidation = ( state, field, message ) => {
@@ -373,6 +373,10 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return 'location' === state.validationField && ! ! state.validationError;
 			},
+			get salaryInvalid() {
+				const { state } = store( 'wcb-job-form' );
+				return 'salary' === state.validationField && ! ! state.validationError;
+			},
 
 			// More than one company to post for: show the Company picker.
 			get hasCompanyChoice() {
@@ -617,6 +621,11 @@ const { state } = store(
 							focusField( 'wcb-editor-job-desc' );
 							return;
 						}
+					}
+					if ( state.step === 2 && Number( state.salaryMin ) > 0 && Number( state.salaryMax ) > 0 && Number( state.salaryMin ) > Number( state.salaryMax ) ) {
+						setValidation( state, 'salary', t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' ) );
+						focusField( 'wcb-salary-max' );
+						return;
 					}
 					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
 						setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );

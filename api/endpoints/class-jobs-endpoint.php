@@ -153,8 +153,9 @@ final class JobsEndpoint extends RestController {
 			$request->set_param( 'per_page', $wcb_per_page > 0 ? $wcb_per_page : 15 );
 		}
 
-		// Clamp per_page in the handler (the schema declares maximum: 100 but
-		// schema validation only emits a warning; clamp here to enforce it).
+		// The schema answers per_page above 100 with a 400, as WordPress's own
+		// routes do; this clamp covers a schema widened through the
+		// wcb_jobs_collection_params filter.
 		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?? 15 ) ) );
 		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?? 1 ) );
 
@@ -567,6 +568,14 @@ final class JobsEndpoint extends RestController {
 		$wcb_board_id = \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $request->get_param( 'board_id' ) );
 		$request->set_param( 'board_id', $wcb_board_id );
 
+		$wcb_field_error = $this->salary_error( $request ) ?? \WCB\Core\FormCustomFields::required_error(
+			(array) apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id ),
+			(array) ( $request->get_param( 'custom_fields' ) ?? array() )
+		);
+		if ( $wcb_field_error ) {
+			return $wcb_field_error;
+		}
+
 		// Credit gate — if board has a credit cost, check employer balance.
 		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 		if ( $wcb_credit_cost > 0 && ! JobPayment::is_exempt() ) {
@@ -633,7 +642,7 @@ final class JobsEndpoint extends RestController {
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
 			'_wcb_salary_currency' => $request->get_param( 'salary_currency' ) ?? '',
 			'_wcb_salary_type'     => $salary_type_raw ?? 'yearly',
-			'_wcb_remote'          => $request->get_param( 'remote' ) ? '1' : '0',
+			'_wcb_remote'          => rest_sanitize_boolean( $request->get_param( 'remote' ) ) ? '1' : '0',
 			'_wcb_board_id'        => $wcb_board_id,
 		);
 		foreach ( $meta as $key => $value ) {
@@ -761,6 +770,22 @@ final class JobsEndpoint extends RestController {
 		$wcb_company_error = $this->company_error( $request, $post );
 		if ( $wcb_company_error ) {
 			return $wcb_company_error;
+		}
+
+		// Every refusal before the first write: the board move below saves.
+		if ( null !== $request->get_param( 'title' ) && '' === trim( sanitize_text_field( (string) $request->get_param( 'title' ) ) ) ) {
+			return new \WP_Error( 'wcb_missing_title', __( 'Job title is required.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+		$wcb_field_error = $this->salary_error( $request, $post->ID );
+		if ( ! $wcb_field_error && is_array( $request->get_param( 'custom_fields' ) ) ) {
+			$wcb_field_error = \WCB\Core\FormCustomFields::required_error(
+				(array) apply_filters( 'wcb_job_form_fields', array(), $request->has_param( 'board_id' ) ? (int) $request->get_param( 'board_id' ) : (int) get_post_meta( $post->ID, '_wcb_board_id', true ) ),
+				$request->get_param( 'custom_fields' ),
+				$post->ID
+			);
+		}
+		if ( $wcb_field_error ) {
+			return $wcb_field_error;
 		}
 
 		// A board move changes the price: collect the difference (or hand it
@@ -979,7 +1004,7 @@ final class JobsEndpoint extends RestController {
 		}
 		$remote = $request->get_param( 'remote' );
 		if ( null !== $remote ) {
-			update_post_meta( $post->ID, '_wcb_remote', $remote ? '1' : '0' );
+			update_post_meta( $post->ID, '_wcb_remote', rest_sanitize_boolean( $remote ) ? '1' : '0' );
 		}
 
 		// Moderators set Featured directly (the admin toggle). Employers buy it
@@ -1001,7 +1026,8 @@ final class JobsEndpoint extends RestController {
 					$wcb_term = wp_insert_term( $wcb_loc_custom, 'wcb_location' );
 				}
 				if ( ! is_wp_error( $wcb_term ) && isset( $wcb_term['term_id'] ) ) {
-					wp_set_object_terms( $post->ID, array( (int) $wcb_term['term_id'] ), 'wcb_location', true );
+					// Added to the request's own locations; on its own it replaces the job's.
+					wp_set_object_terms( $post->ID, array( (int) $wcb_term['term_id'] ), 'wcb_location', $request->has_param( 'locations' ) );
 					update_post_meta( $post->ID, '_wcb_location_custom', $wcb_loc_custom );
 				}
 			} else {
@@ -1945,6 +1971,29 @@ final class JobsEndpoint extends RestController {
 			$init .= mb_strtoupper( mb_substr( $word, 0, 1 ) );
 		}
 		return '' !== $init ? $init : '?';
+	}
+
+	/**
+	 * A minimum above the maximum, after this request, is refused.
+	 *
+	 * A value the request leaves out is read from the job, so a PATCH of one
+	 * side is checked against the other.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @param int              $job_id  Job being updated, 0 on create.
+	 * @return \WP_Error|null
+	 */
+	private function salary_error( \WP_REST_Request $request, int $job_id = 0 ): ?\WP_Error {
+		$min = $request->has_param( 'salary_min' ) ? (string) $request->get_param( 'salary_min' ) : (string) get_post_meta( $job_id, '_wcb_salary_min', true );
+		$max = $request->has_param( 'salary_max' ) ? (string) $request->get_param( 'salary_max' ) : (string) get_post_meta( $job_id, '_wcb_salary_max', true );
+		$min = (float) \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $min );
+		$max = (float) \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $max );
+		if ( $min > 0 && $max > 0 && $min > $max ) {
+			return new \WP_Error( 'wcb_salary_range', __( 'Minimum salary cannot be more than the maximum.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+		return null;
 	}
 
 	/**

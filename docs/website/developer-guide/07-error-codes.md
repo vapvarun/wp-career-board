@@ -36,7 +36,9 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 |---|---|---|
 | `wcb_not_found` | 404 | The job, company, candidate or application does not exist, or the caller may not see it. A private candidate profile answers this too |
 | `wcb_job_not_found` | 404 | The moderation routes were given a job that does not exist |
-| `wcb_missing_title` | 400 | `POST /jobs` without a title |
+| `wcb_missing_title` | 400 | `POST /jobs` without a title, or `PATCH /jobs/{id}` with an empty one. Also the block editor's answer when a job, company, resume or board is published untitled |
+| `wcb_missing_name` | 400 | `PATCH /employers/{id}` with an empty company name |
+| `wcb_salary_range` | 400 | The minimum salary is above the maximum, after the request. A `PATCH` of one side is checked against the saved other side |
 | `wcb_location_required` | 400 | **Require a location** is on and the job has neither a location nor the remote flag |
 | `wcb_active_job_limit` | 403 | The employer is at the cap set with `wcb_employer_active_job_limit`. `data.limit` and `data.count` carry the numbers |
 | `wcb_insufficient_credits` | 402 | The board charges credits and the balance is too low (Pro). `data` carries `cost`, `balance` and `purchase_url` |
@@ -56,7 +58,7 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | `wcb_guest_has_account` | 409 | The guest's email belongs to an account; send them to sign in |
 | `wcb_guest_name_required` | 400 | A guest application without a name |
 | `wcb_guest_email_invalid` | 400 | A guest application without a valid email |
-| `wcb_required_fields` | 400 | A required screening question was left empty; the message names it |
+| `wcb_required_fields` | 400 | A required custom field was left empty on an application, a job create, or an update of a job, company, candidate or resume that sends `custom_fields`. Values already saved count. The message names the fields and `data.fields` lists their keys |
 | `wcb_resume_required` | 400 | The site requires a resume and none came with the request |
 | `wcb_resume_no_pdf` | 400 | The chosen built resume could not be turned into a PDF to attach (Pro) |
 | `wcb_invalid_resume` | 400 | The resume or attachment id does not belong to the applicant |

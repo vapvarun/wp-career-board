@@ -275,6 +275,7 @@ $wcb_state = apply_filters(
 
 			// Submit-time validation + transport errors.
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
+			'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'errorInsufficientCredits' => __( 'Insufficient credits. This board requires %1$s but your balance is %2$s.', 'wp-career-board' ),

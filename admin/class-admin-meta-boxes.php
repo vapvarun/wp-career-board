@@ -624,6 +624,7 @@ class AdminMetaBoxes {
 			}
 			update_post_meta( $post_id, '_wcb_' . $field, $value );
 		}
+		\WCB\Modules\Jobs\JobsMeta::order_salary( $post_id );
 
 		// Deadline: empty means the board's listing length, unless the admin
 		// ticked No expiry (owner decision, 1.8.1).

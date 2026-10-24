@@ -97,6 +97,29 @@ final class JobsMeta {
 	}
 
 	/**
+	 * Put a job's saved salary range low-high.
+	 *
+	 * The REST routes and the job form refuse a minimum above the maximum.
+	 * Writers that save both halves without asking (the admin editor, the
+	 * CSV import, the upgrade repair) call this once both are written.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return bool Whether the pair was swapped.
+	 */
+	public static function order_salary( int $job_id ): bool {
+		$min = (string) get_post_meta( $job_id, '_wcb_salary_min', true );
+		$max = (string) get_post_meta( $job_id, '_wcb_salary_max', true );
+		if ( (float) $min <= 0 || (float) $max <= 0 || (float) $min <= (float) $max ) {
+			return false;
+		}
+		update_post_meta( $job_id, '_wcb_salary_min', $max );
+		update_post_meta( $job_id, '_wcb_salary_max', $min );
+		return true;
+	}
+
+	/**
 	 * Keep a non-negative number, drop anything else.
 	 *
 	 * @since  1.8.0

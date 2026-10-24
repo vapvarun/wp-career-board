@@ -1943,8 +1943,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 			const isNew = ! state.companyId;
 
-			if ( isNew && ! state.companyName.trim() ) {
+			if ( ! state.companyName.trim() ) {
 				state.error = t( 'errorCompanyNameRequired', 'Company name is required.' );
+				document.getElementById( 'wcb-company-name' )?.focus();
 				return;
 			}
 

@@ -134,6 +134,10 @@ final class Plugin {
 		// converges rather than repeated at each of the six call sites.
 		\WCB\Core\Industries::boot();
 
+		// Jobs, companies, resumes and boards go live only with a title, from
+		// every editor and import, not only the plugin's own forms.
+		\WCB\Core\RequiredTitle::boot();
+
 		// Candidate files (resumes, generated CVs) live in private storage and
 		// download only through the gated handler.
 		\WCB\Core\PrivateFiles::boot();

@@ -62,7 +62,7 @@ The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` fo
 | `GET` | `/jobs` | guest OK | List jobs with filters: `search` (alias `s`), `category`, `location`, `type`, `experience`, `tag` (each takes one slug or a comma list, any of), `remote`, `salary_min`, `salary_max`, `board` (alias `board_id`), `company`, `author`, `open` (only jobs taking applications), `sort` (`relevance`, `newest`, `oldest`, `salary`, `closing`), `per_page` (1-100; unset uses **Jobs Per Page**), `page` |
 | `GET` | `/jobs/{id}` | guest OK | Single job (full detail) |
 | `POST` | `/jobs` | `wcb/post-jobs` | Create a job. Send `featured: true` to ask for featured placement: the job is still created if that charge fails, and the response carries `feature_error`. A 402 `wcb_insufficient_credits` carries `cost`, `balance` and `purchase_url` |
-| `PUT` `PATCH` | `/jobs/{id}` | author or company member with `wcb/post-jobs`, or `wcb/manage-settings` | Update a job. Moderators can set `featured` here |
+| `PUT` `PATCH` | `/jobs/{id}` | author or company member with `wcb/post-jobs`, or `wcb/manage-settings` | Update a job. Moderators can set `featured` here. `location_custom` on its own replaces the job's locations; sent with `locations` it is added to them. `remote` takes a boolean or `"true"`/`"false"` |
 | `DELETE` | `/jobs/{id}` | same as update | Move a job to the trash |
 | `POST` | `/jobs/{id}/approve` | moderator | Approve a pending job |
 | `POST` | `/jobs/{id}/reject` | moderator | Reject a pending job (requires `reason`) |

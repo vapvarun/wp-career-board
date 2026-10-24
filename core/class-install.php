@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.0';
+	const DB_VERSION = '1.4.1';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -533,6 +533,12 @@ final class Install {
 				add_action( 'init', array( Industries::class, 'forget_default_labels' ), 25 );
 			}
 
+			// 1.4.1 - salary ranges saved high-low (the admin editor and imports
+			// never compared them) are put low-high once.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.1', '<' ) ) {
+				self::migrate_reversed_salaries();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -543,6 +549,28 @@ final class Install {
 			if ( self::verify_tables_exist() ) {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
+		}
+	}
+
+	/**
+	 * Swap salary ranges stored with the minimum above the maximum.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	private static function migrate_reversed_salaries(): void {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade read.
+		$ids = $wpdb->get_col(
+			"SELECT a.post_id FROM {$wpdb->postmeta} a
+			INNER JOIN {$wpdb->postmeta} b ON b.post_id = a.post_id AND b.meta_key = '_wcb_salary_max'
+			INNER JOIN {$wpdb->posts} p ON p.ID = a.post_id AND p.post_type = 'wcb_job'
+			WHERE a.meta_key = '_wcb_salary_min'
+			AND CAST( b.meta_value AS DECIMAL(20,2) ) > 0
+			AND CAST( a.meta_value AS DECIMAL(20,2) ) > CAST( b.meta_value AS DECIMAL(20,2) )"
+		);
+		foreach ( array_map( 'intval', $ids ) as $id ) {
+			\WCB\Modules\Jobs\JobsMeta::order_salary( $id );
 		}
 	}
 

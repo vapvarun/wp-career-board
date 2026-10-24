@@ -261,20 +261,12 @@ final class ApplicationsEndpoint extends RestController {
 
 		// Required screening questions, checked here and not only in the
 		// browser (a request without JavaScript skipped them).
-		$wcb_missing = \WCB\Core\FormCustomFields::missing_required(
+		$wcb_missing = \WCB\Core\FormCustomFields::required_error(
 			(array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ),
 			(array) ( $request->get_param( 'custom_fields' ) ?? array() )
 		);
 		if ( $wcb_missing ) {
-			return new \WP_Error(
-				'wcb_required_fields',
-				/* translators: %s: comma-separated field labels. */
-				sprintf( __( 'Please answer: %s', 'wp-career-board' ), implode( ', ', $wcb_missing ) ),
-				array(
-					'status' => 400,
-					'fields' => array_keys( $wcb_missing ),
-				)
-			);
+			return $wcb_missing;
 		}
 
 		if ( $is_guest ) {

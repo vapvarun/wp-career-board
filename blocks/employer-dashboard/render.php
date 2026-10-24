@@ -1194,7 +1194,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					<p class="wcb-field-hint<?php echo $wcb_company_id ? ' wcb-hidden' : ''; ?>" data-wp-class--wcb-hidden="state.companyId"><?php esc_html_e( 'Save your company profile first to enable logo upload.', 'wp-career-board' ); ?></p>
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-name"><?php esc_html_e( 'Company name', 'wp-career-board' ); ?></label>
-						<input id="wcb-company-name" type="text" class="wcb-field-input" data-wcb-field="companyName" data-wp-bind--value="state.companyName" data-wp-on--input="actions.updateField" />
+						<input id="wcb-company-name" type="text" class="wcb-field-input" required aria-required="true" data-wcb-field="companyName" data-wp-bind--value="state.companyName" data-wp-on--input="actions.updateField" />
 					</div>
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-tagline">
