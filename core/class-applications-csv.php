@@ -146,10 +146,20 @@ final class ApplicationsCsv {
 	 * @return void
 	 */
 	private static function csv_row( $out, array $cells ): void {
-		$cells = array_map(
-			static fn( string $cell ): string => '' !== $cell && str_contains( "=+-@\t\r", $cell[0] ) ? "'" . $cell : $cell,
-			$cells
-		);
-		fputcsv( $out, $cells, ',', '"', '' );
+		fputcsv( $out, array_map( array( self::class, 'cell' ), $cells ), ',', '"', '' );
+	}
+
+	/**
+	 * One text cell made safe to open in a spreadsheet. Shared with Pro's
+	 * credit ledger export; pass numbers straight through, or "-5" gains an
+	 * apostrophe.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param string $cell Cell text.
+	 * @return string
+	 */
+	public static function cell( string $cell ): string {
+		return '' !== $cell && str_contains( "=+-@\t\r", $cell[0] ) ? "'" . $cell : $cell;
 	}
 }

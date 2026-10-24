@@ -932,12 +932,13 @@ final class Plugin {
 	 * means a site owner / Pro / theme integration can override the entire
 	 * layout system in one place — either through:
 	 *
-	 *   - the `wcb_container_max_width` PHP filter (this method),
-	 *   - the `container_max_width` key under `wcb_settings` (no admin control
-	 *     ships for it; set it with a filter, an mu-plugin or wp option patch), or
+	 *   - Settings > Career Board > Advanced > Content Width (px), stored as
+	 *     `wcb_settings.container_max_width`,
+	 *   - the `wcb_container_max_width` PHP filter (this method), or
 	 *   - a `<style>` block in the active theme that overrides the variable.
 	 *
-	 * Default: 1280 px. Min: 720, max: 1920 (clamped to keep layouts sane).
+	 * Default: 0, meaning the theme's own content width, or 1280 px when the
+	 * theme publishes none. Min: 720, max: 1920 (clamped to keep layouts sane).
 	 *
 	 * @since 1.1.0
 	 * @return void

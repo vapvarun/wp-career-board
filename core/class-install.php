@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.1';
+	const DB_VERSION = '1.4.2';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -537,6 +537,12 @@ final class Install {
 			// never compared them) are put low-high once.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.1', '<' ) ) {
 				self::migrate_reversed_salaries();
+			}
+
+			// 1.4.2 - jobs still carrying a company's old name from before
+			// renames reached them take its current name.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.2', '<' ) ) {
+				\WCB\Modules\Employers\EmployersModule::sync_company_names();
 			}
 
 			// Only bump the stored DB version if every expected table now

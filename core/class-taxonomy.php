@@ -40,17 +40,18 @@ final class Taxonomy {
 	 * ordered, matched on slug words, so "Entry" never sorts after "Executive".
 	 */
 	private const SENIORITY = array(
-		'intern'    => 10,
-		'entry'     => 20,
-		'junior'    => 30,
-		'mid'       => 40,
-		'senior'    => 50,
-		'lead'      => 60,
-		'principal' => 70,
-		'staff'     => 70,
-		'manager'   => 80,
-		'director'  => 90,
-		'executive' => 100,
+		'intern'     => 10,
+		'internship' => 10,
+		'entry'      => 20,
+		'junior'     => 30,
+		'mid'        => 40,
+		'senior'     => 50,
+		'lead'       => 60,
+		'principal'  => 70,
+		'staff'      => 70,
+		'manager'    => 80,
+		'director'   => 90,
+		'executive'  => 100,
 	);
 
 	/**
@@ -213,11 +214,7 @@ final class Taxonomy {
 			return array();
 		}
 
-		usort(
-			$terms,
-			static fn( \WP_Term $a, \WP_Term $b ): int => array( self::position( $a ), strtolower( $a->name ) ) <=> array( self::position( $b ), strtolower( $b->name ) )
-		);
-
+		$terms    = self::sort( $terms );
 		$children = array();
 		$ids      = wp_list_pluck( $terms, 'term_id' );
 		foreach ( $terms as $term ) {
@@ -248,6 +245,21 @@ final class Taxonomy {
 	}
 
 	/**
+	 * Terms in dropdown order: the admin's Order, then by name.
+	 *
+	 * @since 1.8.2
+	 * @param \WP_Term[] $terms Terms.
+	 * @return \WP_Term[]
+	 */
+	public static function sort( array $terms ): array {
+		usort(
+			$terms,
+			static fn( \WP_Term $a, \WP_Term $b ): int => array( self::position( $a ), strtolower( $a->name ) ) <=> array( self::position( $b ), strtolower( $b->name ) )
+		);
+		return $terms;
+	}
+
+	/**
 	 * Sort position: the admin's Order, else a seniority guess for experience
 	 * levels, else last (then by name).
 	 *
@@ -260,8 +272,10 @@ final class Taxonomy {
 			return (int) $order;
 		}
 		if ( 'wcb_experience' === $term->taxonomy ) {
+			// Whole slug words only: "international-programs" is not an intern level.
+			$words = explode( '-', $term->slug );
 			foreach ( self::SENIORITY as $word => $position ) {
-				if ( str_contains( $term->slug, $word ) ) {
+				if ( in_array( $word, $words, true ) ) {
 					return $position;
 				}
 			}

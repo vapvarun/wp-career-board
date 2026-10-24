@@ -324,7 +324,7 @@ final class Locations {
 			return self::all_terms();
 		}
 
-		return $terms;
+		return Taxonomy::sort( $terms );
 	}
 
 	/**
@@ -343,6 +343,6 @@ final class Locations {
 		if ( is_wp_error( $all ) ) {
 			return array();
 		}
-		return array_values( (array) $all );
+		return Taxonomy::sort( (array) $all );
 	}
 }

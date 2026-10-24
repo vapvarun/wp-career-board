@@ -145,6 +145,8 @@ function buildFilterPills( filters, labels ) {
 	if ( filters.category ) pills.push( filters.category );
 	if ( filters.type ) pills.push( filters.type );
 	if ( filters.location ) pills.push( filters.location );
+	if ( filters.experience ) pills.push( filters.experience );
+	if ( filters.tag ) pills.push( filters.tag );
 	if ( filters.remote ) pills.push( t( 'filterRemote', 'Remote' ) );
 	if ( filters.salary_min || filters.salary_max ) {
 		const salaryPill = buildSalaryPill( filters.salary_min, filters.salary_max );

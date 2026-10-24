@@ -161,9 +161,86 @@ final class EmployersModule {
 	 * @return void
 	 */
 	public static function on_company_author_change( int $post_id, $after, $before ): void {
-		if ( 'wcb_company' === $after->post_type && (int) $after->post_author !== (int) $before->post_author ) {
+		if ( 'wcb_company' !== $after->post_type ) {
+			return;
+		}
+		if ( (int) $after->post_author !== (int) $before->post_author ) {
 			self::drop_stale_company_links( $post_id );
 		}
+		if ( $after->post_title !== $before->post_title ) {
+			self::rename_company_jobs( $post_id, $after->post_title );
+		}
+	}
+
+	/**
+	 * Give every company's jobs its current name - the upgrade repair for jobs
+	 * renamed before renames reached them.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	public static function sync_company_names(): void {
+		$page = 1;
+		do {
+			$companies = get_posts(
+				array(
+					'post_type'      => 'wcb_company',
+					'post_status'    => 'any',
+					'posts_per_page' => 200,
+					'paged'          => $page++,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+				)
+			);
+			foreach ( $companies as $company ) {
+				self::rename_company_jobs( $company->ID, $company->post_title );
+			}
+			$batch_size = count( $companies );
+		} while ( 200 === $batch_size );
+	}
+
+	/**
+	 * Copy a company's new name onto its jobs.
+	 *
+	 * Each job keeps the name in `_wcb_company_name` for listings, search and
+	 * feeds, so a rename that stops at the company leaves every job on the old
+	 * name (Basecamp 10427543204).
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int    $company_id Company post ID.
+	 * @param string $name       New company name.
+	 * @return void
+	 */
+	private static function rename_company_jobs( int $company_id, string $name ): void {
+		do {
+			$jobs = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; every row fetched is renamed, so the set shrinks each pass.
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one company's jobs, on rename only.
+						array(
+							'key'   => '_wcb_company_id',
+							'value' => (string) $company_id,
+						),
+						array(
+							'key'     => '_wcb_company_name',
+							'value'   => $name,
+							'compare' => '!=',
+						),
+					),
+				)
+			);
+			foreach ( $jobs as $job_id ) {
+				update_post_meta( (int) $job_id, '_wcb_company_name', $name );
+			}
+			$batch_size = count( $jobs );
+		} while ( 500 === $batch_size );
+		update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
 	}
 
 	/**

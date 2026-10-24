@@ -108,7 +108,8 @@ if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
 	$wcb_company_name = $wcb_company_post->post_title;
 }
 
-$wcb_company_url = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+// A draft or trashed company has no public page to link to.
+$wcb_company_url = ( $wcb_company_post instanceof \WP_Post && in_array( $wcb_company_post->post_status, \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) ? (string) get_permalink( $wcb_company_id ) : '';
 // Same logo the company page and directory show (the company's featured image).
 $wcb_company_logo    = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'thumbnail' ) : '';
 $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true ) : '';
