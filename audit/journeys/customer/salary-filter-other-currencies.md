@@ -3,7 +3,7 @@ id: salary-filter-other-currencies
 priority: high
 personas: anonymous, candidate
 requires: seed:jobs
-last_verified: 2026-10-23
+last_verified: 2026-10-25
 needs: browser, cli
 bug_ref: 10402937387, 10417744512
 ---
@@ -17,6 +17,7 @@ bug_ref: 10402937387, 10417744512
 1. Site default currency USD. Publish three remote jobs titled `QA-RFT ...`: 1,500,000 INR yearly, 100,000 USD yearly, 80,000 GBP yearly.
 2. `/find-jobs/?search=QA-RFT&sort=salary` at 1440 and 390 → USD job first; then a note "Paid in other currencies. These follow the USD jobs, highest first within each currency."; then GBP, then INR. The note is in the server HTML (view source) and spans the grid row.
 3. `/find-jobs/?search=QA-RFT&salary_min=50000` → USD job, then the note "... Your salary range is in USD, so it does not apply to these jobs.", then the GBP and INR jobs. No job disappears silently.
+3a. Mark the GBP job Featured. `/find-jobs/?search=QA-RFT&sort=newest&salary_min=50000` and `/find-jobs/?salary_min=50000` (no keyword) → every USD job, featured or not, comes before the note; the featured GBP job leads the other-currency group, never the page (card:10402937387, bounced 2026-10-24: featured foreign jobs led the USD ones).
 4. `/find-jobs/?search=QA-RFT` (no salary filter, default sort) → no note.
 5. From step 4, pick **Highest salary** in the sort control → the note appears in the right place without a reload; pick the default again → it goes.
 6. With 20+ jobs and Load more, a page that starts with other-currency jobs after a page of USD jobs shows the note only once, before the first other-currency job.

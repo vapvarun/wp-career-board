@@ -3,7 +3,7 @@ id: admin-emails-page-renders
 priority: high
 personas: varundubey
 requires: mu:autologin, seed:jobs
-last_verified: 2026-05-09
+last_verified: 2026-10-25
 needs: browser
 ---
 
@@ -27,7 +27,7 @@ needs: browser
    - A "Enabled" toggle (checkbox `wcb_email[slug][enabled]`)
    - A "Subject" text input (`wcb_email[slug][subject]`)
    - A "Preview" or "Edit" link
-5. Click the "Save Settings" button for the Emails tab (or POST the form with no changes) → expect `settings-updated=1` in the redirect URL; page reloads on Emails tab
+5. Click the Emails tab's one "Save changes" button (or POST the form with no changes) → expect `settings-updated=1` in the redirect URL; page reloads on Emails tab
 6. Verify persistence of at least one setting: set the notification email to `smoke-test@example.com` in the Notifications section (same settings page, `notification_email` field), save, reload, confirm the value reads back `smoke-test@example.com` via:
    ```bash
    wp option get wcb_settings --format=json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('notification_email',''))"
@@ -40,6 +40,7 @@ needs: browser
    wp option get wcb_settings --format=json | python3 -c "import json,sys; d=json.load(sys.stdin); d['notification_email']='$(wp option get admin_email)'; print(json.dumps(d))" | xargs -d '\n' wp option update wcb_settings
    ```
 7a. **Log and preview read as an owner (card:10420281996, card:10407661790).** In the activity log every Template cell is plain text holding the template's title ("Job Rejected", "Application Received (Employer)"), not a `code` id; an id no longer registered shows the id. Preview any template: no "(test send)" in its subject or body. Send test of the same template: the email in Mailpit still carries "(test send)" on the sample job title.
+7c. **One Save keeps the whole tab (card:10439586916).** The Emails tab has one form and one **Save changes** button, below the templates and above the activity log. Change From Name, the footer text and one template Subject together, press it → "Settings saved."; reload → all three kept. Before the fix the top Save changes saved only the sender and silently dropped the template edits. Restore the values.
 7b. **Every default subject reads in full (card:10430711101).** At 1440 the Email templates table has five columns (Email, Subject, Message, Enabled, Test); each Email cell shows its recipient under the title ("Recipient: Employer"); no Subject field's text is wider than its box. At 390 the table scrolls inside its card, the page does not scroll sideways.
 8. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 

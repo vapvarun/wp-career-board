@@ -82,6 +82,41 @@ trait ReportedMembers {
 	}
 
 	/**
+	 * View and search to come back to after a row or bulk action, so the admin
+	 * stays where they acted (Basecamp 10417317114, 10417326173).
+	 *
+	 * @return array<string, string>
+	 */
+	protected function return_args(): array {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list state.
+		$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		return $this->view_args() + ( '' !== $search ? array( 's' => $search ) : array() );
+	}
+
+	/**
+	 * Nonced URL of a row action that returns to the current view and search.
+	 *
+	 * @param string $page    Admin page slug.
+	 * @param string $action  Action name.
+	 * @param int    $user_id Member.
+	 * @param string $nonce   Bulk nonce action of the list.
+	 * @return string
+	 */
+	protected function row_action_url( string $page, string $action, int $user_id, string $nonce ): string {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'page'   => $page,
+					'action' => $action,
+					'user'   => array( $user_id ),
+				) + $this->return_args(),
+				admin_url( 'admin.php' )
+			),
+			$nonce
+		);
+	}
+
+	/**
 	 * Meta query matching members with open reports.
 	 *
 	 * @return array
@@ -184,17 +219,7 @@ trait ReportedMembers {
 		if ( ModerationModule::open_member_reports( $user_id ) <= 0 ) {
 			return array();
 		}
-		$url = wp_nonce_url(
-			add_query_arg(
-				array(
-					'page'   => $page,
-					'action' => 'resolve_flags',
-					'user'   => array( $user_id ),
-				),
-				admin_url( 'admin.php' )
-			),
-			$nonce
-		);
+		$url = $this->row_action_url( $page, 'resolve_flags', $user_id, $nonce );
 		return array(
 			'resolve_flags' => sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Dismiss reports', 'wp-career-board' ) ),
 		);

@@ -57,6 +57,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class FormCustomFields {
 
 	/**
+	 * Render the job field groups of every board a job form can pick.
+	 *
+	 * Each group is printed once, with the boards it shows on in its
+	 * `groupBoards` context, and hidden unless the form's selected board is
+	 * one of them, so switching board in the picker swaps the groups without
+	 * a reload (Basecamp 10439586892). The form's store needs an
+	 * `isGroupOnBoard` getter, seeded server-side with {@see self::group_on_board()}.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int[]  $board_ids Boards the form can post to.
+	 * @param string $update_fn JS action bound on input.
+	 * @param string $id_prefix DOM id prefix.
+	 * @param int    $owner_id  Job being edited (0 = new).
+	 * @return int[] Boards that have at least one group.
+	 */
+	public static function render_job_groups_by_board( array $board_ids, string $update_fn, string $id_prefix, int $owner_id = 0 ): array {
+		$groups = array();
+		$boards = array();
+		foreach ( array_unique( array_map( 'intval', $board_ids ) ) as $board_id ) {
+			foreach ( (array) apply_filters( 'wcb_job_form_fields', array(), $board_id ) as $group ) {
+				$key              = isset( $group['id'] ) ? 'g' . $group['id'] : md5( (string) wp_json_encode( $group ) );
+				$groups[ $key ]   = $group;
+				$boards[ $key ][] = $board_id;
+			}
+		}
+		foreach ( $groups as $key => $group ) {
+			printf( '<div data-wp-context="%s" data-wp-bind--hidden="!state.isGroupOnBoard">', esc_attr( (string) wp_json_encode( array( 'groupBoards' => $boards[ $key ] ) ) ) );
+			self::render_groups( array( $group ), $update_fn, $id_prefix, $owner_id );
+			echo '</div>';
+		}
+		return $boards ? array_values( array_unique( array_merge( ...array_values( $boards ) ) ) ) : array();
+	}
+
+	/**
+	 * Server half of a job form's `isGroupOnBoard` getter.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $board_id The form's selected board.
+	 * @return bool
+	 */
+	public static function group_on_board( int $board_id ): bool {
+		$context = wp_interactivity_get_context();
+		return in_array( $board_id, (array) ( $context['groupBoards'] ?? array() ), true );
+	}
+
+	/**
 	 * Output Interactivity-API-bound markup for an array of field groups.
 	 *
 	 * The one renderer for every custom-field form, the apply form included.

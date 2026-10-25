@@ -361,16 +361,18 @@ $wcb_initial_state = apply_filters(
 		'buyUrl'            => '',
 		'featured'          => false,
 		'featureError'      => '',
-		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
 		// back to the default board id when boardId stays 0.
 		'boardId'           => $wcb_board_id,
 		'boardOptions'      => $wcb_board_options,
+		// Server half of view.js `isGroupOnBoard`, so the first paint already
+		// shows only the selected board's custom-field groups.
+		'isGroupOnBoard'    => static fn (): bool => \WCB\Core\FormCustomFields::group_on_board( $wcb_board_id ),
 		'customFields'      => (object) (
 			$wcb_edit_id > 0
 				? \WCB\Core\FormCustomFields::load_values(
-					(array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
+					(array) apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id ),
 					$wcb_edit_id
 				)
 				: array()
@@ -463,6 +465,16 @@ $wcb_step_labels = array(
 	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-job-form-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-form"
 >
+
+	<?php
+	// The screen's title, as on every other dashboard view, unless the page
+	// carries its own H1 (Basecamp 10439524696).
+	if ( ! \WCB\Core\ArchiveHeading::page_has_h1() ) :
+		?>
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Edit Job', 'wp-career-board' ) : __( 'Post a Job', 'wp-career-board' ) ); ?></h1>
+		</div>
+	<?php endif; ?>
 
 	<!-- ── Step indicator ────────────────────────────────────────────────── -->
 	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>">
@@ -971,12 +983,8 @@ $wcb_step_labels = array(
 			do_action( 'wcb_job_form_step3_fields', $attributes );
 
 			// Custom-field groups from wcb_job_form_fields (Pro Field Builder
-			// + any add-on). Rendered at the end of step 3 so they appear
-			// just before the preview / submit step.
-			$wcb_step3_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) );
-			if ( ! empty( $wcb_step3_custom_groups ) ) {
-				\WCB\Core\FormCustomFields::render_groups( $wcb_step3_custom_groups, 'updateCustomField', 'wcb-job-step3-custom', (int) $wcb_edit_id );
-			}
+			// + any add-on), at the end of step 3, for every board in the picker.
+			\WCB\Core\FormCustomFields::render_job_groups_by_board( array_merge( array( $wcb_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ), 'updateCustomField', 'wcb-job-step3-custom', (int) $wcb_edit_id );
 			?>
 
 			<div class="wcb-form-nav">

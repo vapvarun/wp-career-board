@@ -3,8 +3,8 @@ id: classic-theme-controls-hold
 priority: high
 personas: guest, ahmed.karim
 requires: mu:autologin, seed:jobs, seed:companies, theme:astra, theme:kadence
-last_verified: 2026-10-24
-bug_ref: 10436072102, 10436093928, 10436185528, 10436196754, 10436217621, 10436294696, 10436356200, 10430753987, 10412882677
+last_verified: 2026-10-25
+bug_ref: 10436072102, 10436093928, 10436185528, 10436196754, 10436217621, 10436294696, 10436356200, 10430753987, 10412882677, 10439524614
 ---
 
 # Plugin controls keep their look on Astra and Kadence
@@ -22,6 +22,7 @@ bug_ref: 10436072102, 10436093928, 10436185528, 10436196754, 10436217621, 104362
 7. With Pro, a page holding the Credit Balance block → hover and focus "Transaction History" → expect a transparent background and no theme shadow on Astra and Kadence (card:10436217621).
 8. With Pro, `/job-map/` and a page holding the Resume Map block → expect the red Search button to compute `display: inline-flex` (or `flex`) with the magnifier's centre within 1px of the button's centre (card:10412882677).
 9. As `ahmed.karim`, Post a Job → in the description editor add a bulleted list and a numbered list → expect `list-style-type` `disc` and `decimal` while editing, as on the public job page (card:10430753987).
+9a. On Kadence, `/job-map/` → hover, then Tab to, the My location (crosshair) button → the icon stays dark (`--wcb-contrast`) on the light button at rest, hover, focus and press. Same on a page with the Resume Map block, where on Kadence the icon was white even at rest (card:10439524614).
 10. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown

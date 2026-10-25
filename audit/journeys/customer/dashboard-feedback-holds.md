@@ -3,8 +3,8 @@ id: dashboard-feedback-holds
 priority: high
 personas: guest, ahmed.karim, adrian.kowalski, qa-rft-member
 requires: mu:autologin, seed:jobs, seed:companies, seed:resumes, pro:optional
-last_verified: 2026-10-24
-bug_ref: 10412854820, 10430648050, 10430719814, 10427548090, 10431435128, 10431407539, 10431286004, 10430670040, 10412868653, 10412904033, 10412873869, 10417182252
+last_verified: 2026-10-25
+bug_ref: 10412854820, 10430648050, 10430719814, 10427548090, 10431435128, 10431407539, 10431286004, 10430670040, 10412868653, 10412904033, 10412873869, 10417182252, 10439524696
 ---
 
 # Every screen says what actually happened
@@ -26,6 +26,7 @@ bug_ref: 10412854820, 10430648050, 10430719814, 10427548090, 10431435128, 104314
 11. As a candidate with Pro, a company page → Set Up Alerts → lands on `/candidate-dashboard/#alerts` with Job alerts open (card:10412868653).
 12. As `ahmed.karim`, Profile → Tab to the logo control → focus lands on `#wcb-company-logo` with a 2px ring on "Upload Logo"; Space opens the file picker; Tab moves on to Company Name. Upload CV on the candidate dashboard shows the same ring (card:10412904033).
 13. A job page as guest → Apply now in the hero and, outlined, in the sticky sidebar; with `add_filter( 'wcb_job_single_sidebar_cta', '__return_false' )` only the hero button (card:10417182252).
+13a. As `mateo.ruiz`, `/post-a-job/`, the employer dashboard Post a job tab and a page with the simple job form → each has one visible h1, "Post a Job" (editing a job: "Edit Job"), styled like Find Jobs; a page that starts with its own H1 heading block gets no second one (card:10439524696).
 14. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown

@@ -86,7 +86,8 @@ final class Taxonomy {
 			20
 		);
 		add_action( 'quick_edit_custom_box', array( self::class, 'render_quick_edit_field' ), 10, 3 );
-		add_filter( 'get_terms_args', array( self::class, 'sort_by_order' ), 10, 2 );
+		add_action( 'pre_get_terms', array( self::class, 'sort_by_order' ) );
+		add_filter( 'terms_clauses', array( self::class, 'order_ties_by_name' ), 10, 3 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_term_list_script' ) );
 	}
 
@@ -159,15 +160,18 @@ final class Taxonomy {
 	 * Sort the term list by Order when its column header is clicked; terms
 	 * with no Order keep their place after the ordered ones.
 	 *
-	 * @param array<string, mixed> $args       get_terms() args.
-	 * @param string[]             $taxonomies Taxonomies queried.
-	 * @return array<string, mixed>
+	 * @param \WP_Term_Query $query Term query.
+	 * @return void
 	 */
-	public static function sort_by_order( array $args, array $taxonomies ): array {
-		if ( self::ORDER_META !== ( $args['orderby'] ?? '' ) || ! array_intersect( $taxonomies, self::TAXONOMIES ) ) {
-			return $args;
+	public static function sort_by_order( \WP_Term_Query $query ): void {
+		$vars = &$query->query_vars;
+		if ( self::ORDER_META !== ( $vars['orderby'] ?? '' ) || ! array_intersect( (array) $vars['taxonomy'], self::TAXONOMIES ) ) {
+			return;
 		}
-		$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list sort, one page.
+		// A get_terms_args change reaches neither the meta query nor the ORDER BY,
+		// and core builds ORDER BY from the meta query before it re-parses
+		// query_vars, so set both here (Basecamp 10417521347).
+		$vars['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list sort, one page.
 			'relation'  => 'OR',
 			'wcb_order' => array(
 				'key'  => self::ORDER_META,
@@ -178,8 +182,23 @@ final class Taxonomy {
 				'compare' => 'NOT EXISTS',
 			),
 		);
-		$args['orderby']    = 'wcb_order';
-		return $args;
+		$query->meta_query->parse_query_vars( $vars );
+	}
+
+	/**
+	 * Terms with the same Order (or none) follow by name.
+	 *
+	 * @param array<string, string> $clauses    Query clauses.
+	 * @param string[]              $taxonomies Taxonomies queried.
+	 * @param array<string, mixed>  $args       Query args.
+	 * @return array<string, string>
+	 */
+	public static function order_ties_by_name( array $clauses, array $taxonomies, array $args ): array {
+		if ( self::ORDER_META === ( $args['orderby'] ?? '' ) && '' !== $clauses['orderby'] && array_intersect( $taxonomies, self::TAXONOMIES ) ) {
+			$clauses['orderby'] .= ' ' . $clauses['order'] . ', t.name';
+			$clauses['order']    = 'ASC';
+		}
+		return $clauses;
 	}
 
 	/**

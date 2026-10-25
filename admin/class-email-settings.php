@@ -103,7 +103,7 @@ class EmailSettings {
 	}
 
 	/**
-	 * Render just the email settings form — used when embedded as a Settings tab.
+	 * Render the email look and template fields inside the Emails tab's form.
 	 *
 	 * @since 1.0.0
 	 */
@@ -116,7 +116,6 @@ class EmailSettings {
 			<div class="wcb-settings-card-header">
 				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email look', 'wp-career-board' ); ?></h2>
 			</div>
-			<form method="post">
 		<?php wp_nonce_field( 'wcb_email_settings_save', 'wcb_email_nonce' ); ?>
 				<div class="wcb-settings-row">
 					<div class="wcb-settings-row-label"><?php esc_html_e( 'Colour and Logo', 'wp-career-board' ); ?></div>
@@ -245,13 +244,6 @@ class EmailSettings {
 				</p>
 			</div>
 		</div>
-
-		<div class="wcb-settings-footer">
-		<?php submit_button( __( 'Save Email Settings', 'wp-career-board' ) ); ?>
-		</div>
-		</form>
-
-		<?php $this->render_activity_log(); ?>
 		<?php
 	}
 
@@ -391,12 +383,8 @@ class EmailSettings {
 		// upgrade pass runs.
 		$aggregate           = Settings::all();
 		$aggregate['emails'] = $settings;
+		// Posted with the Emails tab's options.php form; options.php then merges
+		// its own fields over this row and shows "Settings saved."
 		update_option( 'wcb_settings', $aggregate );
-		add_action(
-			'admin_notices',
-			static function () {
-				echo '<div class="notice wcb-notice notice-success is-dismissible"><p>' . esc_html__( 'Email settings saved.', 'wp-career-board' ) . '</p></div>';
-			}
-		);
 	}
 }

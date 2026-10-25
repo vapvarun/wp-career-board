@@ -209,7 +209,7 @@ class AdminEmployers extends \WP_List_Table {
 			}
 		}
 
-		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-employers' ) ) );
+		wp_safe_redirect( add_query_arg( $this->return_args(), admin_url( 'admin.php?page=wcb-employers' ) ) );
 		exit;
 	}
 
@@ -566,17 +566,7 @@ class AdminEmployers extends \WP_List_Table {
 		if ( $item->ID !== get_current_user_id() ) {
 			$is_banned              = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 			$toggle                 = $is_banned ? 'unban' : 'ban';
-			$toggle_link            = wp_nonce_url(
-				add_query_arg(
-					array(
-						'page'   => 'wcb-employers',
-						'action' => $toggle,
-						'user'   => array( $item->ID ),
-					),
-					admin_url( 'admin.php' )
-				),
-				'bulk-employers'
-			);
+			$toggle_link            = $this->row_action_url( 'wcb-employers', $toggle, $item->ID, 'bulk-employers' );
 			$row_actions[ $toggle ] = sprintf(
 				'<a href="%s"%s>%s</a>',
 				esc_url( $toggle_link ),

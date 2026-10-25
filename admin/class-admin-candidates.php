@@ -211,7 +211,7 @@ class AdminCandidates extends \WP_List_Table {
 			}
 		}
 
-		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-candidates' ) ) );
+		wp_safe_redirect( add_query_arg( $this->return_args(), admin_url( 'admin.php?page=wcb-candidates' ) ) );
 		exit;
 	}
 
@@ -390,17 +390,7 @@ class AdminCandidates extends \WP_List_Table {
 
 		$is_suspended           = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 		$toggle                 = $is_suspended ? 'unsuspend' : 'suspend';
-		$toggle_url             = wp_nonce_url(
-			add_query_arg(
-				array(
-					'page'   => 'wcb-candidates',
-					'action' => $toggle,
-					'user'   => array( $item->ID ),
-				),
-				admin_url( 'admin.php' )
-			),
-			'bulk-candidates'
-		);
+		$toggle_url             = $this->row_action_url( 'wcb-candidates', $toggle, $item->ID, 'bulk-candidates' );
 		$row_actions[ $toggle ] = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( $toggle_url ),

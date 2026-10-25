@@ -1177,19 +1177,21 @@ class AdminSettings {
 									</div>
 								</div>
 							</div>
-							<div class="wcb-settings-section__footer">
-		<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
-							</div>
-						</form>
 		<?php
 		/**
-		 * Render the Emails tab content.
+		 * Render the Emails tab content, inside the tab's one form: a single
+		 * Save keeps the sender, the look and every template (Basecamp 10439586916).
 		 *
 		 * @since 1.0.0
 		 * @param array<string,mixed> $settings Current WCB settings.
 		 */
 		do_action( 'wcb_settings_tab_emails', $settings );
 		?>
+							<div class="wcb-settings-section__footer">
+		<?php submit_button( __( 'Save changes', 'wp-career-board' ), 'primary wcb-btn wcb-btn--primary', 'submit', false ); ?>
+							</div>
+						</form>
+		<?php ( new EmailSettings() )->render_activity_log(); ?>
 					</div>
 
 		<?php

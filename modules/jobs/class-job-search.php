@@ -101,7 +101,9 @@ final class JobSearch {
 	 * @return void
 	 */
 	public static function boot(): void {
-		add_filter( 'posts_clauses', array( self::class, 'clauses' ), 10, 2 );
+		// After JobsMeta::featured_first_clauses() (10): the other-currency split
+		// must lead the ORDER BY, above the featured tier (Basecamp 10402937387).
+		add_filter( 'posts_clauses', array( self::class, 'clauses' ), 20, 2 );
 		add_action( 'save_post_wcb_job', array( self::class, 'index_text' ), 10, 2 );
 		add_action( self::INDEX_HOOK, array( self::class, 'index_batch' ) );
 	}

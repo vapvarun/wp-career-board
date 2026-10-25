@@ -1259,13 +1259,9 @@ final class JobsEndpoint extends RestController {
 	 * Persist custom-field values posted alongside a job create/update.
 	 *
 	 * The job form posts `custom_fields` keyed by sanitized field key. The
-	 * `wcb_job_form_fields` filter resolves field groups per board id, and
-	 * board 0 holds the global groups shown on boardless job-form pages.
-	 * A given form render shows exactly one of those sets, but the endpoint
-	 * can't know which `boardId` the block was rendered with — so we validate
-	 * the submitted values against the union of board 0 and the job's own
-	 * board. WCB\Core\FormCustomFields::save_values() only writes keys that
-	 * appear in the resolved groups, so the union never persists stray keys.
+	 * `wcb_job_form_fields` filter resolves the groups the job's board uses,
+	 * the same set the form shows for that board, so only those keys are
+	 * written (Basecamp 10439586892).
 	 *
 	 * @since 1.1.1
 	 *
@@ -1279,15 +1275,7 @@ final class JobsEndpoint extends RestController {
 			return;
 		}
 
-		$board_id = (int) get_post_meta( $job_id, '_wcb_board_id', true );
-		$groups   = (array) apply_filters( 'wcb_job_form_fields', array(), 0 );
-		if ( $board_id > 0 ) {
-			$groups = array_merge(
-				$groups,
-				(array) apply_filters( 'wcb_job_form_fields', array(), $board_id )
-			);
-		}
-
+		$groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) get_post_meta( $job_id, '_wcb_board_id', true ) );
 		\WCB\Core\FormCustomFields::save_values( $groups, $job_id, $custom_fields );
 	}
 

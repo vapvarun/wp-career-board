@@ -33,7 +33,7 @@ Every email is written in the recipient's own language: dates, numbers and statu
 
 ## Managing notifications
 
-You can turn each email on or off, change its subject and rewrite its message. Go to **Career Board → Settings → Emails**. The **Email templates** list has one row per email, with **Subject**, **Message** (**Edit** opens the editor), **Enabled** and **Test** columns. Click **Save Email Settings** when you finish.
+You can turn each email on or off, change its subject and rewrite its message. Go to **Career Board → Settings → Emails**. The **Email templates** list has one row per email, with **Subject**, **Message** (**Edit** opens the editor), **Enabled** and **Test** columns. Click **Save changes** at the bottom of the tab when you finish. One button saves the sender, the email look and every template.
 
 ### Edit the message
 

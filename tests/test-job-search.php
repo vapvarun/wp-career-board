@@ -228,6 +228,8 @@ sort( $wcb_rest );
 wcb_assert( $wcb_monthly === $wcb_got[0] && array( min( $wcb_foreign, $wcb_big ), max( $wcb_foreign, $wcb_big ) ) === $wcb_rest, 'salary filter: jobs paid in other currencies stay, unfiltered, after the site-currency matches (was: silently left out)' );
 wcb_assert( array( $wcb_hourly, $wcb_yearly, $wcb_monthly ) === array_slice( $wcb_in( array( 'sort' => 'salary' ) ), 0, 3 ), 'Highest salary: a big number in another currency no longer outranks site-currency pay' );
 wcb_assert( \WCB\Modules\Jobs\JobSearch::salary_matches( $wcb_hourly, 80000, 0 ) && ! \WCB\Modules\Jobs\JobSearch::salary_matches( $wcb_foreign, 1, 0 ), 'salary_matches(): a job alert promises pay in the site currency, so another currency does not match' );
+update_post_meta( $wcb_foreign, '_wcb_featured', '1' );
+wcb_assert( array( $wcb_hourly, $wcb_foreign ) === array_values( array_intersect( $wcb_in( array( 'salary_min' => 80000, 'sort' => 'newest' ) ), array( $wcb_hourly, $wcb_foreign ) ) ), 'Featured, then newest with a salary range: a featured job in another currency still follows the site-currency matches (was: led them)' );
 foreach ( array( $wcb_monthly, $wcb_foreign, $wcb_big ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }

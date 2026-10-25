@@ -53,10 +53,7 @@ final class ArchiveHeading {
 		if ( self::$printed ) {
 			return '';
 		}
-		// A page built with its own H1 (the setup wizard's pages start with a heading block)
-		// already has one: do not add a second.
-		$page = get_queried_object();
-		if ( $page instanceof \WP_Post && preg_match( '/<h1[\s>]|wp:heading \{[^}]*"level":1/', $page->post_content ) ) {
+		if ( self::page_has_h1() ) {
 			self::$printed = true;
 			return '';
 		}
@@ -67,6 +64,18 @@ final class ArchiveHeading {
 		self::$printed = true;
 
 		return '<h1 class="wcb-page-heading">' . esc_html( $title ) . '</h1>';
+	}
+
+	/**
+	 * Whether the page was built with its own H1 (the setup wizard's pages
+	 * start with a heading block), so a block must not add a second.
+	 *
+	 * @since 1.8.2
+	 * @return bool
+	 */
+	public static function page_has_h1(): bool {
+		$page = get_queried_object();
+		return $page instanceof \WP_Post && (bool) preg_match( '/<h1[\s>]|wp:heading \{[^}]*"level":1/', $page->post_content );
 	}
 
 	/**

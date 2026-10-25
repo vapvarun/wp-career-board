@@ -239,7 +239,8 @@ $wcb_state = apply_filters(
 		'buyUrl'            => '',
 		'featured'          => false,
 		'featureError'      => '',
-		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id ),
+		// Server half of view.js `isGroupOnBoard` (custom-field groups per board).
+		'isGroupOnBoard'    => static fn (): bool => \WCB\Core\FormCustomFields::group_on_board( $wcb_resolved_board_id ),
 		'customFields'      => (object) array(),
 
 		/*
@@ -298,6 +299,12 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 	<?php echo get_block_wrapper_attributes( array( 'class' => $wcb_wrapper_class ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-form-simple"
 >
+
+	<?php if ( ! \WCB\Core\ArchiveHeading::page_has_h1() ) : ?>
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?></h1>
+		</div>
+	<?php endif; ?>
 
 	<!-- Honeypot — bots filling all fields trigger a fake success. -->
 	<label class="wcb-hp" aria-hidden="true">
@@ -585,17 +592,17 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		</section>
 
 		<?php
-		// Render custom-field groups injected via wcb_job_form_fields (used by
-		// Pro Field Builder and by add-ons). Always-rendered when groups are
-		// non-empty; binds into state.customFields via the updateCustomField
-		// action that already exists in view.js. Values persist via the Pro
-		// Fields_Module which hooks wcb_job_created + wcb_job_updated.
-		$wcb_simple_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), $wcb_resolved_board_id );
-		if ( ! empty( $wcb_simple_custom_groups ) ) :
+		// Custom-field groups injected via wcb_job_form_fields (Pro Field
+		// Builder and add-ons), for every board in the picker; each shows only
+		// on its boards, and the section only on a board that has any.
+		ob_start();
+		$wcb_simple_group_boards = \WCB\Core\FormCustomFields::render_job_groups_by_board( array_merge( array( $wcb_resolved_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ), 'updateCustomField', 'wcb-simple-custom' );
+		$wcb_simple_groups_html  = (string) ob_get_clean();
+		if ( $wcb_simple_group_boards ) :
 			?>
-			<section class="wcb-form-simple__section">
+			<section class="wcb-form-simple__section" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( array( 'groupBoards' => $wcb_simple_group_boards ) ) ); ?>" data-wp-bind--hidden="!state.isGroupOnBoard">
 				<p class="wcb-form-simple__eyebrow"><?php esc_html_e( 'Additional details', 'wp-career-board' ); ?></p>
-				<?php \WCB\Core\FormCustomFields::render_groups( $wcb_simple_custom_groups, 'updateCustomField', 'wcb-simple-custom' ); ?>
+				<?php echo $wcb_simple_groups_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by FormCustomFields::render_groups(). ?>
 			</section>
 			<?php
 		endif;

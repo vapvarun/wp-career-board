@@ -9,7 +9,7 @@
  * @since   1.1.0
  */
 
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { formatSiteDate } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
@@ -62,6 +62,11 @@ const nf = ( value ) => {
 
 const { state, actions } = store( 'wcb-job-form-simple', {
 	state: {
+		// A custom-field group shows only on the boards that use it.
+		get isGroupOnBoard() {
+			return getContext().groupBoards.includes( Number( state.boardId ) );
+		},
+
 		get hasInsufficientCredits() {
 			return state.creditCost > 0 && state.creditBalance < state.creditCost;
 		},

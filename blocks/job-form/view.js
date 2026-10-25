@@ -22,7 +22,7 @@
  *
  * @package WP_Career_Board
  */
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
 import { formatSiteDate } from '@wcb/ui';
@@ -408,6 +408,12 @@ const { state } = store(
 			get jobPending() {
 				const { state } = store( 'wcb-job-form' );
 				return state.jobStatus === 'pending';
+			},
+
+			// A custom-field group shows only on the boards that use it.
+			get isGroupOnBoard() {
+				const { state } = store( 'wcb-job-form' );
+				return getContext().groupBoards.includes( Number( state.boardId ) );
 			},
 
 			// ── Credit getters ────────────────────────────────────────────────
