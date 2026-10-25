@@ -104,10 +104,7 @@ class AdminEmployers extends \WP_List_Table {
 			<?php $this->views(); ?>
 
 			<form method="get">
-				<input type="hidden" name="page" value="wcb-employers">
-				<?php foreach ( $this->view_args() as $wcb_key => $wcb_val ) : ?>
-					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
-				<?php endforeach; ?>
+				<?php $this->hidden_inputs( 'wcb-employers', $this->view_args() ); ?>
 				<?php $this->render_search_box( 'wcb-employer', __( 'Search Employers', 'wp-career-board' ), __( 'Name, email, or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>

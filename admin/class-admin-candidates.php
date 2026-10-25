@@ -88,10 +88,7 @@ class AdminCandidates extends \WP_List_Table {
 			<?php $this->views(); ?>
 
 			<form method="get">
-				<input type="hidden" name="page" value="wcb-candidates">
-				<?php foreach ( $this->view_args() as $wcb_key => $wcb_val ) : ?>
-					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
-				<?php endforeach; ?>
+				<?php $this->hidden_inputs( 'wcb-candidates', $this->view_args() ); ?>
 				<?php $this->render_search_box( 'wcb-candidate', __( 'Search Candidates', 'wp-career-board' ), __( 'Name or email…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>

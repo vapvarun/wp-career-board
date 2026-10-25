@@ -85,21 +85,19 @@ class AdminJobs extends \WP_List_Table {
 
 			<?php if ( $this->author_filter() > 0 ) : ?>
 				<p class="wcb-list-filters">
-					<span class="wcb-filter-chip">
-						<?php
+					<?php
+					$this->filter_chip(
 						/* translators: %s: employer display name */
-						printf( esc_html__( 'Employer: %s', 'wp-career-board' ), esc_html( (string) get_the_author_meta( 'display_name', $this->author_filter() ) ) );
-						?>
-						<a href="<?php echo esc_url( remove_query_arg( array( 'author', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all employers', 'wp-career-board' ); ?>">&times;</a>
-					</span>
+						sprintf( __( 'Employer: %s', 'wp-career-board' ), (string) get_the_author_meta( 'display_name', $this->author_filter() ) ),
+						array( 'author' ),
+						__( 'Show all employers', 'wp-career-board' )
+					);
+					?>
 				</p>
 			<?php endif; ?>
 
 			<form method="get">
-				<input type="hidden" name="page" value="wcb-jobs">
-				<?php foreach ( $this->view_args() as $wcb_key => $wcb_val ) : ?>
-					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
-				<?php endforeach; ?>
+				<?php $this->hidden_inputs( 'wcb-jobs', $this->view_args() ); ?>
 				<?php $this->render_search_box( 'wcb-job', __( 'Search jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -813,31 +811,13 @@ class AdminJobs extends \WP_List_Table {
 	}
 
 	/**
-	 * Whether the list shows the Trash.
-	 *
-	 * @since 1.8.2
-	 * @return bool
-	 */
-	private function is_trash_view(): bool {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view switch.
-		return isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'];
-	}
-
-	/**
 	 * The status and employer filters of the current view.
 	 *
 	 * @since 1.8.2
 	 * @return array<string, string>
 	 */
 	private function view_args(): array {
-		$args = array();
-		foreach ( array( 'post_status', 'author' ) as $key ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view args.
-			if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
-				$args[ $key ] = sanitize_key( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			}
-		}
-		return $args;
+		return $this->list_args( array( 'post_status', 'author' ) );
 	}
 
 	/**
