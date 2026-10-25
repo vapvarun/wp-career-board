@@ -75,3 +75,24 @@ Net possible: about -755 lines (Free -180, Pro -575); about -120 of that is this
 1. **1.8.2, before release:** fix G1 (10440004221) and the "introduced this cycle" table as one cleanup commit per plugin, each browser-checked at 1440 and 390, with journey lines. Then G2 card, G4 journey lines, G7 comment, and the owner answers for G5.
 2. **Release gate:** `/wp-plugin-smoke` covering the G3 not-run list, then the G6 manifest refresh.
 3. **1.8.3:** the structural table, one seam per commit (map toolbar, email templates, search hero, registration helper, list-table trait, editor assets, form sharing, CV mimes).
+
+## 5. Outcome (2026-10-25)
+
+Owner decisions: fix everything in 1.8.2, structural items included (not deferred to 1.8.3); keep the 400 on 10418355276; panel links are 40px on every device, because presentation and usability outrank numeric minimums.
+
+| Gap or finding | Outcome |
+|---|---|
+| G1 simple-form location | Fixed, 10440004221 (Free `15db8e3`), QA Done |
+| G2 money changes with no card | Verification card 10440291389, QA Done |
+| G3 not-run side effects | Still open: the pre-release `/wp-plugin-smoke` run |
+| G4 runbook-only guards | Journey lines added for all 19 (Free `aeda7cd`, Pro `55ca794`) |
+| G5 owner answers | Recorded on 10418355276 (keep 400) and 10439833492 (40px everywhere, Free `c8ba5a9`, QA Done) |
+| G6 manifest | Still open: `/wp-plugin-onboard --refresh` at release. Pro's stale `wcb_email_template_dirs` listener was dropped early (10440312022) |
+| G7 SDK traceability | Comment on 10439881291 links wbcom-credits-sdk PR #33, tag `v1.11.0` |
+| This cycle's duplicate and dead code | Removed (Free `c8ba5a9`, Pro `ce9b04d`, `3dfc741`) |
+| Structural table | All done in 1.8.2, one seam per commit. Map toolbars, email templates (also fixed the dead filter, 10440296808), search hero (also fixed the tablet row, 10440296823), registration loop, list-table trait, editor assets, form sharing, CV mimes and the "other" row. Regression check on 10440322652 |
+
+Left as is, on purpose: the private-files migration SQL keeps its literal MIME list (binding the constant into a one-time `IN ()` would add code, not remove it); the job-single `accept` attribute and test fixtures keep theirs.
+
+Found while fixing: 10440256553, a multi-select answer showed as `Laptop,Monitor` and a choice answer as its stored key, on every display surface. Fixed once in `FormCustomFields::labelled_values()` (Free `ca1fe02`, Pro `1eaf988`).
+

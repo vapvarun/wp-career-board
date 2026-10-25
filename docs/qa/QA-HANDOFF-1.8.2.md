@@ -10,7 +10,17 @@ Every card in Basecamp **Ready for Testing** for Free + Pro 1.8.2, grouped by th
 - **Per card:** open the card, run its **QA - code level** and **QA - browser** steps, then walk the journey named here. The journey's `card:<id>` line is the regression check. Pass: move to Done. Fail: move to Bugs with what you saw.
 - **By design** rows were answered with a reason, plus an extension point where useful, instead of a code change. Verify the stated behaviour, not the original request.
 
-## Round 4 - 2026-10-25 (current Ready for Testing)
+## Round 5 - 2026-10-25 (current Ready for Testing)
+
+Audit follow-up (`docs/qa/AUDIT-1.8.2.md` section 5). The six cards handed off earlier this round (10439937451, 10440004221, 10439833492, 10440291389, 10440296808, 10440296823) are already Done. `composer ci:no-journeys` passes in both plugins.
+
+| Card | Title | Journey | Runbook | Kind |
+|---|---|---|---|---|
+| [10440256553](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10440256553) | Multi-select answer prints as `Laptop,Monitor` | customer/walkthrough-employer-post-job 12h | `D.multi-choice-display` | Fix |
+| [10440312022](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10440312022) | Pro manifest lists the deleted `add_template_dir` listener | - | - | Fix (manifest) |
+| [10440322652](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10440322652) | Verify: 1.8.2 structural cleanup keeps behaviour | the rows on the card | - | Verification |
+
+## Round 4 - 2026-10-25
 
 All 27 Possible Bugs cards, each replicated first. Commits on `1.8.2`: Free `29a06d7`, Pro `d526981`. `composer ci:no-journeys` passes in both plugins. Each card's comment has the code-level and browser steps; refuted cards carry the exact attempt, so confirm the refute and move them to Done.
 
