@@ -72,10 +72,8 @@ class EmailSettings {
 		);
 
 		$templates = array();
-		foreach ( (array) apply_filters( 'wcb_registered_emails', array() ) as $email ) {
-			if ( $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				$templates[ $email->get_id() ] = $email->get_title();
-			}
+		foreach ( self::emails() as $email ) {
+			$templates[ $email->get_id() ] = $email->get_title();
 		}
 
 		wp_localize_script(
@@ -110,7 +108,7 @@ class EmailSettings {
 	public function render_form(): void {
 		$settings = wcb_get_email_settings();
 		$brand    = isset( $settings['brand'] ) ? (array) $settings['brand'] : array();
-		$emails   = (array) apply_filters( 'wcb_registered_emails', array() );
+		$emails   = self::emails();
 		?>
 		<div class="wcb-settings-card">
 			<div class="wcb-settings-card-header">
@@ -167,13 +165,6 @@ class EmailSettings {
 			'member'    => __( 'Member', 'wp-career-board' ),
 		);
 		foreach ( $emails as $email ) :
-			?>
-			<?php
-			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				continue;
-			}
-			?>
-			<?php
 			$id      = $email->get_id();
 			$saved   = isset( $settings[ $id ] ) ? (array) $settings[ $id ] : array();
 			$enabled = isset( $saved['enabled'] ) ? (bool) $saved['enabled'] : true;
@@ -257,7 +248,7 @@ class EmailSettings {
 	 * @since 1.1.1
 	 */
 	public function render_activity_log(): void {
-		$emails = (array) apply_filters( 'wcb_registered_emails', array() );
+		$emails = self::emails();
 		?>
 		<div class="wcb-settings-card wcb-email-log-card" id="wcb-email-activity-log">
 			<div class="wcb-settings-card-header">
@@ -273,11 +264,6 @@ class EmailSettings {
 						<select id="wcb-log-filter-event" class="wcb-email-log-filter__select">
 							<option value=""><?php esc_html_e( 'All templates', 'wp-career-board' ); ?></option>
 		<?php foreach ( $emails as $email ) : ?>
-			<?php
-			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				continue;
-			}
-			?>
 								<option value="<?php echo esc_attr( $email->get_id() ); ?>"><?php echo esc_html( $email->get_title() ); ?></option>
 		<?php endforeach; ?>
 						</select>
@@ -363,11 +349,8 @@ class EmailSettings {
 		}
 
 		// Per-email settings — only save keys that match registered emails.
-		$emails = (array) apply_filters( 'wcb_registered_emails', array() );
+		$emails = self::emails();
 		foreach ( $emails as $email ) {
-			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				continue;
-			}
 			$id              = $email->get_id();
 			$settings[ $id ] = array(
 				'enabled' => ! empty( $raw[ $id ]['enabled'] ),
@@ -386,5 +369,19 @@ class EmailSettings {
 		// Posted with the Emails tab's options.php form; options.php then merges
 		// its own fields over this row and shows "Settings saved."
 		update_option( 'wcb_settings', $aggregate );
+	}
+
+	/**
+	 * The registered emails, Free's and any an add-on adds through the filter.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @return array<int, \WCB\Modules\Notifications\AbstractEmail>
+	 */
+	private static function emails(): array {
+		return array_filter(
+			(array) apply_filters( 'wcb_registered_emails', array() ),
+			static fn( $email ): bool => $email instanceof \WCB\Modules\Notifications\AbstractEmail
+		);
 	}
 }
