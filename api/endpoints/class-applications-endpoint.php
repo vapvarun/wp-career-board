@@ -901,15 +901,10 @@ final class ApplicationsEndpoint extends RestController {
 		$file     = $_FILES['resume_file'];
 		$mime     = isset( $file['type'] ) ? (string) $file['type'] : '';
 		$size     = isset( $file['size'] ) ? (int) $file['size'] : 0;
-		$allowed  = array(
-			'application/pdf',
-			'application/msword',
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-		);
 		$max_mb   = $this->resume_max_mb();
 		$max_size = $max_mb * MB_IN_BYTES;
 
-		if ( ! in_array( $mime, $allowed, true ) ) {
+		if ( ! in_array( $mime, \WCB\Core\PrivateFiles::CV_MIMES, true ) ) {
 			return new \WP_Error(
 				'wcb_invalid_file_type',
 				__( 'Only PDF, DOC, and DOCX files are allowed.', 'wp-career-board' ),
@@ -940,11 +935,7 @@ final class ApplicationsEndpoint extends RestController {
 
 		$overrides = array(
 			'test_form' => false,
-			'mimes'     => array(
-				'pdf'  => 'application/pdf',
-				'doc'  => 'application/msword',
-				'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-			),
+			'mimes'     => \WCB\Core\PrivateFiles::CV_MIMES,
 		);
 
 		$attachment_id = \WCB\Core\PrivateFiles::in_private_dir(
