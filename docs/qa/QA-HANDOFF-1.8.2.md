@@ -10,7 +10,27 @@ Every card in Basecamp **Ready for Testing** for Free + Pro 1.8.2, grouped by th
 - **Per card:** open the card, run its **QA - code level** and **QA - browser** steps, then walk the journey named here. The journey's `card:<id>` line is the regression check. Pass: move to Done. Fail: move to Bugs with what you saw.
 - **By design** rows were answered with a reason, plus an extension point where useful, instead of a code change. Verify the stated behaviour, not the original request.
 
-**119 cards:** 115 fixes, 4 by design.
+## Round 2 - 2026-10-25 (current Ready for Testing)
+
+The 2026-10-24 pass (round 1, below) sent six cards back to Bugs. They are re-fixed here, together with five new cards. Commits: Free `44d061c`, Pro `e5e89b3`. `composer ci:no-journeys` passes in both plugins. Each card's comment shows the old-code failure and the new-code result. 10417521347's comment also corrects an earlier hand-off that wrongly said the sort worked.
+
+| Card | Title | Journey | Runbook | Kind |
+|---|---|---|---|---|
+| [10417317114](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10417317114) | [Candidates]No Separate Filter for Suspended Candidates | admin/admin-lists-views-hold | `D.admin-lists` | Re-fix |
+| [10417326173](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10417326173) | [Employers]No Filter for Banned Employers | admin/admin-lists-views-hold | `D.admin-lists` | Re-fix |
+| [10417521347](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10417521347) | [Taxonomy Terms] Term list tables have no Order column and cannot be reordered without opening each term | admin/admin-lists-views-hold | `D.admin-lists` | Re-fix |
+| [10402937387](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10402937387) | [WP Career Board - Jobs Directory] Multi-Currency Sort & Filter Defects: "Highest Salary" compares raw numeric values across currencies, and salary filter silently drops non-default currency listings | customer/salary-filter-other-currencies | `D.salary-other-currencies` | Re-fix |
+| [10421957903](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10421957903) | [Field Builder] Required custom fields are not validated on Job, Company, Candidate and Resume submissions | Pro:admin/walkthrough-field-builder | `D.job-write-contract` | Re-fix |
+| [10409511899](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10409511899) | Find Candidates cards ignore the resume headline and location | Pro:customer/pro-my-resumes-row-actions | `D.pro-candidate-card-headline` | Re-fix |
+| [10439524614](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439524614) | [Free] Kadence: Job Map My location icon turns white on a light button on hover | customer/classic-theme-controls-hold | `D.classic-theme-controls` | Fix |
+| [10439524512](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439524512) | [Pro] Settings > Credits: Stripe gateway fields run past the block edge at 1024px | admin/admin-settings-tabs-render | `D.settings-fit` | Fix |
+| [10439586916](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439586916) | Emails tab: Save changes shows Settings saved but discards an edited Subject | admin/admin-emails-page-renders | `D.emails-one-save` | Fix |
+| [10439586892](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439586892) | Post a Job: board-scoped custom field groups never render | customer/walkthrough-employer-post-job | `D.job-fields-per-board` | Fix |
+| [10439524696](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439524696) | [Free] Post a Job has no page heading, unlike every other front screen | customer/dashboard-feedback-holds | `D.post-job-heading` | Fix |
+
+**Theme checks:** check 10439524614 on Kadence. To keep the shared site's theme unchanged, a cookie-scoped `stylesheet`/`template` filter in a temporary mu-plugin works well. **Data:** 10439586892 needs two boards, a global group excluded on one board, and a board-scoped group created through `POST /wcb/v1/fields/groups`.
+
+Round 1 (2026-10-24): **119 cards:** 115 fixes, 4 by design.
 
 
 ## admin-pro-boards-list-renders
