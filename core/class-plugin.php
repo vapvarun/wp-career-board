@@ -383,31 +383,46 @@ final class Plugin {
 			WCB_VERSION
 		);
 
-		// Block assets carry the plugin version so every release busts browser
-		// and CDN caches; asset.php files hold dependencies only.
-		$stamp_version = static function ( array $metadata ): array {
-			if ( str_starts_with( (string) ( $metadata['name'] ?? '' ), 'wp-career-board/' ) ) {
-				$metadata['version'] = WCB_VERSION;
+		self::register_block_set( 'wp-career-board', WCB_DIR, WCB_URL, 'wcb-', WCB_VERSION, $blocks );
+	}
+
+	/**
+	 * Register a plugin's blocks with the shared token and UI stylesheets.
+	 *
+	 * Free and Pro both call this, so a block registers the same way whichever
+	 * plugin ships it. Block assets carry the plugin version so every release
+	 * busts browser and CDN caches; asset.php files hold dependencies only.
+	 *
+	 * @since 1.8.2
+	 * @param string   $block_namespace Block namespace, e.g. 'wp-career-board' or 'wcb'.
+	 * @param string   $dir             Plugin directory with a trailing slash.
+	 * @param string   $url             Plugin URL with a trailing slash.
+	 * @param string   $handle_prefix   Prefix for the per-file style handles.
+	 * @param string   $version         Plugin version stamped on block assets.
+	 * @param string[] $blocks          Block folder names under blocks/.
+	 * @return void
+	 */
+	public static function register_block_set( string $block_namespace, string $dir, string $url, string $handle_prefix, string $version, array $blocks ): void {
+		add_filter(
+			'block_type_metadata',
+			static function ( array $metadata ) use ( $block_namespace, $version ): array {
+				if ( str_starts_with( (string) ( $metadata['name'] ?? '' ), $block_namespace . '/' ) ) {
+					$metadata['version'] = $version;
+				}
+				return $metadata;
 			}
-			return $metadata;
-		};
-		add_filter( 'block_type_metadata', $stamp_version );
+		);
 
 		foreach ( $blocks as $block ) {
-			$block_dir = WCB_DIR . 'blocks/' . $block;
+			$block_dir = $dir . 'blocks/' . $block;
 			if ( ! is_dir( $block_dir ) ) {
 				continue;
 			}
 			register_block_type_from_metadata( $block_dir );
-			wp_enqueue_block_style(
-				'wp-career-board/' . $block,
-				array( 'handle' => 'wcb-frontend-tokens' )
-			);
-			wp_enqueue_block_style(
-				'wp-career-board/' . $block,
-				array( 'handle' => 'wcb-ui' )
-			);
-			$this->enqueue_block_style_array( 'wp-career-board/' . $block, $block_dir, $block );
+			$block_name = $block_namespace . '/' . $block;
+			wp_enqueue_block_style( $block_name, array( 'handle' => 'wcb-frontend-tokens' ) );
+			wp_enqueue_block_style( $block_name, array( 'handle' => 'wcb-ui' ) );
+			self::enqueue_block_style_array( $block_name, $block_dir, $url . 'blocks/' . $block . '/', $handle_prefix . $block . '-style-', $version );
 		}
 	}
 
@@ -420,31 +435,36 @@ final class Plugin {
 	 * the dashboard blocks that ship `style.css` + four `styles/*.css`
 	 * partials). Explicitly registering and attaching each file via
 	 * `wp_enqueue_block_style` makes every declared stylesheet land
-	 * whenever the block appears in a post.
+	 * whenever the block appears in a post. An entry without `file:` is a
+	 * registered handle, such as another block's stylesheet this one builds
+	 * on, and is attached as it is.
 	 *
 	 * @since 1.2.0
-	 * @param string $block_name Fully-qualified block name (namespace/slug).
-	 * @param string $block_dir  Absolute path to the block directory.
-	 * @param string $block_slug Block slug (used to build deterministic style handles).
+	 * @since 1.8.2 Static, shared with Pro; accepts handle entries.
+	 * @param string $block_name    Fully-qualified block name (namespace/slug).
+	 * @param string $block_dir     Absolute path to the block directory.
+	 * @param string $block_url     Block directory URL with a trailing slash.
+	 * @param string $handle_stem   Handle prefix; the entry index is appended.
+	 * @param string $version       Version for the registered files.
 	 * @return void
 	 */
-	private function enqueue_block_style_array( string $block_name, string $block_dir, string $block_slug ): void {
+	private static function enqueue_block_style_array( string $block_name, string $block_dir, string $block_url, string $handle_stem, string $version ): void {
 		$data = wp_json_file_decode( $block_dir . '/block.json', array( 'associative' => true ) );
 		if ( ! is_array( $data ) || empty( $data['style'] ) || ! is_array( $data['style'] ) ) {
 			return;
 		}
 		foreach ( $data['style'] as $index => $entry ) {
-			$relative = ltrim( (string) preg_replace( '#^file:\./?#', '', (string) $entry ), '/' );
+			$entry = (string) $entry;
+			if ( ! str_starts_with( $entry, 'file:' ) ) {
+				wp_enqueue_block_style( $block_name, array( 'handle' => $entry ) );
+				continue;
+			}
+			$relative = ltrim( (string) preg_replace( '#^file:\./?#', '', $entry ), '/' );
 			if ( '' === $relative ) {
 				continue;
 			}
-			$handle = 'wcb-' . $block_slug . '-style-' . (int) $index;
-			wp_register_style(
-				$handle,
-				WCB_URL . 'blocks/' . $block_slug . '/' . $relative,
-				array( 'wcb-frontend-tokens', 'wcb-ui' ),
-				WCB_VERSION
-			);
+			$handle = $handle_stem . (int) $index;
+			wp_register_style( $handle, $block_url . $relative, array( 'wcb-frontend-tokens', 'wcb-ui' ), $version );
 			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );
 		}
 	}
