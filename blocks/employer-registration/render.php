@@ -241,7 +241,7 @@ wp_interactivity_state(
 
 				<?php if ( ! $wcb_is_logged_in ) : ?>
 				<div class="wcb-reg-row">
-					<div class="wcb-field-group">
+					<div class="wcb-field-group" data-wp-context='{"field":"firstName"}'>
 						<label class="wcb-field-label" for="wcb-reg-first-name"><?php esc_html_e( 'First Name', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 						<input
 							id="wcb-reg-first-name"
@@ -251,13 +251,14 @@ wp_interactivity_state(
 							required
 							aria-required="true"
 							data-wp-bind--value="state.firstName"
-							data-wp-on--input="actions.updateFirstName"
-							data-wp-bind--aria-invalid="state.firstNameInvalid"
+							data-wcb-field="firstName"
+							data-wp-on--input="actions.updateField"
+							data-wp-bind--aria-invalid="state.fieldInvalid"
 							aria-describedby="wcb-reg-first-name-error"
 						/>
-						<p class="wcb-field-error" id="wcb-reg-first-name-error" role="alert" hidden data-wp-bind--hidden="!state.firstNameInvalid" data-wp-text="state.fieldError"></p>
+						<p class="wcb-field-error" id="wcb-reg-first-name-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 					</div>
-					<div class="wcb-field-group">
+					<div class="wcb-field-group" data-wp-context='{"field":"lastName"}'>
 						<label class="wcb-field-label" for="wcb-reg-last-name"><?php esc_html_e( 'Last Name', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 						<input
 							id="wcb-reg-last-name"
@@ -267,15 +268,16 @@ wp_interactivity_state(
 							required
 							aria-required="true"
 							data-wp-bind--value="state.lastName"
-							data-wp-on--input="actions.updateLastName"
-							data-wp-bind--aria-invalid="state.lastNameInvalid"
+							data-wcb-field="lastName"
+							data-wp-on--input="actions.updateField"
+							data-wp-bind--aria-invalid="state.fieldInvalid"
 							aria-describedby="wcb-reg-last-name-error"
 						/>
-						<p class="wcb-field-error" id="wcb-reg-last-name-error" role="alert" hidden data-wp-bind--hidden="!state.lastNameInvalid" data-wp-text="state.fieldError"></p>
+						<p class="wcb-field-error" id="wcb-reg-last-name-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 					</div>
 				</div>
 
-				<div class="wcb-field-group">
+				<div class="wcb-field-group" data-wp-context='{"field":"email"}'>
 					<label class="wcb-field-label" for="wcb-reg-email"><span data-wp-text="state.emailLabel"></span> <span class="wcb-required" aria-hidden="true">*</span></label>
 					<input
 						id="wcb-reg-email"
@@ -285,11 +287,12 @@ wp_interactivity_state(
 						required
 						aria-required="true"
 						data-wp-bind--value="state.email"
-						data-wp-on--input="actions.updateEmail"
-						data-wp-bind--aria-invalid="state.emailInvalid"
+						data-wcb-field="email"
+						data-wp-on--input="actions.updateField"
+						data-wp-bind--aria-invalid="state.fieldInvalid"
 						aria-describedby="wcb-reg-email-error"
 					/>
-					<p class="wcb-field-error" id="wcb-reg-email-error" role="alert" hidden data-wp-bind--hidden="!state.emailInvalid" data-wp-text="state.fieldError"></p>
+					<p class="wcb-field-error" id="wcb-reg-email-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 				</div>
 				<?php else : ?>
 				<p class="wcb-reg-logged-in-note">
@@ -300,7 +303,7 @@ wp_interactivity_state(
 				</p>
 				<?php endif; ?>
 
-				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate" data-wp-context='{"field":"companyName"}'>
 					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company name', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 					<input
 						id="wcb-reg-company"
@@ -310,11 +313,12 @@ wp_interactivity_state(
 						data-wp-bind--required="!state.isCandidate"
 						data-wp-bind--aria-required="!state.isCandidate"
 						data-wp-bind--value="state.companyName"
-						data-wp-on--input="actions.updateCompanyName"
-						data-wp-bind--aria-invalid="state.companyNameInvalid"
+						data-wcb-field="companyName"
+						data-wp-on--input="actions.updateField"
+						data-wp-bind--aria-invalid="state.fieldInvalid"
 						aria-describedby="wcb-reg-company-error"
 					/>
-					<p class="wcb-field-error" id="wcb-reg-company-error" role="alert" hidden data-wp-bind--hidden="!state.companyNameInvalid" data-wp-text="state.fieldError"></p>
+					<p class="wcb-field-error" id="wcb-reg-company-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 				</div>
 				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
 					<label class="wcb-field-label" for="wcb-reg-website"><?php esc_html_e( 'Company Website', 'wp-career-board' ); ?></label>
@@ -353,7 +357,7 @@ wp_interactivity_state(
 				</div>
 
 				<?php if ( ! $wcb_is_logged_in ) : ?>
-				<div class="wcb-field-group">
+				<div class="wcb-field-group" data-wp-context='{"field":"password"}'>
 					<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 					<input
 						id="wcb-reg-password"
@@ -363,11 +367,12 @@ wp_interactivity_state(
 						required
 						aria-required="true"
 						data-wp-bind--value="state.password"
-						data-wp-on--input="actions.updatePassword"
-						data-wp-bind--aria-invalid="state.passwordInvalid"
+						data-wcb-field="password"
+						data-wp-on--input="actions.updateField"
+						data-wp-bind--aria-invalid="state.fieldInvalid"
 						aria-describedby="wcb-reg-password-error"
 					/>
-					<p class="wcb-field-error" id="wcb-reg-password-error" role="alert" hidden data-wp-bind--hidden="!state.passwordInvalid" data-wp-text="state.fieldError"></p>
+					<p class="wcb-field-error" id="wcb-reg-password-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 					<span class="wcb-form-hint"><?php esc_html_e( 'Minimum 8 characters', 'wp-career-board' ); ?></span>
 				</div>
 				<?php endif; ?>

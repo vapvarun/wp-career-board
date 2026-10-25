@@ -9,7 +9,7 @@
  * @since   1.0.0
  */
 
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 
 /**
@@ -73,21 +73,10 @@ const { state } = store( 'wcb-employer-registration', {
 				? t( 'roleTitleCandidate' )
 				: t( 'roleTitleEmployer' );
 		},
-		// One field at a time carries the inline error, like Post a Job.
-		get firstNameInvalid() {
-			return 'firstName' === state.invalidField;
-		},
-		get lastNameInvalid() {
-			return 'lastName' === state.invalidField;
-		},
-		get emailInvalid() {
-			return 'email' === state.invalidField;
-		},
-		get companyNameInvalid() {
-			return 'companyName' === state.invalidField;
-		},
-		get passwordInvalid() {
-			return 'password' === state.invalidField;
+		// One field at a time carries the inline error, like Post a Job. Each
+		// field group names its field in data-wp-context.
+		get fieldInvalid() {
+			return getContext().field === state.invalidField;
 		},
 		get emailLabel() {
 			return state.role === 'candidate'
@@ -113,30 +102,11 @@ const { state } = store( 'wcb-employer-registration', {
 			state.invalidField = '';
 		},
 
-		updateFirstName( event ) {
-			state.firstName = event.target.value;
-			clearInvalid( 'firstName' );
-		},
-		updateLastName( event ) {
-			state.lastName = event.target.value;
-			clearInvalid( 'lastName' );
-		},
-		updateEmail( event ) {
-			state.email = event.target.value;
-			clearInvalid( 'email' );
-		},
-		updateCompanyName( event ) {
-			state.companyName = event.target.value;
-			clearInvalid( 'companyName' );
-		},
-		updatePassword( event ) {
-			state.password = event.target.value;
-			clearInvalid( 'password' );
-		},
 		updateField( event ) {
 			const field = event.target.dataset.wcbField;
 			if ( field ) {
 				state[ field ] = event.target.value;
+				clearInvalid( field );
 			}
 		},
 

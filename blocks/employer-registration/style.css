@@ -194,7 +194,3 @@
 	min-width: 0;
 }
 
-/* Same dark red as Post a Job; outranks a theme's bare input border by the attribute. */
-.wcb-employer-reg .wcb-field-input[aria-invalid="true"] {
-	border-color: var(--wcb-danger-fg, #991b1b);
-}

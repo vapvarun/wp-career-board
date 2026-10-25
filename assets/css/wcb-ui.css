@@ -484,7 +484,7 @@
 }
 
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)[aria-invalid="true"] {
-	border-color: var(--wcb-danger);
+	border-color: var(--wcb-danger-fg);
 }
 
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-form-label, .wcb-field-label, .wcb-rf-label, .wcb-rb-label, .wcb-rb-summary-label, .wcb-cb-custom-label) {
