@@ -75,6 +75,35 @@ class EmailVerification {
 		add_action( 'template_redirect', array( $this, 'maybe_verify' ), 0 );
 		add_action( 'template_redirect', array( $this, 'maybe_resend' ), 0 );
 		add_filter( 'wp_authenticate_user', array( $this, 'block_unverified' ), 20, 2 );
+		add_filter( 'login_message', array( $this, 'confirmed_message' ) );
+	}
+
+	/**
+	 * Sign-in screen for a member whose link was opened in another browser:
+	 * it says the address is confirmed, so they know the link worked
+	 * (Basecamp 10422002927).
+	 *
+	 * @since 1.8.2
+	 * @param int $user_id Account ID.
+	 * @return string
+	 */
+	private static function confirmed_login_url( int $user_id ): string {
+		return add_query_arg( 'wcb_verified', '1', wp_login_url( self::dashboard_url( $user_id ) ) );
+	}
+
+	/**
+	 * `login_message`: the "email confirmed" line on that screen.
+	 *
+	 * @since 1.8.2
+	 * @param string $message Existing message HTML.
+	 * @return string
+	 */
+	public function confirmed_message( string $message ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
+		if ( ! isset( $_GET['wcb_verified'] ) ) {
+			return $message;
+		}
+		return $message . '<p class="message">' . esc_html__( 'Your email address is confirmed. Sign in to continue.', 'wp-career-board' ) . '</p>';
 	}
 
 	/**
@@ -196,7 +225,7 @@ class EmailVerification {
 		// Opened again after it worked (or pre-fetched by a mail scanner): the
 		// account is already confirmed, so send the member on to sign in.
 		if ( ! is_array( $pending ) && get_userdata( $user_id ) ) {
-			wp_safe_redirect( wp_login_url( self::dashboard_url( $user_id ) ) );
+			wp_safe_redirect( self::confirmed_login_url( $user_id ) );
 			exit;
 		}
 
@@ -226,7 +255,7 @@ class EmailVerification {
 		// someone else's link can never sign you into their account.
 		$browser = isset( $_COOKIE[ self::BROWSER_COOKIE ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ self::BROWSER_COOKIE ] ) ) : '';
 		if ( '' === $browser || ! hash_equals( wp_hash( $token . '|browser' ), $browser ) ) {
-			wp_safe_redirect( wp_login_url( self::dashboard_url( $user_id ) ) );
+			wp_safe_redirect( self::confirmed_login_url( $user_id ) );
 			exit;
 		}
 		setcookie( self::BROWSER_COOKIE, '', time() - HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
