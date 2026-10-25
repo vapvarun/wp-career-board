@@ -10,7 +10,19 @@ Every card in Basecamp **Ready for Testing** for Free + Pro 1.8.2, grouped by th
 - **Per card:** open the card, run its **QA - code level** and **QA - browser** steps, then walk the journey named here. The journey's `card:<id>` line is the regression check. Pass: move to Done. Fail: move to Bugs with what you saw.
 - **By design** rows were answered with a reason, plus an extension point where useful, instead of a code change. Verify the stated behaviour, not the original request.
 
-## Round 2 - 2026-10-25 (current Ready for Testing)
+## Round 3 - 2026-10-25 (current Ready for Testing)
+
+The last Bugs and Possible Bugs cards, each replicated first. Commits on `1.8.2`: Free `989933f`, `7d89f49`, `598c1b1`, `2647822`; Pro `a485b5f`, `68fcaed`, `8481437` (bundles Credits SDK `v1.11.0`, PR vapvarun/wbcom-credits-sdk#33). `composer ci:no-journeys` passes in both plugins. Each card's comment has the code-level and browser steps.
+
+| Card | Title | Journey | Runbook | Kind |
+|---|---|---|---|---|
+| [10439797157](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439797157) | Pro Resumes and Listings settings show two save notices | admin/admin-settings-tabs-render 8f | `D.own-notices-visible` | New (filed in round 2) |
+| [10422002927](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10422002927) | Email verification: a link opened in another browser lands on a bare login page | customer/signup-email-verification 12a | `D.verify-other-device` | Card as written did not replicate; gap fixed |
+| [10422877832](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10422877832) | Field Builder "File upload" type is only a URL box | Pro:admin/walkthrough-field-builder 13c | `D.file-field-label` | Relabelled "File link (URL)" (owner) |
+| [10437969521](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10437969521) | Credit ledger notes stored in English | Pro:customer/walkthrough-credit-system 12a | `D.ledger-notes-i18n` | SDK 1.11.0 + Pro (owner) |
+| [10439881291](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439881291) | Credits SDK 1.11.0 bundle in Career Board Pro 1.8.2 | money paths on the card | - | Bundle bump |
+
+## Round 2 - 2026-10-25
 
 The 2026-10-24 pass (round 1, below) sent six cards back to Bugs. They are re-fixed here, together with five new cards. Commits: Free `44d061c`, Pro `e5e89b3`. `composer ci:no-journeys` passes in both plugins. Each card's comment shows the old-code failure and the new-code result. 10417521347's comment also corrects an earlier hand-off that wrongly said the sort worked.
 
