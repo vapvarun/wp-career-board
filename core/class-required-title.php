@@ -35,6 +35,13 @@ final class RequiredTitle {
 	private const LIVE = array( 'publish', 'pending', 'future' );
 
 	/**
+	 * Post types that need a title to go live.
+	 *
+	 * @var string[]
+	 */
+	public const TYPES = array( 'wcb_job', 'wcb_company', 'wcb_resume', 'wcb_board' );
+
+	/**
 	 * Query arg that carries the notice through the editor's redirect.
 	 *
 	 * @var string
@@ -57,31 +64,9 @@ final class RequiredTitle {
 		add_filter( 'wp_insert_post_data', array( self::class, 'hold_untitled' ), 5, 2 );
 		add_filter( 'redirect_post_location', array( self::class, 'carry_notice' ) );
 		add_action( 'admin_notices', array( self::class, 'notice' ) );
-		add_action(
-			'init',
-			static function (): void {
-				foreach ( self::post_types() as $type ) {
-					add_filter( "rest_pre_insert_{$type}", array( self::class, 'refuse_untitled' ), 10, 2 );
-				}
-			},
-			99
-		);
-	}
-
-	/**
-	 * Post types that need a title to go live.
-	 *
-	 * @return string[]
-	 */
-	public static function post_types(): array {
-		/**
-		 * Filter the post types that cannot be published without a title.
-		 *
-		 * @since 1.8.2
-		 *
-		 * @param string[] $types Post types.
-		 */
-		return (array) apply_filters( 'wcb_title_required_post_types', array( 'wcb_job', 'wcb_company', 'wcb_resume', 'wcb_board' ) );
+		foreach ( self::TYPES as $type ) {
+			add_filter( "rest_pre_insert_{$type}", array( self::class, 'refuse_untitled' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -94,7 +79,7 @@ final class RequiredTitle {
 	 * @return bool
 	 */
 	private static function goes_live_untitled( string $type, string $status, string $title, int $id ): bool {
-		return in_array( $type, self::post_types(), true )
+		return in_array( $type, self::TYPES, true )
 			&& in_array( $status, self::LIVE, true )
 			&& '' === trim( $title )
 			&& ! ( $id > 0 && in_array( (string) get_post_status( $id ), self::LIVE, true ) );

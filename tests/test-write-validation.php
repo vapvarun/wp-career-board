@@ -72,7 +72,7 @@ add_filter( 'option_wcb_settings', $wcb_settings );
 $wcb_posts = array();
 
 // Untitled records stay drafts.
-foreach ( \WCB\Core\RequiredTitle::post_types() as $wcb_type ) {
+foreach ( \WCB\Core\RequiredTitle::TYPES as $wcb_type ) {
 	if ( ! post_type_exists( $wcb_type ) ) {
 		continue;
 	}
