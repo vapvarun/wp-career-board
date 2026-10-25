@@ -4144,7 +4144,7 @@
       "type": "filter",
       "args_count": 1,
       "args_signature": [],
-      "where": "modules/notifications/class-abstract-email.php:602",
+      "where": "modules/notifications/class-abstract-email.php:609",
       "consumed_by": []
     },
     {
