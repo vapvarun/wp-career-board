@@ -20,6 +20,7 @@ bug_ref: 10401941306
 4. Hand C to employer E2: `wp post update <C> --post_author=<E2>` → E1's `_wcb_company_id` is gone; `GET .../applications` as E1 → 403; as E2 → 200.
 5. Co-owner case: `wp post meta add <C> _wcb_company_owner <E1>` and re-link E1 → E1 gets 200; `wp post meta delete <C> _wcb_company_owner <E1>` → the link is gone and E1 gets 403.
 6. Delete a user who authors C with "Attribute all content to" E2 (Users > Delete) → linked employers other than E2 lose the link; E2 owns C.
+6a. **Old employer loses company access on handover (card:10401941306).** Change company C's author from `mateo.ruiz` to `ahmed.karim` → `GET /wcb/v1/jobs/<J>/applications` answers 403 for `mateo.ruiz` and 200 for `ahmed.karim`, at 1440 and 390 in the employer dashboard.
 7. Regression test: `wp eval-file wp-content/plugins/wp-career-board/tests/test-employer-companies.php` → all pass.
 
 ## Teardown

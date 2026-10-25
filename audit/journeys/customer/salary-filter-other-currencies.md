@@ -24,6 +24,7 @@ bug_ref: 10402937387, 10417744512
 7. `GET /wcb/v1/jobs?search=QA-RFT&salary_min=50000` → the same order; each job carries `salary_currency`.
 8. Job alerts: `JobSearch::salary_matches( <GBP job>, 50000, 0 )` → false; `( <USD job>, 50000, 0 )` → true.
 9. Job form: clear the currency field and save → the job is stored in the site currency, not USD on a non-USD site.
+9a. **Docs match the salary filter and job alerts (card:10417744512).** The Job Search and Job Alerts docs say the salary range applies to site-currency jobs, other-currency jobs follow under a note, and alerts match site currency only, which agrees with steps 3 and 8, at 1440 and 390.
 10. `wp eval-file wp-content/plugins/wp-career-board/tests/test-job-search.php` → all pass.
 
 ## Teardown
