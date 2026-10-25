@@ -79,8 +79,7 @@ if ( post_type_exists( 'wcb_board' ) ) {
 // Resolve effective board id: explicit attribute → site-wide default option → first option.
 $wcb_resolved_board_id = $wcb_board_id_attr;
 if ( 0 === $wcb_resolved_board_id && ! empty( $wcb_board_options ) ) {
-	$wcb_default_board_post = \WCB\Modules\Boards\BoardsModule::get_default_board_id();
-	$wcb_resolved_board_id  = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
+	$wcb_resolved_board_id = \WCB\Modules\Boards\BoardsModule::default_for( $wcb_board_options );
 }
 
 // Open on a board the employer can afford, not on a paid default that greets a
@@ -326,10 +325,10 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
 			</a>
 			<?php
-			$wcb_dashboard_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
-			if ( $wcb_dashboard_id > 0 ) :
+			$wcb_dashboard_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
+			if ( '' !== $wcb_dashboard_url ) :
 				?>
-				<a class="wcb-btn wcb-btn--secondary" href="<?php echo esc_url( (string) get_permalink( $wcb_dashboard_id ) . '#jobs' ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
+				<a class="wcb-btn wcb-btn--secondary" href="<?php echo esc_url( $wcb_dashboard_url . '#jobs' ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
 			<?php endif; ?>
 		</p>
 	</div>

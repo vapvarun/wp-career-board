@@ -165,4 +165,17 @@ final class BoardsModule {
 		}
 		return $board_id;
 	}
+
+	/**
+	 * The board a new job opens on: the site default, else the first option.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param array<int, array{id:int}> $board_options Boards the employer may post to.
+	 * @return int
+	 */
+	public static function default_for( array $board_options ): int {
+		$default = self::get_default_board_id();
+		return $default > 0 ? $default : (int) ( $board_options[0]['id'] ?? 0 );
+	}
 }

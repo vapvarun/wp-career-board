@@ -24,7 +24,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, jobLocation, jobLocationLabel } from '@wcb/fields';
+import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 import { formatSiteDate } from '@wcb/ui';
 
 /**
@@ -421,7 +421,7 @@ const { state } = store(
 			// A custom-field group shows only on the boards that use it.
 			get isGroupOnBoard() {
 				const { state } = store( 'wcb-job-form' );
-				return getContext().groupBoards.includes( Number( state.boardId ) );
+				return groupOnBoard( getContext().groupBoards, state.boardId );
 			},
 
 			// ── Credit getters ────────────────────────────────────────────────
@@ -646,7 +646,7 @@ const { state } = store(
 							return;
 						}
 					}
-					if ( state.step === 2 && Number( state.salaryMin ) > 0 && Number( state.salaryMax ) > 0 && Number( state.salaryMin ) > Number( state.salaryMax ) ) {
+					if ( state.step === 2 && salaryInverted( state.salaryMin, state.salaryMax ) ) {
 						setValidation( state, 'salary', t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' ) );
 						focusField( 'wcb-salary-max' );
 						return;

@@ -177,8 +177,7 @@ if ( $wcb_edit_board_id > 0 ) {
 	$wcb_board_id = $wcb_edit_board_id;
 }
 if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
-	$wcb_default_board_post = \WCB\Modules\Boards\BoardsModule::get_default_board_id();
-	$wcb_board_id           = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
+	$wcb_board_id = \WCB\Modules\Boards\BoardsModule::default_for( $wcb_board_options );
 }
 
 // ── Credit banner + credit gate messages ───────────────────────────────────
@@ -454,8 +453,8 @@ $wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
 wp_interactivity_state( 'wcb-job-form', $wcb_initial_state );
 
 // ── Step labels ────────────────────────────────────────────────────────────
-$wcb_dashboard_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
-$wcb_my_jobs_url  = $wcb_dashboard_id > 0 ? (string) get_permalink( $wcb_dashboard_id ) . '#jobs' : '';
+$wcb_my_jobs_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
+$wcb_my_jobs_url = '' !== $wcb_my_jobs_url ? $wcb_my_jobs_url . '#jobs' : '';
 
 $wcb_step_labels = array(
 	1 => __( 'Basics', 'wp-career-board' ),

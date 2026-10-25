@@ -12,7 +12,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { formatSiteDate } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, jobLocation, jobLocationLabel } from '@wcb/fields';
+import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -64,7 +64,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 	state: {
 		// A custom-field group shows only on the boards that use it.
 		get isGroupOnBoard() {
-			return getContext().groupBoards.includes( Number( state.boardId ) );
+			return groupOnBoard( getContext().groupBoards, state.boardId );
 		},
 
 		get hasInsufficientCredits() {
@@ -250,7 +250,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
 					return;
 				}
-				if ( Number( state.salaryMin ) > 0 && Number( state.salaryMax ) > 0 && Number( state.salaryMin ) > Number( state.salaryMax ) ) {
+				if ( salaryInverted( state.salaryMin, state.salaryMax ) ) {
 					state.error = t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' );
 					return;
 				}

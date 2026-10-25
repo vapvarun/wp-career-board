@@ -62,3 +62,25 @@ export function jobLocationLabel( slug, custom ) {
 	const where = jobLocation( slug, custom );
 	return where.locations[ 0 ] || where.location_custom || 'remote';
 }
+
+/**
+ * Whether a typed salary range runs backwards (both ends set, min above max).
+ *
+ * @param {string|number} min Minimum salary.
+ * @param {string|number} max Maximum salary.
+ * @return {boolean} True when the range is inverted.
+ */
+export function salaryInverted( min, max ) {
+	return Number( min ) > 0 && Number( max ) > 0 && Number( min ) > Number( max );
+}
+
+/**
+ * Whether a custom-field group shows on the chosen board.
+ *
+ * @param {number[]}      groupBoards Board IDs the group is used on.
+ * @param {string|number} boardId     Selected board ID.
+ * @return {boolean} True when the group belongs on that board.
+ */
+export function groupOnBoard( groupBoards, boardId ) {
+	return groupBoards.includes( Number( boardId ) );
+}
