@@ -10,7 +10,41 @@ Every card in Basecamp **Ready for Testing** for Free + Pro 1.8.2, grouped by th
 - **Per card:** open the card, run its **QA - code level** and **QA - browser** steps, then walk the journey named here. The journey's `card:<id>` line is the regression check. Pass: move to Done. Fail: move to Bugs with what you saw.
 - **By design** rows were answered with a reason, plus an extension point where useful, instead of a code change. Verify the stated behaviour, not the original request.
 
-## Round 3 - 2026-10-25 (current Ready for Testing)
+## Round 4 - 2026-10-25 (current Ready for Testing)
+
+All 27 Possible Bugs cards, each replicated first. Commits on `1.8.2`: Free `29a06d7`, Pro `d526981`. `composer ci:no-journeys` passes in both plugins. Each card's comment has the code-level and browser steps; refuted cards carry the exact attempt, so confirm the refute and move them to Done.
+
+| Card | Title | Journey | Runbook | Kind |
+|---|---|---|---|---|
+| [10439870246](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439870246) | Astra underlines card titles, company names, skill chips, Back to dashboard | customer/classic-theme-controls-hold 9b | `D.pb-theme-underlines` | Fix |
+| [10439827925](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439827925) | Astra: View in the job row menu is underlined | customer/classic-theme-controls-hold 9b | `D.pb-theme-underlines` | Fix |
+| [10439870251](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439870251) | Job page and applicant controls under 40px | customer/classic-theme-controls-hold 9c | `D.pb-touch-targets` | Fix |
+| [10439833707](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439833707) | Employer dashboard status pills 27px | customer/classic-theme-controls-hold 9c | `D.pb-touch-targets` | Fix |
+| [10439833719](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439833719) | Credits tab: History toggle is an 18px text link | Pro:customer/walkthrough-credit-system 12c | `D.pb-touch-targets` | Fix |
+| [10439832520](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439832520) | My Applications row menu holds a single action | customer/classic-theme-controls-hold 9e | `D.pb-dashboard-rows` | Fix |
+| [10439832512](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439832512) | Dashboard saved lists stack vertically at 390 | customer/classic-theme-controls-hold 9e | `D.pb-dashboard-rows` | Fix |
+| [10439870327](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439870327) | Apply Email row stacks label over value | customer/classic-theme-controls-hold 9d | `D.pb-apply-email-row` | Fix |
+| [10439851743](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439851743) | Post a Job at 390 names only the active step | customer/walkthrough-employer-post-job 12c | `D.pb-post-job-flow` | Fix |
+| [10439851754](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439851754) | Post a Job listing-window banner is jargon | customer/walkthrough-employer-post-job 12d | `D.pb-post-job-flow` | Fix |
+| [10439859260](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439859260) | Post a Job success state has no onward link | customer/walkthrough-employer-post-job 12e | `D.pb-post-job-flow` | Fix |
+| [10439870262](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439870262) | Post a Job preview does not look like the job page | customer/walkthrough-employer-post-job 12f | `D.pb-post-job-flow` | Fix |
+| [10439833481](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439833481) | Signed-out Post a Job and Employer Registration have no h1 | customer/dashboard-feedback-holds 13b | `D.pb-gate-heading` | Fix |
+| [10439829023](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439829023) | Settings nav items 30px at 390 | admin/admin-settings-tabs-render 8g | `D.pb-admin-controls` | Fix |
+| [10439829015](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439829015) | Admin selects 52px against 40px inputs | admin/admin-settings-tabs-render 8g | `D.pb-admin-controls` | Fix |
+| [10439829031](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439829031) | Job editor Apply URL, Email, Company short widths | admin/admin-settings-tabs-render 8g | `D.pb-admin-controls` | Fix |
+| [10439859249](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439859249) | Pipeline move leaves the application Submitted | Pro:customer/walkthrough-application-pipeline 12a | `D.pb-pro-surfaces` | Fix (owner: auto Reviewing) |
+| [10439827625](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439827625) | Denied signed-in member told to sign in on Find Candidates | Pro:customer/walkthrough-find-candidates 13b | `D.pb-pro-surfaces` | Fix |
+| [10439828517](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439828517) | Feature this job offered with no way to pay | Pro:customer/walkthrough-credit-system 12b | `D.pb-pro-surfaces` | Fix |
+| [10439828856](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439828856) | Resume saved message vanishes after a second save | Pro:customer/walkthrough-resume-builder 12a | `D.pb-pro-surfaces` | Fix |
+| [10439833472](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439833472) | Find Candidates filter bar cramped on iPad and phone | Pro:customer/walkthrough-find-candidates 13c | `D.pb-pro-surfaces` | Fix |
+| [10439829007](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439829007) | Field Builder columns misaligned, square inputs | Pro:admin/walkthrough-field-builder 13d | `D.pb-pro-surfaces` | Fix |
+| [10439828996](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439828996) | Job alerts table clipped at 390 | Pro:customer/walkthrough-job-alerts 11a | `D.pb-pro-surfaces` | Fix |
+| [10439827327](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439827327) | Overview panels inset against stat tiles | - | - | Not replicated |
+| [10439828976](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439828976) | Post a Job preview merges list items | - | - | Not replicated |
+| [10439828930](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439828930) | Stray OSM tile request with Mapbox | - | - | Not replicated |
+| [10439833492](https://3.basecamp.com/5798509/buckets/46502739/card_tables/cards/10439833492) | Dashboard panel links 22px on desktop | - | - | By design (40px on touch) |
+
+## Round 3 - 2026-10-25
 
 The last Bugs and Possible Bugs cards, each replicated first. Commits on `1.8.2`: Free `989933f`, `7d89f49`, `598c1b1`, `2647822`; Pro `a485b5f`, `68fcaed`, `8481437` (bundles Credits SDK `v1.11.0`, PR vapvarun/wbcom-credits-sdk#33). `composer ci:no-journeys` passes in both plugins. Each card's comment has the code-level and browser steps.
 
