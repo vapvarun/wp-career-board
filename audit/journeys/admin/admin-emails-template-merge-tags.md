@@ -25,6 +25,7 @@ bug_ref: Basecamp 9895205013
 9. Query the notification log: `wp db query "SELECT status, payload FROM wp_wcb_notifications_log WHERE id = <logged>" --skip-column-names` → expect `status` = `sent_test` (NOT `sent`) and `payload` JSON contains `"is_test":true`.
 10. If Mailpit is available, open the received email → confirm merge tags are resolved (NOT raw `{{candidate_name}}` syntax).
 11. Restore original subject: update the subject back to the captured value from step 4.
+11a. **A template folder added with the filter is used (card:10440296808).** In a temporary mu-plugin, `add_filter( 'wcb_email_template_dirs', fn( $d ) => array_merge( $d, array( '<scratch dir>/' ) ) )` with `<scratch dir>/job-approved.php` printing a QA-RFT marker. Approve a pending QA-RFT job → the Job Approved email body is the marker inside the branded header and footer. Remove the mu-plugin → the next email is the default body again. A theme file at `{theme}/wp-career-board/emails/job-approved.php` still wins over the folder. The plugins ship no body templates: `modules/notifications/templates/emails/` holds only `email-header.php` and `email-footer.php`, and Pro has no `templates/emails/` folder.
 12. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown
