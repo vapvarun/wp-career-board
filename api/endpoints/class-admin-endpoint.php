@@ -262,7 +262,7 @@ final class AdminEndpoint extends RestController {
 			'repost_url'     => home_url( '/' ),
 			'approve_url'    => admin_url( 'edit.php?post_type=wcb_job' ),
 			'topup_url'      => home_url( '/' ),
-			'reason'         => $is_preview ? __( 'Listing did not meet the posting guidelines.', 'wp-career-board' ) : __( 'Listing did not meet the posting guidelines (test send).', 'wp-career-board' ),
+			'reason'         => $mark( __( 'Listing did not meet the posting guidelines.', 'wp-career-board' ) ),
 			'job_list'       => $job_list,
 			'count'          => 2,
 			'credits_added'  => 50,
@@ -273,7 +273,7 @@ final class AdminEndpoint extends RestController {
 			'login_url'      => wp_login_url(),
 			'delete_date'    => date_i18n( (string) get_option( 'date_format', 'F j, Y' ), time() + 7 * DAY_IN_SECONDS ),
 			'credits'        => 5,
-			'refund_message' => $is_preview ? __( '5 credits held for a job listing have been returned to your account.', 'wp-career-board' ) : __( '5 credits held for a job listing have been returned to your account (test send).', 'wp-career-board' ),
+			'refund_message' => $mark( __( '5 credits held for a job listing have been returned to your account.', 'wp-career-board' ) ),
 			'is_test'        => true,
 		);
 

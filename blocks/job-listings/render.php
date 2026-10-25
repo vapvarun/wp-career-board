@@ -163,7 +163,8 @@ $wcb_trust_badges = array(
 	'premium'  => array( 'label' => __( 'Premium', 'wp-career-board' ) ),
 );
 
-$wcb_jobs_state = array();
+$wcb_jobs_state    = array();
+$wcb_site_currency = \WCB\Modules\Jobs\JobsMeta::default_currency();
 
 // One query for the page's company logos, not a few per card.
 \WCB\Core\CompanyMetaShape::prime_logos( array_map( static fn ( $wcb_p ): int => (int) get_post_meta( $wcb_p->ID, '_wcb_company_id', true ), $wcb_jobs_raw ) );
@@ -213,8 +214,8 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'salary_min'      => $wcb_salary_min,
 		'salary_max'      => $wcb_salary_max,
 		// Mirrors REST: the job's currency, or the site's when it has none.
-		'salary_currency' => $wcb_salary_currency ? strtoupper( $wcb_salary_currency ) : \WCB\Modules\Jobs\JobsMeta::default_currency(),
-		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : \WCB\Modules\Jobs\JobsMeta::default_currency(), $wcb_salary_type ),
+		'salary_currency' => $wcb_salary_currency ? strtoupper( $wcb_salary_currency ) : $wcb_site_currency,
+		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : $wcb_site_currency, $wcb_salary_type ),
 		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
 		// (fetchJobs() replaces this state with the REST payload); the card binds
 		// the localised `deadline_label`. Seeding both keeps the SSR first paint
@@ -254,16 +255,16 @@ $wcb_by_pay         = $wcb_salary_on || 'salary' === ( $wcb_url_params['sort'] ?
 $wcb_break_filtered = sprintf(
 	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies when a salary range is set. */
 	__( 'Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs.', 'wp-career-board' ),
-	\WCB\Modules\Jobs\JobsMeta::default_currency()
+	$wcb_site_currency
 );
 $wcb_break_sorted = sprintf(
 	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort. */
 	__( 'Paid in other currencies. These follow the %s jobs, highest first within each currency.', 'wp-career-board' ),
-	\WCB\Modules\Jobs\JobsMeta::default_currency()
+	$wcb_site_currency
 );
 $wcb_prev_out = false;
 foreach ( $wcb_jobs_state as $wcb_i => $wcb_card ) {
-	$wcb_out                                    = $wcb_by_pay && \WCB\Modules\Jobs\JobsMeta::default_currency() !== ( $wcb_card['salary_currency'] ?? '' );
+	$wcb_out                                    = $wcb_by_pay && $wcb_site_currency !== ( $wcb_card['salary_currency'] ?? '' );
 	$wcb_jobs_state[ $wcb_i ]['currency_break'] = $wcb_out && ! $wcb_prev_out;
 	$wcb_prev_out                               = $wcb_out;
 }
@@ -454,7 +455,7 @@ $wcb_state = array(
 	'metaFilter'        => $wcb_meta_filter_attr,
 	'salaryMin'         => 0,
 	'salaryMax'         => 0,
-	'defaultCurrency'   => \WCB\Modules\Jobs\JobsMeta::default_currency(),
+	'defaultCurrency'   => $wcb_site_currency,
 	// view.js's get currencyBreakNote() takes over on hydration.
 	'currencyBreakNote' => $wcb_salary_on ? $wcb_break_filtered : $wcb_break_sorted,
 	// Symbol used for the salary-filter chip + slider tooltips. Salary
@@ -462,15 +463,7 @@ $wcb_state = array(
 	// jobs of any currency), so we surface the SITE default currency's
 	// symbol to label the slider — site owners on INR/EUR sites should
 	// see ₹ or € on the filter, not the hardcoded $ the JS used to emit.
-	'currencySymbol'    => (
-		static function (): string {
-			$wcb_settings_default = \WCB\Modules\Jobs\JobsMeta::default_currency();
-			$wcb_catalog          = \WCB\Admin\AdminSettings::get_currency_catalog();
-			return isset( $wcb_catalog[ $wcb_settings_default ]['symbol'] )
-				? (string) $wcb_catalog[ $wcb_settings_default ]['symbol']
-				: '$';
-		}
-	)(),
+	'currencySymbol'    => (string) ( \WCB\Admin\AdminSettings::get_currency_catalog()[ $wcb_site_currency ]['symbol'] ?? '$' ),
 	'filterOptions'     => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,

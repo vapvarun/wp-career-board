@@ -223,7 +223,6 @@ final class Industries {
 				restore_previous_locale();
 			}
 		}
-		$sets[] = self::defaults();
 		update_option( self::OPTION, self::without_default_labels( $stored, $sets ) );
 		self::flush_cache();
 	}
