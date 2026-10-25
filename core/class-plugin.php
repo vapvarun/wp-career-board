@@ -1117,7 +1117,7 @@ final class Plugin {
 			WCB_VERSION
 		);
 
-		$this->enqueue_editor_assets();
+		self::enqueue_editor_assets();
 
 		$this->register_confirm_modal_assets();
 
@@ -1138,20 +1138,6 @@ final class Plugin {
 		);
 	}
 
-	/**
-	 * Enqueue the rich-text editor stack — Editor.js core, the supported tool
-	 * bundles, our editor CSS, and the WCB bootstrap that initialises them on
-	 * any `.wcb-editor` element.
-	 *
-	 * Vendor bundles are pinned to the same versions used in Learnomy
-	 * (assets/js/vendor/editorjs/) so the rich-text experience is identical
-	 * across the Wbcom plugin family. Only the tool subset relevant to a job
-	 * description is shipped — header, list, quote, marker, inline-code,
-	 * delimiter — to keep the page weight under ~290KB.
-	 *
-	 * @since 1.1.0
-	 * @return void
-	 */
 	/**
 	 * Translations for Editor.js's own UI (block menu, tool names, popovers).
 	 *
@@ -1225,7 +1211,24 @@ final class Plugin {
 		);
 	}
 
-	private function enqueue_editor_assets(): void {
+	/**
+	 * Enqueue the rich-text editor stack — Editor.js core, the supported tool
+	 * bundles, our editor CSS, and the WCB bootstrap that initialises them on
+	 * any `.wcb-editor` element.
+	 *
+	 * Vendor bundles are pinned to the same versions used in Learnomy
+	 * (assets/js/vendor/editorjs/) so the rich-text experience is identical
+	 * across the Wbcom plugin family. Only the tool subset relevant to a job
+	 * description is shipped — header, list, quote, marker, inline-code,
+	 * delimiter — to keep the page weight under ~290KB.
+	 *
+	 * Public so the wcb_job admin edit screen loads the same stack.
+	 *
+	 * @since 1.1.0
+	 * @since 1.8.2 Public static, shared with the admin job editor.
+	 * @return void
+	 */
+	public static function enqueue_editor_assets(): void {
 		$vendor = WCB_URL . 'assets/js/vendor/editorjs/';
 
 		wp_enqueue_script( 'editorjs', $vendor . 'editor.umd.js', array(), '2.30.8', true );

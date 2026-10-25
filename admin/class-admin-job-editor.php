@@ -133,43 +133,13 @@ class AdminJobEditor {
 			return;
 		}
 
-		$vendor = WCB_URL . 'assets/js/vendor/editorjs/';
-
+		// The editor CSS reads the --wcb-* tokens, which wp-admin does not load.
 		wp_enqueue_style(
 			'wcb-frontend-tokens',
 			WCB_URL . 'assets/css/frontend-tokens.css',
 			array(),
 			WCB_VERSION
 		);
-
-		wp_enqueue_style(
-			'wcb-editor',
-			WCB_URL . 'assets/css/wcb-editor.css',
-			array( 'wcb-frontend-tokens' ),
-			WCB_VERSION
-		);
-
-		wp_enqueue_script( 'editorjs', $vendor . 'editor.umd.js', array(), '2.30.8', true );
-
-		$tools = array(
-			'editorjs-header'      => 'header.umd.js',
-			'editorjs-list'        => 'list.umd.js',
-			'editorjs-quote'       => 'quote.umd.js',
-			'editorjs-marker'      => 'marker.umd.js',
-			'editorjs-inline-code' => 'inline-code.umd.js',
-			'editorjs-delimiter'   => 'delimiter.umd.js',
-		);
-		foreach ( $tools as $handle => $file ) {
-			wp_enqueue_script( $handle, $vendor . $file, array( 'editorjs' ), WCB_VERSION, true );
-		}
-
-		wp_enqueue_script(
-			'wcb-editor',
-			WCB_URL . 'assets/js/wcb-editor.js',
-			array_merge( array( 'editorjs' ), array_keys( $tools ) ),
-			WCB_VERSION,
-			true
-		);
-		wp_localize_script( 'wcb-editor', 'wcbEditorI18n', \WCB\Core\Plugin::editor_i18n() );
+		\WCB\Core\Plugin::enqueue_editor_assets();
 	}
 }
