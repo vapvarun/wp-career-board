@@ -254,6 +254,28 @@
 	min-height: var(--wcb-control-h);
 }
 
+/* My Jobs status pills: one group that wraps on desktop and scrolls as a
+ * single row on phones, so the filter reads as one control (Basecamp 10439833707). */
+.wcb-filter-pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+}
+
+@media (max-width: 640px) {
+	.wcb-filter-pills {
+		flex: 1 1 100%;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.wcb-filter-pills .wcb-filter-pill {
+		flex-shrink: 0;
+	}
+}
+
 /* Company filter (employers running several companies). Base look is the shared
  * .wcb-sort-select; on phones it takes the full row like the search field. */
 @media (max-width: 640px) {

@@ -281,9 +281,12 @@
 		flex-basis: 100%;
 	}
 
+	/* 40px tap target on a phone (Basecamp 10439829023). */
 	.wcb-settings-nav-item {
 		white-space: nowrap;
 		padding: 6px 10px;
+		min-block-size: 40px;
+		box-sizing: border-box;
 		border-radius: 6px;
 	}
 

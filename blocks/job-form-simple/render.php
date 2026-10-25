@@ -266,7 +266,7 @@ $wcb_state = apply_filters(
 
 			// Listing window notice.
 			/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
-			'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+			'listingWindow'            => __( 'Your listing stays live until %1$s. You can renew it from your dashboard.', 'wp-career-board' ),
 			/* translators: %s: latest allowed deadline date. */
 			'deadlineHelp'             => __( 'Pick any date up to %s, the longest this board allows.', 'wp-career-board' ),
 
@@ -321,10 +321,16 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			data-wp-text="state.listingWindowMessage"
 		></p>
 		<p hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
-		<p data-wp-class--wcb-hidden="!state.jobUrl">
-			<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
+		<p class="wcb-form-simple__actions">
+			<a class="wcb-btn wcb-btn--primary" data-wp-class--wcb-hidden="!state.jobUrl" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
 			</a>
+			<?php
+			$wcb_dashboard_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
+			if ( $wcb_dashboard_id > 0 ) :
+				?>
+				<a class="wcb-btn wcb-btn--secondary" href="<?php echo esc_url( (string) get_permalink( $wcb_dashboard_id ) . '#jobs' ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
+			<?php endif; ?>
 		</p>
 	</div>
 
@@ -335,17 +341,12 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		<p class="wcb-form-simple__error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 		<p class="wcb-form-buy" hidden data-wp-bind--hidden="!state.buyUrl"><a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.buyUrl"><?php esc_html_e( 'Buy credits', 'wp-career-board' ); ?></a></p>
 
-		<!-- Credit + listing window banners -->
+		<!-- Credit banner -->
 		<p
 			class="wcb-form-simple__credit"
 			data-wp-class--wcb-shown="state.hasCreditBanner"
 			data-wp-class--wcb-form-simple__credit--warn="state.hasInsufficientCredits"
 			data-wp-text="state.creditMessage"
-		></p>
-		<p
-			class="wcb-form-simple__listing-window"
-			data-wp-class--wcb-shown="state.hasListingWindow"
-			data-wp-text="state.listingWindowMessage"
 		></p>
 
 		<!-- ── Section 1: Basics ───────────────────────────────────── -->
@@ -556,6 +557,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
 				<input id="wcb-simple-deadline" type="date" aria-describedby="wcb-simple-deadline-help" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
 				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
+				<?php // Beside the date it describes (Basecamp 10439851754). ?>
+				<span class="wcb-form-hint" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></span>
 			</div>
 		</section>
 

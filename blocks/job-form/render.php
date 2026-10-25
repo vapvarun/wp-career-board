@@ -433,7 +433,7 @@ $wcb_initial_state = apply_filters(
 
 				// Listing window banner.
 				/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
-				'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+				'listingWindow'            => __( 'Your listing stays live until %1$s. You can renew it from your dashboard.', 'wp-career-board' ),
 				/* translators: %s: latest allowed deadline date. */
 				'deadlineHelp'             => __( 'Pick any date up to %s, the longest this board allows.', 'wp-career-board' ),
 
@@ -454,6 +454,9 @@ $wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
 wp_interactivity_state( 'wcb-job-form', $wcb_initial_state );
 
 // ── Step labels ────────────────────────────────────────────────────────────
+$wcb_dashboard_id = \WCB\Admin\Pages::get_id( 'employer_dashboard_page' );
+$wcb_my_jobs_url  = $wcb_dashboard_id > 0 ? (string) get_permalink( $wcb_dashboard_id ) . '#jobs' : '';
+
 $wcb_step_labels = array(
 	1 => __( 'Basics', 'wp-career-board' ),
 	2 => __( 'Details', 'wp-career-board' ),
@@ -477,7 +480,7 @@ $wcb_step_labels = array(
 	<?php endif; ?>
 
 	<!-- ── Step indicator ────────────────────────────────────────────────── -->
-	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>">
+	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>" data-wp-class--wcb-hidden="state.submitted">
 		<?php foreach ( $wcb_step_labels as $wcb_step_num => $wcb_step_label ) : ?>
 			<span
 				class="wcb-step<?php echo 1 === $wcb_step_num ? ' wcb-step--active' : ''; ?>"
@@ -498,6 +501,17 @@ $wcb_step_labels = array(
 			<?php endif; ?>
 		<?php endforeach; ?>
 	</nav>
+	<?php // Phones show numbers only, so the step's name is spelled out under them (Basecamp 10439851743). ?>
+	<p class="wcb-steps__caption" aria-hidden="true" data-wp-class--wcb-hidden="state.submitted">
+		<?php foreach ( $wcb_step_labels as $wcb_step_num => $wcb_step_label ) : ?>
+			<span class="<?php echo 1 === $wcb_step_num ? '' : 'wcb-hidden'; ?>" data-wp-class--wcb-hidden="!state.isStep<?php echo esc_attr( (string) $wcb_step_num ); ?>">
+				<?php
+				/* translators: 1: current step number, 2: number of steps, 3: step name. */
+				echo esc_html( sprintf( __( 'Step %1$s of %2$s: %3$s', 'wp-career-board' ), number_format_i18n( $wcb_step_num ), number_format_i18n( count( $wcb_step_labels ) ), $wcb_step_label ) );
+				?>
+			</span>
+		<?php endforeach; ?>
+	</p>
 
 	<!-- ── Credit info banner ────────────────────────────────────────────── -->
 	<div
@@ -517,13 +531,6 @@ $wcb_step_labels = array(
 		><?php esc_html_e( 'Buy Credits →', 'wp-career-board' ); ?></a>
 		<?php endif; ?>
 	</div>
-
-	<!-- ── Listing window banner (deadline preview) ─────────────────────── -->
-	<p
-		class="wcb-listing-window"
-		data-wp-class--wcb-hidden="!state.hasListingWindow"
-		data-wp-text="state.listingWindowMessage"
-	></p>
 
 	<!-- ── Submission success ────────────────────────────────────────────── -->
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
@@ -547,9 +554,15 @@ $wcb_step_labels = array(
 			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="state.jobPending">
 				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
-			<button type="button" class="wcb-form-success__reset" data-wp-on--click="actions.resetForm">
-				<?php esc_html_e( 'Post another job', 'wp-career-board' ); ?>
-			</button>
+			<?php // Somewhere to go next, pending or live (Basecamp 10439859260). ?>
+			<div class="wcb-form-success__actions">
+				<?php if ( $wcb_my_jobs_url ) : ?>
+					<a class="wcb-btn wcb-btn--primary" href="<?php echo esc_url( $wcb_my_jobs_url ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
+				<?php endif; ?>
+				<button type="button" class="wcb-form-success__reset" data-wp-on--click="actions.resetForm">
+					<?php esc_html_e( 'Post another job', 'wp-career-board' ); ?>
+				</button>
+			</div>
 		</div>
 	</div>
 
@@ -799,6 +812,8 @@ $wcb_step_labels = array(
 					aria-describedby="wcb-deadline-help"
 				/>
 				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-text="state.deadlineHelp"></p>
+				<?php // Beside the date it describes, not above the first field before a board is picked (Basecamp 10439851754). ?>
+				<p class="wcb-form-help" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></p>
 			</div>
 
 			<!-- Apply URL -->
@@ -1023,6 +1038,12 @@ $wcb_step_labels = array(
 					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-cbadge--show="state.hasExp" data-wp-text="state.expDisplay"></span>
 					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-cbadge--show="state.hasLocation" data-wp-text="state.locationDisplay"></span>
 					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-cbadge--show="state.hasCategory" data-wp-text="state.categoryDisplay"></span>
+				</div>
+
+				<div class="wcb-preview-card__tags" data-wp-bind--hidden="!state.hasTags">
+					<template data-wp-each--tag="state.tagList">
+						<span class="wcb-cbadge wcb-cbadge--tag wcb-cbadge--show" data-wp-text="context.tag"></span>
+					</template>
 				</div>
 
 				<!-- Meta row -->

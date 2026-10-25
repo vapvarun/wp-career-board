@@ -114,7 +114,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			if ( ! state.deadline ) {
 				return '';
 			}
-			return t( 'listingWindow', 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).' )
+			return t( 'listingWindow', 'Your listing stays live until %1$s. You can renew it from your dashboard.' )
 				.replace( '%1$s', formatSiteDate( state.deadline, state.locale ) );
 		},
 

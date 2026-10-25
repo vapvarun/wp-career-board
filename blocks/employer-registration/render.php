@@ -53,19 +53,21 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 // WordPress ships with "Anyone can register" off. The form used to render
 // anyway and only failed after the visitor had filled every field.
 if ( ! $wcb_user && ! get_option( 'users_can_register' ) && ! is_multisite() ) {
-	?>
-	<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--closed' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-		<div class="wcb-reg-closed">
-			<?php echo \WCB\Core\Icon::svg( 'user-x' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			<p class="wcb-reg-closed__text">
-				<?php esc_html_e( 'New account registration is closed on this site.', 'wp-career-board' ); ?>
-			</p>
-			<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
-				<?php esc_html_e( 'Sign in', 'wp-career-board' ); ?>
-			</a>
-		</div>
-	</div>
-	<?php
+	$wcb_gate = array(
+		'icon'    => 'user-x',
+		'title'   => __( 'Employer registration', 'wp-career-board' ),
+		'message' => __( 'New account registration is closed on this site. If you already have an account, sign in. Otherwise, contact the site owner to get one.', 'wp-career-board' ),
+		'actions' => array(
+			array(
+				'label'   => __( 'Sign in', 'wp-career-board' ),
+				'url'     => wp_login_url( (string) get_permalink() ),
+				'primary' => true,
+			),
+		),
+	);
+	echo '<div ' . get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--closed' ) ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wrapper attributes escaped by core.
+	require WCB_DIR . 'templates/parts/dashboard-gate.php';
+	echo '</div>';
 	return;
 }
 
@@ -185,12 +187,12 @@ wp_interactivity_state(
 	<?php /* ── Step 1: Role picker ── */ ?>
 	<div class="wcb-reg-form-wrap" data-wp-class--wcb-hidden="state.submitted">
 		<div class="wcb-role-picker" data-wp-class--wcb-hidden="state.role">
-			<h2 class="wcb-reg-title">
+			<h1 class="wcb-reg-title">
 				<?php
 				/* translators: %s: site name. */
 				echo esc_html( sprintf( __( 'Join %s', 'wp-career-board' ), get_bloginfo( 'name' ) ) );
 				?>
-			</h2>
+			</h1>
 			<?php if ( ! $wcb_is_logged_in ) : ?>
 			<p class="wcb-reg-subtitle">
 				<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>

@@ -1027,6 +1027,7 @@
 	cursor: pointer;
 	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
 	white-space: nowrap;
+	min-height: 40px; /* Save job: tap target, and level with Apply beside it */
 }
 
 [class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn:hover,
@@ -1230,6 +1231,22 @@
 [class*="wp-block-wcb-"] .wcb-card-title a:hover,
 [class*="wp-block-wcb-"] .wcb-listing-title a:hover {
 	text-decoration: underline;
+}
+
+/*
+ * Chips, badges, menu items and name links read as controls or titles, not
+ * body links, so Astra's `.ast-single-post .entry-content a` underline must
+ * not reach them (Basecamp 10439870246, 10439827925). Names and back links
+ * underline on hover and focus only. Links inside a description stay
+ * underlined: they are body copy.
+ */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-badge, .wcb-tag, .wcb-chip, .wcb-share-btn, .wcb-row-menu__item, .wcb-panel-link),
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name) {
+	text-decoration: none !important;
+}
+
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name):is(:hover, :focus-visible) {
+	text-decoration: underline !important;
 }
 
 /* ── Focus Visible — Global ──────────────────────────────────────────── */

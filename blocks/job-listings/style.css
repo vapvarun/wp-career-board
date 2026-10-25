@@ -261,37 +261,7 @@
 	display: none;
 }
 
-/* Hidden by default; shown when data-wp-class adds .wcb-shown.
- * Padding aligned with `.wcb-ca-chip` (Companies) + `.wcb-ra-card-location`
- * /`.wcb-ra-skill-tag` (Find Candidates): `0.15rem var(--wcb-space-sm)`. */
-.wcb-cbadge {
-	display: none;
-	align-items: center;
-	gap: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
-	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-medium);
-	line-height: 1.4;
-	white-space: nowrap;
-}
-
-.wcb-cbadge.wcb-shown {
-	display: inline-flex;
-}
-
-/* All meta badges use the neutral Companies chip palette so Find Jobs,
- * Companies, and Find Candidates cards share one chip style. The earlier
- * yellow/green/red palette made Jobs cards visually louder than the
- * other two archives. Featured stays as a subtle warning tint - it IS
- * a meaningful promotion marker, but the soft variant keeps it from
- * dominating the card. */
-.wcb-cbadge--featured { background: var(--wcb-warning-bg-soft); color: var(--wcb-warning-fg); }
-.wcb-cbadge--board    { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--remote   { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+/* `.wcb-cbadge` chips live in assets/css/wcb-ui.css so the Post a Job preview shares them. */
 
 /* ── Card footer ─────────────────────────────────────────────────────────── */
 .wcb-card-footer {

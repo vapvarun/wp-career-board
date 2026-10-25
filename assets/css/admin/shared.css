@@ -212,6 +212,10 @@
 }
 .wcb-admin .form-table select,
 .wcb-admin .wcb-settings-row-control select {
+    /* Core already sizes a select to 40px through its line-height; block
+       padding on top made it 52px beside 40px inputs (Basecamp 10439829015). */
+    padding-block: 0;
+    line-height: 38px; /* core raises it on phones */
     padding-inline-end: 30px;
     /* Core caps selects at 25rem, wider than a phone column. */
     max-width: 100%;

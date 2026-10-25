@@ -241,6 +241,10 @@ wp_interactivity_state(
 					'withdraw'               => __( 'Withdraw', 'wp-career-board' ),
 					/* translators: %s: name of the item the menu acts on (a job, resume or company). */
 					'moreActionsFor'         => __( 'More actions for %s', 'wp-career-board' ),
+					/* translators: %s: job title. */
+					'withdrawFor'            => __( 'Withdraw application for %s', 'wp-career-board' ),
+					/* translators: %s: job title. */
+					'removeFor'              => __( 'Remove application for %s', 'wp-career-board' ),
 					'confirmClearAllTitle'   => __( 'Clear all notifications?', 'wp-career-board' ),
 					'confirmClearAllMsg'     => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
 					'clearAll'               => __( 'Clear all', 'wp-career-board' ),
@@ -728,28 +732,24 @@ wp_interactivity_state(
 								data-wp-bind--data-status="context.application.status"
 							></span>
 							<?php
-							// Withdraw (until there's an outcome) and Remove (job gone) sit in a
-							// menu, not beside the status. Both call DELETE /applications/{id}.
+							// One action at most per row, so a button, not a menu (Basecamp
+							// 10439832520): Withdraw until there's an outcome, Remove once the
+							// job is gone. Both call DELETE /applications/{id} after a confirm.
 							?>
-							<details class="wcb-row-menu" data-wp-class--wcb-hidden="!state.appHasActions" data-wp-on--toggle="actions.onRowMenuToggle" data-wp-on--keydown="actions.onRowMenuKeydown">
-								<summary class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-row-menu__toggle" data-wp-bind--aria-label="state.appMenuLabel">
-									<span aria-hidden="true">&#8943;</span>
-								</summary>
-								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
-									<button
-										type="button"
-										class="wcb-row-menu__item wcb-row-menu__item--danger"
-										data-wp-class--wcb-hidden="!state.appCanWithdraw"
-										data-wp-on--click="actions.withdrawApplication"
-									><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
-									<button
-										type="button"
-										class="wcb-row-menu__item wcb-row-menu__item--danger"
-										data-wp-class--wcb-hidden="!context.application.jobRemoved"
-										data-wp-on--click="actions.withdrawApplication"
-									><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
-								</div>
-							</details>
+							<button
+								type="button"
+								class="wcb-btn wcb-btn--outline wcb-btn--sm"
+								data-wp-class--wcb-hidden="!state.appCanWithdraw"
+								data-wp-bind--aria-label="state.appWithdrawLabel"
+								data-wp-on--click="actions.withdrawApplication"
+							><?php esc_html_e( 'Withdraw', 'wp-career-board' ); ?></button>
+							<button
+								type="button"
+								class="wcb-btn wcb-btn--outline wcb-btn--sm"
+								data-wp-class--wcb-hidden="!context.application.jobRemoved"
+								data-wp-bind--aria-label="state.appRemoveLabel"
+								data-wp-on--click="actions.withdrawApplication"
+							><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
 						</div>
 					</div>
 				</template>

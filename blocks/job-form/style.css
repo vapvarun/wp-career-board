@@ -153,12 +153,12 @@
 	background: var(--wcb-border);
 }
 
-/* The listing-window notice sits between the stepper and the step panel. Not
-   .wcb-form-help: that class forces margin with !important and would pin the
-   notice against the panel title. */
-[class*="wp-block-wp-career-board"] .wcb-listing-window {
+/* "Step 2 of 4: Details" - phones only, where the stepper shows numbers. */
+.wcb-steps__caption {
+	display: none;
 	margin: 0 0 var(--wcb-space-lg);
-	font-size: var(--wcb-text-xs);
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
 }
 
@@ -413,11 +413,57 @@
 
 .wcb-preview-meta-item--show {
 	display: inline-flex;
+	min-width: 0;
+	max-width: 100%;
 }
 
+/* One line with an ellipsis: a long link no longer breaks into a ragged block. */
 .wcb-preview-meta-item__url {
-	word-break: break-all;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: var(--wcb-text-xs);
+}
+
+/* Tags show as the employer typed them ("TypeScript", not "Typescript"). */
+.wcb-preview-card .wcb-cbadge--tag {
+	text-transform: none;
+}
+
+.wcb-preview-card__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+}
+
+/* Feature upsell: a full-width 40px row with a checkbox you can hit. */
+.wcb-form-feature {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	min-height: 40px;
+	margin-block: var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-bg-subtle);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-contrast);
+	cursor: pointer;
+}
+
+.wcb-form-feature input[type="checkbox"] {
+	flex: none;
+	inline-size: 20px;
+	block-size: 20px;
+	margin: 0;
+}
+
+@media (max-width: 640px) {
+	.wcb-form-feature {
+		align-items: flex-start;
+	}
 }
 
 /* ── Notice + error ──────────────────────────────────────────────────── */
@@ -589,13 +635,30 @@
 	outline-offset: 2px;
 }
 
+.wcb-form-success__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	margin-top: var(--wcb-space-sm);
+}
+
+.wcb-form-success__actions .wcb-form-success__reset {
+	margin-top: 0;
+}
+
 @media ( max-width: 640px ) {
 	.wcb-form-success {
 		flex-direction: column;
 		align-items: stretch;
 	}
 
-	.wcb-form-success__reset {
+	.wcb-form-success__actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.wcb-form-success__actions > * {
 		width: 100%;
 		justify-content: center;
 	}
@@ -603,13 +666,19 @@
 
 /* ── Responsive ──────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-	/* Numbers only for the other steps; the current one keeps its name. */
-	.wcb-step:not(.wcb-step--active) .wcb-step__label {
+	.wcb-step {
+		padding: var(--wcb-space-xs) var(--wcb-space-md);
+	}
+}
+
+/* Phones: numbers only, and the caption under them names the current step. */
+@media (max-width: 640px) {
+	.wcb-step__label {
 		display: none;
 	}
 
-	.wcb-step {
-		padding: var(--wcb-space-xs) var(--wcb-space-md);
+	.wcb-steps__caption {
+		display: block;
 	}
 }
 

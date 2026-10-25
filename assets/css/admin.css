@@ -269,9 +269,8 @@
 .wcb-meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px 20px; padding:8px 0; }
 .wcb-meta-full { grid-column:1/-1; }
 .wcb-meta-grid label { display:block; font-weight:600; margin-bottom:4px; }
-.wcb-meta-grid input[type=text],
-.wcb-meta-grid input[type=number],
-.wcb-meta-grid input[type=date] { width:100%; }
+/* Every control fills its cell; Apply URL, Apply Email and Company were left at core's widths (Basecamp 10439829031). */
+.wcb-meta-grid :is(input:not([type=checkbox], [type=radio]), select) { width:100%; max-width:100%; box-sizing:border-box; }
 .wcb-salary-prefix { display:inline-flex; align-items:center; gap:6px; }
 .wcb-salary-prefix span { font-size:13px; line-height:1; }
 

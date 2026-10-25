@@ -135,10 +135,9 @@
 }
 .wcb-form-simple__error.wcb-shown { display: block; }
 
-/* Credit + listing-window notices — info boxes, same chrome as the error
- * banner so they read as deliberate UI, not orphaned paragraph text. */
-.wcb-form-simple__credit,
-.wcb-form-simple__listing-window {
+/* Credit notice - an info box, same chrome as the error banner so it reads
+ * as deliberate UI, not orphaned paragraph text. */
+.wcb-form-simple__credit {
 	display: none;
 	margin: 0;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -149,8 +148,20 @@
 	border: 1px solid var(--wcb-info-border, #bfdbfe);
 	color: var(--wcb-info-fg, #1d4ed8);
 }
-.wcb-form-simple__credit.wcb-shown,
-.wcb-form-simple__listing-window.wcb-shown { display: block; }
+.wcb-form-simple__credit.wcb-shown { display: block; }
+
+.wcb-form-simple__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-sm);
+}
+
+@media (max-width: 640px) {
+	.wcb-form-simple__actions .wcb-btn {
+		flex: 1 1 100%;
+		justify-content: center;
+	}
+}
 
 /* Insufficient-credit state escalates the credit notice to a warning. */
 .wcb-form-simple__credit--warn {

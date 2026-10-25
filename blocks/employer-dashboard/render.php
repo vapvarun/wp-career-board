@@ -814,12 +814,14 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 			</div>
 
 			<div class="wcb-filter-bar" data-wp-class--wcb-hidden="!state.hasAnyJobs">
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isFilterAll" data-wp-bind--aria-pressed="state.isFilterAll" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="live" data-wp-class--wcb-filter-active="state.isFilterLive" data-wp-bind--aria-pressed="state.isFilterLive" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="draft" data-wp-class--wcb-filter-active="state.isFilterDraft" data-wp-bind--aria-pressed="state.isFilterDraft" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Draft', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="pending" data-wp-class--wcb-filter-active="state.isFilterPending" data-wp-bind--aria-pressed="state.isFilterPending" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Pending', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="closed" data-wp-class--wcb-filter-active="state.isFilterClosed" data-wp-bind--aria-pressed="state.isFilterClosed" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Closed', 'wp-career-board' ); ?></button>
-				<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isFilterRejected" data-wp-bind--aria-pressed="state.isFilterRejected" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></button>
+				<div class="wcb-filter-pills" role="group" aria-label="<?php esc_attr_e( 'Filter by status', 'wp-career-board' ); ?>">
+					<button type="button" class="wcb-filter-pill" data-wcb-filter="all" data-wp-class--wcb-filter-active="state.isFilterAll" data-wp-bind--aria-pressed="state.isFilterAll" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'All', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-filter-pill" data-wcb-filter="live" data-wp-class--wcb-filter-active="state.isFilterLive" data-wp-bind--aria-pressed="state.isFilterLive" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Live', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-filter-pill" data-wcb-filter="draft" data-wp-class--wcb-filter-active="state.isFilterDraft" data-wp-bind--aria-pressed="state.isFilterDraft" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Draft', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-filter-pill" data-wcb-filter="pending" data-wp-class--wcb-filter-active="state.isFilterPending" data-wp-bind--aria-pressed="state.isFilterPending" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Pending', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-filter-pill" data-wcb-filter="closed" data-wp-class--wcb-filter-active="state.isFilterClosed" data-wp-bind--aria-pressed="state.isFilterClosed" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Closed', 'wp-career-board' ); ?></button>
+					<button type="button" class="wcb-filter-pill" data-wcb-filter="rejected" data-wp-class--wcb-filter-active="state.isFilterRejected" data-wp-bind--aria-pressed="state.isFilterRejected" data-wp-on--click="actions.setJobFilter"><?php esc_html_e( 'Rejected', 'wp-career-board' ); ?></button>
+				</div>
 				<?php // One toolbar row on desktop: status chips, then search and the company filter. ?>
 				<input type="search" class="wcb-job-search" aria-label="<?php esc_attr_e( 'Search your jobs', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-bind--value="state.jobSearch" data-wp-on--input="actions.setJobSearch" />
 				<?php $wcb_company_filter(); ?>

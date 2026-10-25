@@ -334,6 +334,14 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return state.locationSlug === '__custom__';
 			},
+			get tagList() {
+				const { state } = store( 'wcb-job-form' );
+				return ( state.tags || '' ).split( ',' ).map( ( tag ) => tag.trim() ).filter( Boolean );
+			},
+			get hasTags() {
+				const { state } = store( 'wcb-job-form' );
+				return state.tagList.length > 0;
+			},
 			get hasCategory() {
 				const { state } = store( 'wcb-job-form' );
 				return state.categorySlugs.length > 0;
@@ -458,7 +466,7 @@ const { state } = store(
 				return fill(
 					t(
 						'listingWindow',
-						'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).'
+						'Your listing stays live until %1$s. You can renew it from your dashboard.'
 					),
 					'%1$s',
 					formatSiteDate( state.deadline, state.locale )

@@ -90,7 +90,9 @@
 		flex-direction: column;
 	}
 
-	.wcb-search-hero__field--select {
+	/* A full-width primary button on a phone, like Find Jobs and Find Candidates. */
+	.wcb-search-hero__field--select,
+	.wcb-search-hero__button {
 		width: 100%;
 	}
 }

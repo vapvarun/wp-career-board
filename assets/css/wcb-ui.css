@@ -1605,6 +1605,42 @@
 	color: var(--wcb-text-secondary, #6b7280);
 }
 
+/* ── Card chip (job cards + Post a Job preview) ──────────────────────────── */
+
+/* Hidden by default; shown when data-wp-class adds .wcb-shown.
+ * Padding aligned with `.wcb-ca-chip` (Companies) + `.wcb-ra-card-location`
+ * /`.wcb-ra-skill-tag` (Find Candidates): `0.15rem var(--wcb-space-sm)`. */
+.wcb-cbadge {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.wcb-cbadge.wcb-shown {
+	display: inline-flex;
+}
+
+/* All meta badges use the neutral Companies chip palette so Find Jobs,
+ * Companies, and Find Candidates cards share one chip style. The earlier
+ * yellow/green/red palette made Jobs cards visually louder than the
+ * other two archives. Featured stays as a subtle warning tint - it IS
+ * a meaningful promotion marker, but the soft variant keeps it from
+ * dominating the card. */
+.wcb-cbadge--featured { background: var(--wcb-warning-bg-soft); color: var(--wcb-warning-fg); }
+.wcb-cbadge--board    { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--remote   { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--category { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
+.wcb-cbadge--tag      { background: transparent; border: 1px solid var(--wcb-border); color: var(--wcb-text-secondary); }
+
 /* ── Layout utilities ─────────────────────────────────────────────────────── */
 
 .wcb-stack {
@@ -2324,14 +2360,18 @@
 	.wcb-bell-action,
 	.wcb-filter-panel__clear,
 	.wcb-active-chip,
-	.wcb-apps-filter-bar .wcb-filter-pill {
+	.wcb-filter-pill,
+	button.wcb-apps-chip,
+	.wcb-job-report__trigger,
+	.wcb-post-apply-alert-btn {
 		display: inline-flex;
 		align-items: center;
 		min-height: 40px;
 	}
 
 	/* Icon-only, not a text pill — needs both dimensions bumped. */
-	.wcb-active-chip-remove {
+	.wcb-active-chip-remove,
+	.wcb-rating__star {
 		min-width: 40px;
 		min-height: 40px;
 	}

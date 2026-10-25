@@ -27,6 +27,7 @@ bug_ref: 10412854820, 10430648050, 10430719814, 10427548090, 10431435128, 104314
 12. As `ahmed.karim`, Profile → Tab to the logo control → focus lands on `#wcb-company-logo` with a 2px ring on "Upload Logo"; Space opens the file picker; Tab moves on to Company Name. Upload CV on the candidate dashboard shows the same ring (card:10412904033).
 13. A job page as guest → Apply now in the hero and, outlined, in the sticky sidebar; with `add_filter( 'wcb_job_single_sidebar_cta', '__return_false' )` only the hero button (card:10417182252).
 13a. As `mateo.ruiz`, `/post-a-job/`, the employer dashboard Post a job tab and a page with the simple job form → each has one visible h1, "Post a Job" (editing a job: "Edit Job"), styled like Find Jobs; a page that starts with its own H1 heading block gets no second one (card:10439524696).
+13b. **Signed-out gates have a heading (card:10439833481).** Signed out, `/post-a-job/` and `/employer-registration/` each have one h1 at 1440 and 390. With `users_can_register` off, Employer Registration shows the shared gate card titled `Employer registration` with the closed-registration message and a Sign in button. Restore `users_can_register`.
 14. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown

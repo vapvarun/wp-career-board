@@ -302,15 +302,15 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			return state.resumesLoaded && ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
 		},
 
-		// Application row menu: Withdraw (until an outcome) and Remove (job gone).
+		// Application row action: Withdraw (until an outcome) or Remove (job gone).
 		get appCanWithdraw() {
 			return state.allowWithdraw && !! getContext().application?.canWithdraw;
 		},
-		get appHasActions() {
-			return state.appCanWithdraw || !! getContext().application?.jobRemoved;
+		get appWithdrawLabel() {
+			return t( 'withdrawFor', 'Withdraw application for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
 		},
-		get appMenuLabel() {
-			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
+		get appRemoveLabel() {
+			return t( 'removeFor', 'Remove application for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
 		},
 		// Saved rows ('...' menu): named after the saved job, company or resume.
 		get savedMeta() {
