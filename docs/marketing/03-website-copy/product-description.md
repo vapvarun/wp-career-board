@@ -85,7 +85,7 @@ WP Career Board Pro extends the free version with:
 
 **Credit System** — Create credit packages at any price, sell them through WooCommerce with any payment gateway, and require employers to spend credits to post jobs. Recurring packages and per-listing pricing both supported. Also integrates with Paid Memberships Pro and MemberPress for membership-based credit allocation.
 
-**Custom Field Builder** — Add custom fields to job listings, company profiles, and candidate profiles — no code required. Text, textarea, number, select, checkbox, date, URL, and file upload. Set visibility per field (public, logged in, employer only, candidate only).
+**Custom Field Builder** — Add custom fields to job listings, company profiles, and candidate profiles — no code required. Text, textarea, number, select, checkbox, date, URL, and file link. Set visibility per field (public, logged in, employer only, candidate only).
 
 **AI Settings** — AI-assisted job description writing from within the Post a Job form.
 
