@@ -24,7 +24,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue } from '@wcb/fields';
+import { customFieldValue, jobLocation, jobLocationLabel } from '@wcb/fields';
 import { formatSiteDate } from '@wcb/ui';
 
 /**
@@ -604,7 +604,7 @@ const { state } = store(
 						body: JSON.stringify( {
 							title: state.title,
 							company_type: state.companyName || '',
-							location: state.locationSlug || 'remote',
+							location: jobLocationLabel( state.locationSlug, state.locationCustom ),
 						} ),
 					} );
 					const data = yield response.json();
@@ -758,12 +758,7 @@ const { state } = store(
 						apply_email:     state.applyEmail,
 						categories:      state.categorySlugs,
 						job_types:       state.typeSlug ? [ state.typeSlug ] : [],
-						locations:       state.locationSlug && state.locationSlug !== '__custom__'
-							? [ state.locationSlug ]
-							: [],
-						location_custom: state.locationSlug === '__custom__'
-							? ( state.locationCustom || '' ).trim()
-							: '',
+						...jobLocation( state.locationSlug, state.locationCustom ),
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						board_id:          state.boardId ? Number( state.boardId ) : 0,
