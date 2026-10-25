@@ -17,7 +17,7 @@ fetch( '/wp-json/wcb/v1/jobs', {
 For server-to-server calls, generate an application password
 (Users -> Profile -> Application Passwords) and use HTTP Basic auth.
 
-A small set of endpoints permit guest access: the read-only jobs, companies, candidates, employers and search endpoints, the candidate and employer registration endpoints, and the apply endpoint. A guest can apply unless **Require login to apply** is on under **Settings > Applications**; then a logged-out request gets `401 wcb_login_required`. A logged-in user must hold the `wcb/apply-jobs` ability. A guest whose `guest_email` belongs to an account gets `409 wcb_guest_has_account` (the client should send them to sign in). A repeat guest application for the same job and email within 24 hours returns the same `200` body and application `id` as the first, so the route never reveals whether an email applied.
+A small set of endpoints permit guest access: the read-only jobs, companies, candidates, employers and search endpoints, the candidate and employer registration endpoints, and the apply endpoint. A guest can apply unless **Require login to apply** is on under **Settings > Sign-ups**; then a logged-out request gets `401 wcb_login_required`. A logged-in user must hold the `wcb/apply-jobs` ability. A guest whose `guest_email` belongs to an account gets `409 wcb_guest_has_account` (the client should send them to sign in). A repeat guest application for the same job and email within 24 hours returns the same `200` body and application `id` as the first, so the route never reveals whether an email applied.
 
 Abuse prevention on submission endpoints comes from the anti-spam module: an always-on honeypot field plus an optional CAPTCHA provider (Cloudflare Turnstile, Google reCAPTCHA v3 or v2). Some public routes also have hourly per-IP limits. See [Abuse prevention](#abuse-prevention).
 
@@ -59,7 +59,7 @@ The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` fo
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/jobs` | guest OK | List jobs with filters: `search` (alias `s`), `category`, `location`, `type`, `experience`, `tag` (each takes one slug or a comma list, any of), `remote`, `salary_min`, `salary_max`, `board` (alias `board_id`), `company`, `author`, `open` (only jobs taking applications), `sort` (`relevance`, `newest`, `oldest`, `salary`, `closing`), `per_page` (1-100; unset uses **Jobs Per Page**), `page` |
+| `GET` | `/jobs` | guest OK | List jobs with filters: `search` (alias `s`), `category`, `location`, `type`, `experience`, `tag` (each takes one slug or a comma list, any of), `remote`, `salary_min`, `salary_max`, `board` (alias `board_id`), `company`, `author`, `open` (only jobs taking applications), `sort` (`relevance`, `newest`, `oldest`, `salary`, `closing`), `per_page` (a value above 100 is clamped to 100; unset uses **Jobs Per Page**), `page` |
 | `GET` | `/jobs/{id}` | guest OK | Single job (full detail) |
 | `POST` | `/jobs` | `wcb/post-jobs` | Create a job. Send `featured: true` to ask for featured placement: the job is still created if that charge fails, and the response carries `feature_error`. A 402 `wcb_insufficient_credits` carries `cost`, `balance` and `purchase_url` |
 | `PUT` `PATCH` | `/jobs/{id}` | author or company member with `wcb/post-jobs`, or `wcb/manage-settings` | Update a job. Moderators can set `featured` here. `location_custom` on its own replaces the job's locations; sent with `locations` it is added to them. `remote` takes a boolean or `"true"`/`"false"` |
@@ -67,6 +67,7 @@ The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` fo
 | `POST` | `/jobs/{id}/approve` | moderator | Approve a pending job |
 | `POST` | `/jobs/{id}/reject` | moderator | Reject a pending job (requires `reason`) |
 | `POST` | `/jobs/{id}/bookmark` | `wcb/bookmark-jobs` (any logged-in member by default) | Toggle a saved job |
+| `POST` | `/jobs/{id}/view` | Public | Count one view of the job. The job page calls it from the browser, so a full-page cache still counts views. |
 | `POST` | `/jobs/{id}/feature` | job owner | Pay to feature a job. Added by WP Career Board Pro |
 | `POST` | `/jobs/{id}/report` | logged-in | Report a published job for moderation. A second report from the same user is ignored |
 | `POST` | `/jobs/{id}/resolve-flag` | moderator | Dismiss or unpublish a flagged job |
@@ -80,7 +81,7 @@ update, not a dedicated route: `PATCH /jobs/{id}` with
 a paid board through the `wcb_job_payment` filter, and fires
 `wcb_job_republished`.
 
-Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relative fields: `is_bookmarked`, `has_applied`, `application_status` and `viewer_can_apply`. They are computed per request, so they stay correct for each requester. A guest gets `is_bookmarked: false`, `has_applied: false`, `application_status: null` and `viewer_can_apply: true`, or `viewer_can_apply: false` when Settings > Applications requires login to apply.
+Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relative fields: `is_bookmarked`, `has_applied`, `application_status` and `viewer_can_apply`. They are computed per request, so they stay correct for each requester. A guest gets `is_bookmarked: false`, `has_applied: false`, `application_status: null` and `viewer_can_apply: true`, or `viewer_can_apply: false` when **Require login to apply** is on under Settings > Sign-ups.
 
 ### Applications
 

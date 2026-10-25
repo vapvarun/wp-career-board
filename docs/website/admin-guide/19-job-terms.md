@@ -14,7 +14,7 @@ Add, rename and delete terms the same way as WordPress categories and tags.
 
 ## Choose the order
 
-Every term screen has an **Order** field, on both the Add and the Edit form. Enter a whole number. Lower numbers come first in every filter and every form, including the job form, the Job Filters block and the job listings filter panel. Leave it empty to sort after the terms that have a number, alphabetically.
+Every term screen has an **Order** field, on both the Add and the Edit form, and in Quick Edit. The term list has a sortable **Order** column that shows the number, or a dash for a term sorted by name. Enter a whole number. Lower numbers come first in every filter and every form, including the job form, the Job Filters block and the job listings filter panel. Leave it empty to sort after the terms that have a number, alphabetically.
 
 Experience levels you have not numbered sort by seniority, taken from the term's slug: intern, entry, junior, mid, senior, lead, principal or staff, manager, director, executive. A term whose slug has none of those words goes last. Set **Order** on a level to override this.
 

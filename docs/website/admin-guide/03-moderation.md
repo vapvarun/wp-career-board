@@ -100,7 +100,7 @@ Administrators can suspend a candidate from **Career Board → Candidates**:
 1. Go to **Career Board → Candidates**.
 2. Hover a candidate's row and click **Suspend**, or select several rows and choose **Suspend** from the bulk actions.
 
-A suspended candidate loses Career Board abilities such as applying and saving jobs. Click **Restore** (or the **Restore** bulk action) to lift the suspension.
+A suspended candidate loses Career Board abilities such as applying and saving jobs. Click **Restore** (or the **Restore** bulk action) to lift the suspension. A **Suspended** view above the list shows only suspended candidates once there is at least one.
 
 The **Delete** bulk action opens WordPress's own Delete Users screen to confirm. Deleting a candidate removes their personal data and keeps their past applications for employers as "Deleted candidate".
 
@@ -110,7 +110,7 @@ When you delete an employer on WordPress's Delete Users screen, choose **Attribu
 
 ### Banning employers
 
-Administrators can use **Ban** on **Career Board → Employers** to stop an employer posting and take their live and pending jobs and their company page off the site. **Unban** puts back exactly what was live or pending. A job you edited, approved or deleted while the ban was on is left as you set it. Suspending a candidate hides their public resume the same way. In the Jobs list a hidden job shows as **Hidden: employer banned**.
+Administrators can use **Ban** on **Career Board → Employers** to stop an employer posting and take their live and pending jobs and their company page off the site. **Unban** puts back exactly what was live or pending. A job you edited, approved or deleted while the ban was on is left as you set it. Suspending a candidate hides their public resume the same way. In the Jobs list a hidden job shows as **Hidden: employer banned**. A **Banned** view above the Employers list shows only banned employers once there is at least one.
 
 ## Admin notifications
 

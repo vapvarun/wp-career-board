@@ -11,14 +11,14 @@ Open the **Find Jobs** page (`/find-jobs/` on a default install). It lists publi
 - Badges for Featured, Remote, job type, experience level and location
 - A short excerpt
 - Salary, if the employer entered one
-- The application deadline, or a closed label
+- The application deadline, labelled "Apply by", or a closed label
 - How long ago the job was posted
 
 Click a card or **View Job** to open the full job page. Use the layout buttons above the results to switch between list and grid view. The site owner sets how many jobs load at a time.
 
 ## Search by keyword
 
-Type in the **Search jobs** box. Jobs must contain every word you type in the title, the description or the company name. Words of one letter are ignored, and only the first six different words are used. Results update without a reload.
+Type in the **Search jobs** box. Jobs must contain every word you type in the title, the description or the company name. Words of one letter are ignored, and only the first six different words are used. Results update without a reload. Your search stays in the box when you reload the page or open a shared link, and you can clear it from the box.
 
 ## Filter jobs
 

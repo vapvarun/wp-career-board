@@ -2,6 +2,20 @@
 
 You can use this page to see recent changes that affect how you set up and run your job board. For the full history, see the changelog in `readme.txt`.
 
+## In 1.8.2
+
+* **Post a Job.** The page has a heading, the step bar names the current step on phones, the preview includes the description, and the confirmation offers **View my jobs** and **Post another job**. See [Post a Job](../for-employers/02-post-a-job.md).
+* **Location order.** The job form's Location list follows the **Order** you set, and term lists have a sortable **Order** column. See [Categories, types, locations and experience levels](../admin-guide/19-job-terms.md).
+* **Admin lists.** Candidates has a **Suspended** view and Employers has a **Banned** view. See [Moderation](../admin-guide/03-moderation.md).
+* **Getting started.** The admin checklist ticks **Invite an employer** once an employer exists. See [Setup Wizard](./03-setup-wizard.md).
+* **Find Jobs.** The search term stays in the box after a reload or a shared link, and the closing date reads "Apply by".
+* **Multi-currency salary.** The salary filter and the **Highest salary** sort keep jobs paid in other currencies. See [Salary range filter](../for-candidates/08-salary-filter.md).
+* **Privacy log.** Guest requests and account deletions through WordPress appear in the **Privacy** tab, and email history retention no longer prunes early on sites west of UTC.
+* **Job saves.** The API and admin editor reject an empty title and a minimum salary above the maximum, and clamp `per_page` to 100. See [Error codes](../developer-guide/07-error-codes.md).
+* **Companies.** Renaming a company updates its jobs and search.
+* **Pipeline (Pro).** Moving an application past the first stage sets it to Reviewing. See [Application pipeline](../for-employers/06-application-pipeline.md).
+* **Themes and touch.** Link-styled buttons stay un-underlined in Astra, and job page and dashboard controls are at least 40px tall on touch screens.
+
 ## In 1.8.1
 
 * **Several companies per employer.** An employer can run more than one company. My Jobs, Applications and Post a Job cover all of them, with a company filter. See [Employer overview](../for-employers/01-overview.md).

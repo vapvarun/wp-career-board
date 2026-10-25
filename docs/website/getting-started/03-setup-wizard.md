@@ -61,6 +61,10 @@ If you dismissed the wizard or need to create missing pages:
 
 Pages you already have are kept and reused.
 
+## Getting started checklist
+
+The **Career Board** dashboard in wp-admin shows a **Getting started** card until setup is complete and a job is published. It ticks off **Plugin activated**, **Pages created**, **Add your first job** and **Invite an employer**. The last item ticks as soon as the site has one employer, and its **+ Add User** link then disappears.
+
 ## After the wizard
 
 Once complete, your site has a working job board. Next steps:
