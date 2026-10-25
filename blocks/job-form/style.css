@@ -383,12 +383,7 @@
 }
 
 .wcb-preview-card .wcb-cbadge {
-	display: none;
 	text-transform: capitalize;
-}
-
-.wcb-preview-card .wcb-cbadge--show {
-	display: inline-flex;
 }
 
 .wcb-preview-card__company {

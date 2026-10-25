@@ -1217,7 +1217,13 @@
 [class*="wp-block-wcb-"] [role="tab"],
 [class*="wp-block-wcb-"] .wcb-role-card,
 [class*="wp-block-wcb-"] .wcb-sidebar a:not(.wcb-btn),
-[class*="wp-block-wcb-"] .wcb-nav-item {
+[class*="wp-block-wcb-"] .wcb-nav-item,
+/* Chips, badges, menu items and name links read as controls or titles, not
+   body links, so Astra's `.ast-single-post .entry-content a` underline must
+   not reach them (Basecamp 10439870246, 10439827925). Links inside a
+   description stay underlined: they are body copy. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-badge, .wcb-tag, .wcb-share-btn, .wcb-row-menu__item, .wcb-panel-link),
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name) {
 	text-decoration: none !important;
 	box-shadow: none;
 }
@@ -1229,23 +1235,10 @@
 [class*="wp-block-wcb-"] .wcb-job-card a:hover,
 [class*="wp-block-wcb-"] .wcb-cp-job-title a:hover,
 [class*="wp-block-wcb-"] .wcb-card-title a:hover,
-[class*="wp-block-wcb-"] .wcb-listing-title a:hover {
-	text-decoration: underline;
-}
-
-/*
- * Chips, badges, menu items and name links read as controls or titles, not
- * body links, so Astra's `.ast-single-post .entry-content a` underline must
- * not reach them (Basecamp 10439870246, 10439827925). Names and back links
- * underline on hover and focus only. Links inside a description stay
- * underlined: they are body copy.
- */
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-badge, .wcb-tag, .wcb-chip, .wcb-share-btn, .wcb-row-menu__item, .wcb-panel-link),
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name) {
-	text-decoration: none !important;
-}
-
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name):is(:hover, :focus-visible) {
+[class*="wp-block-wcb-"] .wcb-listing-title a:hover,
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name, .wcb-panel-link):is(:hover, :focus-visible) {
+	/* !important to beat the `none !important` above; titles, names and
+	   panel links underline on hover and keyboard focus only. */
 	text-decoration: underline !important;
 }
 

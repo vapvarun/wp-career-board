@@ -1119,7 +1119,7 @@
 }
 
 /* UI-010: keyboard focus ring on toolbar icon buttons (bookmark + view
-   switcher). `.wcb-chip` already had one; these were missing (WCAG 2.4.7). */
+   switcher), which were missing (WCAG 2.4.7). */
 .wcb-bookmark-btn:focus-visible,
 .wcb-layout-btn:focus-visible,
 .wcb-view-btn:focus-visible {
@@ -1519,65 +1519,6 @@
 	min-width: 0;
 }
 
-/* ── Chip filter row ──────────────────────────────────────────────────────── */
-
-/* Shared chip primitive used by every archive filter bar. The earlier
- * `.wcb-chip` / `.wcb-chip-bar` definitions lived inside
- * `blocks/job-listings/style.css`, which meant the same class behaved
- * differently on `/companies/` (no rules loaded, falls back to native
- * button) and `/find-jobs/` (styled chip). Hoisting the rules into the
- * global ui primitives stylesheet ensures every block — including the
- * new Companies chip-bar and any future archive block — renders the
- * same affordance for free. Block-local stylesheets may still override
- * locally if a block needs a different size, but no block should
- * redefine the default state of `.wcb-chip` again. */
-
-.wcb-chip-bar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-chip {
-	display: inline-flex;
-	align-items: center;
-	height: var(--wcb-space-3xl);
-	padding-inline: var(--wcb-space-md);
-	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast, #0f172a);
-	background: var(--wcb-base, #ffffff);
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
-	white-space: nowrap;
-}
-
-.wcb-chip:hover {
-	border-color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-info-bg, #dbeafe);
-	color: var(--wcb-primary-text, #1d4ed8);
-}
-
-.wcb-chip:focus-visible {
-	outline: 2px solid var(--wcb-primary, #2563eb);
-	outline-offset: 2px;
-}
-
-.wcb-chip.wcb-chip-active {
-	border-color: var(--wcb-primary-strong);
-	background: var(--wcb-primary-strong);
-	color: var(--wcb-on-primary, #ffffff);
-}
-
-.wcb-chip.wcb-chip-active:hover {
-	background: var(--wcb-primary-dark, #1d4ed8);
-	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: var(--wcb-on-primary, #ffffff);
-}
-
 /* ── Badge ────────────────────────────────────────────────────────────────── */
 
 .wcb-badge {
@@ -1620,6 +1561,8 @@
 	font-weight: var(--wcb-font-medium);
 	line-height: 1.4;
 	white-space: nowrap;
+	background: var(--wcb-surface);
+	color: var(--wcb-text-secondary);
 }
 
 .wcb-cbadge.wcb-shown {
@@ -1633,12 +1576,6 @@
  * a meaningful promotion marker, but the soft variant keeps it from
  * dominating the card. */
 .wcb-cbadge--featured { background: var(--wcb-warning-bg-soft); color: var(--wcb-warning-fg); }
-.wcb-cbadge--board    { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--remote   { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--type     { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--exp      { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--location { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
-.wcb-cbadge--category { background: var(--wcb-surface); color: var(--wcb-text-secondary); }
 .wcb-cbadge--tag      { background: transparent; border: 1px solid var(--wcb-border); color: var(--wcb-text-secondary); }
 
 /* ── Layout utilities ─────────────────────────────────────────────────────── */
@@ -2200,8 +2137,13 @@
 	color: var(--wcb-contrast);
 }
 
-/* (0,3,0): beats the block-scope link reset in frontend-components.css. */
+/* (0,3,0): beats the block-scope link reset in frontend-components.css.
+   40px tall on every pointer, not only touch: the owner put usability ahead
+   of a text-size link on a mouse (Basecamp 10439833492). */
 .wcb-dashboard .wcb-main .wcb-panel-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 40px;
 	padding: 0;
 	border: none;
 	background: none;
@@ -2211,10 +2153,6 @@
 	color: var(--wcb-primary-text); /* text-safe shade: raw primary missed 4.5:1 on tinted panels */
 	text-decoration: none;
 	cursor: pointer;
-}
-
-.wcb-dashboard .wcb-main .wcb-panel-link:hover {
-	text-decoration: underline;
 }
 
 /* Account and password save feedback. */
@@ -2372,8 +2310,6 @@
    look on a pointer device and gain height (not size) on touch and on phones. */
 @media (pointer: coarse), (max-width: 640px) {
 	.wcb-btn--sm,
-	.wcb-chip,
-	.wcb-panel-link,
 	.wcb-bell-action,
 	.wcb-filter-panel__clear,
 	.wcb-active-chip,

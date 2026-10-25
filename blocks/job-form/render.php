@@ -1028,21 +1028,21 @@ $wcb_step_labels = array(
 					</div>
 					<span
 						class="wcb-cbadge wcb-cbadge--remote"
-						data-wp-class--wcb-cbadge--show="state.isRemote"
+						data-wp-class--wcb-shown="state.isRemote"
 					><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
 				</div>
 
 				<!-- Badges row -->
 				<div class="wcb-preview-card__badges">
-					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-cbadge--show="state.hasType" data-wp-text="state.typeDisplay"></span>
-					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-cbadge--show="state.hasExp" data-wp-text="state.expDisplay"></span>
-					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-cbadge--show="state.hasLocation" data-wp-text="state.locationDisplay"></span>
-					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-cbadge--show="state.hasCategory" data-wp-text="state.categoryDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-shown="state.hasType" data-wp-text="state.typeDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-shown="state.hasExp" data-wp-text="state.expDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-shown="state.hasLocation" data-wp-text="state.locationDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-shown="state.hasCategory" data-wp-text="state.categoryDisplay"></span>
 				</div>
 
 				<div class="wcb-preview-card__tags" data-wp-bind--hidden="!state.hasTags">
 					<template data-wp-each--tag="state.tagList">
-						<span class="wcb-cbadge wcb-cbadge--tag wcb-cbadge--show" data-wp-text="context.tag"></span>
+						<span class="wcb-cbadge wcb-cbadge--tag wcb-shown" data-wp-text="context.tag"></span>
 					</template>
 				</div>
 

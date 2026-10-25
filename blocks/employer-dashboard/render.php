@@ -282,7 +282,6 @@ wp_interactivity_state(
 		'saving'                => false,
 		'saved'                 => false,
 		'dashboardUrl'          => $wcb_dashboard_url,
-		'customFieldGroups'     => apply_filters( 'wcb_company_form_fields', array(), $wcb_company_id ),
 		'customFields'          => (object) (
 			$wcb_company_id > 0
 				? \WCB\Core\FormCustomFields::load_values(

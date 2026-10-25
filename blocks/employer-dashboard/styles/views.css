@@ -1265,8 +1265,8 @@
 @media (prefers-reduced-motion: reduce) {
 	.wcb-filter-pill,
 	.wcb-job-row,
-	.wcb-job-search,
-	.wcb-apps-job-search,
+	:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-job-search,
+	:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-apps-job-search,
 	.wcb-apps-job-item,
 	.wcb-field-input {
 		transition: none;

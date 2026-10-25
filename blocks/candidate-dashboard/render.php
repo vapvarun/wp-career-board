@@ -249,9 +249,6 @@ wp_interactivity_state(
 					'confirmClearAllMsg'     => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
 					'clearAll'               => __( 'Clear all', 'wp-career-board' ),
 					'errWithdraw'            => __( 'Could not withdraw application. Please try again.', 'wp-career-board' ),
-					'confirmEraseTitle'      => __( 'Delete your account?', 'wp-career-board' ),
-					'confirmEraseMsg'        => __( 'We\'ll send a confirmation email to your registered address. After you click the link in the email, the site administrator will permanently delete your applications, resumes, and account. This cannot be undone.', 'wp-career-board' ),
-					'confirmEraseConfirm'    => __( 'Send confirmation email', 'wp-career-board' ),
 				)
 			),
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',
@@ -309,7 +306,6 @@ wp_interactivity_state(
 			'resumeEmbedId'           => $wcb_resume_embed_id,
 			'showNewResumeForm'       => false,
 			'newResumeTitle'          => '',
-			'customFieldGroups'       => apply_filters( 'wcb_candidate_form_fields', array(), $wcb_candidate_id ),
 			'customFields'            => (object) (
 				$wcb_candidate_id > 0
 					? \WCB\Core\FormCustomFields::load_values(

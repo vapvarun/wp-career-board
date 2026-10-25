@@ -352,7 +352,7 @@
  * height drift between Customer Success Manager (no deadline) and Backend
  * Engineer (has deadline). */
 /* (0,3,1) selector wins over the (0,2,0) `.wcb-cbadge.wcb-shown { display:
- * inline-flex }` rule above on specificity, no `!important` needed. */
+ * inline-flex }` rule in assets/css/wcb-ui.css on specificity, no `!important` needed. */
 .wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-cbadge--board,
 .wp-block-wp-career-board-job-listings .wcb-jobs-container.wcb-grid .wcb-card-deadline {
 	display: none;
@@ -435,11 +435,6 @@
 	gap: var(--wcb-space-xs);
 }
 
-.wcb-filter-panel__chips .wcb-chip {
-	width: 100%;
-	justify-content: flex-start;
-}
-
 /* Salary range inside the filter panel - no popover wrapper since the
  * panel itself is already a persistent surface. Sliders stack with their
  * value labels for legibility at the narrow sidebar width. */
@@ -479,67 +474,7 @@
 	cursor: pointer;
 }
 
-/* Chip bar (legacy - retained for blocks that still embed horizontal
- * chip rows outside the filter panel, e.g. saved-jobs and author-feed
- * variants of this block which intentionally skip the sidebar). */
-.wcb-chip-bar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--wcb-space-xs); /* 0.375rem ≈ 6px → xs */
-}
-
-.wcb-chip {
-	display: inline-flex;
-	align-items: center;
-	height: var(--wcb-space-3xl);
-	padding-inline: var(--wcb-space-md); /* 0.875rem ≈ 14px → md */
-	border: 1px solid var( --wcb-border, var(--wp--preset--color--wcb-border) );
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
-	color: var( --wcb-contrast, var(--wp--preset--color--wcb-contrast) );
-	background: var( --wcb-base, var(--wp--preset--color--wcb-base) );
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
-	white-space: nowrap;
-}
-
-.wcb-chip:hover {
-	border-color: var(--wcb-primary);
-	background: var(--wcb-info-bg);
-	color: var(--wcb-primary-text, #1d4ed8);
-}
-
-.wcb-chip.wcb-chip-active:hover {
-	background: var(--wcb-primary-dark);
-	border-color: var(--wcb-primary-dark);
-	color: var(--wcb-on-primary, #ffffff);
-}
-
-.wcb-chip.wcb-chip-active {
-	border-color: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	background: var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	color: var(--wcb-on-primary, #ffffff);
-}
-
-.wcb-chip:focus-visible {
-	outline: 2px solid var( --wcb-primary, var(--wp--preset--color--wcb-primary) );
-	outline-offset: 2px;
-}
-
-/* Salary slider popover — <details>/<summary> with the summary acting as a chip. */
-.wcb-chip-popover {
-	display: inline-block;
-	position: relative;
-}
-.wcb-chip-popover > summary {
-	list-style: none;
-	cursor: pointer;
-}
-.wcb-chip-popover > summary::-webkit-details-marker {
-	display: none;
-}
+/* Salary slider popover. */
 .wcb-salary-popover__body {
 	position: absolute;
 	z-index: 5;
@@ -601,14 +536,6 @@
 		inset-inline-start: auto;
 		inset-inline-end: 0;
 	}
-}
-
-.wcb-chip-divider {
-	display: inline-block;
-	width: 1px;
-	height: var(--wcb-space-xl);
-	background: var(--wcb-border);
-	margin-inline: var(--wcb-space-xs);
 }
 
 /* ── Filter rail: sticky with its own scroll, long groups folded ─────────────
@@ -889,7 +816,6 @@
 	.wcb-bookmark-btn,
 	.wcb-btn,
 	.wcb-load-more-btn,
-	.wcb-chip,
 	.wcb-alert-me-btn,
 	.wcb-active-chip-remove {
 		transition: none;

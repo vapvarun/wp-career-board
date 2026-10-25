@@ -78,18 +78,7 @@
 	padding-inline-start: 2.25rem !important;
 }
 
-/* Filter chips and "Clear all" — survive Reign's link/button resets. */
-.wcb-chip:hover {
-	border-color: var( --wcb-primary );
-	color: var( --wcb-primary-text );
-}
-
-.wcb-chip.wcb-chip-active {
-	border-color: var(--wcb-primary-strong);
-	background: var(--wcb-primary-strong);
-	color: var( --wcb-on-primary, #ffffff );
-}
-
+/* "Clear all" — survives Reign's link/button resets. */
 .wcb-clear-all:hover {
 	color: var( --wcb-contrast );
 }
