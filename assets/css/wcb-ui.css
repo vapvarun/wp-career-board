@@ -2155,6 +2155,23 @@
 	gap: var(--wcb-space-xl);
 }
 
+/* Side-by-side panels end level: the grid stretches each panel, the panel is a
+   column, its empty-state card fills it and the card's action sits at the
+   bottom, so one wrapped hint no longer pushes one card lower (Basecamp
+   10439937451). Stacked under 1024px, each card is its own height again. */
+.wcb-dashboard .wcb-two-col > .wcb-panel {
+	display: flex;
+	flex-direction: column;
+}
+
+.wcb-dashboard .wcb-two-col > .wcb-panel > .wcb-empty-state {
+	flex: 1 1 auto;
+}
+
+.wcb-dashboard .wcb-two-col > .wcb-panel > .wcb-empty-state > .wcb-btn {
+	margin-block-start: auto;
+}
+
 .wcb-dashboard .wcb-panel {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);

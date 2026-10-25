@@ -675,8 +675,8 @@ wp_interactivity_state(
 					</div>
 					<div class="wcb-empty-state wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentSavedJobs">
 						<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
-						<p class="wcb-empty-state__title"><?php esc_html_e( 'No saved jobs yet', 'wp-career-board' ); ?></p>
-						<p class="wcb-empty-state__body"><?php esc_html_e( 'Save jobs while you browse to come back to them here.', 'wp-career-board' ); ?></p>
+						<p class="wcb-empty-state__title"><?php esc_html_e( 'No saved jobs yet.', 'wp-career-board' ); ?></p>
+						<p class="wcb-empty-state__body"><?php esc_html_e( 'Save jobs to find them here.', 'wp-career-board' ); ?></p>
 						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs', 'wp-career-board' ); ?></a>
 					</div>
 				</div>
