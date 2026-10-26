@@ -1,6 +1,6 @@
 {
   "mode": "combo",
-  "scope": "1.8.2 post-bump confirmation; full touched-surface re-walk passed earlier the same day (14/14)",
+  "scope": "1.8.2 post-bump confirmation; full touched-surface re-walk passed earlier the same day (14/14); re-stamped 2026-10-26T08:58:01Z after b04a23c, which only changes the DB 1.4.3 repair query form; that path re-verified on this stack",
   "checks": [
     {
       "id": "A1",
@@ -41,11 +41,21 @@
       "name": "Pro supplement P1-P6",
       "result": "pass",
       "evidence": "See .last-smoke-pass-pro.json: P1 P2 P3 P4 P6 pass; P5 partial (no licensing server)."
+    },
+    {
+      "id": "D.no-expiry-mariadb.restore-after-b04a23c",
+      "status": "pass",
+      "evidence": "combo stack, after b04a23c (repair writes via $wpdb->update): db 1.4.2 -> 1.4.3, blank-deadline expired job -> publish, past-deadline and no-meta jobs stay wcb_expired; no new debug.log lines"
+    },
+    {
+      "id": "suite.after-b04a23c",
+      "status": "pass",
+      "evidence": "Free + Pro tests/test-*.php 65/65 on wb-listora.local after b04a23c; require_job_location restored to true"
     }
   ],
   "release_version": "1.8.2",
   "pro_version": "1.8.2",
-  "ran_at": "2026-10-26T08:12:25Z",
+  "ran_at": "2026-10-26T08:58:01Z",
   "hard_fails": [],
   "failures": [],
   "untested": [
