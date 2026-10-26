@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T08:15:22+00:00\n"
+"POT-Creation-Date: 2026-10-26T19:43:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-career-board\n"
@@ -6989,72 +6989,64 @@ msgstr ""
 msgid "#OpenToWork"
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:58
-#: integrations/companions/class-companion-installer.php:94
+#: integrations/companions/class-companion-installer.php:57
+#: integrations/companions/class-companion-installer.php:93
 msgid "You do not have permission to install plugins."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:99
+#: integrations/companions/class-companion-installer.php:98
 msgid "Unknown integration."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:111
+#: integrations/companions/class-companion-installer.php:110
 msgid "This integration cannot be installed automatically. Visit the store."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:117
+#: integrations/companions/class-companion-installer.php:116
 msgid "A license key is required for this download."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:175
+#: integrations/companions/class-companion-installer.php:168
 msgid "Could not reach the store to activate the license. Please try again."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:180
-msgid "The store returned an unexpected response while activating the license."
-msgstr ""
-
 #. translators: %s: the store's activation error reason.
-#: integrations/companions/class-companion-installer.php:197
+#: integrations/companions/class-companion-installer.php:186
 #, php-format
 msgid "The store would not activate this free license for your site (reason: %s). This is a store-side license configuration issue, not a site error."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:226
+#: integrations/companions/class-companion-installer.php:209
 msgid "Could not reach the store. Please try again."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:231
-msgid "The store returned an unexpected response."
-msgstr ""
-
-#: integrations/companions/class-companion-installer.php:237
+#: integrations/companions/class-companion-installer.php:216
 msgid "That license is not valid for this product."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:242
+#: integrations/companions/class-companion-installer.php:221
 msgid "The store did not return a download for this plugin."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:264
+#: integrations/companions/class-companion-installer.php:243
 msgid "WordPress needs filesystem access to install plugins. Configure direct file access or install from the Plugins screen."
 msgstr ""
 
 #. translators: 1: HTTP status, 2: store reason text.
-#: integrations/companions/class-companion-installer.php:283
+#: integrations/companions/class-companion-installer.php:262
 #, php-format
 msgid "The store rejected the download (HTTP %1$d: %2$s). This is a store-side license/entitlement issue."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:285
+#: integrations/companions/class-companion-installer.php:264
 msgid "no reason given"
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:297
+#: integrations/companions/class-companion-installer.php:276
 msgid "The plugin could not be installed."
 msgstr ""
 
-#: integrations/companions/class-companion-installer.php:311
+#: integrations/companions/class-companion-installer.php:290
 msgid "Installed, but the plugin could not be activated automatically. Activate it from the Plugins screen."
 msgstr ""
 
@@ -8584,7 +8576,7 @@ msgstr ""
 msgid "Schedule deletion"
 msgstr ""
 
-#: wp-career-board.php:76
+#: wp-career-board.php:95
 msgid "WP Career Board is missing files from its update library, so automatic updates are turned off. Reinstall WP Career Board to restore them."
 msgstr ""
 

@@ -3,9 +3,9 @@
  * WP Career Board companion installer.
  *
  * Installs a companion plugin by reusing the EDD delivery channel the
- * companions already speak: POST the store with `edd_action=get_version` +
- * item_id + key, take the signed package URL it returns, and hand it to WP
- * core's Plugin_Upgrader. Free companions install with the baked-in free
+ * companions already speak: ask the store (wcb_licence_request()) for
+ * `edd_action=get_version` + item_id + key, take the signed package URL it
+ * returns, and hand it to WP core's Plugin_Upgrader. Free companions install with the baked-in free
  * distribution key (unlimited, no expiry); Pro requires the customer's own
  * valid license.
  *
@@ -27,8 +27,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class CompanionInstaller {
 
-	private const STORE_URL = 'https://wbcomdesigns.com';
-	private const TIMEOUT   = 20;
+	private const TIMEOUT = 20;
 
 	/**
 	 * Hook the admin-post handler for companion installs.
@@ -157,28 +156,18 @@ final class CompanionInstaller {
 	 * @return true|WP_Error
 	 */
 	private static function activate_license( int $item_id, string $key ) {
-		$response = wp_remote_post(
-			self::STORE_URL,
+		// Same host and fallback as update checks (wcb_licence_request() in wp-career-board.php).
+		$reply = \wcb_licence_request(
 			array(
-				'timeout' => self::TIMEOUT,
-				'body'    => array(
-					'edd_action'  => 'activate_license',
-					'item_id'     => $item_id,
-					'license'     => $key,
-					'url'         => home_url(),
-					'environment' => function_exists( 'wp_get_environment_type' ) ? wp_get_environment_type() : 'production',
-				),
+				'edd_action' => 'activate_license',
+				'item_id'    => $item_id,
+				'license'    => $key,
 			)
 		);
-
-		if ( is_wp_error( $response ) ) {
+		if ( ! is_object( $reply ) ) {
 			return new WP_Error( 'wcb_store_unreachable', __( 'Could not reach the store to activate the license. Please try again.', 'wp-career-board' ) );
 		}
-
-		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $body ) ) {
-			return new WP_Error( 'wcb_store_bad_response', __( 'The store returned an unexpected response while activating the license.', 'wp-career-board' ) );
-		}
+		$body = (array) $reply;
 
 		// Already-active and valid are both fine.
 		$status = (string) ( $body['license'] ?? '' );
@@ -209,27 +198,17 @@ final class CompanionInstaller {
 	 * @return string|WP_Error Package URL, or WP_Error.
 	 */
 	private static function resolve_package_url( int $item_id, string $key, string $tier ) {
-		$response = wp_remote_post(
-			self::STORE_URL,
+		$reply = \wcb_licence_request(
 			array(
-				'timeout' => self::TIMEOUT,
-				'body'    => array(
-					'edd_action' => 'get_version',
-					'item_id'    => $item_id,
-					'license'    => $key,
-					'url'        => home_url(),
-				),
+				'edd_action' => 'get_version',
+				'item_id'    => $item_id,
+				'license'    => $key,
 			)
 		);
-
-		if ( is_wp_error( $response ) ) {
+		if ( ! is_object( $reply ) ) {
 			return new WP_Error( 'wcb_store_unreachable', __( 'Could not reach the store. Please try again.', 'wp-career-board' ) );
 		}
-
-		$body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $body ) ) {
-			return new WP_Error( 'wcb_store_bad_response', __( 'The store returned an unexpected response.', 'wp-career-board' ) );
-		}
+		$body = (array) $reply;
 
 		// Pro must present a valid license — never auto-install on an
 		// invalid/expired key; the UI shows the store link instead.
