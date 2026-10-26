@@ -104,7 +104,7 @@ A polish release: screens say what happened, data stays in step with its source,
 * Fix      - Job Type screens read Edit Job Type and Add New Job Type, and the menu reads Job Categories.
 * Fix      - wp wcb job list and wp wcb application list print an empty list for JSON, CSV and ids output when nothing matches.
 * Fix      - A cover letter, job description or profile typed right before clicking Submit or Save is sent in full, on the site and in the wp-admin job editor.
-* Fix      - Jobs set to No expiry stay published on MariaDB servers instead of expiring at the next hourly check.
+* Fix      - Jobs set to No expiry stay published on MariaDB servers instead of expiring at the next hourly check; an upgrade step republishes the ones already expired.
 * Fix      - History retention counts days in site time, so sites west of UTC keep their history for the full window.
 * Security - A guest's job page no longer carries resume data, and account deletions are written to the privacy log.
 * Dev      - New filters wcb_docs_url, wcb_job_single_sidebar_cta and wcb_client_ip_trusted_hops, and helper JobsMeta::parse_amount().

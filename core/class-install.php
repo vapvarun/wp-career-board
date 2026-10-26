@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.2';
+	const DB_VERSION = '1.4.3';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -545,6 +545,12 @@ final class Install {
 				\WCB\Modules\Employers\EmployersModule::sync_company_names();
 			}
 
+			// 1.4.3 - No expiry jobs the hourly sweep expired on MariaDB go
+			// back up.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.3', '<' ) ) {
+				self::restore_no_expiry_jobs();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -577,6 +583,38 @@ final class Install {
 		);
 		foreach ( array_map( 'intval', $ids ) as $id ) {
 			\WCB\Modules\Jobs\JobsMeta::order_salary( $id );
+		}
+	}
+
+	/**
+	 * Republish jobs with an empty deadline that sit in Expired.
+	 *
+	 * MariaDB casts an empty deadline to a date before today, so the hourly
+	 * sweep expired every No expiry job there; nothing else expires a job
+	 * without a deadline. A status update, not wp_update_post(): these jobs
+	 * were live all along, so they must not charge credits or send alerts again.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	private static function restore_no_expiry_jobs(): void {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade read.
+		$ids = array_map(
+			'intval',
+			$wpdb->get_col(
+				"SELECT p.ID FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_wcb_deadline'
+				WHERE p.post_type = 'wcb_job' AND p.post_status = 'wcb_expired' AND m.meta_value = ''"
+			)
+		);
+		if ( ! $ids ) {
+			return;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade repair, ids read above.
+		$wpdb->query( "UPDATE {$wpdb->posts} SET post_status = 'publish' WHERE ID IN ( " . implode( ',', $ids ) . ' )' );
+		foreach ( $ids as $id ) {
+			clean_post_cache( $id );
 		}
 	}
 
