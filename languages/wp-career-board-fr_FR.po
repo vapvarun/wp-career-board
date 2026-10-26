@@ -23,7 +23,7 @@ msgstr ""
 #: admin/views/setup-wizard-complete.php:21
 #: admin/views/setup-wizard.php:24
 #: core/class-abilities.php:178
-#: core/class-plugin.php:688
+#: core/class-plugin.php:694
 #: core/class-template-version-check.php:188
 #: modules/gdpr/class-gdpr-module.php:96
 #: modules/gdpr/class-gdpr-module.php:111
@@ -316,7 +316,7 @@ msgstr "Inscrit"
 #: admin/class-admin-candidates.php:144
 #: blocks/candidate-dashboard/render.php:1048
 #: blocks/candidate-dashboard/render.php:1132
-#: core/class-plugin.php:1201
+#: core/class-plugin.php:1207
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -1180,12 +1180,12 @@ msgstr "Tu n'as pas la permission de faire cela."
 
 #: admin/class-pages.php:50
 #: admin/class-pages.php:53
-#: core/class-plugin.php:706
+#: core/class-plugin.php:712
 msgid "Find Jobs"
 msgstr "Trouver des emplois"
 
 #: admin/class-pages.php:65
-#: core/class-plugin.php:724
+#: core/class-plugin.php:730
 msgid "Candidate Dashboard"
 msgstr "Tableau de bord candidat"
 
@@ -1284,7 +1284,7 @@ msgstr "Supprimer les données d'exemple"
 #: blocks/candidate-dashboard/render.php:1063
 #: blocks/job-form/editor-toolbar.php:30
 #: blocks/job-single/render.php:1018
-#: core/class-plugin.php:1306
+#: core/class-plugin.php:1312
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
 msgid "Cancel"
@@ -1676,7 +1676,7 @@ msgstr "Raison (optionnel) :"
 
 #: admin/class-admin.php:860
 #: blocks/candidate-dashboard/render.php:1058
-#: core/class-plugin.php:1305
+#: core/class-plugin.php:1311
 msgid "Confirm"
 msgstr "Confirmer"
 
@@ -3130,7 +3130,7 @@ msgid "No jobs match your search."
 msgstr "Aucun emploi ne correspond à ta recherche."
 
 #: blocks/employer-dashboard/render.php:938
-#: core/class-plugin.php:1178
+#: core/class-plugin.php:1184
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
@@ -3687,10 +3687,6 @@ msgstr "Publier une offre d'emploi est réservé aux employeurs. Inscris-toi en 
 #: blocks/job-form/render.php:86
 msgid "You are not authorized to edit this job."
 msgstr "Tu n'es pas autorisé à modifier cet emploi."
-
-#: blocks/job-form/render.php:416
-msgid "Your session has expired. Please refresh the page and try again."
-msgstr "Ta session a expiré. Actualise la page et réessaye."
 
 #: blocks/job-form/render.php:419
 msgid "Job title is required before you can continue."
@@ -4311,35 +4307,35 @@ msgstr "WP Career Board nécessite PHP 8.1+ et WordPress 6.9+."
 msgid "Plugin Activation Error"
 msgstr "Erreur d'activation du plugin"
 
-#: core/class-plugin.php:694
+#: core/class-plugin.php:700
 msgid "Full Job Board"
 msgstr "Tableau d'emplois complet"
 
-#: core/class-plugin.php:695
+#: core/class-plugin.php:701
 msgid "Search bar, filters, and job listings grid  -  the complete job board page."
 msgstr "Barre de recherche, filtres et grille d'offres d'emploi  -  la page complète du tableau d'emplois."
 
-#: core/class-plugin.php:710
+#: core/class-plugin.php:716
 msgid "Post a Job Form"
 msgstr "Formulaire de publication d'emploi"
 
-#: core/class-plugin.php:711
+#: core/class-plugin.php:717
 msgid "Multi-step job posting form for employers."
 msgstr "Formulaire de publication d'emploi multi-étapes pour les employeurs."
 
-#: core/class-plugin.php:718
+#: core/class-plugin.php:724
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr "Tableau de bord à onglets pour que les employeurs gèrent les emplois et les candidatures."
 
-#: core/class-plugin.php:725
+#: core/class-plugin.php:731
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr "Tableau de bord à onglets pour que les candidats suivent les candidatures et les emplois enregistrés."
 
-#: core/class-plugin.php:731
+#: core/class-plugin.php:737
 msgid "Company Directory"
 msgstr "Répertoire des entreprises"
 
-#: core/class-plugin.php:732
+#: core/class-plugin.php:738
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr "Grille interactive des profils d'entreprises d'employeurs avec filtres d'industrie et de taille."
 
@@ -5159,12 +5155,12 @@ msgstr "Barre latérale de filtrage"
 msgid "Reorder filters with the arrows, or hide ones you do not need."
 msgstr "Réorganise les filtres avec les flèches, ou masque ceux dont tu n'as pas besoin."
 
-#: core/class-plugin.php:1205
+#: core/class-plugin.php:1211
 #: blocks/job-listings/index.js:191
 msgid "Move up"
 msgstr "Déplacer vers le haut"
 
-#: core/class-plugin.php:1208
+#: core/class-plugin.php:1214
 #: blocks/job-listings/index.js:192
 msgid "Move down"
 msgstr "Déplacer vers le bas"
@@ -6892,7 +6888,7 @@ msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
-#: core/class-plugin.php:717
+#: core/class-plugin.php:723
 #: integrations/reign/class-reign-integration.php:104
 msgid "Employer dashboard"
 msgstr "Tableau de bord employeur"
@@ -7212,7 +7208,7 @@ msgid "Text formatting"
 msgstr "Mise en forme du texte"
 
 #: blocks/job-form/editor-toolbar.php:19
-#: core/class-plugin.php:1184
+#: core/class-plugin.php:1190
 msgid "Bold"
 msgstr "Gras"
 
@@ -7222,7 +7218,7 @@ msgid "B"
 msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
-#: core/class-plugin.php:1185
+#: core/class-plugin.php:1191
 msgid "Italic"
 msgstr "Italique"
 
@@ -7236,7 +7232,7 @@ msgid "Bulleted list"
 msgstr "Liste à puces"
 
 #: blocks/job-form/editor-toolbar.php:22
-#: core/class-plugin.php:1183
+#: core/class-plugin.php:1189
 msgid "Link"
 msgstr "Lien"
 
@@ -7360,100 +7356,100 @@ msgstr "Téléverse une image JPEG, PNG, WebP ou GIF."
 msgid "Applications closed"
 msgstr "Candidatures closes"
 
-#: core/class-plugin.php:501
+#: core/class-plugin.php:507
 msgid "Job Archive"
 msgstr "Archive des postes"
 
-#: core/class-plugin.php:502
+#: core/class-plugin.php:508
 msgid "Company Archive"
 msgstr "Archive des entreprises"
 
-#: core/class-plugin.php:508
+#: core/class-plugin.php:514
 msgid "Job Category Archive"
 msgstr "Archive des catégories de poste"
 
-#: core/class-plugin.php:509
+#: core/class-plugin.php:515
 msgid "Job Type Archive"
 msgstr "Archive des types de poste"
 
-#: core/class-plugin.php:510
+#: core/class-plugin.php:516
 msgid "Job Tag Archive"
 msgstr "Archive des étiquettes de poste"
 
-#: core/class-plugin.php:511
+#: core/class-plugin.php:517
 msgid "Job Location Archive"
 msgstr "Archive des lieux de poste"
 
-#: core/class-plugin.php:512
+#: core/class-plugin.php:518
 msgid "Experience Level Archive"
 msgstr "Archive des niveaux d'expérience"
 
-#: core/class-plugin.php:1155
+#: core/class-plugin.php:1161
 msgid "Click to tune"
 msgstr "Cliquer pour régler"
 
-#: core/class-plugin.php:1156
+#: core/class-plugin.php:1162
 msgid "or drag to move"
 msgstr "ou glisser pour déplacer"
 
-#: core/class-plugin.php:1161
-#: core/class-plugin.php:1172
+#: core/class-plugin.php:1167
+#: core/class-plugin.php:1178
 msgid "Convert to"
 msgstr "Convertir en"
 
-#: core/class-plugin.php:1166
+#: core/class-plugin.php:1172
 msgid "Add"
 msgstr "Ajouter"
 
-#: core/class-plugin.php:1170
+#: core/class-plugin.php:1176
 msgid "Filter"
 msgstr "Filtrer"
 
-#: core/class-plugin.php:1171
+#: core/class-plugin.php:1177
 msgid "Nothing found"
 msgstr "Aucun résultat"
 
-#: core/class-plugin.php:1176
+#: core/class-plugin.php:1182
 msgid "Text"
 msgstr "Texte"
 
-#: core/class-plugin.php:1177
+#: core/class-plugin.php:1183
 msgid "Heading"
 msgstr "Titre"
 
-#: core/class-plugin.php:1179
+#: core/class-plugin.php:1185
 msgid "Quote"
 msgstr "Citation"
 
-#: core/class-plugin.php:1180
+#: core/class-plugin.php:1186
 msgid "Delimiter"
 msgstr "Séparateur"
 
-#: core/class-plugin.php:1181
+#: core/class-plugin.php:1187
 msgid "Marker"
 msgstr "Marqueur"
 
-#: core/class-plugin.php:1182
+#: core/class-plugin.php:1188
 msgid "Inline code"
 msgstr "Code en ligne"
 
-#: core/class-plugin.php:1189
+#: core/class-plugin.php:1195
 msgid "Add a link"
 msgstr "Ajouter un lien"
 
-#: core/class-plugin.php:1192
+#: core/class-plugin.php:1198
 msgid "Numbered"
 msgstr "Numérotée"
 
-#: core/class-plugin.php:1193
+#: core/class-plugin.php:1199
 msgid "Bulleted"
 msgstr "À puces"
 
-#: core/class-plugin.php:1196
+#: core/class-plugin.php:1202
 msgid "This block cannot be displayed correctly."
 msgstr "Ce bloc ne peut pas s'afficher correctement."
 
-#: core/class-plugin.php:1202
+#: core/class-plugin.php:1208
 msgid "Click to delete"
 msgstr "Cliquer pour supprimer"
 
@@ -8900,3 +8896,7 @@ msgstr "Publiez des offres, examinez les candidats et gérez vos recrutements"
 #: templates/parts/dashboard-gate.php:29
 msgid "Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake."
 msgstr "Votre compte a été suspendu par l’administrateur du site, cette page n’est donc pas disponible. Contactez l’administrateur du site si vous pensez qu’il s’agit d’une erreur."
+
+#: blocks/job-form/render.php:416
+msgid "You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page."
+msgstr "Vous avez été déconnecté. Reconnectez-vous dans un nouvel onglet, puis envoyez de nouveau ici. Les informations de votre offre sont toujours sur cette page."

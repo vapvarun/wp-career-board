@@ -288,6 +288,12 @@ final class Plugin {
 				array(),
 				WCB_VERSION
 			);
+			// wcbFetch renews an expired REST nonce through core's rest-nonce
+			// admin-ajax action, so it needs that URL on every page it loads on.
+			add_filter(
+				'script_module_data_@wcb/fetch',
+				static fn ( array $data ): array => $data + array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ) )
+			);
 			wp_register_script_module(
 				'@wcb/fields',
 				WCB_URL . 'assets/js/modules/wcb-fields.js',

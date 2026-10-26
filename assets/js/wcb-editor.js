@@ -163,8 +163,21 @@
 		return { blocks };
 	};
 
-	const buildTools = () => {
+	// A plain-text field (data-wcb-editor-format="text": cover letter, bio) is
+	// saved as text with its paragraphs and lists kept (Text::from_editor), so
+	// its editor offers only those: no headings, quotes or inline formatting
+	// that the save would drop. Tool configs deep-merge with Editor.js's
+	// internal paragraph, so it needs no class here.
+	const buildTools = ( textOnly ) => {
 		const tools = {};
+		if ( textOnly ) {
+			tools.paragraph = { inlineToolbar: false };
+			if ( typeof window.List !== 'undefined' ) {
+				// Bullets: the text form keeps "- " items, not numbers.
+				tools.list = { class: window.List, inlineToolbar: false, config: { defaultStyle: 'unordered' } };
+			}
+			return tools;
+		}
 		if ( typeof window.Header !== 'undefined' ) {
 			tools.header = {
 				class: window.Header,
@@ -416,7 +429,7 @@
 
 		const editor = new window.EditorJS( {
 			holder: holder.id,
-			tools: buildTools(),
+			tools: buildTools( 'text' === editorEl.dataset.wcbEditorFormat ),
 			data: htmlToBlocks( textarea.value ),
 			placeholder: editorEl.dataset.placeholder || '',
 			i18n: { messages: window.wcbEditorI18n || {} },

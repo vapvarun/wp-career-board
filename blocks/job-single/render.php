@@ -1185,7 +1185,7 @@ wp_interactivity_state(
 						data-wp-text="state.aiCoverBtnLabel"
 					></button>
 				</div>
-				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
+				<div class="wcb-editor" data-wcb-editor-format="text" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
 					<div class="wcb-editor-holder" id="wcb-editor-cover-letter"></div>
 					<textarea
 						id="wcb-cover-letter"

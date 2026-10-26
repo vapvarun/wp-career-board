@@ -23,7 +23,7 @@ msgstr ""
 #: admin/views/setup-wizard-complete.php:21
 #: admin/views/setup-wizard.php:24
 #: core/class-abilities.php:178
-#: core/class-plugin.php:688
+#: core/class-plugin.php:694
 #: core/class-template-version-check.php:188
 #: modules/gdpr/class-gdpr-module.php:96
 #: modules/gdpr/class-gdpr-module.php:111
@@ -316,7 +316,7 @@ msgstr "Geregistreerd"
 #: admin/class-admin-candidates.php:144
 #: blocks/candidate-dashboard/render.php:1048
 #: blocks/candidate-dashboard/render.php:1132
-#: core/class-plugin.php:1201
+#: core/class-plugin.php:1207
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -1180,12 +1180,12 @@ msgstr "Je hebt geen toestemming om dit te doen."
 
 #: admin/class-pages.php:50
 #: admin/class-pages.php:53
-#: core/class-plugin.php:706
+#: core/class-plugin.php:712
 msgid "Find Jobs"
 msgstr "Vacatures zoeken"
 
 #: admin/class-pages.php:65
-#: core/class-plugin.php:724
+#: core/class-plugin.php:730
 msgid "Candidate Dashboard"
 msgstr "Kandidaat dashboard"
 
@@ -1284,7 +1284,7 @@ msgstr "Voorbeeldgegevens verwijderen"
 #: blocks/candidate-dashboard/render.php:1063
 #: blocks/job-form/editor-toolbar.php:30
 #: blocks/job-single/render.php:1018
-#: core/class-plugin.php:1306
+#: core/class-plugin.php:1312
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
 msgid "Cancel"
@@ -1676,7 +1676,7 @@ msgstr "Reden (optioneel):"
 
 #: admin/class-admin.php:860
 #: blocks/candidate-dashboard/render.php:1058
-#: core/class-plugin.php:1305
+#: core/class-plugin.php:1311
 msgid "Confirm"
 msgstr "Bevestigen"
 
@@ -3130,7 +3130,7 @@ msgid "No jobs match your search."
 msgstr "Geen vacatures voldoen aan je zoekopdracht."
 
 #: blocks/employer-dashboard/render.php:938
-#: core/class-plugin.php:1178
+#: core/class-plugin.php:1184
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
@@ -3687,10 +3687,6 @@ msgstr "Een functie plaatsen is voor werkgevers. Registreer je als werkgever om 
 #: blocks/job-form/render.php:86
 msgid "You are not authorized to edit this job."
 msgstr "Je bent niet gemachtigd om deze functie te bewerken."
-
-#: blocks/job-form/render.php:416
-msgid "Your session has expired. Please refresh the page and try again."
-msgstr "Je sessie is verlopen. Ververs de pagina en probeer het opnieuw."
 
 #: blocks/job-form/render.php:419
 msgid "Job title is required before you can continue."
@@ -4311,35 +4307,35 @@ msgstr "WP Career Board vereist PHP 8.1+ en WordPress 6.9+."
 msgid "Plugin Activation Error"
 msgstr "Fout bij pluginactivering"
 
-#: core/class-plugin.php:694
+#: core/class-plugin.php:700
 msgid "Full Job Board"
 msgstr "Volledig jobboard"
 
-#: core/class-plugin.php:695
+#: core/class-plugin.php:701
 msgid "Search bar, filters, and job listings grid  -  the complete job board page."
 msgstr "Zoekbalk, filters en joblijstingsraster  -  de volledige jobboard-pagina."
 
-#: core/class-plugin.php:710
+#: core/class-plugin.php:716
 msgid "Post a Job Form"
 msgstr "Formulier voor het plaatsen van een vacature"
 
-#: core/class-plugin.php:711
+#: core/class-plugin.php:717
 msgid "Multi-step job posting form for employers."
 msgstr "Meertraps-formulier voor het plaatsen van vacatures voor werkgevers."
 
-#: core/class-plugin.php:718
+#: core/class-plugin.php:724
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr "Dashboard met tabbladen voor werkgevers om vacatures en sollicitaties te beheren."
 
-#: core/class-plugin.php:725
+#: core/class-plugin.php:731
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr "Dashboard met tabbladen voor kandidaten om sollicitaties en opgeslagen vacatures bij te houden."
 
-#: core/class-plugin.php:731
+#: core/class-plugin.php:737
 msgid "Company Directory"
 msgstr "Bedrijfsadressenboek"
 
-#: core/class-plugin.php:732
+#: core/class-plugin.php:738
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr "Interactief raster van bedrijfsprofielen van werkgevers met filters op branche en grootte."
 
@@ -5159,12 +5155,12 @@ msgstr "Filterzijbalk"
 msgid "Reorder filters with the arrows, or hide ones you do not need."
 msgstr "Sorteer filters met de pijlen, of verberg de filters die je niet nodig hebt."
 
-#: core/class-plugin.php:1205
+#: core/class-plugin.php:1211
 #: blocks/job-listings/index.js:191
 msgid "Move up"
 msgstr "Omhoog verplaatsen"
 
-#: core/class-plugin.php:1208
+#: core/class-plugin.php:1214
 #: blocks/job-listings/index.js:192
 msgid "Move down"
 msgstr "Omlaag verplaatsen"
@@ -6892,7 +6888,7 @@ msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
-#: core/class-plugin.php:717
+#: core/class-plugin.php:723
 #: integrations/reign/class-reign-integration.php:104
 msgid "Employer dashboard"
 msgstr "Werkgeversdashboard"
@@ -7212,7 +7208,7 @@ msgid "Text formatting"
 msgstr "Tekstopmaak"
 
 #: blocks/job-form/editor-toolbar.php:19
-#: core/class-plugin.php:1184
+#: core/class-plugin.php:1190
 msgid "Bold"
 msgstr "Vet"
 
@@ -7222,7 +7218,7 @@ msgid "B"
 msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
-#: core/class-plugin.php:1185
+#: core/class-plugin.php:1191
 msgid "Italic"
 msgstr "Cursief"
 
@@ -7236,7 +7232,7 @@ msgid "Bulleted list"
 msgstr "Opsommingslijst"
 
 #: blocks/job-form/editor-toolbar.php:22
-#: core/class-plugin.php:1183
+#: core/class-plugin.php:1189
 msgid "Link"
 msgstr "Link"
 
@@ -7360,100 +7356,100 @@ msgstr "Upload een JPEG-, PNG-, WebP- of GIF-afbeelding."
 msgid "Applications closed"
 msgstr "Sollicitaties gesloten"
 
-#: core/class-plugin.php:501
+#: core/class-plugin.php:507
 msgid "Job Archive"
 msgstr "Functiearchief"
 
-#: core/class-plugin.php:502
+#: core/class-plugin.php:508
 msgid "Company Archive"
 msgstr "Bedrijfsarchief"
 
-#: core/class-plugin.php:508
+#: core/class-plugin.php:514
 msgid "Job Category Archive"
 msgstr "Functiecategoriearchief"
 
-#: core/class-plugin.php:509
+#: core/class-plugin.php:515
 msgid "Job Type Archive"
 msgstr "Functietypearchief"
 
-#: core/class-plugin.php:510
+#: core/class-plugin.php:516
 msgid "Job Tag Archive"
 msgstr "Functietagarchief"
 
-#: core/class-plugin.php:511
+#: core/class-plugin.php:517
 msgid "Job Location Archive"
 msgstr "Functielocatiearchief"
 
-#: core/class-plugin.php:512
+#: core/class-plugin.php:518
 msgid "Experience Level Archive"
 msgstr "Ervaringsniveauarchief"
 
-#: core/class-plugin.php:1155
+#: core/class-plugin.php:1161
 msgid "Click to tune"
 msgstr "Klik om af te stellen"
 
-#: core/class-plugin.php:1156
+#: core/class-plugin.php:1162
 msgid "or drag to move"
 msgstr "of sleep om te verplaatsen"
 
-#: core/class-plugin.php:1161
-#: core/class-plugin.php:1172
+#: core/class-plugin.php:1167
+#: core/class-plugin.php:1178
 msgid "Convert to"
 msgstr "Omzetten naar"
 
-#: core/class-plugin.php:1166
+#: core/class-plugin.php:1172
 msgid "Add"
 msgstr "Toevoegen"
 
-#: core/class-plugin.php:1170
+#: core/class-plugin.php:1176
 msgid "Filter"
 msgstr "Filter"
 
-#: core/class-plugin.php:1171
+#: core/class-plugin.php:1177
 msgid "Nothing found"
 msgstr "Niets gevonden"
 
-#: core/class-plugin.php:1176
+#: core/class-plugin.php:1182
 msgid "Text"
 msgstr "Tekst"
 
-#: core/class-plugin.php:1177
+#: core/class-plugin.php:1183
 msgid "Heading"
 msgstr "Kop"
 
-#: core/class-plugin.php:1179
+#: core/class-plugin.php:1185
 msgid "Quote"
 msgstr "Citaat"
 
-#: core/class-plugin.php:1180
+#: core/class-plugin.php:1186
 msgid "Delimiter"
 msgstr "Scheidingsteken"
 
-#: core/class-plugin.php:1181
+#: core/class-plugin.php:1187
 msgid "Marker"
 msgstr "Markering"
 
-#: core/class-plugin.php:1182
+#: core/class-plugin.php:1188
 msgid "Inline code"
 msgstr "Code in regel"
 
-#: core/class-plugin.php:1189
+#: core/class-plugin.php:1195
 msgid "Add a link"
 msgstr "Een link toevoegen"
 
-#: core/class-plugin.php:1192
+#: core/class-plugin.php:1198
 msgid "Numbered"
 msgstr "Genummerd"
 
-#: core/class-plugin.php:1193
+#: core/class-plugin.php:1199
 msgid "Bulleted"
 msgstr "Opsomming"
 
-#: core/class-plugin.php:1196
+#: core/class-plugin.php:1202
 msgid "This block cannot be displayed correctly."
 msgstr "Dit blok kan niet goed worden weergegeven."
 
-#: core/class-plugin.php:1202
+#: core/class-plugin.php:1208
 msgid "Click to delete"
 msgstr "Klik om te verwijderen"
 
@@ -8900,3 +8896,7 @@ msgstr "Plaats vacatures, beoordeel sollicitanten en beheer werving"
 #: templates/parts/dashboard-gate.php:29
 msgid "Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake."
 msgstr "Je account is door de sitebeheerder opgeschort, dus deze pagina is niet beschikbaar. Neem contact op met de sitebeheerder als je denkt dat dit een vergissing is."
+
+#: blocks/job-form/render.php:416
+msgid "You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page."
+msgstr "Je bent afgemeld. Meld je opnieuw aan in een nieuw tabblad en verstuur het daarna hier opnieuw. Je vacaturegegevens staan nog op deze pagina."

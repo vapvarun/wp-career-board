@@ -413,7 +413,7 @@ $wcb_initial_state = apply_filters(
 			\WCB\Core\SalaryFormat::js_strings(),
 			array(
 				// Errors / validation.
-				'errorSessionExpired'      => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
+				'errorSessionExpired'      => __( 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.', 'wp-career-board' ),
 				'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 				'errorSubmitFailed'        => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),

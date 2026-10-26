@@ -448,7 +448,7 @@ final class ApplicationsEndpoint extends RestController {
 			update_post_meta(
 				$app_id,
 				'_wcb_cover_letter',
-				sanitize_textarea_field( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) )
+				sanitize_textarea_field( \WCB\Core\Text::from_editor( (string) ( $request->get_param( 'cover_letter' ) ?? '' ) ) )
 			);
 
 			$resume_id = 0;

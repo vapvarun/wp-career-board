@@ -34,6 +34,10 @@ echo "=== WP-CLI Command Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cli-commands.php
 echo ""
 
+echo "=== Text helper tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-text-dash-lists.php
+echo ""
+
 echo "=== REST API Tests (Free) ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-rest-api-free.php
 echo ""

@@ -399,7 +399,7 @@ final class CandidatesEndpoint extends RestController {
 			wp_update_user(
 				array(
 					'ID'          => $user_id,
-					'description' => sanitize_textarea_field( (string) $bio ),
+					'description' => sanitize_textarea_field( \WCB\Core\Text::from_editor( (string) $bio ) ),
 				)
 			);
 		}

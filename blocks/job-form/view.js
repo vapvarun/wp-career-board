@@ -773,7 +773,7 @@ const { state } = store(
 					if ( ! response.ok ) {
 						const err = yield response.json().catch( () => null );
 						if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
-							state.error = t( 'errorSessionExpired', 'Your session has expired. Please refresh the page and try again.' );
+							state.error = t( 'errorSessionExpired', 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.' );
 						} else {
 							state.error = ( err && err.message )
 								? err.message

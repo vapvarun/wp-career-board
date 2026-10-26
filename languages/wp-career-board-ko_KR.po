@@ -23,7 +23,7 @@ msgstr ""
 #: admin/views/setup-wizard-complete.php:21
 #: admin/views/setup-wizard.php:24
 #: core/class-abilities.php:178
-#: core/class-plugin.php:688
+#: core/class-plugin.php:694
 #: core/class-template-version-check.php:188
 #: modules/gdpr/class-gdpr-module.php:96
 #: modules/gdpr/class-gdpr-module.php:111
@@ -314,7 +314,7 @@ msgstr "가입일"
 #: admin/class-admin-candidates.php:144
 #: blocks/candidate-dashboard/render.php:1048
 #: blocks/candidate-dashboard/render.php:1132
-#: core/class-plugin.php:1201
+#: core/class-plugin.php:1207
 msgid "Delete"
 msgstr "삭제"
 
@@ -1176,12 +1176,12 @@ msgstr "이 작업을 수행할 권한이 없어요."
 
 #: admin/class-pages.php:50
 #: admin/class-pages.php:53
-#: core/class-plugin.php:706
+#: core/class-plugin.php:712
 msgid "Find Jobs"
 msgstr "일자리 찾기"
 
 #: admin/class-pages.php:65
-#: core/class-plugin.php:724
+#: core/class-plugin.php:730
 msgid "Candidate Dashboard"
 msgstr "지원자 대시보드"
 
@@ -1280,7 +1280,7 @@ msgstr "샘플 데이터 삭제"
 #: blocks/candidate-dashboard/render.php:1063
 #: blocks/job-form/editor-toolbar.php:30
 #: blocks/job-single/render.php:1018
-#: core/class-plugin.php:1306
+#: core/class-plugin.php:1312
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
 msgid "Cancel"
@@ -1672,7 +1672,7 @@ msgstr "사유 (선택 사항):"
 
 #: admin/class-admin.php:860
 #: blocks/candidate-dashboard/render.php:1058
-#: core/class-plugin.php:1305
+#: core/class-plugin.php:1311
 msgid "Confirm"
 msgstr "확인"
 
@@ -3118,7 +3118,7 @@ msgid "No jobs match your search."
 msgstr "검색과 일치하는 채용 공고가 없어요."
 
 #: blocks/employer-dashboard/render.php:938
-#: core/class-plugin.php:1178
+#: core/class-plugin.php:1184
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
@@ -3674,10 +3674,6 @@ msgstr "채용 공고 등록은 고용주 전용이에요. 고용주로 등록�
 #: blocks/job-form/render.php:86
 msgid "You are not authorized to edit this job."
 msgstr "이 채용 공고를 수정할 권한이 없어요."
-
-#: blocks/job-form/render.php:416
-msgid "Your session has expired. Please refresh the page and try again."
-msgstr "세션이 만료되었어요. 페이지를 새로고침한 후 다시 시도해 주세요."
 
 #: blocks/job-form/render.php:419
 msgid "Job title is required before you can continue."
@@ -4297,35 +4293,35 @@ msgstr "WP Career Board 에는 PHP 8.1 이상과 WordPress 6.9 이상이 필요�
 msgid "Plugin Activation Error"
 msgstr "플러그인 활성화 오류"
 
-#: core/class-plugin.php:694
+#: core/class-plugin.php:700
 msgid "Full Job Board"
 msgstr "전체 채용 게시판"
 
-#: core/class-plugin.php:695
+#: core/class-plugin.php:701
 msgid "Search bar, filters, and job listings grid  -  the complete job board page."
 msgstr "검색 바, 필터, 채용 목록 그리드  -  완전한 채용 게시판 페이지예요."
 
-#: core/class-plugin.php:710
+#: core/class-plugin.php:716
 msgid "Post a Job Form"
 msgstr "채용 공고 등록 폼"
 
-#: core/class-plugin.php:711
+#: core/class-plugin.php:717
 msgid "Multi-step job posting form for employers."
 msgstr "고용주를 위한 다단계 채용 공고 등록 폼이에요."
 
-#: core/class-plugin.php:718
+#: core/class-plugin.php:724
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr "고용주가 채용 공고와 지원서를 관리하는 탭형 대시보드예요."
 
-#: core/class-plugin.php:725
+#: core/class-plugin.php:731
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr "지원자가 지원 현황과 저장된 채용 공고를 추적하는 탭형 대시보드예요."
 
-#: core/class-plugin.php:731
+#: core/class-plugin.php:737
 msgid "Company Directory"
 msgstr "회사 디렉터리"
 
-#: core/class-plugin.php:732
+#: core/class-plugin.php:738
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr "업종 및 규모 필터가 있는 고용주 회사 프로필 대화형 그리드예요."
 
@@ -5143,12 +5139,12 @@ msgstr "필터 사이드바"
 msgid "Reorder filters with the arrows, or hide ones you do not need."
 msgstr "화살표로 필터 순서를 변경하거나 필요 없는 필터를 숨기세요."
 
-#: core/class-plugin.php:1205
+#: core/class-plugin.php:1211
 #: blocks/job-listings/index.js:191
 msgid "Move up"
 msgstr "위로 이동"
 
-#: core/class-plugin.php:1208
+#: core/class-plugin.php:1214
 #: blocks/job-listings/index.js:192
 msgid "Move down"
 msgstr "아래로 이동"
@@ -6874,7 +6870,7 @@ msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
-#: core/class-plugin.php:717
+#: core/class-plugin.php:723
 #: integrations/reign/class-reign-integration.php:104
 msgid "Employer dashboard"
 msgstr "고용주 대시보드"
@@ -7191,7 +7187,7 @@ msgid "Text formatting"
 msgstr "텍스트 서식"
 
 #: blocks/job-form/editor-toolbar.php:19
-#: core/class-plugin.php:1184
+#: core/class-plugin.php:1190
 msgid "Bold"
 msgstr "굵게"
 
@@ -7201,7 +7197,7 @@ msgid "B"
 msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
-#: core/class-plugin.php:1185
+#: core/class-plugin.php:1191
 msgid "Italic"
 msgstr "기울임"
 
@@ -7215,7 +7211,7 @@ msgid "Bulleted list"
 msgstr "글머리 목록"
 
 #: blocks/job-form/editor-toolbar.php:22
-#: core/class-plugin.php:1183
+#: core/class-plugin.php:1189
 msgid "Link"
 msgstr "링크"
 
@@ -7337,100 +7333,100 @@ msgstr "JPEG, PNG, WebP 또는 GIF 이미지를 업로드해 주세요."
 msgid "Applications closed"
 msgstr "지원 마감"
 
-#: core/class-plugin.php:501
+#: core/class-plugin.php:507
 msgid "Job Archive"
 msgstr "채용공고 보관함"
 
-#: core/class-plugin.php:502
+#: core/class-plugin.php:508
 msgid "Company Archive"
 msgstr "회사 보관함"
 
-#: core/class-plugin.php:508
+#: core/class-plugin.php:514
 msgid "Job Category Archive"
 msgstr "직무 카테고리 보관함"
 
-#: core/class-plugin.php:509
+#: core/class-plugin.php:515
 msgid "Job Type Archive"
 msgstr "직무 유형 보관함"
 
-#: core/class-plugin.php:510
+#: core/class-plugin.php:516
 msgid "Job Tag Archive"
 msgstr "직무 태그 보관함"
 
-#: core/class-plugin.php:511
+#: core/class-plugin.php:517
 msgid "Job Location Archive"
 msgstr "근무지 보관함"
 
-#: core/class-plugin.php:512
+#: core/class-plugin.php:518
 msgid "Experience Level Archive"
 msgstr "경력 수준 보관함"
 
-#: core/class-plugin.php:1155
+#: core/class-plugin.php:1161
 msgid "Click to tune"
 msgstr "클릭해서 조정"
 
-#: core/class-plugin.php:1156
+#: core/class-plugin.php:1162
 msgid "or drag to move"
 msgstr "또는 드래그해서 이동"
 
-#: core/class-plugin.php:1161
-#: core/class-plugin.php:1172
+#: core/class-plugin.php:1167
+#: core/class-plugin.php:1178
 msgid "Convert to"
 msgstr "다음으로 변환"
 
-#: core/class-plugin.php:1166
+#: core/class-plugin.php:1172
 msgid "Add"
 msgstr "추가"
 
-#: core/class-plugin.php:1170
+#: core/class-plugin.php:1176
 msgid "Filter"
 msgstr "필터"
 
-#: core/class-plugin.php:1171
+#: core/class-plugin.php:1177
 msgid "Nothing found"
 msgstr "찾을 수 없음"
 
-#: core/class-plugin.php:1176
+#: core/class-plugin.php:1182
 msgid "Text"
 msgstr "텍스트"
 
-#: core/class-plugin.php:1177
+#: core/class-plugin.php:1183
 msgid "Heading"
 msgstr "제목"
 
-#: core/class-plugin.php:1179
+#: core/class-plugin.php:1185
 msgid "Quote"
 msgstr "인용"
 
-#: core/class-plugin.php:1180
+#: core/class-plugin.php:1186
 msgid "Delimiter"
 msgstr "구분선"
 
-#: core/class-plugin.php:1181
+#: core/class-plugin.php:1187
 msgid "Marker"
 msgstr "마커"
 
-#: core/class-plugin.php:1182
+#: core/class-plugin.php:1188
 msgid "Inline code"
 msgstr "인라인 코드"
 
-#: core/class-plugin.php:1189
+#: core/class-plugin.php:1195
 msgid "Add a link"
 msgstr "링크 추가"
 
-#: core/class-plugin.php:1192
+#: core/class-plugin.php:1198
 msgid "Numbered"
 msgstr "번호 목록"
 
-#: core/class-plugin.php:1193
+#: core/class-plugin.php:1199
 msgid "Bulleted"
 msgstr "글머리 목록"
 
-#: core/class-plugin.php:1196
+#: core/class-plugin.php:1202
 msgid "This block cannot be displayed correctly."
 msgstr "이 블록을 올바르게 표시할 수 없어요."
 
-#: core/class-plugin.php:1202
+#: core/class-plugin.php:1208
 msgid "Click to delete"
 msgstr "클릭해서 삭제"
 
@@ -8870,3 +8866,7 @@ msgstr "채용 공고를 게시하고 지원자를 검토하고 채용을 관리
 #: templates/parts/dashboard-gate.php:29
 msgid "Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake."
 msgstr "사이트 관리자가 계정을 정지하여 이 페이지를 사용할 수 없습니다. 오류라고 생각되면 사이트 관리자에게 문의하세요."
+
+#: blocks/job-form/render.php:416
+msgid "You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page."
+msgstr "로그아웃되었습니다. 새 탭에서 다시 로그인한 다음 여기에서 다시 제출하세요. 입력한 채용 정보는 이 페이지에 그대로 있습니다."

@@ -134,6 +134,50 @@
 	z-index: 5;
 }
 
+/* Editor.js popovers (block toolbox, block tunes, inline toolbar) paint from
+   their own --color-* variables, fixed to light values. Map them to the board's
+   tokens so they follow a dark scheme; on a dark Reign page the popover stayed
+   white while its search text inherited white. Fallbacks are Editor.js's own. */
+.wcb-editor .ce-popover {
+	--color-background: var(--wcb-base, #fff);
+	--color-text-primary: var(--wcb-contrast, #000);
+	--color-text-secondary: var(--wcb-text-secondary, #707684);
+	--color-border: var(--wcb-border, #eff0f1);
+	--color-border-icon: var(--wcb-border, rgba(201, 201, 204, 0.48));
+	--color-background-item-hover: var(--wcb-bg-hover, #f8f8f8);
+	--color-background-item-focus: var(--wcb-primary-soft, rgba(34, 186, 255, 0.08));
+	--color-background-icon-active: var(--wcb-primary-soft, rgba(56, 138, 229, 0.1));
+	--color-text-icon-active: var(--wcb-primary, #388ae5);
+	--color-background-item-confirm: var(--wcb-danger, #e24a4a);
+	color: var(--color-text-primary);
+}
+
+.wcb-editor .ce-popover .cdx-search-field {
+	border-color: var(--wcb-border, rgba(226, 226, 229, 0.2));
+	background: var(--wcb-bg-subtle, #f8f8f8);
+}
+
+/* (0,3,1): a theme's input[type] rule (Reign sets height, border, padding and
+   colour on every text input) cannot reach the popover search. */
+.wcb-editor .ce-popover input.cdx-search-field__input {
+	min-height: 0;
+	height: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	background: transparent;
+	color: var(--color-text-primary);
+	font: inherit;
+	font-size: var(--wcb-text-sm, 14px);
+	line-height: 22px;
+}
+
+.wcb-editor .ce-popover input.cdx-search-field__input::placeholder {
+	color: var(--color-text-secondary);
+}
+
 /* Always-visible formatting toolbar (blocks/job-form/editor-toolbar.php). */
 .wcb-editor-toolbar {
 	display: flex;

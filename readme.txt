@@ -124,6 +124,9 @@ A polish release: screens say what happened, data stays in step with its source,
 * Fix      - Banning an employer asks you to confirm first, and a banned member sees an account suspended message instead of a prompt to register.
 * Fix      - The setup wizard no longer pre-selects demo content on a site that already has jobs.
 * Fix      - History retention counts days in site time, so sites west of UTC keep their history for the full window.
+* Fix      - A cover letter or candidate bio keeps its paragraphs and bullet lists after saving, and its editor offers only the formatting that is kept.
+* Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
+* Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.
 * Security - A guest's job page no longer carries resume data, and account deletions are written to the privacy log.
 * Dev      - New filters wcb_docs_url, wcb_job_single_sidebar_cta and wcb_client_ip_trusted_hops, and helper JobsMeta::parse_amount().
 * Dev      - Shared helpers for Pro: PrivateFiles::CV_MIMES, RequiredTitle::TYPES, the ListEmptyState trait and one block registration loop.
