@@ -3,7 +3,7 @@ id: moderation-approve-flagged-job
 priority: high
 personas: varundubey
 requires: mu:autologin, seed:jobs
-last_verified: 2026-10-13
+last_verified: 2026-10-26
 bug_ref: 10389520146
 needs: cli
 ---
@@ -20,13 +20,13 @@ needs: cli
    wp post create --post_type=wcb_job --post_title='Operations Manager, Logistics - Rotterdam' --meta_input='{"_wcb_qa_smoke":"1"}' --post_status=pending --post_author=49 --porcelain
    ```
    Capture the returned ID as `<job-id>`
-3. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect response array does NOT contain `<job-id>` (pending jobs are not public)
+3. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect `jobs[]` does NOT contain `<job-id>` (pending jobs are not public)
 4. As admin, navigate to the moderation queue (admin slug `wcb-jobs` filtered to `pending` OR a dedicated moderation page) → expect to see `Operations Manager, Logistics - Rotterdam` in the list
 5. Trigger approval: PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"status": "publish"}` (or whichever endpoint the moderation queue uses — read code) → expect HTTP 200 (or 204), response success
 6. Verify status changed: `wp post get <job-id> --field=post_status` → expect `publish`
-7. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect `<job-id>` IS now in the response array
-8. Reverse path — as admin, set the same job back to `closed` (regression guard for D.wcb-closed-status / Basecamp 9872024322): PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"status": "closed"}` → expect 200
-9. As employer.figma (the author), navigate to employer dashboard → expect the job to APPEAR in the dashboard with status label "Closed" (NOT vanish — that's the bug being guarded)
+7. As anonymous, GET `/wp-json/wcb/v1/jobs` → expect `<job-id>` IS now in `jobs[]`
+8. Reverse path — as admin, set the same job to `closed` (stored as `wcb_closed`; regression guard for D.wcb-closed-status / Basecamp 9872024322): PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"status": "closed"}` → expect 200
+9. As employer.figma (the author), navigate to employer dashboard → expect the job to APPEAR in the dashboard with status label "Closed" (`wp post get <job-id> --field=post_status` = `wcb_closed`) (NOT vanish — that's the bug being guarded)
 10. **Flag resolve redirects cleanly (1.8.1, Basecamp 10389520146).** Flag a published job: `wp post meta update <job-id> _wcb_flag_status open && wp post meta update <job-id> _wcb_flag_count 3`. As `varundubey`, open `$WCB_SITE/wp-admin/admin.php?page=wcb-jobs&wcb_flag=open` → the row shows the row actions **Dismiss flag** and **Unpublish** (links carry `wcb_resolve_flag=dismiss|unpublish&job=<id>&_wpnonce=`).
 11. Click **Dismiss flag** → the browser lands on `admin.php?page=wcb-jobs&wcb_flag=open` (302, no white page, no "Cannot modify header information - headers already sent" on screen or in debug.log); `wp post meta get <job-id> _wcb_flag_status` = `resolved` and the job is still `publish`. The handler now runs on `load-{page}` (`AdminJobs::process_flag_action`), before any output, instead of inside `render()`.
 12. Re-flag the job and click **Unpublish** → same redirect, same clean log; `wp post get <job-id> --field=post_status` = `pending` (`ModerationModule::resolve_job_flags()` sends it back to review) and `_wcb_flag_status` = `resolved`.
@@ -41,5 +41,5 @@ wp post delete <job-id> --force
 
 ## Notes
 
-- If the plugin's REST patch endpoint doesn't accept arbitrary `status` values, use the dedicated moderation REST route (likely `/wp-json/wcb/v1/jobs/<id>/approve` or `/moderate`).
-- `closed` must be registered as a custom post status — verify via `wp post status list | grep closed`. If absent, that's the underlying bug from Basecamp 9872024322.
+- `PATCH /wcb/v1/jobs/<id>` accepts only `publish`, `draft` and `closed` as `status`. The dedicated moderation routes are `POST /wp-json/wcb/v1/jobs/<id>/approve` and `/reject` (`ModerationModule`); flags resolve through `POST /wcb/v1/jobs/<id>/resolve-flag`.
+- `wcb_closed` must be registered as a custom post status (`JobsExpiry::register_closed_status()`) - verify with `wp eval 'var_dump( isset( get_post_stati()["wcb_closed"] ) );'` → `bool(true)`. If absent, that's the underlying bug from Basecamp 9872024322.

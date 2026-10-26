@@ -104,7 +104,10 @@ final class Install {
 	 */
 	public static function deactivate(): void {
 		foreach ( CronRegistry::all() as $hook ) {
-			wp_clear_scheduled_hook( $hook );
+			// wp_unschedule_hook(), not wp_clear_scheduled_hook(): the latter only
+			// matches events whose args are empty, so args-carrying single events
+			// such as wcb_backfill_candidate_role survived deactivation.
+			wp_unschedule_hook( $hook );
 		}
 		flush_rewrite_rules();
 	}

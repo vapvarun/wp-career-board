@@ -4,9 +4,13 @@ This document tracks architectural debt that the wiring + journey audits surface
 
 > Per "no patch work — flag refactors" directive (2026-05-09).
 
+> **Status as of 2026-10-26 (each entry carries its evidence):** done R1, R2, R3, R4, R5, R8, R10. Open: R6, R7 (manifest refresh due), R9 (partly done, API contract change needs an owner decision), R11 (policy only). The original problem text below is kept as the record of why each item existed.
+
 ---
 
 ## R1. Duplicate post_status allowlists in employers-endpoint.php
+
+**Status: DONE (verified 2026-10-26).** `EmployersEndpoint::owner_visible_statuses()` (`api/endpoints/class-employers-endpoint.php:634`) holds the single allowlist; the three callers (lines ~745, ~863, ~989) and `EmployersModule` (`modules/employers/class-employers-module.php:835`) all call it. The literal appears once in the file.
 
 **Symptom:** the same `array( 'publish', 'pending', 'draft', 'wcb_closed', 'wcb_expired' )` literal is repeated at 3 sites in `api/endpoints/class-employers-endpoint.php`:
 
@@ -34,6 +38,8 @@ Replace all 3 array literals with `$this->owner_visible_statuses($is_owner)`. Fu
 ---
 
 ## R2. Company brand-meta serialization scattered across endpoints
+
+**Status: DONE (verified 2026-10-26).** `WCB\Core\CompanyMetaShape` (`core/class-company-meta-shape.php`) owns `serialize()`, `size_label()`, `type_slug()` and `resolve_company_id()`; `EmployersEndpoint` and `CandidatesModule` consume it, and there is no second `size_label()` in `api/` or `modules/`.
 
 **Symptom:** the 4 company brand fields (`tagline`, `industry`, `size_label`, `hq`) are read from postmeta in two places that should be one:
 
@@ -70,6 +76,8 @@ Both endpoints then do `array_merge( $base_response, Company_Meta_Shape::seriali
 ---
 
 ## R3. Ability permission callbacks all duplicate the same admin-fallback + don't honor employer-ban meta
+
+**Status: DONE (verified 2026-10-26).** `core/class-abilities.php` has `Abilities::is_banned()` (reads `_wcb_employer_banned`) and a private `gate()`; 7 ability callbacks call `self::gate( ... )`, so a ban strips every WCB ability from one place.
 
 **Symptom (1):** every ability in `core/class-abilities.php` has the same shape:
 ```php
@@ -112,6 +120,8 @@ Every ability's permission_callback shrinks to:
 
 ## R4. Email sending has multiple paths — production substitutes merge tags, test-send doesn't
 
+**Status: DONE (verified 2026-10-26).** `AbstractEmail::dispatch()` (`modules/notifications/class-abstract-email.php:346`) is the only `wp_mail()` call site in `modules/`, `core/` and `admin/`; both `send()` and `test_send()` route through it, and `render_string()` substitutes both `{key}` and `{{key}}` merge tags. There is no `Mailer` class; the chokepoint is the abstract email class.
+
 **Status update (1.2.0, 2026-05-15):** The test-send path has been fixed (Basecamp 9895205013). `AdminEndpoint` now calls `AbstractEmail::test_send()` which routes through a shared `dispatch()` helper alongside the production `send()` path. Both paths now perform merge-tag substitution. The broader Mailer chokepoint refactor (single `Mailer::send()` entry point for all sends) is still queued — see below.
 
 **Symptom (Card 9874928455):** admins click "Send test" on an email template and receive an email with literal `{{candidate_name}}` in the subject. Production-path emails resolve the merge tag correctly. The two paths are wired separately:
@@ -137,6 +147,8 @@ The test-send endpoint becomes a 5-line caller that builds a fixture `$context` 
 
 ## R5. Custom application fields are dropped end-to-end (3-layer fix needed)
 
+**Status: DONE (verified 2026-10-26).** `blocks/job-single/view.js` defines `actions.updateCustomField` and appends `custom_fields[<key>]` on submit (lines ~311-313); `ApplicationsEndpoint::submit_application()` validates against `wcb_application_form_fields_groups` and persists with `FormCustomFields::save_values()` under the `_wcb_application_field_` meta prefix; `ApplicationsCsv` reads them back.
+
 **Symptom (Card 9874915447):** custom fields configured via the `wcb_application_form_fields_groups` filter are rendered with `data-wp-on--input="actions.updateCustomField"` directives that point at a non-existent action. The values are silently lost on submit.
 
 **Why this is a refactor, not a patch:** the customer-visible fix needs THREE layers wired:
@@ -161,6 +173,8 @@ A patch that adds only the JS half would hide the symptom (form submits don't fa
 
 ## R6. REST controller bypass carve-outs
 
+**Status: OPEN (checked 2026-10-26).** `admin/class-setup-wizard.php` (5 routes) and `modules/moderation/class-moderation-module.php` (4 routes) still call `register_rest_route()` directly.
+
 **Symptom:** `CLAUDE.md` documents 2 carve-outs from the "all endpoints extend `WCB\Api\REST_Controller`" rule:
 - Setup wizard (in `core/`)
 - Moderation module
@@ -174,6 +188,8 @@ Each carve-out registers its routes via `register_rest_route()` directly. The ba
 ---
 
 ## R7. Manifest staleness — drift between code + audit/manifest.json
+
+**Status: OPEN, narrower (checked 2026-10-26).** A drift gate now exists (`composer manifest-consistency`, `bin/check-manifest-consistency.php`, part of `ci:no-journeys`), and Pro's manifest records the `wcbp_reconcile_credit_holds` rename. Free's `audit/manifest.summary.json` is still stamped 1.8.0 / DB_VERSION 1.3.7 while the code is at DB_VERSION 1.4.3, so a `/wp-plugin-onboard --refresh` is due.
 
 **Symptom (multiple findings from 2026-05-09 audit):**
 
@@ -198,6 +214,8 @@ Each carve-out registers its routes via `register_rest_route()` directly. The ba
 
 ## R8. Resume MIME contract divergence (upload accepts more than display can show)
 
+**Status: DONE (verified 2026-10-26).** The contract is multi-format (Option B in effect): `PrivateFiles::CV_MIMES` (`core/class-private-files.php:83`) allows PDF, DOC and DOCX, and Pro's `resume-module` documents `isPdf` / `pdfUrl` as meaning a CV file the candidate uploaded in any of the three (`class-resume-module.php:1835-1863`).
+
 **Symptom (batch 8 walk):** the resume upload endpoint <code>POST /wcb/v1/candidates/resume-upload</code> accepts PDF + DOC + DOCX (free plugin code at `class-applications-endpoint.php` line ~598-601 explicitly allows all three). But the Pro display path at `wp-career-board-pro/modules/resume/class-resume-module.php:789` only treats `application/pdf` as a renderable resume — DOCX uploads are stored but the resume's `isPdf` flag stays false and `pdfUrl` stays empty.
 
 **Why this is a refactor:** patching the upload endpoint to reject DOCX matches the display path's assumption. Patching the display path to render DOC/DOCX matches the upload's promise. Either is a product decision — neither is a code-only fix. The current state (accept but don't render) is the worst of both.
@@ -211,6 +229,8 @@ Each carve-out registers its routes via `register_rest_route()` directly. The ba
 ---
 
 ## R9. POST creates return 200 instead of 201 (REST convention deviation)
+
+**Status: PARTLY DONE (checked 2026-10-26).** `POST /wcb/v1/jobs` now sets 201 (`class-jobs-endpoint.php:738`). `POST /jobs/{id}/apply` (`ApplicationsEndpoint::submit_application()`) and `POST /candidates/register` still return 200, and no base-controller `created()` helper exists. Changing the status code is an API contract change for the mobile app and clients; owner decision needed before editing.
 
 **Symptom (batch 1 walk):** every "create a resource" REST endpoint returns HTTP 200 instead of the WP-REST + RFC-7231 convention of 201 Created with a Location header. Affects:
 - `POST /wcb/v1/jobs/{id}/apply` (creates wcb_application)
@@ -243,6 +263,8 @@ Every create handler then ends with `return $this->created( $payload, rest_url( 
 
 ## R11. Schema-column reserved-word policy (post-vector audit, 2026-05-10)
 
+**Status: OPEN, policy only (checked 2026-10-26).** `bin/coding-rules-check.sh` has no reserved-word rule for schema files; the suggested rule was never added.
+
 **Background:** the Pro `wcb_ai_vectors` schema used `vector` as an unbacktickged column name. MariaDB 11.7+ and MySQL 9+ added `VECTOR` as a reserved data type, so the parser read `vector LONGBLOB` as two type declarations and rejected the CREATE TABLE. Activation hook silently swallowed the error and the table never existed on those server versions. Fixed in commit `fa3a337`.
 
 **Audit performed (2026-05-10):** searched both `core/class-install.php` (Free) and `core/class-pro-install.php` (Pro) for unbacktickged usage of:
@@ -266,6 +288,8 @@ When adding a new column to any `dbDelta` schema:
 ---
 
 ## R10. Inline `<script>` / `<style>` blocks in admin PHP (3 sites)
+
+**Status: DONE (verified 2026-10-26).** `grep -rn '<script\|<style' admin/*.php` returns no inline blocks (the three sites named below are gone); `bin/coding-rules-check.sh` Rule 1 is part of `composer ci:quick`.
 
 **Symptom:** `composer ci:quick` Rule 1 flags three sites:
 - `admin/class-admin-meta-boxes.php:246` — `<style>` for meta-box layout

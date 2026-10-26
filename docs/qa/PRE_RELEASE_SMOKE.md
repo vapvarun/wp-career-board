@@ -24,16 +24,16 @@
 
 - [ ] Activate `wp-career-board` → no fatal, no PHP warning in `debug.log`
 - [ ] Custom DB tables created: `wp db tables --all-tables | grep ^wp_wcb_`
-- [ ] `wp option get wcb_db_version` equals `WCB_VERSION` value
+- [ ] `wp option get wcb_db_version` equals the `DB_VERSION` constant in `core/class-install.php` (currently `1.4.3`; it is the schema version, not `WCB_VERSION`)
 - [ ] Front-end job-board route loads as the very first request after activation → HTTP 200 (regression guard against rewrite-flush 404)
 - [ ] `/wp-json/wcb/v1/jobs` returns 200 to anonymous on a fresh install
 - [ ] Deactivate → reactivate → no duplicate tables, no re-run migrations
-- [ ] Activate `wp-career-board-pro` → no fatal, Pro-specific tables created (`wp_wcb_credit_ledger`, `wp_wcb_field_groups`, `wp_wcb_field_definitions`, `wp_wcb_field_values`, `wp_wcb_job_boards`, `wp_wcb_job_alerts`, `wp_wcb_application_stages`, `wp_wcb_ai_vectors`)
+- [ ] Activate `wp-career-board-pro` → no fatal, Pro-specific tables created (`wp_wcb_field_groups`, `wp_wcb_field_definitions`, `wp_wcb_field_values`, `wp_wcb_job_alerts`, `wp_wcb_application_stages`, `wp_wcb_ai_vectors`, `wp_wcb_notifications`, `wp_wcb_push_devices`, plus the Credits SDK's `wp_wcb_credit_ledger`, `wp_wcb_credit_gateway_log`, `wp_wcb_credit_processed_events`; `wcb_job_boards` no longer exists), `wcbp_db_version` equals Pro's `DB_VERSION` (currently `1.17`)
 
 ## B — Upgrade from previous release (5 min)
 
 - [ ] Drop the new zip → update via WP → no fatal
-- [ ] `wp option get wcb_db_version` updates to new constant
+- [ ] `wp option get wcb_db_version` equals the current `DB_VERSION` constant (it only changes when the release carries a schema upgrade)
 - [ ] Pre-existing data still renders correctly (jobs, applications, candidates, employer profiles, settings)
 - [ ] No new warnings in debug.log
 
@@ -87,7 +87,7 @@ See `docs/qa/AGENT_SMOKE_RUNBOOK.md` Section D for the full repro + assertion fo
 - [ ] `D.company-tagline-missing`: `GET /wcb/v1/companies/{id}` → response has non-empty `tagline`, `industry`, `size_label`, `hq`.
 - [ ] `D.location-dropdown-scope`: Employer company-edit location dropdown shows only HQ-specific + Remote + Other options.
 - [ ] `D.ability-slug-format`: `POST /wcb/v1/jobs` as employer → HTTP 201, zero `wp_get_ability` notices in debug.log.
-- [ ] `D.vector-column-mariadb-11-7`: On MariaDB 11.7+ fresh install → `wp_wcb_ai_vectors` table exists, `wcbp_db_version` matches constant.
+- [ ] `D.vector-column-mariadb-11-7`: On MariaDB 11.7+ fresh install → `wp_wcb_ai_vectors` table exists, `wcbp_db_version` equals Pro's `ProInstall::DB_VERSION`.
 - [ ] `D.pwa-icon-404`: No Site Icon configured + Pro PWA active → `wcb-manifest.json` has no `icons` key, no 404 in network tab.
 - [ ] `D.lucide-hydration-mismatch`: No `Expected a DOM node of type "i" but found` errors on /jobs/, /jobs/<single>/, /employer-dashboard/.
 

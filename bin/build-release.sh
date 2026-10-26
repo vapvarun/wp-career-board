@@ -95,7 +95,7 @@ if [ "$SKIP_CI" -eq 1 ]; then
 	php "$ROOT/bin/check-dead-code.php" "$ROOT"      || { echo "FAIL: dead @deprecated class(es). Remove them." >&2; exit 14; }
 fi
 
-# 5. Smoke-report gate (per docs/qa/SCAFFOLDING.md paste-block)
+# 5. Smoke-report gate (see docs/qa/QA_RELEASE_CHECKLIST.md)
 # Pro reads its own supplement file; Free reads the combo file.
 if [ "$SLUG" = "wp-career-board-pro" ]; then
 	SMOKE_REPORT="$ROOT/docs/qa/.last-smoke-pass-pro.json"

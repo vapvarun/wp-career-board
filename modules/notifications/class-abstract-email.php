@@ -309,9 +309,8 @@ abstract class AbstractEmail {
 	 * @return string[]
 	 */
 	private static function headers(): array {
-		$headers  = array( 'Content-Type: text/html; charset=UTF-8' );
-		$settings = (array) get_option( 'wcb_settings', array() );
-		$email    = sanitize_email( (string) ( $settings['from_email'] ?? '' ) );
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+		$email   = sanitize_email( (string) \WCB\Admin\Settings::get( 'from_email', '' ) );
 
 		if ( '' === $email || ! is_email( $email ) ) {
 			return $headers;
@@ -320,7 +319,7 @@ abstract class AbstractEmail {
 		// Strip anything that could break out of the header or the display-name
 		// quoting. sanitize_text_field() on save already removes newlines; this
 		// guards a value written some other way.
-		$name = trim( str_replace( array( "\r", "\n", '"', '<', '>' ), '', (string) ( $settings['from_name'] ?? '' ) ) );
+		$name = trim( str_replace( array( "\r", "\n", '"', '<', '>' ), '', (string) \WCB\Admin\Settings::get( 'from_name', '' ) ) );
 
 		$headers[] = '' !== $name
 			? sprintf( 'From: "%s" <%s>', $name, $email )

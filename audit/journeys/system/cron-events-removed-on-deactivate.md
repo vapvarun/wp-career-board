@@ -3,33 +3,34 @@ id: cron-events-removed-on-deactivate
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-05-09
+last_verified: 2026-10-26
 needs: cli
 ---
 
-# Deactivating the plugin removes all wcb_* cron events (no orphans)
+# Deactivating the plugin removes every registered wcb_* cron event (no orphans)
 
-**Why this journey exists:** orphaned cron events after deactivation fire against a missing plugin, producing fatal errors on every cron run and polluting the debug.log of sites that temporarily deactivate the plugin (e.g. for debugging). The deactivation hook must call `wp_clear_scheduled_hook` for every registered cron event.
+**Why this journey exists:** orphaned cron events after deactivation fire against a missing plugin and pollute `debug.log` on sites that temporarily deactivate it. `Install::deactivate()` (`core/class-install.php`) loops `CronRegistry::all()` and calls `wp_clear_scheduled_hook()` for each hook; an earlier version cleared only `wcb_check_job_expiry`, leaving the reminder and featured-expiry events orphaned.
 
 ## Steps
 
-1. Activate the plugin to ensure cron events are registered: `wp plugin activate wp-career-board` → expect success
-2. Verify at least one `wcb_` cron event is present before deactivation: `wp cron event list | grep wcb_` → expect 1 or more rows
-3. Capture the list of all `wcb_` events pre-deactivation: `wp cron event list --fields=hook | grep wcb_` → save as `<pre-deactivate-list>`
-4. Deactivate the plugin: `wp plugin deactivate wp-career-board` → expect success output, no PHP error
-5. Check for orphaned cron events: `wp cron event list | grep wcb_` → expect ZERO rows (all `wcb_*` events must be gone)
-6. Verify the WP cron option directly: `wp eval 'print_r( array_keys( (array) get_option("cron") ) );' | grep wcb` → expect no keys containing `wcb` (belt-and-braces DB check)
-7. Reactivate the plugin: `wp plugin activate wp-career-board` → expect success; `wp cron event list | grep wcb_` → expect the same hooks from step 3 are re-registered (cron re-registers cleanly)
+1. Make sure the events exist: `wp plugin activate wp-career-board` then `wp cron event list --fields=hook,schedule` → expect rows for `wcb_check_job_expiry` (`hourly`), `wcb_send_deadline_reminders`, `wcb_expire_featured_jobs`, `wcb_prune_job_views`, `wcb_process_account_deletions` and `wcb_prune_logs` (all `daily`)
+2. Capture the registry the teardown uses: `wp eval 'echo implode( "\n", \WCB\Core\CronRegistry::all() );'` → save as `<registry>` (8 hooks: the six above plus `wcb_private_files_migrate` and `wcb_index_job_search_text`)
+3. Deactivate: `wp plugin deactivate wp-career-board` → success, no PHP error
+4. For each hook in `<registry>`: `wp cron event list --fields=hook | grep -c "^<hook>$"` → `0`. In one command: `wp cron event list --fields=hook | grep -E '^wcb_(check_job_expiry|send_deadline_reminders|expire_featured_jobs|prune_job_views|process_account_deletions|prune_logs|private_files_migrate|index_job_search_text|backfill_candidate_role)$'` → no output
+5. Belt-and-braces DB check: `wp eval 'foreach ( (array) get_option( "cron" ) as $t => $evs ) { if ( is_array( $evs ) ) { foreach ( array_keys( $evs ) as $h ) { if ( 0 === strpos( $h, "wcb_" ) ) { echo $h, "\n"; } } } }'` → no output
+6. Reactivate: `wp plugin activate wp-career-board`, then `wp cron event list --fields=hook` → the recurring hooks from step 1 are back (cron re-registers cleanly)
+7. **With Pro active** (skip otherwise): deactivate Pro (`wp plugin deactivate wp-career-board-pro`) and repeat steps 4-5 against `WCB\Pro\Core\CronRegistry::all()` (`wp eval 'echo implode( "\n", \WCB\Pro\Core\CronRegistry::all() );'`): it includes `wcb_send_daily_alerts`, `wcb_send_weekly_alerts`, `wcbp_reconcile_credit_holds`, `wcbp_reconcile_application_stages`, `wcbp_push_fanout` and the other `wcbp_*` / `wbcom_credits_*` hooks. Pro clears with `wp_unschedule_hook()` so events that carry args are removed too. Reactivate Pro afterwards.
 8. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 
 ```bash
 wp plugin activate wp-career-board
+wp plugin activate wp-career-board-pro   # only if it was active before step 7
 ```
 
 ## Notes
 
-- The deactivation hook is registered in the main plugin file via `register_deactivation_hook()`. Confirm by reading `wp-career-board.php`.
-- Pro cron events (`wcb_send_daily_alerts`, `wcb_send_weekly_alerts`, `wcbp_credit_reconcile`) are the Pro plugin's responsibility and are covered by `pro-cron-events-isolated.md`. This journey only verifies Free events.
-- If WP-CLI cron list is empty after step 4 (including core events like `wp_update_plugins`), there may be a bug in the cron option cleanup — use the `wp eval` check in step 6 to distinguish.
+- The deactivation hook is `register_deactivation_hook( WCB_FILE, array( 'WCB\Core\Install', 'deactivate' ) )` in `wp-career-board.php`.
+- Since 1.8.3 the Free teardown uses `wp_unschedule_hook()`, as Pro does, so args-carrying single events (`wcb_backfill_candidate_role`, queued with the last processed id) are cleared too. `wp_clear_scheduled_hook()` matched only events with no args.
+- The registries are the contract: any new `wp_schedule_event()` / `wp_schedule_single_event()` in Free or Pro needs its hook added to the matching `CronRegistry::all()` and a row here and in `cron-events-scheduled-on-activate.md`.
