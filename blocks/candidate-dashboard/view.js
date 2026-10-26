@@ -16,7 +16,7 @@
  */
 import { store, getContext, withScope } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
+import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Tabs that can appear in the URL hash (first = default). Anything else is
@@ -725,6 +725,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.profileSaved  = false;
 			state.error         = '';
 			try {
+				yield flushEditors();
 				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ),
 					{

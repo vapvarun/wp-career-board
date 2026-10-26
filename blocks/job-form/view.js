@@ -25,7 +25,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
-import { formatSiteDate } from '@wcb/ui';
+import { flushEditors, formatSiteDate } from '@wcb/ui';
 
 /**
  * Translation reader.
@@ -178,19 +178,6 @@ const showDescription = ( value ) => {
 		source.value = value;
 		source.dispatchEvent( new Event( 'wcb:editor:hydrate', { bubbles: true } ) );
 	}
-};
-
-/**
- * Make the description textarea current. The rich editor saves asynchronously, so
- * a click right after typing would otherwise read the text from before the last
- * edit and see an empty or stale description.
- *
- * @return {Promise<void>} Resolves when the description state is up to date.
- */
-const flushDescription = () => {
-	const holder = document.getElementById( 'wcb-editor-job-desc' );
-	const editor = holder && holder.closest( '.wcb-editor' );
-	return editor && editor.wcbFlush ? editor.wcbFlush().catch( () => {} ) : Promise.resolve();
 };
 
 const { state } = store(
@@ -624,7 +611,7 @@ const { state } = store(
 			* nextStep() {
 				const { state } = store( 'wcb-job-form' );
 
-				// Guards a real gap now: flushDescription() below yields, so a
+				// Guards a real gap now: flushEditors() below yields, so a
 				// second click in the same tick used to re-enter before this ran
 				// (Basecamp 10348706675).
 				if ( state.stepping ) {
@@ -634,7 +621,7 @@ const { state } = store(
 
 				try {
 					if ( state.step === 1 ) {
-						yield flushDescription();
+						yield flushEditors();
 						if ( ! state.title.trim() ) {
 							setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
 							focusField( 'wcb-job-title' );
@@ -702,7 +689,7 @@ const { state } = store(
 			* submitJob() {
 				const { state } = store( 'wcb-job-form' );
 
-				// Set before the first yield: flushDescription() below yields, so a
+				// Set before the first yield: flushEditors() below yields, so a
 				// second click in the same tick used to re-enter before this ran
 				// (Basecamp 10348706675).
 				if ( state.submitting ) {
@@ -712,7 +699,7 @@ const { state } = store(
 
 				try {
 
-				yield flushDescription();
+				yield flushEditors();
 
 				// Honeypot check — bots filling all fields get a fake success response.
 				const hpEl = document.getElementById( 'wcb-hp' );

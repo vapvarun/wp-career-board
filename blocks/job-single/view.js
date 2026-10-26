@@ -14,7 +14,7 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { copyText, showError } from '@wcb/ui';
+import { copyText, flushEditors, showError } from '@wcb/ui';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -250,6 +250,7 @@ const { state } = store( 'wcb-job-single', {
 			state.submitting = true;
 
 			try {
+				yield flushEditors();
 				// Honeypot — bots that autofill all fields trigger a fake success.
 				const hpEl = document.getElementById( 'wcb-hp-apply' );
 				if ( hpEl && hpEl.value ) {

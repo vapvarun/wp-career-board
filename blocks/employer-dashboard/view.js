@@ -6,7 +6,7 @@
 import { store, getContext, getConfig } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
+import { flushEditors, formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -1956,6 +1956,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( state.saving ) {
 				return;
 			}
+			state.saving = true;
+			yield flushEditors();
+			state.saving = false;
 
 			const isNew = ! state.companyId;
 

@@ -63,6 +63,21 @@ export async function copyText( text ) {
 }
 
 /**
+ * Write every rich editor on the page back to its textarea. Editor.js saves
+ * asynchronously, so a Submit clicked right after typing would otherwise read
+ * the text from before the last keystrokes (a cover letter arrived empty).
+ * Yield it in a store action before reading an editor-bound field.
+ *
+ * @return {Promise<void>} Resolves when every editor's state is current.
+ */
+export function flushEditors() {
+	const flushes = Array.from( document.querySelectorAll( '.wcb-editor' ) )
+		.filter( ( el ) => typeof el.wcbFlush === 'function' )
+		.map( ( el ) => el.wcbFlush().catch( () => {} ) );
+	return Promise.all( flushes ).then( () => {} );
+}
+
+/**
  * One tab router for the dashboards: the URL hash and this session's last tab
  * are written by a single setter, so a new tab cannot forget either.
  *

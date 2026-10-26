@@ -10,7 +10,7 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
-import { formatSiteDate } from '@wcb/ui';
+import { flushEditors, formatSiteDate } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 
@@ -233,6 +233,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			state.submitting = true;
 
 			try {
+				yield flushEditors();
 
 				// Honeypot — bots that fill all fields trigger a fake success.
 				const hpEl = document.getElementById( 'wcb-hp-simple' );
