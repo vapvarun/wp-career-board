@@ -141,6 +141,32 @@ class JobDeadline {
 	}
 
 	/**
+	 * Meta query clause that keeps only jobs whose deadline has passed.
+	 *
+	 * Compares the stored `Y-m-d` strings instead of casting to DATE: MariaDB
+	 * casts an empty deadline ("No expiry") to a date before today, so a DATE
+	 * compare expired every open-ended job there.
+	 *
+	 * @since  1.8.2
+	 * @return array<int|string, mixed>
+	 */
+	public static function passed_jobs_meta_query(): array {
+		return array(
+			'relation' => 'AND',
+			array(
+				'key'     => '_wcb_deadline',
+				'value'   => '',
+				'compare' => '!=',
+			),
+			array(
+				'key'     => '_wcb_deadline',
+				'value'   => current_time( 'Y-m-d' ),
+				'compare' => '<',
+			),
+		);
+	}
+
+	/**
 	 * Short label for a job whose deadline has passed.
 	 *
 	 * @since  1.7.1

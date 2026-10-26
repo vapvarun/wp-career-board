@@ -80,11 +80,14 @@ $wcb_made      = array();
 // ── The open rule ────────────────────────────────────────────────────────
 $wcb_open    = wcb_jl_job( $wcb_employer, $wcb_future );
 $wcb_nodate  = wcb_jl_job( $wcb_employer, '' );
+// "No expiry" stores the key with an empty value; MariaDB casts '' to a date before today.
+$wcb_blank   = wcb_jl_job( $wcb_employer, '' );
+update_post_meta( $wcb_blank, '_wcb_deadline', '' );
 $wcb_lastday = wcb_jl_job( $wcb_employer, $wcb_today );
 $wcb_late    = wcb_jl_job( $wcb_employer, $wcb_past );
 $wcb_closed  = wcb_jl_job( $wcb_employer, $wcb_future, 'wcb_closed' );
 $wcb_old     = wcb_jl_job( $wcb_employer, gmdate( 'Y-m-d', strtotime( $wcb_today . ' -30 days' ) ) );
-array_push( $wcb_made, $wcb_open, $wcb_nodate, $wcb_lastday, $wcb_late, $wcb_closed, $wcb_old );
+array_push( $wcb_made, $wcb_open, $wcb_nodate, $wcb_blank, $wcb_lastday, $wcb_late, $wcb_closed, $wcb_old );
 
 wcb_jl_assert( JobDeadline::accepts_applications( $wcb_open ) && JobDeadline::accepts_applications( $wcb_nodate ), 'open: future deadline or none' );
 wcb_jl_assert( JobDeadline::accepts_applications( $wcb_lastday ), 'open on the deadline day itself' );
@@ -148,6 +151,7 @@ add_action(
 $wcb_expiry->expire_jobs();
 wcb_jl_assert( in_array( $wcb_late, $wcb_announced, true ) && ! in_array( $wcb_old, $wcb_announced, true ) && 'wcb_expired' === get_post_status( $wcb_old ), 'a job 3 days late is announced; one 30 days late (backlog) expires silently' );
 wcb_jl_assert( 'wcb_expired' === get_post_status( $wcb_late ) && 'publish' === get_post_status( $wcb_lastday ), 'expiry on: past-deadline job moves to expired, deadline-day job stays' );
+wcb_jl_assert( 'publish' === get_post_status( $wcb_blank ) && 'publish' === get_post_status( $wcb_nodate ), 'expiry on: a No expiry job (empty or missing deadline) stays published' );
 foreach ( $wcb_bystanders as $wcb_id ) {
 	$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $wcb_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	clean_post_cache( $wcb_id );
