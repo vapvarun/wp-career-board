@@ -1,115 +1,59 @@
 {
   "mode": "combo",
-  "scope": "1.8.2 re-walk of touched surfaces",
-  "release_version": "1.8.1 (pre-bump)",
-  "ran_at": "2026-10-26T08:00:54.901790Z",
+  "scope": "1.8.2 post-bump confirmation; full touched-surface re-walk passed earlier the same day (14/14)",
   "checks": [
     {
-      "id": "R1",
-      "name": "Apply instant submit",
+      "id": "A1",
+      "name": "Versions, module URLs, log",
       "result": "pass",
-      "evidence": "1440 (marcus.williams) click and 390 (sarah.chen) focus+Enter: POST /wcb/v1/jobs/203/apply multipart carried full cover_letter in both; DB stored full text; employer (sarah.lindgren) application view showed both letters.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r6-apps-d.png"
+      "evidence": "wp plugin list: wp-career-board 1.8.2 and wp-career-board-pro 1.8.2 both active; job page script modules (job-single/view.js, wcb-fetch.js, wcb-fields.js, wcb-ui.js) served ?ver=1.8.2; docker logs cb182-combo-wp-1 --since 30m: zero non-access-log lines (no PHP warnings/notices from wp-career-board*)."
     },
     {
-      "id": "R2",
-      "name": "Editor flush on save",
+      "id": "A2a",
+      "name": "Candidate apply, instant submit carries cover letter",
       "result": "pass",
-      "evidence": "Company PATCH /employers/66 carried appended text at 1440 and 390, persisted after reload. Candidate PUT /candidates/4 bio carried text at 1440 and 390, persisted. Post a Job: typed description, Next at once, Back: text intact at 1440 and 390. Originals restored. Note: candidate bio saved with a leading &nbsp; when editor was empty (cosmetic).",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r2-postjob-back-d.png"
+      "evidence": "1440 (marcus.williams, job 127, click) and 390 (sarah.chen, job 128, focus+Enter): POST /wcb/v1/jobs/{id}/apply 200, request body contained the typed letter; DB _wcb_cover_letter matched exactly; no page/console errors.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/apply-8921-marcus.williams-1440.png"
     },
     {
-      "id": "R3",
-      "name": "wp-admin job editor flush",
+      "id": "A2b",
+      "name": "Employer sees application",
       "result": "pass",
-      "evidence": "Job 202: appended text, clicked Update immediately: 'Post updated', text in post_content, zero dialogs (beforeunload would have fired). Content restored.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r3-updated.png"
+      "evidence": "ahmed.karim dashboard Applications view lists both new applications and shows the cover letter text at 1440 and 390 (after tapping the row); no horizontal overflow, no JS errors.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/emp-apps-1440.png"
     },
     {
-      "id": "R4",
-      "name": "No expiry",
+      "id": "A2c",
+      "name": "Employer posts job via /post-a-job/",
       "result": "pass",
-      "evidence": "Job 202 deadline set to past date + No expiry ticked + Update: deadline stored empty; cron wcb_check_job_expiry left it published. Negative case: past deadline without No expiry -> cron set wcb_expired (gate can fail). Status and deadline 2026-12-01 restored.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r4-noexpiry.png"
+      "evidence": "1440: filled title, description, salary, apply email, category, type, location, experience, Preview, Post Job -> POST /wcb/v1/jobs 201 (id 1055, status pending), 'Job submitted for review' shown; no credit/payment gate hit. 390: step 1 -> Next -> Back, typed text intact, no overflow.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/pj-final.png"
     },
     {
-      "id": "R5",
-      "name": "Candidate dashboard Pro cards, alerts API, profile error",
+      "id": "A2d",
+      "name": "Admin approves pending job",
       "result": "pass",
-      "evidence": "Overview shows My Resumes and Job alerts stat cards at 1440 and 390; GET /wcb/v1/alerts 200; routing PUT candidates to 500 shows 'Could not save profile. Please try again.' at both widths.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r5-overview-m.png"
+      "evidence": "Career Board > Jobs, Pending Review: Approve row action + confirm modal -> job 1055 status publish. No errors.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/adm-approved.png"
     },
     {
-      "id": "R6",
-      "name": "Employer dashboard Saved resumes + job picker counts",
+      "id": "A3",
+      "name": "Pro supplement P1-P6",
       "result": "pass",
-      "evidence": "Saved resumes tab present in nav; job picker summary and open list show counts (All jobs 5, Recruiter 1, Marketing Coordinator 4) fully inside rows at 1440 and 390, no scroll/clip.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r6-picker-m.png"
-    },
-    {
-      "id": "R7",
-      "name": "Apply panel resume picker as sarah.chen",
-      "result": "pass",
-      "evidence": "Picker lists 'Full-Stack Developer, 8 years in fintech' (her only resume, DB confirms 1) plus upload-instead link.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r1-panel-m.png"
-    },
-    {
-      "id": "R8",
-      "name": "Filters toggle 390 / always open 1440",
-      "result": "pass",
-      "evidence": "Find Jobs, Find Companies, temp page with only wcb/resume-archive (deleted): heading/label is 326x40 at 390; clicks at left/center/right of heading open then close, aria-expanded flips true/false. 1440: groups visible, no toggle. Minor: input keeps aria-expanded=false at 1440 while panel is open (input not exposed there).",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r8-open-qarftresumearchive-m.png"
-    },
-    {
-      "id": "R9",
-      "name": "No-company card initials + salary sort",
-      "result": "pass",
-      "evidence": "Job with no company: card tile shows 'QN' (from title), no '?'. sort=salary: $165k first, descending; across all 130 jobs the only no-salary job is last. Test job deleted.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r9-card-m.png"
-    },
-    {
-      "id": "R10",
-      "name": "Admin screens",
-      "result": "pass",
-      "evidence": "Employers All (26) = 26 items (20 + 6 on page 2). Applications search finds guest 'Quentin Rafferty-Tesc' by name, partial name and email; nonsense query shows empty state. Settings at 390: tapping Emails/Import/Advanced/Pages/Brand scrolls panel into view. Emails: templates list no horizontal scroll at 1024 and 390 (only the log table wrapper scrolls internally); with timezone America/New_York a new log row read 3:53 AM = site time (UTC was 7:53), timezone restored to empty. Import: 2-row CSV, notice 'Imported: 2' at top 460/432 inside viewport at 1440/390; imported jobs deleted.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r10-import-m.png"
-    },
-    {
-      "id": "R11",
-      "name": "Ban flow",
-      "result": "pass",
-      "evidence": "Ban opens in-page .wcb-modal (zero native dialogs); Cancel leaves employer Active; Confirm bans (row shows Banned + Unban). As banned employer /employer-dashboard/ and /post-a-job/ at 1440 and 390 show 'Your account has been suspended...' with no register prompt. Unban not clicked; user deleted instead.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r11-banned-employerdashboard-m.png"
-    },
-    {
-      "id": "R12",
-      "name": "Pro License bogus key",
-      "result": "pass",
-      "evidence": "Activating QA-RFT-INVALID shows visible notice (edd-sl-sdk__notice) 'There was an error activating your license. Please try again.' Bogus value not stored; license option names unchanged. Generic text (docker probably cannot reach licensing server), not key-specific.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r12-license-after.png"
-    },
-    {
-      "id": "R13",
-      "name": "Setup wizard sample toggle",
-      "result": "pass",
-      "evidence": "#wcb-install-sample is unchecked server-side (site has jobs; view uses checked(!has_jobs)). Step 8 not reachable without activating a license (Continue disabled on License step), so verified via DOM state and by revealing the panel for the screenshot. Wizard not finished.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r13-sample-toggle.png"
-    },
-    {
-      "id": "R14",
-      "name": "Regression glance / PHP warnings",
-      "result": "pass",
-      "evidence": "Find Jobs, job page, both dashboards rendered; docker logs --since 90m has no PHP warning/notice/deprecated from wp-career-board*; only the known 'Constant WP_DEBUG already defined' from the stack wp-config.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/r5-overview-d.png"
+      "evidence": "See .last-smoke-pass-pro.json: P1 P2 P3 P4 P6 pass; P5 partial (no licensing server)."
     }
   ],
+  "release_version": "1.8.2",
+  "pro_version": "1.8.2",
+  "ran_at": "2026-10-26T08:12:25Z",
   "hard_fails": [],
   "failures": [],
-  "untested": [],
-  "notes": [
-    "Walker stepped through wizard steps 1-5 with Save & Continue/Create Pages before realising Continue on License is gated; pages unchanged (11 pages), wcb_setup_complete still 1, but default wizard settings may have been re-saved on the combo stack.",
-    "Fresh browser contexts used; screenshots in /Users/varundubey/work-artifacts/scratch/playwright/rewalk-combo/",
-    "All QA-RFT data deleted (applications, jobs, employer user, temp page); company 66 description, user 4 bio, job 202 content/status/deadline, timezone_string restored."
+  "untested": [
+    {
+      "item": "Pro P3 step 4 / P5 step 1: enter a test license key and confirm activation persists; updater 'update available' with valid license",
+      "reason": "no licensing server or valid key in the Docker stacks; activating a real license was prohibited"
+    }
   ],
+  "debug_log_issues": [],
   "verdict": "SHIP"
 }
