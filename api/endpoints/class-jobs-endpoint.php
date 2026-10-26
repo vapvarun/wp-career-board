@@ -1821,7 +1821,7 @@ final class JobsEndpoint extends RestController {
 			'rejection_reason'       => $rejection_reason,
 			// Company fields.
 			'company'                => $company_name,
-			'initials'               => $this->company_initials( $company_name ),
+			'initials'               => \WCB\Core\CompanyMetaShape::initials( $company_name, $post->post_title ),
 			'company_logo'           => \WCB\Core\CompanyMetaShape::logo_url( $company_id ),
 			'trust'                  => $trust,
 			'trust_label'            => $trust_info['label'] ?? '',
@@ -1942,23 +1942,6 @@ final class JobsEndpoint extends RestController {
 		);
 
 		return $map[ $trust_level ] ?? null;
-	}
-
-	/**
-	 * Get company initials (up to 2 chars) from a company name.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $name Company name.
-	 * @return string
-	 */
-	private function company_initials( string $name ): string {
-		$words = array_filter( explode( ' ', trim( $name ) ) );
-		$init  = '';
-		foreach ( array_slice( $words, 0, 2 ) as $word ) {
-			$init .= mb_strtoupper( mb_substr( $word, 0, 1 ) );
-		}
-		return '' !== $init ? $init : '?';
 	}
 
 	/**

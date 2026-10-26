@@ -93,18 +93,8 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 			<?php
 			$wcb_company_name = (string) get_post_meta( $wcb_job->ID, '_wcb_company_name', true );
 			$wcb_thumb_url    = $wcb_company_map[ $wcb_job->ID ] ?? '';
-			// Uppercased first letter of the company name as an avatar fallback.
-			// mb_* (guarded) so accented/multibyte initials uppercase correctly
-			// ("école" -> "É"); single-byte functions cover hosts without the
-			// mbstring extension. The glyph shown when there is no company name is
-			// translatable so RTL/CJK locales can adapt it.
-			if ( '' !== $wcb_company_name ) {
-				$wcb_first   = function_exists( 'mb_substr' ) ? mb_substr( $wcb_company_name, 0, 1 ) : substr( $wcb_company_name, 0, 1 );
-				$wcb_initial = function_exists( 'mb_strtoupper' ) ? mb_strtoupper( $wcb_first ) : strtoupper( $wcb_first );
-			} else {
-				/* translators: single-character placeholder shown as a company avatar when the company name is unknown. */
-				$wcb_initial = _x( '?', 'unknown company initial placeholder', 'wp-career-board' );
-			}
+			// First initial of the company, or of the job title when it has none.
+			$wcb_initial    = mb_substr( \WCB\Core\CompanyMetaShape::initials( $wcb_company_name, $wcb_job->post_title ), 0, 1 );
 			$wcb_loc_terms  = wp_get_object_terms( $wcb_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
 			$wcb_location   = is_wp_error( $wcb_loc_terms ) ? '' : implode( $wcb_separator, $wcb_loc_terms );
 			$wcb_type_terms = wp_get_object_terms( $wcb_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );

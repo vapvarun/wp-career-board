@@ -411,10 +411,13 @@ final class JobSearch {
 			$clauses['fields'] .= ', ( ' . implode( ' + ', $score ) . ' ) AS wcb_relevance';
 			$clauses['orderby'] = "COALESCE( wcb_fr.meta_value = '1', 0 ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'salary' === $sort ) {
-			// Compared per year: $150-200 an hour is more than $50k a year.
+			// Compared per year: $150-200 an hour is more than $50k a year. The top
+			// of the range, or the one figure a job has, as the salary filter reads it.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_sal ON ( wcb_sal.post_id = {$posts}.ID AND wcb_sal.meta_key = '_wcb_salary_max' )";
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_smn ON ( wcb_smn.post_id = {$posts}.ID AND wcb_smn.meta_key = '_wcb_salary_min' )";
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_su ON ( wcb_su.post_id = {$posts}.ID AND wcb_su.meta_key = '_wcb_salary_type' )";
-			$clauses['orderby'] = self::yearly_sql( 'wcb_sal.meta_value', 'wcb_su.meta_value' ) . " DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$pay                = self::yearly_sql( "COALESCE( NULLIF( wcb_sal.meta_value, '' ), NULLIF( wcb_smn.meta_value, '' ) )", 'wcb_su.meta_value' );
+			$clauses['orderby'] = "{$pay} DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'closing' === $sort ) {
 			// Soonest first among jobs still open; jobs without a deadline next; jobs already past it last.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_dl ON ( wcb_dl.post_id = {$posts}.ID AND wcb_dl.meta_key = '_wcb_deadline' AND wcb_dl.meta_value <> '' )";
@@ -424,7 +427,12 @@ final class JobSearch {
 			// No exchange rates: pay in the site currency comes first, and pay in
 			// other currencies follows, grouped by currency under the "Highest
 			// salary" sort so ₹1.5M never outranks $100k (Basecamp 10402937387).
-			$clauses['orderby'] = self::other_currency_sql() . ' ASC, ' . ( 'salary' === $sort ? 'wcb_cur.meta_value ASC, ' : '' ) . $clauses['orderby'];
+			// A job with no currency set counts as the site's, and under that sort
+			// a job with no pay at all goes last whatever its currency.
+			$other              = self::other_currency_sql();
+			$clauses['orderby'] = 'salary' === $sort
+				? "{$pay} IS NULL, {$other} ASC, CASE WHEN {$other} THEN wcb_cur.meta_value END ASC, {$clauses['orderby']}"
+				: "{$other} ASC, {$clauses['orderby']}";
 		}
 		return $clauses;
 	}

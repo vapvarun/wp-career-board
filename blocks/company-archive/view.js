@@ -121,6 +121,11 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 			wcbFetchCompanies();
 		},
 
+		// Phones and tablets collapse the panel; the header row is its toggle.
+		toggleFilterPanel( event ) {
+			getContext().filtersOpen = event.target.checked;
+		},
+
 		clearFilters() {
 			state.industries  = [];
 			state.sizes       = [];

@@ -216,14 +216,21 @@ final class CompanyMetaShape {
 	 *
 	 * @since 1.8.1
 	 *
-	 * @param string $name Company name.
+	 * A job with no company passes its title as the fallback, so its tile reads
+	 * like every other card (as the job page does) instead of a bare "?".
+	 *
+	 * @param string $name     Company name.
+	 * @param string $fallback Text to use when the name has no initials.
 	 * @return string '?' when there is nothing to use.
 	 */
-	public static function initials( string $name ): string {
+	public static function initials( string $name, string $fallback = '' ): string {
 		$words = preg_grep( '/^[\p{L}\p{N}]/u', (array) preg_split( '/\s+/u', trim( $name ) ) );
 		$init  = '';
 		foreach ( array_slice( (array) $words, 0, 2 ) as $word ) {
 			$init .= mb_strtoupper( mb_substr( (string) $word, 0, 1 ) );
+		}
+		if ( '' === $init && '' !== $fallback ) {
+			return self::initials( $fallback );
 		}
 		return '' !== $init ? $init : '?';
 	}

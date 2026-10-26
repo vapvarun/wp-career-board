@@ -259,12 +259,14 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter companies', 'wp-career-board' ); ?>">
-			<input type="checkbox" id="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle-input" />
+			<input type="checkbox" id="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle-input" aria-expanded="false" data-wp-context='{"filtersOpen":false}' data-wp-bind--aria-expanded="context.filtersOpen" data-wp-on--change="actions.toggleFilterPanel" />
 			<div class="wcb-filter-panel__header">
-				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
-				<label for="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
-					<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				</label>
+				<h2 class="wcb-filter-panel__heading">
+					<label for="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle">
+						<?php esc_html_e( 'Filters', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					</label>
+				</h2>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 

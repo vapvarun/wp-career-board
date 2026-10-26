@@ -779,6 +779,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		// ── Clear all filters ─────────────────────────────────────────
+		// Phones and tablets collapse the panel; the header row is its toggle.
+		toggleFilterPanel( event ) {
+			getContext().filtersOpen = event.target.checked;
+		},
+
 		* clearFilters() {
 			state.activeFilters = {};
 			state.searchQuery = '';

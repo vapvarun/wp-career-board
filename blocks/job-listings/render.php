@@ -198,7 +198,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'title'           => $wcb_job_post->post_title,
 		'permalink'       => get_permalink( $wcb_job_post->ID ),
 		'company'         => $wcb_company_name_val,
-		'initials'        => \WCB\Core\CompanyMetaShape::initials( $wcb_company_name_val ),
+		'initials'        => \WCB\Core\CompanyMetaShape::initials( $wcb_company_name_val, $wcb_job_post->post_title ),
 		'company_logo'    => \WCB\Core\CompanyMetaShape::logo_url( $wcb_company_post_id ),
 		'trust'           => $wcb_trust,
 		'trust_label'     => $wcb_trust_info['label'] ?? '',
@@ -570,12 +570,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter jobs', 'wp-career-board' ); ?>">
-			<input type="checkbox" id="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle-input" />
+			<input type="checkbox" id="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle-input" aria-expanded="false" data-wp-context='{"filtersOpen":false}' data-wp-bind--aria-expanded="context.filtersOpen" data-wp-on--change="actions.toggleFilterPanel" />
 			<div class="wcb-filter-panel__header">
-				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
-				<label for="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
-					<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				</label>
+				<h2 class="wcb-filter-panel__heading">
+					<label for="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle">
+						<?php esc_html_e( 'Filters', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					</label>
+				</h2>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="state.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 

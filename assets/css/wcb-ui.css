@@ -1156,8 +1156,12 @@
 /* Visually-hidden checkbox that powers the mobile collapse toggle below.
  * Pure-CSS sibling-selector toggle - no JS needed, no per-archive store
  * changes. Native checkbox keeps full keyboard + screen reader support;
- * the `<label>` chevron acts as the trigger. */
+ * the `<label>` (the whole "Filters" heading row) acts as the trigger. On
+ * wide screens the panel is always open, so the checkbox leaves the tab
+ * order there. */
 .wcb-filter-panel__toggle-input {
+	display: none;
+
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -1169,7 +1173,7 @@
 	white-space: nowrap;
 }
 
-.wcb-filter-panel__toggle {
+.wcb-filter-panel__toggle svg {
 	display: none;
 }
 
@@ -1454,18 +1458,27 @@
 		padding: var(--wcb-space-md) var(--wcb-space-lg);
 	}
 
+	.wcb-filter-panel__toggle-input {
+		display: block;
+	}
+
 	.wcb-filter-panel__header {
 		padding-bottom: 0;
 		border-bottom: 0;
 		margin-bottom: 0;
 	}
 
+	.wcb-filter-panel__heading {
+		flex: 1;
+		min-width: 0;
+	}
+
 	.wcb-filter-panel__toggle {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 32px;
-		height: 32px;
+		min-width: 40px;
+		min-height: 40px;
 		cursor: pointer;
 		color: var(--wcb-text-secondary, #6b7280);
 		border-radius: var(--wcb-radius-sm);
@@ -1479,9 +1492,21 @@
 		color: var(--wcb-contrast, #0f172a);
 	}
 
+	/* The heading row is the tap target, chevron at its end. */
+	.wcb-filter-panel__heading .wcb-filter-panel__toggle {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--wcb-space-sm);
+		width: 100%;
+		color: inherit;
+	}
+
 	.wcb-filter-panel__toggle svg {
+		display: block;
 		width: 16px;
 		height: 16px;
+		flex-shrink: 0;
+		color: var(--wcb-text-secondary, #6b7280);
 		transition: transform 0.2s ease;
 	}
 

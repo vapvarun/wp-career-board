@@ -105,6 +105,24 @@ A polish release: screens say what happened, data stays in step with its source,
 * Fix      - wp wcb job list and wp wcb application list print an empty list for JSON, CSV and ids output when nothing matches.
 * Fix      - A cover letter, job description or profile typed right before clicking Submit or Save is sent in full, on the site and in the wp-admin job editor.
 * Fix      - Jobs set to No expiry stay published on MariaDB servers instead of expiring at the next hourly check; an upgrade step republishes the ones already expired.
+* Fix      - Jobs published by a moderator's approval or from the admin editor appear in the BuddyPress activity stream, once per job.
+* Fix      - The Highest salary sort lists the best-paid jobs first and jobs without a salary last, including jobs with no currency set.
+* Fix      - Job cards for jobs without a company show the job's initials instead of a question mark.
+* Fix      - On phones and tablets the whole Filters heading opens and closes the filter panel, with a larger tap target and the open state announced to screen readers.
+* Fix      - The candidate dashboard shows a My Resumes count and requests job alerts only on sites that offer them.
+* Fix      - The employer dashboard shows a Saved resumes tab only on sites with resumes.
+* Fix      - The sign-up role cards only describe features your site offers.
+* Fix      - The apply form only offers resume options your site can send.
+* Fix      - Candidates see a message when their profile could not be saved.
+* Fix      - Application counts in the employer job picker are no longer cut off.
+* Fix      - The Employers screen no longer counts people whose user account was deleted.
+* Fix      - License activation errors show on the License screen, so you can see why a key was not accepted.
+* Fix      - Searching applications finds guest applicants by name or email.
+* Fix      - Email activity log times show in the site's timezone instead of the viewer's.
+* Fix      - The email templates list fits narrow screens, with every column reachable without sideways scrolling.
+* Fix      - On phones, choosing a Settings tab scrolls straight to that tab's options.
+* Fix      - Banning an employer asks you to confirm first, and a banned member sees an account suspended message instead of a prompt to register.
+* Fix      - The setup wizard no longer pre-selects demo content on a site that already has jobs.
 * Fix      - History retention counts days in site time, so sites west of UTC keep their history for the full window.
 * Security - A guest's job page no longer carries resume data, and account deletions are written to the privacy log.
 * Dev      - New filters wcb_docs_url, wcb_job_single_sidebar_cta and wcb_client_ip_trusted_hops, and helper JobsMeta::parse_amount().
