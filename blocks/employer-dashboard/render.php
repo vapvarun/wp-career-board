@@ -765,7 +765,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							</div>
 						</template>
 					</div>
-					<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+					<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentApps"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
 				</div>
 
 				<div class="wcb-panel">
@@ -975,7 +975,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noApplications">
 				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'inbox' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
-				<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
 				<p class="wcb-empty-state__body"><?php esc_html_e( 'Applications to your jobs arrive here, newest first.', 'wp-career-board' ); ?></p>
 			</div>
 

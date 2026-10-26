@@ -101,6 +101,7 @@ A polish release: screens say what happened, data stays in step with its source,
 * Fix      - Saving email choices keeps the setting of an email that is hidden right now.
 * Fix      - Settings selects, the Job Search Hero and side-by-side dashboard panels fit their space on phones and tablets.
 * Fix      - Our own admin notices show on Career Board screens.
+* Fix      - Job Type screens read Edit Job Type and Add New Job Type, and the menu reads Job Categories.
 * Fix      - History retention counts days in site time, so sites west of UTC keep their history for the full window.
 * Security - A guest's job page no longer carries resume data, and account deletions are written to the privacy log.
 * Dev      - New filters wcb_docs_url, wcb_job_single_sidebar_cta and wcb_client_ip_trusted_hops, and helper JobsMeta::parse_amount().

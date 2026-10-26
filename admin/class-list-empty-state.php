@@ -94,7 +94,7 @@ trait ListEmptyState {
 	 * Print the "no match" empty state with a Clear filters link.
 	 *
 	 * @param string $icon  Lucide icon name.
-	 * @param string $title Translated "No ... match your filters." text.
+	 * @param string $title Translated "No ... match your filters" text.
 	 * @param string $page  Admin page slug of the unfiltered list.
 	 * @return void
 	 */

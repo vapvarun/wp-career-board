@@ -239,7 +239,7 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		if ( $this->list_filtered( array( 's', 'wcb_reported', 'wcb_banned' ) ) ) {
-			$this->filtered_empty_state( 'briefcase-business', __( 'No employers match your filters.', 'wp-career-board' ), 'wcb-employers' );
+			$this->filtered_empty_state( 'briefcase-business', __( 'No employers match your filters', 'wp-career-board' ), 'wcb-employers' );
 			return;
 		}
 		?>

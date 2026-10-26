@@ -378,7 +378,7 @@ class AdminJobs extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		if ( $this->list_filtered( array( 's', 'post_status', 'author', 'wcb_flag', 'wcb_payment' ) ) ) {
-			$this->filtered_empty_state( 'briefcase', __( 'No jobs match your filters.', 'wp-career-board' ), 'wcb-jobs' );
+			$this->filtered_empty_state( 'briefcase', __( 'No jobs match your filters', 'wp-career-board' ), 'wcb-jobs' );
 			return;
 		}
 		?>

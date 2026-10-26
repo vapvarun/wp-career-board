@@ -224,7 +224,7 @@ class AdminCandidates extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		if ( $this->list_filtered( array( 's', 'wcb_reported', 'wcb_banned' ) ) ) {
-			$this->filtered_empty_state( 'users', __( 'No candidates match your filters.', 'wp-career-board' ), 'wcb-candidates' );
+			$this->filtered_empty_state( 'users', __( 'No candidates match your filters', 'wp-career-board' ), 'wcb-candidates' );
 			return;
 		}
 		?>

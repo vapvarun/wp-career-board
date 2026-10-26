@@ -23,7 +23,7 @@ bug_ref: 10344034912, 10344034812, 10344035035, 10421607769
 7. My Jobs: "Feature" on a live job → confirm → "Featured" badge, balance down by the featured cost; the job lists first on /jobs/ and stays first on Load More
 7a. With a balance below the featured cost: "Feature" → confirm → no charge; under the list, "Credits needed for this job: N. Your balance: M." with a **Buy credits** button that opens the Credits tab (card:10421607769), at 1440 and 390
 8. With no gateway, pack or mapped product: the Credits tab says credits can't be bought, and Career Board admin screens show "Employers can't buy credits, but a board charges them"
-9. Settings > Analytics: Credits Spent is the net of charged jobs, Revenue shows the currency total after refunds
+9. Settings > Analytics: Credits spent is the net of charged jobs, Revenue shows the currency total after refunds
 10. tail debug.log diff → expect ZERO new fatal/warning lines
 
 Automated: `wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-credit-checkout.php` (fake gateway, steps 3-8 logic).

@@ -301,7 +301,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 	<?php if ( ! \WCB\Core\ArchiveHeading::page_has_h1() ) : ?>
 		<div class="wcb-page-header">
-			<h1 class="wcb-page-title"><?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?></h1>
+			<h1 class="wcb-page-title"><?php echo esc_html( _x( 'Post a Job', 'page title', 'wp-career-board' ) ); ?></h1>
 		</div>
 	<?php endif; ?>
 

@@ -86,7 +86,7 @@ final class Pages {
 			'employer_registration_page' => array(
 				// The block is a dual role picker (Find a Job / Hire Talent); the
 				// key and slug stay "employer" because the docs link to them.
-				'title'   => __( 'Employer Registration', 'wp-career-board' ),
+				'title'   => _x( 'Employer Registration', 'page title', 'wp-career-board' ),
 				'slug'    => 'employer-registration',
 				'content' => '<!-- wp:wp-career-board/employer-registration /-->',
 				'label'   => __( 'Employer Registration Page', 'wp-career-board' ),

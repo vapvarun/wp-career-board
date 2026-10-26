@@ -647,7 +647,7 @@ wp_interactivity_state(
 					</div>
 					<div class="wcb-empty-state wcb-empty-state--compact wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noRecentApps">
 						<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
-						<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+						<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
 						<p class="wcb-empty-state__body"><?php esc_html_e( 'Jobs you apply to show up here with their status.', 'wp-career-board' ); ?></p>
 						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" href="<?php echo esc_url( $wcb_jobs_url ); ?>"><?php esc_html_e( 'Browse jobs', 'wp-career-board' ); ?></a>
 					</div>
@@ -760,7 +760,7 @@ wp_interactivity_state(
 
 			<div class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--toggle" data-wp-class--wcb-shown="state.noApplications">
 				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
-				<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+				<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
 				<p class="wcb-empty-state__body"><?php esc_html_e( 'Apply to a job and follow its progress here.', 'wp-career-board' ); ?></p>
 				<a href="<?php echo esc_url( $wcb_jobs_url ); ?>" class="wcb-btn wcb-btn--primary">
 					<?php esc_html_e( 'Browse jobs', 'wp-career-board' ); ?>

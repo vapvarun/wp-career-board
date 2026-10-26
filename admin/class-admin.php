@@ -260,7 +260,7 @@ class Admin {
 		// into admin.php?page=…, which doesn't apply here.
 		global $submenu;
 		$wcb_tax_links = array(
-			'wcb_category'   => __( 'Job categories', 'wp-career-board' ),
+			'wcb_category'   => _x( 'Job Categories', 'taxonomy general name', 'wp-career-board' ),
 			'wcb_job_type'   => __( 'Job Types', 'wp-career-board' ),
 			'wcb_location'   => __( 'Job Locations', 'wp-career-board' ),
 			'wcb_experience' => __( 'Experience Levels', 'wp-career-board' ),
@@ -666,7 +666,7 @@ class Admin {
 						</h2>
 						<div class="wcb-panel-body">
 		<?php if ( empty( $recent_apps ) ) : ?>
-							<p class="wcb-empty"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+							<p class="wcb-empty"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
 						<?php else : ?>
 							<table class="widefat striped">
 								<tbody>

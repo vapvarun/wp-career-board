@@ -302,8 +302,8 @@ final class JobsModule {
 			'wcb_category',
 			'wcb_job',
 			array(
-				'label'             => __( 'Job categories', 'wp-career-board' ),
-				'labels'            => self::taxonomy_labels( __( 'Job categories', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
+				'label'             => _x( 'Job Categories', 'taxonomy general name', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( _x( 'Job Categories', 'taxonomy general name', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-category' ),
@@ -317,7 +317,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Types', 'wp-career-board' ),
-				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), __( 'Job type', 'wp-career-board' ), false ),
+				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), _x( 'Job Type', 'taxonomy singular name', 'wp-career-board' ), false ),
 				'hierarchical'      => false,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-type' ),

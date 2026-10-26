@@ -474,7 +474,7 @@ $wcb_step_labels = array(
 	if ( ! \WCB\Core\ArchiveHeading::page_has_h1() ) :
 		?>
 		<div class="wcb-page-header">
-			<h1 class="wcb-page-title"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Edit Job', 'wp-career-board' ) : __( 'Post a Job', 'wp-career-board' ) ); ?></h1>
+			<h1 class="wcb-page-title"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Edit Job', 'wp-career-board' ) : _x( 'Post a Job', 'page title', 'wp-career-board' ) ); ?></h1>
 		</div>
 	<?php endif; ?>
 

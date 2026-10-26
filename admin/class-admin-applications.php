@@ -497,7 +497,7 @@ class AdminApplications extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		if ( $this->filter_args() ) {
-			$this->filtered_empty_state( 'mail', __( 'No applications match your filters.', 'wp-career-board' ), 'wcb-applications' );
+			$this->filtered_empty_state( 'mail', __( 'No applications match your filters', 'wp-career-board' ), 'wcb-applications' );
 			return;
 		}
 		?>
