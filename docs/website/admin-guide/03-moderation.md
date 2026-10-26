@@ -45,7 +45,7 @@ The job moves to Draft and the employer gets the **Job Rejected** email, which i
 Admins have full control over all jobs from **WP Career Board → Jobs**:
 
 - **Edit** any job (correct errors, add missing info)
-- **Trash** or **Delete Permanently** spam or low-quality listings (administrators only). Deleting a job with many applicants finishes quickly: its open applications are marked **Job removed** in background batches of 200, and candidates are still told, using the job title saved with their application. The applications stay in the candidate's history
+- **Trash** or **Delete Permanently** spam or low-quality listings (administrators only). Deleting a job with many applicants finishes quickly: its open applications are marked **Job removed** in background batches of 200, and candidates are still told, using the job title saved with their application. The applications stay in the candidate's history. Open the **Trash** view above the Jobs or Companies list to see trashed items. There, **Restore** brings an item back and **Delete Permanently** removes it for good. When a filter matches nothing, the list says "No jobs match your filters" and offers **Clear filters**
 
 ## Reported jobs (flagged) {#reported-jobs-flagged}
 
