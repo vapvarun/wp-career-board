@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-26T08:15:22+00:00\n"
+"POT-Creation-Date: 2026-10-26T10:09:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-career-board\n"
@@ -5302,7 +5302,6 @@ msgid "You are now logged in as a candidate. Start browsing jobs and building yo
 msgstr ""
 
 #: blocks/employer-registration/render.php:180
-#: modules/notifications/templates/job-expired.php:20
 msgid "Go to Dashboard"
 msgstr ""
 
@@ -6592,11 +6591,11 @@ msgstr ""
 msgid " -  Select Industry  - "
 msgstr ""
 
-#: core/class-install.php:126
+#: core/class-install.php:129
 msgid "WP Career Board requires PHP 8.1+ and WordPress 6.9+."
 msgstr ""
 
-#: core/class-install.php:127
+#: core/class-install.php:130
 msgid "Plugin Activation Error"
 msgstr ""
 
@@ -7912,7 +7911,6 @@ msgstr ""
 
 #: modules/notifications/emails/class-email-app-received.php:75
 #: modules/notifications/emails/class-email-app-withdrawn.php:75
-#: modules/notifications/templates/application-received.php:25
 msgid "View in Dashboard"
 msgstr ""
 
@@ -8205,7 +8203,6 @@ msgstr ""
 
 #. translators: %s: rejection reason provided by admin
 #: modules/notifications/emails/class-email-job-rejected.php:76
-#: modules/notifications/templates/job-rejected.php:23
 #, php-format
 msgid "Reason: %s"
 msgstr ""
@@ -8291,67 +8288,6 @@ msgstr ""
 msgid "Hi {user_name}, your account is ready. Sign in any time to manage your profile, applications and saved jobs."
 msgstr ""
 
-#. translators: %s: job title
-#: modules/notifications/templates/application-confirmation.php:16
-#: modules/notifications/templates/application-guest-confirmation.php:23
-#, php-format
-msgid "Your application for %s has been submitted successfully."
-msgstr ""
-
-#: modules/notifications/templates/application-confirmation.php:19
-msgid "We will notify you when your application status changes."
-msgstr ""
-
-#: modules/notifications/templates/application-confirmation.php:20
-#: modules/notifications/templates/application-status-changed.php:25
-msgid "View Your Applications"
-msgstr ""
-
-#. translators: %s: guest first name
-#: modules/notifications/templates/application-guest-confirmation.php:17
-#, php-format
-msgid "Hi %s,"
-msgstr ""
-
-#. translators: %d: application reference number
-#: modules/notifications/templates/application-guest-confirmation.php:29
-#, php-format
-msgid "Your application reference is #%d."
-msgstr ""
-
-#: modules/notifications/templates/application-guest-confirmation.php:32
-msgid "The employer will be in touch if your application moves forward."
-msgstr ""
-
-#: modules/notifications/templates/application-guest-confirmation.php:33
-#: modules/notifications/templates/job-approved.php:20
-msgid "View Job Listing"
-msgstr ""
-
-#. translators: %s: job title
-#: modules/notifications/templates/application-received.php:16
-#, php-format
-msgid "A new application has been received for %s."
-msgstr ""
-
-#. translators: %s: candidate display name
-#: modules/notifications/templates/application-received.php:22
-#, php-format
-msgid "Applicant: %s"
-msgstr ""
-
-#. translators: %s: job title
-#: modules/notifications/templates/application-status-changed.php:16
-#, php-format
-msgid "The status of your application for %s has been updated."
-msgstr ""
-
-#. translators: %s: new application status (e.g. Reviewed)
-#: modules/notifications/templates/application-status-changed.php:22
-#, php-format
-msgid "New status: %s"
-msgstr ""
-
 #. translators: %s: site name
 #: modules/notifications/templates/emails/email-footer.php:18
 #, php-format
@@ -8362,46 +8298,6 @@ msgstr ""
 #: modules/notifications/templates/emails/email-footer.php:20
 #, php-format
 msgid "You are receiving this email because you have an account on %s."
-msgstr ""
-
-#. translators: %s: job title
-#: modules/notifications/templates/job-approved.php:16
-#, php-format
-msgid "Your job listing has been approved: %s"
-msgstr ""
-
-#: modules/notifications/templates/job-approved.php:19
-msgid "It is now live and accepting applications."
-msgstr ""
-
-#. translators: %s: job title
-#: modules/notifications/templates/job-expired.php:16
-#, php-format
-msgid "Your job listing has expired: %s"
-msgstr ""
-
-#: modules/notifications/templates/job-expired.php:19
-msgid "Repost from your dashboard to continue accepting applications."
-msgstr ""
-
-#. translators: %s: job title
-#: modules/notifications/templates/job-pending-review.php:16
-#, php-format
-msgid "A new job listing is waiting for your review: %s"
-msgstr ""
-
-#: modules/notifications/templates/job-pending-review.php:19
-msgid "Review in Dashboard"
-msgstr ""
-
-#. translators: %s: job title
-#: modules/notifications/templates/job-rejected.php:16
-#, php-format
-msgid "Unfortunately, your job listing was not approved: %s"
-msgstr ""
-
-#: modules/notifications/templates/job-rejected.php:27
-msgid "Please review our posting guidelines and resubmit."
 msgstr ""
 
 #: modules/seo/class-seo-module.php:450
