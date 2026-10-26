@@ -174,7 +174,7 @@ for f in "${SELECTED[@]}"; do
 	cat "$f"
 	echo
 	# Stub the run report — a real implementation pipes this to Sonnet
-	# via the wp-career-board-smoke skill's dispatch template, then
+	# via the global /wp-plugin-smoke skill's dispatch template, then
 	# parses the returned JSON. For now: declare the journey "manually
 	# verifiable" and print the audit-trail location.
 	REPORT="$RUNS_DIR/${id}-${TS}.json"
@@ -183,7 +183,7 @@ for f in "${SELECTED[@]}"; do
   "id": "$id",
   "ran_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "status": "manual_required",
-  "note": "run-journeys.sh prints the journey for manual walk; for automated execution, dispatch via wp-career-board-smoke skill (Sonnet + Playwright MCP) and rewrite this report.",
+  "note": "run-journeys.sh prints the journey for manual walk; for automated execution, dispatch via the global /wp-plugin-smoke skill (Sonnet + Playwright MCP) and rewrite this report.",
   "source_journey": "${f#$ROOT/}"
 }
 JSON
@@ -192,7 +192,7 @@ done
 
 echo
 echo "Summary: ${#SELECTED[@]} journey(s) emitted manual_required reports."
-echo "For automated execution, run the wp-career-board-smoke skill: it dispatches"
+echo "For automated execution, run the global /wp-plugin-smoke skill: it dispatches"
 echo "a Sonnet sub-agent that reads each journey, walks it via Playwright MCP,"
 echo "and rewrites the report with pass/fail per step."
 

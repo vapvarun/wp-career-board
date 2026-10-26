@@ -1,33 +1,46 @@
 ---
 id: admin-applications-export
 priority: medium
-personas: varundubey
-requires: mu:autologin, seed:applications, pro:active
-last_verified: 2026-05-09
+personas: varundubey, employer.figma
+requires: mu:autologin, seed:applications
+last_verified: 2026-10-26
 needs: cli
 ---
 
-# Admin exports the applications list as CSV/JSON; file downloads successfully
+# Admin exports applications as CSV (all matching, ticked rows, one job); file is complete and formula-safe
 
-**Why this journey exists:** the analytics export is the primary way HR teams extract data from the plugin; a 500 on export or a truncated/empty file is a high-impact support ticket. Verifies that the export endpoint responds with the correct Content-Type and a non-empty body.
+**Why this journey exists:** the applications CSV is how HR teams pull candidate data out of the plugin (`WCB\Core\ApplicationsCsv`, `core/class-applications-csv.php`); an empty file, a wrong Content-Type, rows the caller may not see, or a cell that opens as a spreadsheet formula are all customer-visible failures. This journey was previously aimed at Pro's credits ledger CSV; that export is covered by Pro's own journeys (`wp-career-board-pro/audit/journeys/admin/walkthrough-analytics.md`).
 
 ## Steps
 
-1. Skip cleanly if Pro is not active: `wp plugin is-active wp-career-board-pro` → if false, mark journey `skipped: pro_inactive` and exit success (export is a Pro feature via `GET /wcb/v1/analytics/credits.csv`)
-2. As `varundubey` (admin), navigate to `/wp-admin/admin.php?page=wcb-credits&autologin=1` → expect HTTP 200, the analytics/credits admin page renders
-3. GET `/wp-json/wcb/v1/analytics/credits.csv` with admin auth cookie → expect HTTP 200, response header `Content-Type` contains `text/csv` or `application/csv`, response body is non-empty text with at least one header row
-4. Verify the CSV has a header line: inspect first line of the response body → expect comma-separated column names (e.g. `user_id`, `amount`, `entry_type`, `created_at` or similar schema from `wcb_credit_ledger`)
-5. Verify the CSV has at least one data row (given seed data is present): line count of response body (excluding header) ≥ 1
-6. GET `/wp-json/wcb/v1/analytics/credits.csv` as `employer.figma` (non-admin) → expect HTTP 403 (ability check `wcb/manage-credits` restricts to admin)
-7. Navigate to `/wp-admin/edit.php?post_type=wcb_application?autologin=1` → expect HTTP 200, applications list renders; confirm the table shows the correct application count matching the seed
-8. tail debug.log diff → expect ZERO new fatal/warning lines
+1. Seed two applications on a published job, one from a guest whose name starts with `=` to prove the formula guard:
+   ```bash
+   JOB_ID=$(wp post list --post_type=wcb_job --post_status=publish --field=ID --posts_per_page=1)
+   A1=$(wp post create --post_type=wcb_application --post_title='CSV smoke guest' --post_status=publish --post_author=1 --porcelain)
+   wp post meta update $A1 _wcb_job_id $JOB_ID; wp post meta update $A1 _wcb_status submitted
+   wp post meta update $A1 _wcb_guest_name '=HYPERLINK("http://example.test","x")'; wp post meta update $A1 _wcb_guest_email csv-guest@example.test
+   A2=$(wp post create --post_type=wcb_application --post_title='CSV smoke guest two' --post_status=publish --post_author=1 --porcelain)
+   wp post meta update $A2 _wcb_job_id $JOB_ID; wp post meta update $A2 _wcb_status shortlisted
+   wp post meta update $A2 _wcb_guest_name 'Mei Tanaka'; wp post meta update $A2 _wcb_guest_email mei@example.test
+   ```
+2. As `varundubey` (admin), navigate to `/wp-admin/admin.php?page=wcb-applications&autologin=1` → expect HTTP 200, the list renders and an **Export all matching to CSV** button is visible (it only renders when at least one row matches the current filters)
+3. Click **Export all matching to CSV** (a link to `admin.php?page=wcb-applications&wcb_export=all&_wpnonce=...`) → expect a download named `wcb-applications-<timestamp>.csv`, response header `Content-Type: text/csv; charset=utf-8`, body starts with a UTF-8 BOM
+4. Verify the header row: `ID, Job ID, Job title, Applicant name, Applicant Email, Status, Submitted, Cover letter, Resume URL, Screening Answers`
+5. Verify both seeded rows are present with status labels `Submitted` and `Shortlisted`, the job title of `$JOB_ID`, and that the first guest's name cell is `'=HYPERLINK(...)` (a leading apostrophe) so a spreadsheet shows text, not a formula
+6. Filter then export: open `admin.php?page=wcb-applications&app_status=shortlisted`, click **Export all matching to CSV** → expect only shortlisted rows (Mei Tanaka present, the `=HYPERLINK` row absent)
+7. Ticked rows: on the unfiltered list tick only the `CSV smoke guest two` row, choose bulk action **Export to CSV**, Apply → expect a CSV with exactly that one data row
+8. Tampered nonce: request the step 3 URL with `_wpnonce=bad` → expect the WordPress "link expired" screen (403), no CSV body
+9. Per-job export for an employer: as `employer.figma` (owner of `$JOB_ID`'s company), GET `/wp-json/wcb/v1/jobs/$JOB_ID/applications/export` → expect HTTP 200 `text/csv` containing the same job's rows. As a different employer (not the owner) the same request returns a REST permission error (401/403), never the CSV
+10. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 
-None — read-only journey.
+```bash
+wp post delete $A1 $A2 --force
+```
 
 ## Notes
 
-- The analytics export endpoint is `GET /wcb/v1/analytics/credits.csv` per the Pro manifest, with permission `wcbp_manage_credits ability + license check`.
-- Free does not have a dedicated export endpoint — the admin list at `edit.php?post_type=wcb_application` is the Free export surface.
-- If the Pro export is not yet wired (status `partial`), step 3 may return 404 — record and mark that step as `skipped: endpoint_not_wired` rather than failing the journey.
+- The admin button and the bulk action share one streamer (`ApplicationsCsv::stream()`); the REST route `GET /wcb/v1/jobs/{id}/applications/export` (`ApplicationsEndpoint`) is the same streamer behind an owner-or-`wcb/manage-settings` check.
+- The Applications admin page needs the `wcb_manage_settings` capability (`admin/class-admin.php`).
+- Rows are read in batches of 500 ids, so "export all" does not load every application at once.

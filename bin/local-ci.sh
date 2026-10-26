@@ -109,6 +109,7 @@ fi
 #     fails quietly: a wrong --path drives the wrong site.
 if [ -x "./bin/check-qa-portability.sh" ]; then
 	run_step "qa-portability" './bin/check-qa-portability.sh' || failed=$((failed+1))
+	run_step "pro-decoupling" 'bash bin/check-pro-decoupling.sh' || failed=$((failed+1))
 else
 	printf "  ${DIM}skip   ${RESET} qa-portability (bin/check-qa-portability.sh missing)\n"
 fi

@@ -2,7 +2,8 @@
 
 > **What nearly every owner uses, ranked.** QA walks these first, every cycle,
 > as the named role, on a clean install. Bug priority follows this list (see
-> `owner-questions.md` → Triage): a defect on a core path outranks one on an edge
+> `owner-questions.md` → Triage; canonical copy is the global wp-card-qa skill reference
+> `~/.claude/skills/wp-card-qa/references/owner-questions.md`, not a file in this repo): a defect on a core path outranks one on an edge
 > regardless of who reported it.
 >
 > **Seeded from evidence, confirmed by a human once.** Evidence: what activation

@@ -122,11 +122,11 @@ At walk end, archive the diff window to `docs/qa/.debug-log-<release_version>-<r
 **Acceptance:** the primary front-end route returns HTTP 200; rewrite rules contain `wcb_job` (or whatever CPT permalink rule the plugin registers).
 
 ### A.db.tables-and-version
-**What to verify:** all expected tables exist; `wcb_db_version` option matches `WCB_VERSION`. Free owns 3 tables (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) created in `core/class-install.php`. With Pro active, 9 additional Pro tables exist (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`, `wcb_notifications`) created in `core/class-pro-install.php`; `wcbp_db_version` (option key, not `wcb_pro_db_version`) matches `WCBP_VERSION`. The bundled Wbcom Credits SDK adds **2 more** tables once native gateway checkout is exercised (`wcb_credit_gateway_log`, `wcb_credit_processed_events`) — created lazily by the SDK, not by class-pro-install.php. Total expected table count (combo): **14** (3 free + 9 pro + 2 SDK). Note `wcb_credit_ledger` is a Pro table (in the 9); the 2 SDK tables are the gateway log + processed-events idempotency store.
+**What to verify:** all expected tables exist; `wcb_db_version` equals `Install::DB_VERSION` (currently `1.4.3`, `core/class-install.php`) - it is NOT the plugin version, so do not compare it to `WCB_VERSION`. Free owns 3 tables (`wcb_notifications_log`, `wcb_job_views`, `wcb_gdpr_log`) created in `core/class-install.php`. With Pro active, `core/class-pro-install.php` creates 8 more (`wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`, `wcb_notifications`, `wcb_push_devices`); `wcb_job_boards` is no longer created. `wcbp_db_version` (option key, not `wcb_pro_db_version`) equals `ProInstall::DB_VERSION` (currently `1.17`), again not `WCBP_VERSION`. The bundled Wbcom Credits SDK (`libs/wbcom-credits-sdk`, `Registry::register()`, gated by option `wbcom_credits_db_version_wcb`) creates 3 tables together: `wcb_credit_ledger`, `wcb_credit_gateway_log`, `wcb_credit_processed_events`. Pro's `expected_tables()` check counts the ledger among its 9. Total expected table count (combo): **14** (3 free + 8 pro + 3 SDK).
 
 ```bash
 wp --path="$WP_PATH" db query "SHOW TABLES LIKE '%wcb%'" --skip-column-names
-# Expected: 14 rows (3 free + 9 pro + 2 Credits-SDK). Any wp_pc_-prefixed
+# Expected: 14 rows (3 free + 8 pro + 3 Credits-SDK). Any wp_pc_-prefixed
 # wcb_credit_* tables are stray environment leftovers, not plugin-created.
 wp --path="$WP_PATH" option get wcb_db_version
 wp --path="$WP_PATH" option get wcbp_db_version

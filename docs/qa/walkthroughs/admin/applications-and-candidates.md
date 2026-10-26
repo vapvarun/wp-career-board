@@ -46,5 +46,5 @@ wp post delete "$APP1" "$APP2" "$CAND" --force --path="$SITE" 2>/dev/null || tru
 - Applications and Candidates are CUSTOM admin pages (`admin.php?page=wcb-applications` / `?page=wcb-candidates`, rendered by `WP_List_Table` subclasses), NOT the native `edit.php?post_type=…` CPT screens that older atomic journeys reference. Menu registration: `admin/class-admin.php:93-110`.
 - Application status lives in `_wcb_status` postmeta (submitted / reviewing / shortlisted / rejected / hired), not as `post_status`. The "Change status" column offers an inline change per row; the bulk `Mark as *` actions are the multi-row path.
 - The CSV export is a **Free** feature (streamed by `AdminApplications`); it is distinct from the Pro analytics `GET /wcb/v1/analytics/credits.csv` export. This walkthrough covers the Free application CSV only.
-- Candidates are the `wcb_resume` CPT; if `resume_archive_enabled` is off there is no public "View" link — the walkthrough only asserts render + search.
+- The "View resume" row action only shows for a candidate with a resume link; the walkthrough only asserts render + search. (The `resume_archive_enabled` setting no longer exists.)
 - No 1.5.1-new surface in this walkthrough.
