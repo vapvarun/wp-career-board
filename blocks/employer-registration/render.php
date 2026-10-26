@@ -84,6 +84,9 @@ if ( $wcb_user && '' === trim( $wcb_first_name . $wcb_last_name ) ) {
 	$wcb_last_name  = $parts[1] ?? '';
 }
 
+// Resume building and candidate search ship in Pro's Resumes module.
+$wcb_resumes_enabled = (bool) apply_filters( 'wcb_pro_resumes_enabled', false );
+
 /*
  * Company-size buckets. The slugs are the machine contract stored in
  * `_wcb_company_size` post meta and filtered against by the company archive —
@@ -204,12 +207,12 @@ wp_interactivity_state(
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate" aria-label="<?php esc_attr_e( 'Find a Job', 'wp-career-board' ); ?>">
 					<span class="wcb-role-icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Find a Job', 'wp-career-board' ); ?></span>
-					<span class="wcb-role-desc"><?php esc_html_e( 'Browse jobs, apply, and build your resume', 'wp-career-board' ); ?></span>
+					<span class="wcb-role-desc"><?php echo $wcb_resumes_enabled ? esc_html__( 'Browse jobs, apply, and build your resume', 'wp-career-board' ) : esc_html__( 'Browse jobs, apply, and track your applications', 'wp-career-board' ); ?></span>
 				</button>
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer" aria-label="<?php esc_attr_e( 'Hire Talent', 'wp-career-board' ); ?>">
 					<span class="wcb-role-icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building-2' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Hire Talent', 'wp-career-board' ); ?></span>
-					<span class="wcb-role-desc"><?php esc_html_e( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ); ?></span>
+					<span class="wcb-role-desc"><?php echo $wcb_resumes_enabled ? esc_html__( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ) : esc_html__( 'Post jobs, review applicants, and manage hiring', 'wp-career-board' ); ?></span>
 				</button>
 			</div>
 		</div>

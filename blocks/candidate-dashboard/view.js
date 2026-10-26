@@ -421,22 +421,24 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 
 			// Prefetch alerts count for Overview stat card and nav badge.
-			try {
-				const alertsRes = yield wcbFetch(
-					state.apiBase + '/alerts',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
-				if ( alertsRes.ok ) {
-					const raw = yield alertsRes.json();
-					state.alerts = raw.map( ( a ) => ( {
-						id:          a.id,
-						label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
-						frequency:   a.frequency,
-						filterPills: buildFilterPills( a.filters, a.filter_labels ),
-					} ) );
+			if ( state.alertsEnabled ) {
+				try {
+					const alertsRes = yield wcbFetch(
+						state.apiBase + '/alerts',
+						{ headers: { 'X-WP-Nonce': state.nonce } }
+					);
+					if ( alertsRes.ok ) {
+						const raw = yield alertsRes.json();
+						state.alerts = raw.map( ( a ) => ( {
+							id:          a.id,
+							label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
+							frequency:   a.frequency,
+							filterPills: buildFilterPills( a.filters, a.filter_labels ),
+						} ) );
+					}
+				} catch {
+					// wcb-allow-silent: background prefetch; Non-critical.
 				}
-			} catch {
-				// wcb-allow-silent: background prefetch; Non-critical.
 			}
 
 			// If resumes tab was restored from sessionStorage, fetch resumes now.

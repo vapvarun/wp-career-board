@@ -548,6 +548,7 @@
 	border-bottom: 1px solid var(--wcb-border);
 	cursor: pointer;
 	text-align: start;
+	box-sizing: border-box;
 	width: 100%;
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }

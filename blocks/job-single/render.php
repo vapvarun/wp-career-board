@@ -265,7 +265,11 @@ $wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 $wcb_user_resumes            = array();
 $wcb_resume_page_url         = '';
 $wcb_career_board_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
-if ( post_type_exists( 'wcb_resume' ) ) {
+// Gated on the Pro filter, not post_type_exists(): Free registers wcb_resume
+// itself, but only Pro can turn a builder resume into the PDF the apply
+// endpoint attaches, so on Free a saved resume is not a sendable choice.
+$wcb_resumes_enabled = (bool) apply_filters( 'wcb_pro_resumes_enabled', false );
+if ( $wcb_resumes_enabled ) {
 	// A guest has no resumes: 'author' => 0 would match every member's.
 	$wcb_resume_posts = $wcb_current_user_id <= 0 ? array() : get_posts(
 		array(
@@ -344,7 +348,7 @@ wp_interactivity_state(
 		// generated on submit (wcb_resume_pdf_attachment_id), so all are eligible.
 		'selectedResumeId'     => ! empty( $wcb_user_resumes ) ? (int) $wcb_user_resumes[0]['id'] : 0,
 		'resumePageUrl'        => $wcb_resume_page_url,
-		'proActive'            => post_type_exists( 'wcb_resume' ),
+		'proActive'            => $wcb_resumes_enabled,
 		'careerBoardProActive' => $wcb_career_board_pro_active,
 		'jobPermalink'         => (string) get_permalink( $wcb_job_id ),
 		'jobTitle'             => $wcb_job->post_title,
@@ -1095,7 +1099,7 @@ wp_interactivity_state(
 					</div>
 		<?php endif; ?>
 
-		<?php $wcb_show_pro_picker = is_user_logged_in() && post_type_exists( 'wcb_resume' ); ?>
+		<?php $wcb_show_pro_picker = is_user_logged_in() && $wcb_resumes_enabled; ?>
 
 				<div class="wcb-apply-resume-section">
 		<?php if ( $wcb_show_pro_picker ) : ?>

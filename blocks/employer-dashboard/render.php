@@ -203,6 +203,10 @@ $wcb_size_options = array(
 	'5000+'     => __( '5,000+ employees', 'wp-career-board' ),
 );
 
+// Gated on the Pro filter, not post_type_exists(): Free registers wcb_resume
+// itself, while resume bookmarks and their REST routes ship only in Pro.
+$wcb_saved_resumes_enabled = (bool) apply_filters( 'wcb_pro_resumes_enabled', false );
+
 wp_interactivity_state(
 	'wcb-employer-dashboard',
 	array(
@@ -260,7 +264,7 @@ wp_interactivity_state(
 		'savedResumes'          => array(),
 		'savedResumesLoading'   => false,
 		'savedResumesError'     => '',
-		'savedResumesCount'     => post_type_exists( 'wcb_resume' )
+		'savedResumesCount'     => $wcb_saved_resumes_enabled
 			? (int) count( (array) get_user_meta( get_current_user_id(), '_wcb_resume_bookmark', false ) )
 			: 0,
 		'companyId'             => $wcb_company_id,
@@ -493,7 +497,7 @@ $wcb_views        = array_values(
 	array_diff(
 		array( 'overview', 'jobs', 'post-job', 'applications', 'companies', 'company', 'saved-jobs', 'saved-companies', 'saved-resumes', 'settings', 'notifications', 'credits' ),
 		$wcb_can_bookmark ? array() : array( 'saved-jobs', 'saved-companies' ),
-		post_type_exists( 'wcb_resume' ) ? array() : array( 'saved-resumes' ),
+		$wcb_saved_resumes_enabled ? array() : array( 'saved-resumes' ),
 		$wcb_show_credits ? array() : array( 'credits' )
 	)
 );
@@ -603,8 +607,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					or resumes. Employers are most likely to save candidate
 					resumes (Saved Resumes) but jobs + companies are kept here
 					too so the surface is consistent with the candidate
-					dashboard. Saved Resumes hides itself when wcb_resume
-					isn't registered (Free-only sites). */
+					dashboard. Saved Resumes hides itself when Pro's
+					Resumes module is off (Free-only sites). */
 			?>
 			<?php $wcb_saved_tabs = count( array_intersect( $wcb_views, array( 'saved-jobs', 'saved-companies', 'saved-resumes' ) ) ); ?>
 			<?php if ( $wcb_saved_tabs ) : ?>
@@ -621,7 +625,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.savedCompaniesCount" data-wp-text="state.savedCompaniesCountLabel"></span>
 			</button>
 			<?php endif; ?>
-				<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+				<?php if ( $wcb_saved_resumes_enabled ) : ?>
 			<button type="button" class="wcb-nav-item" id="wcb-tab-saved-resumes" data-wp-bind--aria-current="state.isViewSavedResumes" data-wp-class--wcb-nav-active="state.isViewSavedResumes" data-wp-on--click="actions.switchToSavedResumes">
 					<?php echo $wcb_saved_tabs < 2 ? esc_html__( 'Saved resumes', 'wp-career-board' ) : esc_html_x( 'Resumes', 'saved items menu: saved resumes', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-class--wcb-hidden="!state.savedResumesCount" data-wp-text="state.savedResumesCountLabel"></span>
@@ -1436,7 +1440,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 
 	<?php endif; ?>
 
-	<?php if ( post_type_exists( 'wcb_resume' ) ) : ?>
+	<?php if ( $wcb_saved_resumes_enabled ) : ?>
 	<!-- ── Saved Resumes panel ────────────────────────────────────── -->
 	<div class="wcb-view-panel" id="wcb-panel-saved-resumes" role="region" aria-labelledby="wcb-tab-saved-resumes" data-wp-class--wcb-view-active="state.isViewSavedResumes">
 		<div class="wcb-page-header">

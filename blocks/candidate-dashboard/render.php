@@ -86,6 +86,8 @@ $wcb_bell_enabled   = ! empty( $wcb_module_renders['notifications_bell'] );
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only param, no state mutation.
 $wcb_resume_embed_id         = absint( wp_unslash( $_GET['resume_id'] ?? '0' ) );
 $wcb_resume_builder_embedded = WP_Block_Type_Registry::get_instance()->is_registered( 'wcb/resume-builder' );
+$wcb_resumes_enabled         = (bool) apply_filters( 'wcb_pro_resumes_enabled', false ) || $wcb_resume_builder_embedded;
+$wcb_alerts_enabled          = (bool) apply_filters( 'wcb_pro_alerts_enabled', false );
 $wcb_dashboard_url           = (string) get_permalink();
 
 // Public-resume permalink for the sidebar shortcut. Mirrors Employer's
@@ -300,7 +302,9 @@ wp_interactivity_state(
 			// `/wcb/v1/candidates/{id}/resumes` REST call are both Pro-only —
 			// gating here prevents the "Could not load your resumes." 402 error
 			// surfaced in the candidate-dashboard audit on 2026-05-06.
-			'resumesEnabled'          => (bool) apply_filters( 'wcb_pro_resumes_enabled', false ) || $wcb_resume_builder_embedded,
+			'resumesEnabled'          => $wcb_resumes_enabled,
+			// The Overview prefetches /alerts only when Pro's Alerts module registers the route.
+			'alertsEnabled'           => $wcb_alerts_enabled,
 			'dashboardUrl'            => $wcb_dashboard_url,
 			'resumeBuilderEmbedded'   => $wcb_resume_builder_embedded,
 			'resumeEmbedId'           => $wcb_resume_embed_id,
@@ -615,10 +619,12 @@ wp_interactivity_state(
 					<span class="wcb-stat-value" data-wp-text="state.bookmarksCount"><?php echo esc_html( (string) $wcb_saved_jobs_count ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'Saved jobs', 'wp-career-board' ); ?></span>
 				</div>
+				<?php if ( $wcb_resumes_enabled ) : ?>
 				<div class="wcb-stat-card">
 					<span class="wcb-stat-value" data-wp-text="state.resumeCount"><?php echo esc_html( (string) ( $wcb_resumes_state['resumeCount'] ?? 0 ) ); ?></span>
 					<span class="wcb-stat-label"><?php esc_html_e( 'My Resumes', 'wp-career-board' ); ?></span>
 				</div>
+				<?php endif; ?>
 				<?php if ( apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
 				<div class="wcb-stat-card wcb-stat-card--link" data-wp-on--click="actions.switchToAlerts">
 					<span class="wcb-stat-value" data-wp-text="state.alertsCount">0</span>
@@ -1210,6 +1216,7 @@ wp_interactivity_state(
 			}
 			?>
 
+			<p class="wcb-cd-error" role="alert" data-wp-bind--hidden="!state.error" data-wp-text="state.error"></p>
 			<div class="wcb-form-actions">
 				<button type="button" class="wcb-btn wcb-btn--primary"
 					data-wp-on--click="actions.saveProfile"
