@@ -48,6 +48,12 @@ function wcb_licence_request( array $params ) {
 	if ( ! class_exists( '\\EasyDigitalDownloads\\Updater\\Requests\\API' ) ) {
 		return false;
 	}
+	// Name the fallback here as well: on an early request (plugin activation) the SDK registry has not run yet.
+	// method_exists() is a real runtime check: another plugin's older SDK copy (no set_fallback) can own the class.
+	// @phpstan-ignore function.alreadyNarrowedType
+	if ( method_exists( '\\EasyDigitalDownloads\\Updater\\Requests\\API', 'set_fallback' ) ) {
+		\EasyDigitalDownloads\Updater\Requests\API::set_fallback( WCB_LICENCE_HOST, 'https://wbcomdesigns.com' );
+	}
 	return ( new \EasyDigitalDownloads\Updater\Requests\API( WCB_LICENCE_HOST ) )->make_request( $params );
 }
 
@@ -106,36 +112,36 @@ if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
  * the wcb_preset_activated flag, so running on both hooks is safe.
  *
  * Wbcom licensing model: the license is for AUTOMATIC UPDATES via EDD
- * Software Licensing only. It does NOT gate any plugin functionality —
- * if activation fails (network error, EDD store rejecting the key, 403
- * Forbidden response), the plugin still works the same. So we set the
- * `wcb_preset_activated` flag unconditionally after one attempt; the
- * remote call is best-effort and never retries.
- *
- * Earlier behaviour retried the remote on every admin_init when the
- * response was anything other than a valid license, surfacing the
- * remote 403 as a recurring PHP error in admin.
+ * Software Licensing only. It does NOT gate any plugin functionality, so
+ * any reply from the store (valid or a licence "no") ends the attempts and
+ * sets `wcb_preset_activated`. Only "no host answered" (or the SDK not
+ * loaded yet) leaves it unset, and then a 12h backoff transient stops a
+ * failing store from being retried on every admin page.
  */
 function wcb_maybe_activate_preset_license(): void {
 	$preset_key = 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00';
 	$option     = 'wcb_license_key';
 	$activated  = 'wcb_preset_activated';
 
-	if ( get_option( $activated ) ) {
+	if ( get_option( $activated ) || get_transient( 'wcb_preset_activation_backoff' ) ) {
 		return;
 	}
 
 	update_option( $option, $preset_key, false );
-	update_option( $activated, 1, false );
 
-	// Best-effort remote activation; result is not enforced anywhere.
-	wcb_licence_request(
+	// Best-effort remote activation; the reply's licence status is not enforced anywhere.
+	$reply = wcb_licence_request(
 		array(
 			'edd_action' => 'activate_license',
 			'license'    => $preset_key,
 			'item_id'    => WCB_EDD_ITEM_ID,
 		)
 	);
+	if ( is_object( $reply ) ) {
+		update_option( $activated, 1, false );
+	} else {
+		set_transient( 'wcb_preset_activation_backoff', 1, 12 * HOUR_IN_SECONDS );
+	}
 }
 add_action( 'admin_init', 'wcb_maybe_activate_preset_license' );
 register_activation_hook( WCB_FILE, 'wcb_maybe_activate_preset_license' );
