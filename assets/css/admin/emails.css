@@ -176,7 +176,8 @@
 /* Fixed layout: the control columns take what their content needs and the
    Subject field gets the rest, so default subjects read in full; the
    recipient sits under the email name instead of in its own column
-   (Basecamp 10430711101). The wrapper scrolls below min-width. */
+   (Basecamp 10430711101). Below 720px of card width the rows stack (see
+   the container query further down). */
 .wcb-email-templates {
 	margin-block-start: var(--wcb-space-md, 12px);
 	table-layout: fixed;
@@ -198,6 +199,66 @@
 .wcb-email-subject {
 	box-sizing: border-box;
 	width: 100%;
+}
+
+.wcb-email-enabled {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-sm, 8px);
+	min-block-size: 40px;
+	cursor: pointer;
+}
+
+/* The column header names the checkbox on the wide table. */
+.wcb-email-enabled__text {
+	display: none;
+}
+
+/* A settings card narrower than the table (1024 with the tab nav, phones):
+   stack each template into a block so no column hides behind a scroll. */
+@container (max-width: 719px) {
+	.wcb-email-templates {
+		min-width: 0;
+		table-layout: auto;
+	}
+
+	.wcb-email-templates thead {
+		display: none;
+	}
+
+	.wcb-email-templates,
+	.wcb-email-templates tbody,
+	.wcb-email-templates tr,
+	.wcb-email-templates td {
+		display: block;
+		box-sizing: border-box;
+		width: 100%;
+	}
+
+	.wcb-email-templates tr[hidden] {
+		display: none;
+	}
+
+	.wcb-email-templates tbody > tr:not(.wcb-email-body-row) {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--wcb-space-sm, 8px);
+		padding-block: var(--wcb-space-md, 12px);
+		padding-inline: var(--wcb-space-md, 12px);
+	}
+
+	.wcb-email-templates tbody > tr:not(.wcb-email-body-row) > td {
+		padding: 0;
+	}
+
+	.wcb-email-templates tbody > tr:not(.wcb-email-body-row) > td:nth-child(n+3) {
+		width: auto;
+	}
+
+	.wcb-email-enabled__text {
+		display: inline;
+	}
 }
 
 .wcb-email-templates-note {

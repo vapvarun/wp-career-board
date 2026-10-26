@@ -103,7 +103,7 @@ class AdminEmployers extends \WP_List_Table {
 
 			<?php $this->views(); ?>
 
-			<form method="get">
+			<form method="get" class="wcb-employers-form">
 				<?php $this->hidden_inputs( 'wcb-employers', $this->view_args() ); ?>
 				<?php $this->render_search_box( 'wcb-employer', __( 'Search Employers', 'wp-career-board' ), __( 'Name, email, or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
@@ -426,12 +426,14 @@ class AdminEmployers extends \WP_List_Table {
 		) )->get_results();
 
 		global $wpdb;
-		// Distinct authors of real (non-trashed) job posts.
+		// Distinct authors of real (non-trashed) job posts who still exist as
+		// users: jobs of a deleted user keep the orphan author id.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$author_ids = $wpdb->get_col(
-			"SELECT DISTINCT post_author FROM {$wpdb->posts}
-			 WHERE post_type = 'wcb_job' AND post_author > 0
-			   AND post_status NOT IN ( 'trash', 'auto-draft' )"
+			"SELECT DISTINCT p.post_author FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->users} u ON u.ID = p.post_author
+			 WHERE p.post_type = 'wcb_job'
+			   AND p.post_status NOT IN ( 'trash', 'auto-draft' )"
 		);
 
 		$this->employer_ids_cache = array_values(
@@ -567,7 +569,7 @@ class AdminEmployers extends \WP_List_Table {
 			$row_actions[ $toggle ] = sprintf(
 				'<a href="%s"%s>%s</a>',
 				esc_url( $toggle_link ),
-				$is_banned ? '' : ' class="wcb-row-action--danger"',
+				$is_banned ? '' : ' class="wcb-row-action--danger wcb-ban-employer" data-wcb-name="' . esc_attr( $item->display_name ) . '"',
 				$is_banned ? esc_html__( 'Unban', 'wp-career-board' ) : esc_html__( 'Ban', 'wp-career-board' )
 			);
 		}

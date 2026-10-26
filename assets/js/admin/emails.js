@@ -144,7 +144,10 @@
 		if ( isNaN( d.getTime() ) ) {
 			return String( iso );
 		}
-		return d.toLocaleString();
+		// sent_at is written as the site's clock time (current_time( 'mysql' )),
+		// so print it unshifted: read it as UTC and format in UTC. Using the
+		// viewer's timezone here moved every row by the browser's offset.
+		return d.toLocaleString( undefined, { timeZone: 'UTC' } );
 	}
 
 	function makeRow( row ) {

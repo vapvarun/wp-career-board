@@ -870,6 +870,11 @@ class Admin {
 					/* translators: %1$s: error message. */
 					'importError'    => __( 'Error: %1$s', 'wp-career-board' ),
 					'requestFailed'  => __( 'Request failed.', 'wp-career-board' ),
+					'banTitle'       => __( 'Ban employer', 'wp-career-board' ),
+					/* translators: %s: employer name. */
+					'banMsg'         => __( 'Ban %s? Their jobs and company page are hidden and they can no longer post jobs or use their dashboard. You can unban them later.', 'wp-career-board' ),
+					'banBulkMsg'     => __( 'Ban the selected employers? Their jobs and company pages are hidden and they can no longer post jobs or use their dashboard. You can unban them later.', 'wp-career-board' ),
+					'banBtn'         => __( 'Ban', 'wp-career-board' ),
 				),
 			)
 		);

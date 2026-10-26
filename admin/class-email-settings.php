@@ -190,7 +190,10 @@ class EmailSettings {
 								</button>
 							</td>
 							<td>
-								<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
+								<label class="wcb-email-enabled">
+									<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
+									<span class="wcb-email-enabled__text"><?php esc_html_e( 'Enabled', 'wp-career-board' ); ?></span>
+								</label>
 							</td>
 							<td>
 								<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-test-btn" data-email-id="<?php echo esc_attr( $id ); ?>" aria-label="

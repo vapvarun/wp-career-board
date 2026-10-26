@@ -299,3 +299,9 @@
 .toplevel_page_wp-career-board div.updated:not(.wcb-notice) {
     display: none !important;
 }
+
+/* The license SDK prints its activation result right after its own control;
+   that is the owner's answer to "did my key work?", not a third-party nag. */
+.wcb-admin .edd-sl-sdk__license-control + .notice.inline-notice {
+    display: block !important;
+}

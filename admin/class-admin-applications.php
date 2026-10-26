@@ -350,6 +350,18 @@ class AdminApplications extends \WP_List_Table {
 				);
 			}
 
+			// Guest half - guests have no user row; their name and email live on
+			// the application. Sibling OR clauses share one postmeta join.
+			if ( strlen( $search ) >= self::MIN_USER_SEARCH_LEN ) {
+				foreach ( array( '_wcb_guest_name', '_wcb_guest_email' ) as $guest_key ) {
+					$search_clauses[] = array(
+						'key'     => $guest_key,
+						'value'   => $search,
+						'compare' => 'LIKE',
+					);
+				}
+			}
+
 			if ( count( $search_clauses ) > 1 ) {
 				$clauses[] = $search_clauses;
 			} else {

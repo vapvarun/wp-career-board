@@ -23,6 +23,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $wcb_gate = (array) ( $wcb_gate ?? array() );
+// A ban strips every ability, so without this each gate read as "not an
+// employer yet" and offered registration to the banned member.
+if ( is_user_logged_in() && \WCB\Core\Abilities::is_banned( get_current_user_id() ) ) {
+	$wcb_gate['message'] = __( 'Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake.', 'wp-career-board' );
+	$wcb_gate['actions'] = array();
+	unset( $wcb_gate['signup'] );
+}
 if ( ! empty( $wcb_gate['signup'] ) && ( get_option( 'users_can_register' ) || is_multisite() ) ) {
 	$wcb_gate['actions'][] = array(
 		'label' => __( 'Create an account', 'wp-career-board' ),

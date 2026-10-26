@@ -413,6 +413,52 @@
 	}
 
 	// -------------------------------------------------------------------------
+	// Employers: confirm before a ban (row link and bulk action)
+	// -------------------------------------------------------------------------
+
+	function initBanConfirm() {
+		document.addEventListener( 'click', function ( e ) {
+			var link = e.target.closest( '.wcb-ban-employer' );
+			if ( ! link ) {
+				return;
+			}
+			e.preventDefault();
+			openModal( {
+				title:       wcbAdmin.i18n.banTitle,
+				message:     wcbAdmin.i18n.banMsg.replace( '%s', link.dataset.wcbName || '' ),
+				confirmText: wcbAdmin.i18n.banBtn,
+			} ).then( function () {
+				window.location.href = link.href;
+			} ).catch( function () {
+				// wcb-allow-silent: the admin cancelled the confirm; nothing was sent.
+			} );
+		} );
+
+		var form = document.querySelector( '.wcb-employers-form' );
+		if ( ! form ) {
+			return;
+		}
+		form.addEventListener( 'submit', function ( e ) {
+			var top    = form.querySelector( '[name="action"]' );
+			var bottom = form.querySelector( '[name="action2"]' );
+			var action = top && '-1' !== top.value ? top.value : ( bottom ? bottom.value : '' );
+			if ( 'ban' !== action || ! form.querySelector( 'input[name="user[]"]:checked' ) ) {
+				return;
+			}
+			e.preventDefault();
+			openModal( {
+				title:       wcbAdmin.i18n.banTitle,
+				message:     wcbAdmin.i18n.banBulkMsg,
+				confirmText: wcbAdmin.i18n.banBtn,
+			} ).then( function () {
+				form.submit(); // Native submit skips this listener.
+			} ).catch( function () {
+				// wcb-allow-silent: the admin cancelled the confirm; nothing was sent.
+			} );
+		} );
+	}
+
+	// -------------------------------------------------------------------------
 	// Pro upgrade banner dismiss
 	// -------------------------------------------------------------------------
 
@@ -443,5 +489,6 @@
 		initPanelToggles();
 		initImportPage();
 		initProBannerDismiss();
+		initBanConfirm();
 	} );
 }() );
