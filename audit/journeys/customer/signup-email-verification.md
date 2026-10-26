@@ -14,7 +14,7 @@ bug_ref: 10340678963, 10340678827, 10344034506, 10355318941
 
 ## Steps
 
-1. Settings > Listings: Email Verification on, Settings > General: "Anyone can register" on
+1. Settings > Sign-ups: Email Verification on, Settings > General: "Anyone can register" on
 2. Logged out, open the registration page, create an account → "Check your inbox" panel with a "Resend the link" button; no auth cookie; header still shows Login
 3. `wp eval "echo is_wp_error(wp_authenticate('<login>','<pw>'))?'blocked':'ok';"` → `blocked` (`wcb_email_unverified`)
 4. Mailpit: "Confirm your email address" arrives; its link `/?wcb_verify=<id>.<token>` signs in and lands on the dashboard; opening it again goes to the login page, not an error
@@ -26,6 +26,7 @@ bug_ref: 10340678963, 10340678827, 10344034506, 10355318941
 10. **The link signs in only the browser that registered (1.8.1).** In browser context A register a new candidate; the response sets cookie `wcb_verify_browser` (HttpOnly, SameSite=Lax, path = `COOKIEPATH`, 7 days). Take the confirmation link from Mailpit and open it in a SECOND context B that has no such cookie → B lands on `wp-login.php?redirect_to=<dashboard>` (not signed in: no `wordpress_logged_in_*` cookie, header shows Login), yet the address IS confirmed (`wp user meta get <id> _wcb_email_unverified` prints nothing and `wp eval 'echo is_wp_error( wp_authenticate( "<login>", "<pw>" ) ) ? "blocked" : "ok";'` prints `ok`), so the member signs in normally with their password.
 11. In a THIRD fresh account, open the link in the registering browser A → signed in on the dashboard, and `wcb_verify_browser` is cleared (expired) afterwards.
 12. Negative: set `wcb_verify_browser` to a wrong value in A (devtools) before opening the link → behaves like context B (confirmed, sent to login, not signed in). Opening an already-used link still goes to the login page, not an error.
+12a. **Context B and the already-used link say it worked (1.8.2, card:10422002927).** Both redirects land on `wp-login.php?...&wcb_verified=1`, and the login box shows "Your email address is confirmed. Sign in to continue." above the form at 1440 and 390. Plain `wp-login.php` (no `wcb_verified`) shows no such line. On the old code the URL had no `wcb_verified` and the page said nothing.
 13. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown

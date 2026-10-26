@@ -40,7 +40,7 @@ final class CoverLetter extends AbstractWidget {
 	 * @return string
 	 */
 	public function title(): string {
-		return __( 'Cover Letter', 'wp-career-board' );
+		return __( 'Cover letter', 'wp-career-board' );
 	}
 
 	/**

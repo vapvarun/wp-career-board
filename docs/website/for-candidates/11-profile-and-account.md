@@ -13,7 +13,7 @@ Open **Profile** to edit what you share with employers:
 | **Email** | Read-only here. Change it in Settings |
 | **Phone** | Optional contact number |
 | **Location** | For example "Bengaluru, India" |
-| **Bio / About Me** | A short introduction |
+| **Bio / About me** | A short introduction |
 
 Sites with extra candidate fields show them here too. Click **Save Profile**. A confirmation appears when it saves.
 
@@ -29,7 +29,7 @@ Open **Settings** to manage login details.
 
 ### Change password
 
-1. Enter your **Current Password**.
+1. Enter your **Current password**.
 2. Enter and confirm a **New Password**.
 3. Click **Update password**.
 

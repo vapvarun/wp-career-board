@@ -43,7 +43,7 @@ wp_interactivity_state(
 			_n( 'You can choose up to %s category.', 'You can choose up to %s categories.', $wcb_jobcat_limit, 'wp-career-board' ),
 			number_format_i18n( $wcb_jobcat_limit )
 		),
-		/* translators: %s: category name. */
+		/* translators: %s: name of the item being removed (an industry or a category). */
 		'removeFormat'  => __( 'Remove %s', 'wp-career-board' ),
 		/* translators: %s: the job's current categories, comma separated. */
 		'manyFormat'    => __( 'This job is listed under %s. Choosing a category here replaces them.', 'wp-career-board' ),

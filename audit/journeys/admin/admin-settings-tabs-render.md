@@ -3,8 +3,8 @@ id: admin-settings-tabs-render
 priority: high
 personas: varundubey
 requires: mu:autologin
-last_verified: 2026-10-13
-bug_ref: 10389445099, 10389517647
+last_verified: 2026-10-25
+bug_ref: 10389445099, 10389517647, 10421607738, 10439524512
 needs: cli
 ---
 
@@ -42,6 +42,14 @@ needs: cli
 6. Verify that navigating to a non-existent tab (`?tab=zzz_nonexistent`) falls through gracefully — the settings page still renders (likely showing the default first-tab content) without a PHP warning
 7. **Card inner edge (1.8.1, Basecamp 10389445099, 10389517647).** On every tab that has a Save row inside a settings card (with Pro: AI Settings, Job Feed, Credits) the footer `.wcb-settings-footer` that is a direct child of `.wcb-settings-card` (or of a `form` directly inside it) has `padding` 16px 24px and a 1px top border, so its button's left edge equals the left edge of the rows above it and nothing touches the card border. A stat grid placed straight in a card (`.wcb-settings-card > .wcb-stats-grid`, for example Pro Analytics) keeps 20px top/bottom and 24px side margins. Check 1440px and 390px, light and dark mode, and RTL. Pro's Analytics note paragraphs keep the card's inner edge too (see Pro `admin/walkthrough-analytics`).
 8. Jobs tab text (1.8.1): there is no "When a job ends" row; its explanation sits inside the **Default listing length** row, and **Jobs Per Page** defaults to 12 on a new install (see `admin/admin-settings-jobs-tab-save`).
+8a. **Help text names real tabs (1.8.2, Basecamp 10421607738).** Every "Settings > X" in help text names a tab label as shown in the tab strip, never a slug: with Pro, Credits > Featured upgrade cost reads "Featured Duration under Settings > Jobs" (the slug is `listings`), and Settings > Jobs has **Featured Duration (days)**. Sweep: `grep -rhoE "Settings (>|&gt;) [A-Z][A-Za-z -]+" --include='*.php' admin modules` against the tab labels.
+8b. **Help text carries no version numbers (1.8.2, card:10420281502, card:10420281633, card:10420281820).** No help text on any tab says "1.8.0" or another release number: Require a location and Email Verification read "New sites start with this on; sites set up earlier keep their previous setting.", and with `deadline_auto_close` off the Jobs tab note reads "This site still lists jobs past their deadline. New sites end every job at its deadline; ...". The Moderation auto-hide help says which reports count (an account at least a week old, or one that has applied to or published a job) and that the Flags column shows every report. Sweep: `grep -rnE "(before|since|after) 1\.[0-9]" admin modules --include='*.php' | grep esc_html` returns nothing.
+8c. **One name per job order (card:10407662478).** Jobs > Default order lists "Newest first", the same word the visitor sort on the job board uses, and its help says Newest first lists featured jobs at the top.
+8d. **Integrations promise only what works (card:10407360998).** Jetonomy, Learnomy and MediaVerse cards describe the plugin itself and, when Connected, "on the same site, using the same member accounts"; none claims a link to job listings, job requirements or employer-candidate messages.
+8e. **Fields fit their column at every width (card:10431561385, card:10430704186).** Walk every tab at 1440, 1024, 900, 783 and 390: no input, select, textarea or table inside a `.wcb-settings-row-control` reaches past the control's right edge; when the tab panel is under 600px wide each row stacks the label above the field (Mobile App, Anti-Spam, Emails and Pro's AI Settings, Integrations, Job feed and Credits included; the Credits pack table keeps three equal columns with "Never" readable at 390). On Brand with no logo, the Remove button next to Choose Image is not shown. With Pro, Credits > Stripe and PayPal blocks open at 1024: every key, secret and redirect field ends inside its block (was 118px past it) and the label sits above the field; the webhook URL and event names wrap inside the block (card:10439524512).
+8f. **One save notice per tab (card:10439797157).** With Pro, Save on Resumes and on Listings shows exactly one notice, "Settings saved."; no second "Resume settings saved." below it, at 1440 and 390.
+8g. **Admin controls share one height (card:10439829023, card:10439829015, card:10439829031).** At 390 the settings nav items are 40px tall. On settings tabs at 1440 and 390, a `<select>` is 40px tall like the inputs beside it. In the job editor meta box, Apply URL, Apply Email and Company fill their grid cell.
+8h. **Credits help names the Jobs tab (card:10421607738).** As `varundubey` with Pro, Settings > Credits → the help under the featured cost reads "Featured Duration under Settings > Jobs", and Settings > Jobs has Featured Duration (days), at 1440 and 390.
 9. Diff `debug.log` → expect ZERO new fatal/warning/notice lines across all tab visits
 
 ## Teardown

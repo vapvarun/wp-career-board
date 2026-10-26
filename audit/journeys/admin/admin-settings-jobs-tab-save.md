@@ -21,7 +21,7 @@ needs: cli
    echo "Current jobs_expire_days: $ORIG_EXPIRE"
    ```
 2. Navigate to `/wp-admin/admin.php?page=wcb-settings&tab=listings&autologin=1` → expect 200
-3. Change ONLY `jobs_expire_days` to `45`. Leave all other fields at their current values. Submit ("Save Changes")
+3. Change ONLY `jobs_expire_days` to `45`. Leave all other fields at their current values. Submit ("Save changes")
 4. Expect redirect with `settings-updated=1` and "Settings saved." notice
 5. Verify the targeted key persisted:
    ```bash

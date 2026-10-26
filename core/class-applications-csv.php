@@ -55,12 +55,12 @@ final class ApplicationsCsv {
 			array(
 				__( 'ID', 'wp-career-board' ),
 				__( 'Job ID', 'wp-career-board' ),
-				__( 'Job Title', 'wp-career-board' ),
-				__( 'Applicant Name', 'wp-career-board' ),
+				__( 'Job title', 'wp-career-board' ),
+				__( 'Applicant name', 'wp-career-board' ),
 				__( 'Applicant Email', 'wp-career-board' ),
 				__( 'Status', 'wp-career-board' ),
 				__( 'Submitted', 'wp-career-board' ),
-				__( 'Cover Letter', 'wp-career-board' ),
+				__( 'Cover letter', 'wp-career-board' ),
 				__( 'Resume URL', 'wp-career-board' ),
 				__( 'Screening Answers', 'wp-career-board' ),
 			)
@@ -146,10 +146,20 @@ final class ApplicationsCsv {
 	 * @return void
 	 */
 	private static function csv_row( $out, array $cells ): void {
-		$cells = array_map(
-			static fn( string $cell ): string => '' !== $cell && str_contains( "=+-@\t\r", $cell[0] ) ? "'" . $cell : $cell,
-			$cells
-		);
-		fputcsv( $out, $cells, ',', '"', '' );
+		fputcsv( $out, array_map( array( self::class, 'cell' ), $cells ), ',', '"', '' );
+	}
+
+	/**
+	 * One text cell made safe to open in a spreadsheet. Shared with Pro's
+	 * credit ledger export; pass numbers straight through, or "-5" gains an
+	 * apostrophe.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param string $cell Cell text.
+	 * @return string
+	 */
+	public static function cell( string $cell ): string {
+		return '' !== $cell && str_contains( "=+-@\t\r", $cell[0] ) ? "'" . $cell : $cell;
 	}
 }

@@ -220,7 +220,8 @@ abstract class RestController extends \WP_REST_Controller {
 	 * @return void
 	 */
 	protected function record_job_view( int $job_id ): void {
-		if ( $this->is_bot_request() ) {
+		// An employer opening their own listing is not a view of it.
+		if ( $this->is_bot_request() || ( get_current_user_id() > 0 && get_current_user_id() === (int) get_post_field( 'post_author', $job_id ) ) ) {
 			return;
 		}
 

@@ -119,7 +119,7 @@ wp_interactivity_state(
 		'apiBase'       => untrailingslashit( rest_url( 'wcb/v1/companies' ) ),
 		'restNonce'     => wp_create_nonce( 'wp_rest' ),
 		'i18n'          => array(
-			'saveFailed' => __( 'Could not save', 'wp-career-board' ),
+			'saveFailed' => __( 'Could not save.', 'wp-career-board' ),
 			'save'       => __( 'Save', 'wp-career-board' ),
 			'saved'      => __( 'Saved', 'wp-career-board' ),
 		),
@@ -318,18 +318,23 @@ wp_interactivity_state(
 		// Open Positions = jobs still taking applications (JobDeadline's rule),
 		// not every published job: past-deadline ones read "Applications
 		// closed" on their own page, so they are not open positions.
+		// Featured first, newest next: the order Load more asks /wcb/v1/jobs for,
+		// so page 2 continues page 1 instead of repeating or skipping a job
+		// (Basecamp 10427558911).
 		$wcb_open_query = new WP_Query(
-			array(
-				'post_type'      => 'wcb_job',
-				'post_status'    => 'publish',
-				'posts_per_page' => $wcb_cp_per_page,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					array(
-						'key'   => '_wcb_company_id',
-						'value' => (string) $wcb_company->ID,
+			\WCB\Modules\Jobs\JobsMeta::featured_first(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => 'publish',
+					'posts_per_page' => $wcb_cp_per_page,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						array(
+							'key'   => '_wcb_company_id',
+							'value' => (string) $wcb_company->ID,
+						),
+						\WCB\Core\JobDeadline::open_jobs_meta_query(),
 					),
-					\WCB\Core\JobDeadline::open_jobs_meta_query(),
-				),
+				)
 			)
 		);
 		$wcb_open_jobs  = $wcb_open_query->posts;

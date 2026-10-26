@@ -65,7 +65,7 @@ The dev auto-login mu-plugin (`?autologin=<login>`) **no-ops when a session alre
 exists** — its guard is `if ( is_user_logged_in() ) return;`. So when a walkthrough moves
 between actors (e.g. admin → candidate → employer), you MUST log out first, or you stay
 as the previous user and see the wrong UI (an admin/owner sees "View Applications", never
-"Apply Now"). Log out between personas:
+"Apply now"). Log out between personas:
 
 ```
 /wp-login.php?action=logout   → click the confirm link → then ?autologin=<next-login>

@@ -40,7 +40,7 @@ final class StatusChanger extends AbstractWidget {
 	 * @return string
 	 */
 	public function title(): string {
-		return __( 'Change Status', 'wp-career-board' );
+		return __( 'Change status', 'wp-career-board' );
 	}
 
 	/**

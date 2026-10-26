@@ -58,6 +58,7 @@ needs: cli
    "
    ```
    → `provider: none`, both key values survived
+9a. **Two proxy layers (card:10401941395).** Under Visitor IP address the help says to pick the CDN's own header behind a CDN plus load balancer (Cloudflare for CF-Connecting-IP), and names the `wcb_client_ip_trusted_hops` filter for a CDN without one. With `X-Forwarded-For: 192.0.2.50, 198.51.100.7, 203.0.113.1` and the filter at 2, `AppCredentials::client_ip()` returns `198.51.100.7` (`tests/test-app-auth.php` `ip.trusted-hops-two`).
 10. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown

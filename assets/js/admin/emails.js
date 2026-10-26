@@ -144,7 +144,10 @@
 		if ( isNaN( d.getTime() ) ) {
 			return String( iso );
 		}
-		return d.toLocaleString();
+		// sent_at is written as the site's clock time (current_time( 'mysql' )),
+		// so print it unshifted: read it as UTC and format in UTC. Using the
+		// viewer's timezone here moved every row by the browser's offset.
+		return d.toLocaleString( undefined, { timeZone: 'UTC' } );
 	}
 
 	function makeRow( row ) {
@@ -158,16 +161,16 @@
 		var label;
 		if ( status === 'sent' ) {
 			pill  = 'sent';
-			label = i18n.statusSent || 'sent';
+			label = i18n.statusSent || 'Sent';
 		} else if ( status === 'failed' ) {
 			pill  = 'failed';
-			label = i18n.statusFailed || 'failed';
+			label = i18n.statusFailed || 'Failed';
 		} else if ( status === 'sent_test' ) {
 			pill  = 'sent';
-			label = i18n.statusSentTest || 'sent (test)';
+			label = i18n.statusSentTest || 'Sent (test)';
 		} else if ( status === 'failed_test' ) {
 			pill  = 'failed';
-			label = i18n.statusFailedTest || 'failed (test)';
+			label = i18n.statusFailedTest || 'Failed (test)';
 		} else {
 			pill  = 'unknown';
 			label = status;
@@ -175,7 +178,7 @@
 
 		var cells = [
 			{ cls: 'wcb-email-log-col-when',      text: formatWhen( row.sent_at ) },
-			{ cls: 'wcb-email-log-col-template',  inner: 'code', text: row.event_type || '—' },
+			{ cls: 'wcb-email-log-col-template',  text: ( cfg.templates || {} )[ row.event_type ] || row.event_type || '—' },
 			{ cls: 'wcb-email-log-col-recipient', text: row.recipient || '—' },
 			{ cls: 'wcb-email-log-col-subject',   text: row.subject || '—' },
 			{
@@ -263,7 +266,7 @@
 					tbody.removeChild( tbody.firstChild );
 				}
 				if ( ! data || ! data.items || data.items.length === 0 ) {
-					setBodyMessage( i18n.empty || 'No emails logged.' );
+					setBodyMessage( i18n.empty || 'No emails logged for the current filters.' );
 				} else {
 					data.items.forEach( function ( row ) { tbody.appendChild( makeRow( row ) ); } );
 				}

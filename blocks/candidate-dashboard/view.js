@@ -16,7 +16,7 @@
  */
 import { store, getContext, withScope } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
+import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Tabs that can appear in the URL hash (first = default). Anything else is
@@ -77,22 +77,6 @@ function formatNumber( value ) {
 		// function exists to avoid). A constant tag keeps output identical for
 		// every visitor regardless of their browser.
 		return new Intl.NumberFormat( 'en-US' ).format( n );
-	}
-}
-
-/**
- * Resolve the CLDR plural category ('one', 'other', …) for a count against the
- * SITE locale. Used so plural nouns agree with a number that changes after
- * render (e.g. the resume count), which a PHP-frozen `_n()` cannot track.
- *
- * @param {number|string} n Count to classify.
- * @return {string} CLDR plural category.
- */
-function pluralCategory( n ) {
-	try {
-		return new Intl.PluralRules( state.locale || undefined ).select( Number( n ) );
-	} catch {
-		return Number( n ) === 1 ? 'one' : 'other';
 	}
 }
 
@@ -161,6 +145,8 @@ function buildFilterPills( filters, labels ) {
 	if ( filters.category ) pills.push( filters.category );
 	if ( filters.type ) pills.push( filters.type );
 	if ( filters.location ) pills.push( filters.location );
+	if ( filters.experience ) pills.push( filters.experience );
+	if ( filters.tag ) pills.push( filters.tag );
 	if ( filters.remote ) pills.push( t( 'filterRemote', 'Remote' ) );
 	if ( filters.salary_min || filters.salary_max ) {
 		const salaryPill = buildSalaryPill( filters.salary_min, filters.salary_max );
@@ -182,11 +168,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			const map = {
 				overview:           t( 'tabOverview', 'Overview' ),
 				applications:       t( 'tabApplications', 'My Applications' ),
-				bookmarks:          t( 'tabBookmarks', 'Saved Jobs' ),
-				'saved-companies':  t( 'tabSavedCompanies', 'Saved Companies' ),
-				'saved-resumes':    t( 'tabSavedResumes', 'Saved Resumes' ),
+				bookmarks:          t( 'tabBookmarks', 'Saved jobs' ),
+				'saved-companies':  t( 'tabSavedCompanies', 'Saved companies' ),
+				'saved-resumes':    t( 'tabSavedResumes', 'Saved resumes' ),
 				resumes:            t( 'tabResumes', 'My Resumes' ),
-				alerts:             t( 'tabAlerts', 'Job Alerts' ),
+				alerts:             t( 'tabAlerts', 'Job alerts' ),
 				'resume-builder':   t( 'tabResumeBuilder', 'Edit Resume' ),
 				profile:            t( 'tabProfile', 'Profile' ),
 				settings:           t( 'tabSettings', 'Settings' ),
@@ -243,12 +229,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			if ( state.maxResumes <= 0 ) {
 				return '';
 			}
-			// "1 of 2 resumes": the noun agrees with the cap, not the count
-			// ("1/2 resume" read wrong), resolved via Intl.PluralRules.
-			const template = ( 'one' === pluralCategory( state.maxResumes ) )
-				? t( 'resumeCapOne', '%1$s of %2$s resume' )
-				: t( 'resumeCapOther', '%1$s of %2$s resumes' );
-			return template
+			// Label form: one string fits every count in every locale.
+			return t( 'resumeCap', 'Resumes: %1$s of %2$s' )
 				.replace( '%1$s', formatNumber( state.resumeCount ) )
 				.replace( '%2$s', formatNumber( state.maxResumes ) );
 		},
@@ -320,15 +302,15 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			return state.resumesLoaded && ! state.loading && ! state.error && Array.isArray( state.resumes ) && state.resumes.length === 0;
 		},
 
-		// Application row menu: Withdraw (until an outcome) and Remove (job gone).
+		// Application row action: Withdraw (until an outcome) or Remove (job gone).
 		get appCanWithdraw() {
 			return state.allowWithdraw && !! getContext().application?.canWithdraw;
 		},
-		get appHasActions() {
-			return state.appCanWithdraw || !! getContext().application?.jobRemoved;
+		get appWithdrawLabel() {
+			return t( 'withdrawFor', 'Withdraw application for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
 		},
-		get appMenuLabel() {
-			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
+		get appRemoveLabel() {
+			return t( 'removeFor', 'Remove application for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
 		},
 		// Saved rows ('...' menu): named after the saved job, company or resume.
 		get savedMeta() {
@@ -439,22 +421,24 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 
 			// Prefetch alerts count for Overview stat card and nav badge.
-			try {
-				const alertsRes = yield wcbFetch(
-					state.apiBase + '/alerts',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
-				if ( alertsRes.ok ) {
-					const raw = yield alertsRes.json();
-					state.alerts = raw.map( ( a ) => ( {
-						id:          a.id,
-						label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
-						frequency:   a.frequency,
-						filterPills: buildFilterPills( a.filters, a.filter_labels ),
-					} ) );
+			if ( state.alertsEnabled ) {
+				try {
+					const alertsRes = yield wcbFetch(
+						state.apiBase + '/alerts',
+						{ headers: { 'X-WP-Nonce': state.nonce } }
+					);
+					if ( alertsRes.ok ) {
+						const raw = yield alertsRes.json();
+						state.alerts = raw.map( ( a ) => ( {
+							id:          a.id,
+							label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
+							frequency:   a.frequency,
+							filterPills: buildFilterPills( a.filters, a.filter_labels ),
+						} ) );
+					}
+				} catch {
+					// wcb-allow-silent: background prefetch; Non-critical.
 				}
-			} catch {
-				// wcb-allow-silent: background prefetch; Non-critical.
 			}
 
 			// If resumes tab was restored from sessionStorage, fetch resumes now.
@@ -743,6 +727,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.profileSaved  = false;
 			state.error         = '';
 			try {
+				yield flushEditors();
 				const response = yield wcbFetch(
 					state.apiBase + '/candidates/' + String( state.candidateId ),
 					{

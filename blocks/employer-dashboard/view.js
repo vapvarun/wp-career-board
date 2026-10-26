@@ -6,7 +6,7 @@
 import { store, getContext, getConfig } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
+import { flushEditors, formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
  * Views that are eligible to appear in the URL hash. Same shape as the
@@ -124,6 +124,18 @@ const jobStatusLabel = ( job ) => {
 	}
 };
 
+/**
+ * Where to buy credits after a refusal for too few of them: the URL the 402
+ * carries, else the site's (both come from `wcb_credit_purchase_url`, which
+ * Pro fills when credits are on sale). '' for any other refusal.
+ *
+ * @param {Object} data REST error body.
+ * @return {string} Purchase URL or ''.
+ */
+const buyUrlFor = ( data ) => ( data && 'wcb_insufficient_credits' === data.code )
+	? ( data.data?.purchase_url || state.creditPurchaseUrl || '' )
+	: '';
+
 const { state, actions } = store( 'wcb-employer-dashboard', {
 	state: {
 		navOpen: false,
@@ -186,12 +198,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				jobs:         t( 'myJobs', 'My Jobs' ),
 				applications: t( 'applications', 'Applications' ),
 				company:      t( 'profile', 'Profile' ),
-				'post-job':   t( 'postAJob', 'Post a Job' ),
+				'post-job':   t( 'postAJob', 'Post a job' ),
 				// Every tab names itself in the phone menu button (was 'Dashboard').
 				companies:         t( 'tabCompanies', 'Companies' ),
-				'saved-jobs':      t( 'tabSavedJobs', 'Saved Jobs' ),
-				'saved-companies': t( 'tabSavedCompanies', 'Saved Companies' ),
-				'saved-resumes':   t( 'tabSavedResumes', 'Saved Resumes' ),
+				'saved-jobs':      t( 'tabSavedJobs', 'Saved jobs' ),
+				'saved-companies': t( 'tabSavedCompanies', 'Saved companies' ),
+				'saved-resumes':   t( 'tabSavedResumes', 'Saved resumes' ),
 				settings:          t( 'tabSettings', 'Settings' ),
 				notifications:     t( 'tabNotifications', 'Notifications' ),
 				credits:           t( 'tabCredits', 'Credits' ),
@@ -332,9 +344,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			// still has real jobs to show — never gate on company existence.
 			return ! state.loading && state.filteredJobs.length > 0;
 		},
-		// Chips and search filter something only once there are jobs.
+		// Chips and search filter something only once there are jobs. A company
+		// filter with no jobs keeps the bar, or its own select would vanish.
 		get hasAnyJobs() {
-			return state.jobs.length > 0;
+			return state.jobs.length > 0 || !! state.companyFilter;
 		},
 		get noJobs() {
 			return ! state.loading && ! state.error && state.filteredJobs.length === 0;
@@ -347,7 +360,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.noCompany && ! state.hasJobs;
 		},
 		get showPostFirstJob() {
-			return ! state.noCompany && state.noJobs;
+			return ! state.noCompany && state.noJobs && ! state.hasAnyJobs;
+		},
+		// A status, search or company filter that matches none of the employer's
+		// jobs is not "no jobs yet" (Basecamp 10412854820).
+		get noFilteredJobs() {
+			return state.noJobs && state.hasAnyJobs;
 		},
 		// Stat-card figures are rendered straight into the DOM, so they are
 		// formatted against the site locale here.
@@ -626,7 +644,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		// Selected applicant detail.
 		get noAppSelected() {
-			return state.selectedAppId === null;
+			return ! state.selectedApp;
 		},
 		get selectedApp() {
 			return state.selectedAppId === null
@@ -728,8 +746,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get hasRecentApps() {
 			return state.overviewRecentApps.length > 0;
 		},
+		// Overview empty text waits for the first load, or an employer with live
+		// jobs reads "No active jobs" beside "8 Live" (Basecamp 10430648050).
 		get noRecentApps() {
-			return state.overviewRecentApps.length === 0;
+			return ! state.loading && state.overviewRecentApps.length === 0;
 		},
 		get overviewActiveJobs() {
 			return state.jobs.filter( ( j ) => j.status === 'publish' ).slice( 0, 3 );
@@ -738,7 +758,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			return state.overviewActiveJobs.length > 0;
 		},
 		get noActiveJobs() {
-			return state.overviewActiveJobs.length === 0;
+			return ! state.loading && state.overviewActiveJobs.length === 0;
 		},
 		// Needs attention: live jobs closing within 7 days (site-calendar dates
 		// compared as Y-m-d), soonest first. shortcut: reads the loaded page of
@@ -754,7 +774,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} ) );
 		},
 		get nothingNeedsAttention() {
-			return ! state.awaitingApps && 0 === state.closingSoonJobs.length;
+			return ! state.loading && ! state.awaitingApps && 0 === state.closingSoonJobs.length;
 		},
 		get newThisWeek() {
 			// Server COUNT(*) over the whole scope, never the loaded page of applications.
@@ -1287,6 +1307,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.jobSearch = event.target.value;
 		},
 
+		*clearJobFilters() {
+			state.jobFilter = 'all';
+			state.jobSearch = '';
+			if ( state.companyFilter ) {
+				yield actions.setCompanyFilter( { target: { value: '0' } } );
+			}
+		},
+
 		setNoteDraft( event ) {
 			state.noteDraft = event.target.value;
 		},
@@ -1325,8 +1353,16 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				method: 'DELETE',
 				headers: { 'X-WP-Nonce': state.nonce },
 			} );
+			const data = yield response.json().catch( () => ( {} ) );
 			if ( response.ok ) {
-				state.appNotes = yield response.json();
+				state.appNotes = data;
+			} else {
+				showError( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+				// Someone may have removed it already: show the notes as they are now.
+				const fresh = yield wcbFetch( state.apiBase + '/applications/' + String( appId ) + '/notes', { headers: { 'X-WP-Nonce': state.nonce } } );
+				if ( fresh.ok && state.selectedAppId === appId ) {
+					state.appNotes = yield fresh.json();
+				}
 			}
 		},
 
@@ -1462,6 +1498,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						: {} ),
 				} ) );
 				state.applications = append ? [ ...state.applications, ...apps ] : apps;
+				// A status chip, search or sort can drop the open applicant: let go
+				// of them, so rating, notes and status never act on someone the
+				// list no longer shows.
+				if ( ! append && ! apps.some( ( a ) => a.id === state.selectedAppId ) ) {
+					state.selectedAppId = null;
+				}
 				// Side by side (desktop), open the newest applicant instead of an empty pane.
 				if ( ! append && null === state.selectedAppId && apps.length && window.matchMedia( '(min-width: 1025px)' ).matches ) {
 					state.selectedAppId = apps[ 0 ].id;
@@ -1621,13 +1663,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			try {
 				yield window.wcbConfirm( {
 					title:       t( 'confirmFeatureTitle', 'Feature this job?' ),
-					message:     t( 'confirmFeatureMsg', 'Featured jobs list first. This uses %s credits from your balance.' ).replace( '%s', fmtNumber( state.featuredCost ) ),
+					message:     t( 'confirmFeatureMsg', 'Featured jobs list first. Credits this uses from your balance: %s.' ).replace( '%s', fmtNumber( state.featuredCost ) ),
 					confirmText: t( 'confirmFeatureConfirm', 'Feature job' ),
 				} );
 			} catch ( cancelled ) {
 				return;
 			}
-			state.error = '';
+			state.error  = '';
+			state.buyUrl = '';
 			try {
 				const response = yield wcbFetch( state.apiBase + '/jobs/' + String( jobId ) + '/feature', {
 					method:  'POST',
@@ -1635,9 +1678,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				} );
 				const data = yield response.json();
 				if ( ! response.ok ) {
-					// 402 carries the Credits tab link; the low-balance banner and
-					// the Credits nav item offer it too.
-					state.error = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+					state.error  = ( data && data.message ) || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+					state.buyUrl = buyUrlFor( data );
 					return;
 				}
 				const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
@@ -1744,9 +1786,17 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		...rowMenuActions,
 
 		// The server said no (402 credits, 409 company removed): show its reason.
+		// Too few credits goes inline with a Buy credits link; a toast fades
+		// before anyone could follow one.
 		*reportRefusal( response ) {
-			const data = yield response.json().catch( () => ( {} ) );
-			showError( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			const data    = yield response.json().catch( () => ( {} ) );
+			const message = data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+			if ( 'wcb_insufficient_credits' === data.code ) {
+				state.error  = message;
+				state.buyUrl = buyUrlFor( data );
+				return;
+			}
+			showError( message );
 		},
 
 		updateField( event ) {
@@ -1906,11 +1956,15 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( state.saving ) {
 				return;
 			}
+			state.saving = true;
+			yield flushEditors();
+			state.saving = false;
 
 			const isNew = ! state.companyId;
 
-			if ( isNew && ! state.companyName.trim() ) {
+			if ( ! state.companyName.trim() ) {
 				state.error = t( 'errorCompanyNameRequired', 'Company name is required.' );
+				document.getElementById( 'wcb-company-name' )?.focus();
 				return;
 			}
 

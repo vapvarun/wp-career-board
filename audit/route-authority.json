@@ -385,6 +385,14 @@
       "writes": true,
       "check": "Logged in; toggles the current user's own bookmark."
     },
+    "POST /wcb/v1/jobs/(?P<id>\\d+)/view": {
+      "audience": "public",
+      "permission_callback": "__return_true",
+      "object_id": true,
+      "writes": true,
+      "reason": "The job page's view beacon: counts one view of a published job, so views count behind full-page caches.",
+      "observed": "Signed out on a published job: 204 and one wcb_job_views row (none for a bot UA or the job's author); a draft, expired or non-job id: 404 and no row."
+    },
     "POST /wcb/v1/jobs/(?P<id>\\d+)/reject": {
       "audience": "admin",
       "permission_callback": "WCB\\Modules\\Moderation\\ModerationModule::moderate_permissions_check",

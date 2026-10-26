@@ -117,7 +117,7 @@ class EmailAppWithdrawn extends AbstractEmail {
 
 		$this->send(
 			$employer->user_email,
-			array(
+			static fn(): array => array(
 				'job_title'      => $job->post_title,
 				'candidate_name' => $candidate instanceof \WP_User ? $candidate->display_name : __( 'A candidate', 'wp-career-board' ),
 				'dashboard_url'  => $dashboard > 0 ? (string) get_permalink( $dashboard ) : home_url( '/' ),

@@ -227,15 +227,21 @@ abstract class AbstractEmail {
 	 *                                      (object_type, object_id, actor_id, group_key).
 	 *                                      Omit for a transactional or admin-only email —
 	 *                                      no `object_type` means no bell row.
+	 * @param string                                   $locale  Language for an address with no account, such as the
+	 *                                                          one a guest used when applying. Empty means the site language.
 	 * @return void
 	 */
-	protected function send( string $to, array|\Closure $vars, int $user_id = 0, array $context = array() ): void {
+	protected function send( string $to, array|\Closure $vars, int $user_id = 0, array $context = array(), string $locale = '' ): void {
 		if ( ! $this->is_enabled() || ( $user_id > 0 && $this->is_optional() && in_array( $this->get_id(), self::opted_out( $user_id ), true ) ) ) {
 			return;
 		}
 		// A member gets the email in their own language, not the language of
-		// whoever triggered it (an admin, a cron run).
-		$switched = $user_id > 0 && switch_to_user_locale( $user_id );
+		// whoever triggered it (an admin, a cron run). So does an account
+		// behind a bare address (the notification address); a guest gets the
+		// language they used, and anyone else the site language.
+		$owner    = $user_id > 0 ? false : get_user_by( 'email', $to );
+		$account  = $owner instanceof \WP_User ? (int) $owner->ID : $user_id;
+		$switched = $account > 0 ? switch_to_user_locale( $account ) : switch_to_locale( '' !== $locale ? $locale : get_locale() );
 		$this->dispatch( $to, $vars instanceof \Closure ? $vars() : $vars, $user_id, false, $context );
 		if ( $switched ) {
 			restore_previous_locale();
@@ -520,7 +526,8 @@ abstract class AbstractEmail {
 	 *
 	 * Precedence:
 	 *   1. Admin-saved body (Emails settings) — the primary configuration surface.
-	 *   2. Theme override file ({theme}/wp-career-board/emails/{id}.php) — back-compat.
+	 *   2. A template file: the theme override ({theme}/wp-career-board/emails/{id}.php)
+	 *      or one in a folder added with the wcb_email_template_dirs filter.
 	 *   3. get_default_body() — the shipped, production-ready default.
 	 *
 	 * Cases 1 and 3 are merge-tag strings run through render_string(); scalar
@@ -538,8 +545,7 @@ abstract class AbstractEmail {
 			return self::wrap_body( self::render_string( $saved, $this->body_vars( $vars ) ) );
 		}
 
-		$theme_override = get_stylesheet_directory() . '/wp-career-board/emails/' . $this->get_id() . '.php';
-		if ( file_exists( $theme_override ) ) {
+		if ( '' !== self::template_file( $this->get_id() ) ) {
 			return self::render_template( $this->get_id(), $vars );
 		}
 
@@ -586,39 +592,43 @@ abstract class AbstractEmail {
 	}
 
 	/**
+	 * The template file for an email, or '' when there is none.
+	 *
+	 * The theme override wins, then each folder added with the
+	 * wcb_email_template_dirs filter in order. The plugins ship no body
+	 * templates of their own: their bodies are get_default_body().
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param string $slug Template slug (the email ID).
+	 * @return string Absolute path, or ''.
+	 */
+	private static function template_file( string $slug ): string {
+		$dirs = array_merge(
+			array( get_stylesheet_directory() . '/wp-career-board/emails/' ),
+			(array) apply_filters( 'wcb_email_template_dirs', array() )
+		);
+		foreach ( $dirs as $dir ) {
+			$candidate = trailingslashit( (string) $dir ) . $slug . '.php';
+			if ( file_exists( $candidate ) ) {
+				return $candidate;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Renders an email template by slug, wrapping it with header and footer partials.
 	 *
-	 * Retained as the theme-override render path (see render_body()) and for any
-	 * theme calling it directly. Theme overrides load from
-	 * {theme}/wp-career-board/emails/{slug}.php; additional plugin directories
-	 * register via the wcb_email_template_dirs filter.
+	 * The render path for a theme override or a filter-added template (see
+	 * render_body()), and for any theme calling it directly.
 	 *
 	 * @param string               $slug Template slug (filename without .php extension).
 	 * @param array<string, mixed> $vars Variables extracted into template scope.
 	 * @return string Rendered HTML.
 	 */
 	public static function render_template( string $slug, array $vars ): string {
-		$theme_override = get_stylesheet_directory() . '/wp-career-board/emails/' . $slug . '.php';
-		$plugin_dirs    = (array) apply_filters(
-			'wcb_email_template_dirs',
-			array(
-				WCB_DIR . 'modules/notifications/templates/emails/',
-			)
-		);
-
-		// Resolve template file: theme override first, then plugin dirs in order.
-		$template_file = '';
-		if ( file_exists( $theme_override ) ) {
-			$template_file = $theme_override;
-		} else {
-			foreach ( $plugin_dirs as $dir ) {
-				$candidate = trailingslashit( $dir ) . $slug . '.php';
-				if ( file_exists( $candidate ) ) {
-					$template_file = $candidate;
-					break;
-				}
-			}
-		}
+		$template_file = self::template_file( $slug );
 
 		$header = WCB_DIR . 'modules/notifications/templates/emails/email-header.php';
 		$footer = WCB_DIR . 'modules/notifications/templates/emails/email-footer.php';

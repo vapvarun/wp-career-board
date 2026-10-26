@@ -3,8 +3,8 @@ id: employer-applicants-list
 priority: high
 personas: employer-a
 requires: mu:autologin, seed:jobs, seed:applications
-last_verified: 2026-10-13
-bug_ref: 10375223031
+last_verified: 2026-10-23
+bug_ref: 10375223031, 10417743215, 10417743552
 needs: cli
 ---
 
@@ -29,6 +29,8 @@ needs: cli
 11. Click the **All** pill → the rows return, `.wcb-filter-active` is back on All, the chrome never disappeared in between (no layout jump).
 12. Negative: a job with zero applications total shows ONLY "No applications yet for this job." with the filter bar, layout toggle and Export hidden (the chrome follows the job's total via `state.jobHasApplications`, not the filtered page).
 13. Switch job while a status filter is active: with the Rejected pill selected, click another job tile (`actions.switchAppsJob`) → the filter resets to All (the All pill is `.wcb-filter-active`) and the new job's full list is shown, not a zero-count empty state carried over from the previous job.
+13a. Status pill that hides the open applicant (card:10417743215): at 1440 open a Reviewing applicant, click **Hired** → the detail switches to the first Hired applicant (never a "?" avatar with a blank status select); at 390 open one, click a pill that hides them → the detail shows "Pick an applicant". Rating, notes and status act only on an applicant the list shows.
+13b. Notes by someone else (card:10417743552): with a note by the admin and one by the employer on an applicant, the delete cross shows only on the employer's own note (`can_delete` in `GET /applications/<id>/notes`); an admin sees it on both. A note removed elsewhere, then deleted here → the toast "That note was already removed, or is not yours." and the list refreshes.
 14. REST sanity for step 10: `GET /wp-json/wcb/v1/jobs/<job>/applications?status=rejected` as the owner → 200 with an empty list, not an error.
 15. tail debug.log diff → expect ZERO new fatal/warning lines.
 

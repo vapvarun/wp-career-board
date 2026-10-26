@@ -30,6 +30,8 @@ class AdminJobs extends \WP_List_Table {
 
 	use SearchBox;
 
+	use ListEmptyState;
+
 	/**
 	 * Constructor — configure singular/plural labels.
 	 *
@@ -81,9 +83,22 @@ class AdminJobs extends \WP_List_Table {
 
 			<?php $this->views(); ?>
 
+			<?php if ( $this->author_filter() > 0 ) : ?>
+				<p class="wcb-list-filters">
+					<?php
+					$this->filter_chip(
+						/* translators: %s: employer display name */
+						sprintf( __( 'Employer: %s', 'wp-career-board' ), (string) get_the_author_meta( 'display_name', $this->author_filter() ) ),
+						array( 'author' ),
+						__( 'Show all employers', 'wp-career-board' )
+					);
+					?>
+				</p>
+			<?php endif; ?>
+
 			<form method="get">
-				<input type="hidden" name="page" value="wcb-jobs">
-				<?php $this->render_search_box( 'wcb-job', __( 'Search Jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
+				<?php $this->hidden_inputs( 'wcb-jobs', $this->view_args() ); ?>
+				<?php $this->render_search_box( 'wcb-job', __( 'Search jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -132,6 +147,16 @@ class AdminJobs extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_bulk_actions(): array {
+		// The Trash view offers what a trashed job can become, like core's lists.
+		if ( $this->is_trash_view() ) {
+			return wp_is_ability_granted( 'wcb/manage-settings' ) // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
+				? array(
+					'untrash' => __( 'Restore', 'wp-career-board' ),
+					'delete'  => __( 'Delete Permanently', 'wp-career-board' ),
+				)
+				: array();
+		}
+
 		$actions = array(
 			'approve' => __( 'Approve', 'wp-career-board' ),
 		);
@@ -194,6 +219,9 @@ class AdminJobs extends \WP_List_Table {
 		if ( $search ) {
 			$query_args['s'] = $search;
 		}
+		if ( $this->author_filter() > 0 ) {
+			$query_args['author'] = $this->author_filter();
+		}
 
 		// "Flagged" view — jobs with open report flags, regardless of status.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -238,13 +266,15 @@ class AdminJobs extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		$counts   = wp_count_posts( 'wcb_job' );
-		$all      = ( isset( $counts->publish ) ? (int) $counts->publish : 0 )
+		$author = $this->author_filter();
+		$counts = $author > 0 ? $this->author_counts( $author ) : wp_count_posts( 'wcb_job' );
+		$all    = ( isset( $counts->publish ) ? (int) $counts->publish : 0 )
 					+ ( isset( $counts->pending ) ? (int) $counts->pending : 0 )
 					+ ( isset( $counts->draft ) ? (int) $counts->draft : 0 )
 					+ ( isset( $counts->wcb_expired ) ? (int) $counts->wcb_expired : 0 )
 					+ ( isset( $counts->wcb_closed ) ? (int) $counts->wcb_closed : 0 );
-		$base_url = admin_url( 'admin.php?page=wcb-jobs' );
+		// Views keep the employer filter (Career Board > Employers links here).
+		$base_url = $author > 0 ? add_query_arg( 'author', $author, admin_url( 'admin.php?page=wcb-jobs' ) ) : admin_url( 'admin.php?page=wcb-jobs' );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['post_status'] ) ? sanitize_text_field( wp_unslash( $_GET['post_status'] ) ) : '';
@@ -294,6 +324,7 @@ class AdminJobs extends \WP_List_Table {
 				'post_status'    => array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed' ),
 				'meta_key'       => '_wcb_flag_status', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => 'open', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'author'         => $author,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 			)
@@ -316,6 +347,7 @@ class AdminJobs extends \WP_List_Table {
 				'post_status'    => 'pending',
 				'meta_key'       => \WCB\Modules\Jobs\JobPayment::AWAITING, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'author'         => $author,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 			)
@@ -345,11 +377,15 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'post_status', 'author', 'wcb_flag', 'wcb_payment' ) ) ) {
+			$this->filtered_empty_state( 'briefcase', __( 'No jobs match your filters', 'wp-career-board' ), 'wcb-jobs' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="briefcase" class="wcb-empty-state__icon"></i>
-			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs found', 'wp-career-board' ); ?></p>
-			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Post your first job listing or adjust the filters above.', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Post your first job listing to get started.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-btn wcb-btn--primary">
 				<?php esc_html_e( 'Add New Job', 'wp-career-board' ); ?>
 			</a>
@@ -508,6 +544,40 @@ class AdminJobs extends \WP_List_Table {
 
 		$out .= $this->row_actions( $row_actions );
 		return $out;
+	}
+
+	/**
+	 * Employer the list is narrowed to (Career Board > Employers links here), 0 for all.
+	 *
+	 * @since 1.8.2
+	 * @return int
+	 */
+	private function author_filter(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
+		return isset( $_GET['author'] ) ? absint( $_GET['author'] ) : 0;
+	}
+
+	/**
+	 * One employer's job counts per status, in the shape wp_count_posts() returns.
+	 *
+	 * @since 1.8.2
+	 * @param int $author Employer user ID.
+	 * @return object
+	 */
+	private function author_counts( int $author ): object {
+		$counts = new \stdClass();
+		foreach ( array( 'publish', 'pending', 'draft', 'wcb_expired', 'wcb_closed', 'trash' ) as $status ) {
+			$counts->$status = ( new \WP_Query(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => $status,
+					'author'         => $author,
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				)
+			) )->found_posts;
+		}
+		return $counts;
 	}
 
 	/**
@@ -722,11 +792,32 @@ class AdminJobs extends \WP_List_Table {
 					continue;
 				}
 				wp_trash_post( $job_id );
+			} elseif ( 'untrash' === $action ) {
+				if ( ! $can_trash || ! current_user_can( 'edit_post', $job_id ) ) {
+					continue;
+				}
+				wp_untrash_post( $job_id );
+			} elseif ( 'delete' === $action ) {
+				if ( ! $can_trash || ! current_user_can( 'delete_post', $job_id ) ) {
+					continue;
+				}
+				wp_delete_post( $job_id, true );
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-jobs' ) );
+		// Back to the view the action ran on, so a Trash cleanup stays in Trash.
+		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-jobs' ) ) );
 		exit;
+	}
+
+	/**
+	 * The status and employer filters of the current view.
+	 *
+	 * @since 1.8.2
+	 * @return array<string, string>
+	 */
+	private function view_args(): array {
+		return $this->list_args( array( 'post_status', 'author' ) );
 	}
 
 	/**

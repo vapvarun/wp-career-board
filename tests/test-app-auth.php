@@ -451,6 +451,14 @@ wp_cache_flush();
 	$_SERVER['HTTP_CF_CONNECTING_IP'] = '198.51.100.7, 203.0.113.1';
 	wcb_auth_check( 'ip.rightmost-of-chain', '203.0.113.1' === AppCredentials::client_ip(), 'a spoofed left hop is not the client IP' );
 
+	// Two proxies (CDN, then load balancer): the client is one hop further in.
+	$_SERVER['HTTP_CF_CONNECTING_IP'] = '192.0.2.50, 198.51.100.7, 203.0.113.1';
+	add_filter( 'wcb_client_ip_trusted_hops', static fn() => 2 );
+	wcb_auth_check( 'ip.trusted-hops-two', '198.51.100.7' === AppCredentials::client_ip(), 'behind two proxies the CDN edge is not the client IP' );
+	add_filter( 'wcb_client_ip_trusted_hops', static fn() => 9 );
+	wcb_auth_check( 'ip.trusted-hops-short-chain', '192.0.2.50' === AppCredentials::client_ip(), 'a chain shorter than the hop count reads its left end' );
+	remove_all_filters( 'wcb_client_ip_trusted_hops' );
+
 	$_SERVER['HTTP_CF_CONNECTING_IP'] = 'not-an-ip; DROP TABLE';
 	wcb_auth_check(
 		'ip.malformed-falls-back',

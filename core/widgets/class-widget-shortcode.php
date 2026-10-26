@@ -115,7 +115,7 @@ final class WidgetShortcode {
 			'wcb-application-detail',
 			'wcbAppDetail',
 			array(
-				'savedLabel' => __( 'Saved.', 'wp-career-board' ),
+				'savedLabel' => __( 'Saved', 'wp-career-board' ),
 				'errorLabel' => __( 'Could not save.', 'wp-career-board' ),
 				'labels'     => \WCB\Modules\Applications\Widgets\StatusTimeline::status_labels(),
 			)

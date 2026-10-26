@@ -20,6 +20,7 @@ needs: cli
 5. Verify the `wcb_post_jobs` capability is now available: `wp eval 'echo user_can(<test-uid>, "wcb_post_jobs") ? "yes" : "no";'` → expect `yes`
 6. As `smoke.rolechange`, POST `/wp-json/wcb/v1/jobs` with a minimal job payload (title, description) via `?autologin=smoke.rolechange` → expect HTTP 201 (the newly promoted employer can post)
 7. Verify subscriber-level pages are still accessible: navigate to `/candidate-dashboard/?autologin=smoke.rolechange` → expect either 200 (if the plugin allows multi-role access) or a clean redirect (NOT a 500 or PHP fatal)
+7a. **Role names are stored in English (card:10404085367).** After any page load by an admin with a German profile language, `wp_roles()->role_names['wcb_employer']` is still "Employer" (never "Arbeitgeber"), while that admin's Users screen lists "Arbeitgeber" and "Kandidat". Same for Settings > Industries: a kept shipped industry is stored as an empty label and reads in each viewer's language; a renamed one keeps the owner's words. `tests/test-stored-language.php`.
 8. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown

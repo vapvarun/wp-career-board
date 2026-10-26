@@ -53,7 +53,7 @@ PLUGIN_DATA = {
         ('Resume Builder + Search',              'Candidates build structured resumes inside WordPress. Employers search by skills, location, and experience. Active recruiting, not just passive application review.'),
         ('Job Alerts',                           'Candidates subscribe to keyword and location combinations. New matching jobs trigger immediate email notifications — keeps candidates engaged between visits.'),
         ('WooCommerce Credit System',            'Create credit packages as WooCommerce products. Employers purchase through your store with any payment gateway. Credits added automatically on order completion. 100% revenue to you minus gateway fees.'),
-        ('Custom Field Builder',                 'Add custom fields to job listings, company profiles, and candidate profiles — text, select, checkbox, date, file upload. No code required.'),
+        ('Custom Field Builder',                 'Add custom fields to job listings, company profiles, and candidate profiles — text, select, checkbox, date, file link. No code required.'),
         ('Job Map',                              'Geographic map view of job listings. Candidates filter by radius and see jobs plotted by location — essential for location-specific boards.'),
         ('AI Job Description Writing',           'AI-assisted job description generation from within the Post a Job form. Employers enter a role title and key requirements — AI drafts the description.'),
         ('Job Feed',                             'RSS, JSON, and XML feeds for every board. Aggregate listings on external sites, import into job aggregators, or pipe into other systems.'),

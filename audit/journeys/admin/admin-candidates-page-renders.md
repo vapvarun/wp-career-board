@@ -35,6 +35,7 @@ needs: cli
 10. Negative - administrators are left alone: an administrator who applies to a job (test application) does NOT gain `wcb_candidate` and does NOT show on the Candidates screen (`grant_role()` skips users with `manage_options`).
 11. Search box: `#wcb-candidate-search-input` has placeholder "Name or email…" and one screen-reader label "Search Candidates"; search `smoke_applicant` → exactly that row.
 12. The one-off backfill for applicants that existed before 1.8.1 is walked in `system/candidate-role-granted-and-backfilled`.
+12a. **Applications count opens that candidate's applications (card:10420280930).** Click a candidate's Applications number (e.g. 2) → `admin.php?page=wcb-applications&candidate_id=<id>` lists exactly that many rows, shows a `Candidate: <name> ×` chip, and the status views count only theirs and keep `candidate_id`; search and Export keep it too. The chip's × returns to all applications.
 13. Diff `debug.log` → expect ZERO new fatal/warning/notice lines
 
 ## Teardown

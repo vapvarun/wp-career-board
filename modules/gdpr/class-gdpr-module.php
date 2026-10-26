@@ -214,6 +214,7 @@ class GdprModule {
 		foreach ( self::providers() as $provider ) {
 			self::erase_one( $provider, $subject );
 		}
+		self::log_action( $user_id, 'delete' );
 	}
 
 	/**
@@ -443,7 +444,7 @@ class GdprModule {
 		$labels = array(
 			'_wcb_job_title'          => __( 'Headline', 'wp-career-board' ),
 			'_wcb_location'           => __( 'Location', 'wp-career-board' ),
-			'_wcb_open_to_work'       => __( 'Open to work', 'wp-career-board' ),
+			'_wcb_open_to_work'       => __( 'Open to Work', 'wp-career-board' ),
 			'_wcb_profile_visibility' => __( 'Profile visibility', 'wp-career-board' ),
 			'_wcb_resume_data'        => __( 'Profile resume', 'wp-career-board' ),
 			'_wcb_bookmark'           => __( 'Saved jobs', 'wp-career-board' ),
@@ -615,7 +616,9 @@ class GdprModule {
 			return;
 		}
 		global $wpdb;
-		$cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+		// Same clock the rows are written with (current_time( 'mysql' ), site
+		// time), so a site west of UTC does not lose history hours early.
+		$cutoff = ( new \DateTimeImmutable( 'now', wp_timezone() ) )->modify( "-{$days} days" )->format( 'Y-m-d H:i:s' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- bounded retention delete.
 		$deleted = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}wcb_notifications_log WHERE sent_at < %s LIMIT 5000", $cutoff ) );
 
@@ -624,7 +627,7 @@ class GdprModule {
 		 *
 		 * @since 1.8.0
 		 *
-		 * @param string $cutoff Rows older than this (UTC, Y-m-d H:i:s) are removed.
+		 * @param string $cutoff Rows older than this (site time, Y-m-d H:i:s) are removed.
 		 */
 		do_action( 'wcb_logs_pruned', $cutoff );
 
@@ -640,7 +643,7 @@ class GdprModule {
 	 *
 	 * @since 1.0.0
 	 * @param int    $user_id User the request was for (0 for a guest).
-	 * @param string $action  'export' or 'erase'.
+	 * @param string $action  'export', 'erase', or 'delete' (account deleted).
 	 * @return void
 	 */
 	private static function log_action( int $user_id, string $action ): void {

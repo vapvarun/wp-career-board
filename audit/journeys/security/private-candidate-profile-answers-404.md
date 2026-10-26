@@ -20,6 +20,7 @@ bug_ref: 10355318941
 4. Owner and admin still read it: as `sarah.chen` → 200 with her profile; as `varundubey` → 200.
 5. Make it public again: `wp user meta update <sarah-id> _wcb_profile_visibility public` → anonymous gets 200 with the public fields.
 6. Dashboard: Candidate Dashboard > Profile > visibility toggle still saves (`PUT /candidates/<id>`), and the toggle value matches the user meta.
+6a. **Author page and users sitemap (card:10409466614).** For a member who is only a candidate (or subscriber): with nothing published but applications and resumes, `curl -s -o /dev/null -w '%{http_code}' $WCB_SITE/author/<nicename>/` → 404 and `wp-sitemap-users-1.xml` does not list them. Publish a blog post as them → the author page is 200 with the post, and the sitemap lists them. Delete the post afterwards. `tests/test-candidate-visibility.php`.
 7. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown

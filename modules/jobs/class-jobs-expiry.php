@@ -209,14 +209,7 @@ final class JobsExpiry {
 				'orderby'        => 'ID',
 				'order'          => 'ASC',
 				'no_found_rows'  => true,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					array(
-						'key'     => '_wcb_deadline',
-						'value'   => current_time( 'Y-m-d' ),
-						'compare' => '<',
-						'type'    => 'DATE',
-					),
-				),
+				'meta_query'     => \WCB\Core\JobDeadline::passed_jobs_meta_query(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			)
 		);
 

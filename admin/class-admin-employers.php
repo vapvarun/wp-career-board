@@ -30,6 +30,8 @@ class AdminEmployers extends \WP_List_Table {
 
 	use ReportedMembers;
 
+	use ListEmptyState;
+
 	/**
 	 * Memoized employer user-ID set (role holders ∪ job authors).
 	 *
@@ -101,8 +103,8 @@ class AdminEmployers extends \WP_List_Table {
 
 			<?php $this->views(); ?>
 
-			<form method="get">
-				<input type="hidden" name="page" value="wcb-employers">
+			<form method="get" class="wcb-employers-form">
+				<?php $this->hidden_inputs( 'wcb-employers', $this->view_args() ); ?>
 				<?php $this->render_search_box( 'wcb-employer', __( 'Search Employers', 'wp-career-board' ), __( 'Name, email, or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -204,7 +206,7 @@ class AdminEmployers extends \WP_List_Table {
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-employers' ) );
+		wp_safe_redirect( add_query_arg( $this->return_args(), admin_url( 'admin.php?page=wcb-employers' ) ) );
 		exit;
 	}
 
@@ -236,6 +238,10 @@ class AdminEmployers extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'wcb_reported', 'wcb_banned' ) ) ) {
+			$this->filtered_empty_state( 'briefcase-business', __( 'No employers match your filters', 'wp-career-board' ), 'wcb-employers' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="briefcase-business" class="wcb-empty-state__icon"></i>
@@ -260,7 +266,7 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	protected function get_views(): array {
 		$ids = $this->employer_user_ids();
-		return $ids ? $this->member_views( 'wcb-employers', count( $ids ), array( 'include' => $ids ) ) : array();
+		return $ids ? $this->member_views( 'wcb-employers', count( $ids ), array( 'include' => $ids ), __( 'Banned', 'wp-career-board' ) ) : array();
 	}
 
 	// -------------------------------------------------------------------------
@@ -328,8 +334,8 @@ class AdminEmployers extends \WP_List_Table {
 			'number'  => $per_page,
 			'offset'  => ( $current_page - 1 ) * $per_page,
 		);
-		if ( $this->reported_active() ) {
-			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		if ( $this->view_meta_query() ) {
+			$query_args['meta_query'] = $this->view_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
 		$query       = new \WP_User_Query( $query_args );
 		$this->items = $query->get_results();
@@ -420,12 +426,14 @@ class AdminEmployers extends \WP_List_Table {
 		) )->get_results();
 
 		global $wpdb;
-		// Distinct authors of real (non-trashed) job posts.
+		// Distinct authors of real (non-trashed) job posts who still exist as
+		// users: jobs of a deleted user keep the orphan author id.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$author_ids = $wpdb->get_col(
-			"SELECT DISTINCT post_author FROM {$wpdb->posts}
-			 WHERE post_type = 'wcb_job' AND post_author > 0
-			   AND post_status NOT IN ( 'trash', 'auto-draft' )"
+			"SELECT DISTINCT p.post_author FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->users} u ON u.ID = p.post_author
+			 WHERE p.post_type = 'wcb_job'
+			   AND p.post_status NOT IN ( 'trash', 'auto-draft' )"
 		);
 
 		$this->employer_ids_cache = array_values(
@@ -557,21 +565,11 @@ class AdminEmployers extends \WP_List_Table {
 		if ( $item->ID !== get_current_user_id() ) {
 			$is_banned              = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 			$toggle                 = $is_banned ? 'unban' : 'ban';
-			$toggle_link            = wp_nonce_url(
-				add_query_arg(
-					array(
-						'page'   => 'wcb-employers',
-						'action' => $toggle,
-						'user'   => array( $item->ID ),
-					),
-					admin_url( 'admin.php' )
-				),
-				'bulk-employers'
-			);
+			$toggle_link            = $this->row_action_url( 'wcb-employers', $toggle, $item->ID, 'bulk-employers' );
 			$row_actions[ $toggle ] = sprintf(
 				'<a href="%s"%s>%s</a>',
 				esc_url( $toggle_link ),
-				$is_banned ? '' : ' class="wcb-row-action--danger"',
+				$is_banned ? '' : ' class="wcb-row-action--danger wcb-ban-employer" data-wcb-name="' . esc_attr( $item->display_name ) . '"',
 				$is_banned ? esc_html__( 'Unban', 'wp-career-board' ) : esc_html__( 'Ban', 'wp-career-board' )
 			);
 		}
@@ -649,8 +647,9 @@ class AdminEmployers extends \WP_List_Table {
 				esc_url(
 					add_query_arg(
 						array(
-							'page'   => 'wcb-jobs',
-							'author' => $item->ID,
+							'page'        => 'wcb-jobs',
+							'author'      => $item->ID,
+							'post_status' => 'publish',
 						),
 						admin_url( 'admin.php' )
 					)

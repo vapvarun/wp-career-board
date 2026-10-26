@@ -27,7 +27,7 @@
 
 				if ( ok ) {
 					feedbackEl.classList.add( okClass );
-					feedbackEl.textContent = wcbAppDetail?.savedLabel || 'Saved.';
+					feedbackEl.textContent = wcbAppDetail?.savedLabel || 'Saved';
 					return body;
 				}
 				feedbackEl.classList.add( errClass );

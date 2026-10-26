@@ -6,7 +6,7 @@
 |---|---|---|
 | Options / settings | 12 (+14 foreign) | O-* — does each do what it says, is the default right |
 | Admin pages | 10 | O-* / A-* — can the owner find it |
-| Templates | 35 shipped, 0 named literally, 0 locate_template call(s), theme-override loader: yes | T-* — looks right on their theme, can they override |
+| Templates | 26 shipped, 0 named literally, 0 locate_template call(s), theme-override loader: yes | T-* — looks right on their theme, can they override |
 | Emails | 8 `wp_mail` sites | E-* — what fires, when, editable |
 | Hooks | 55 actions, 104 filters (152 own, 97 documented) | D-* — developer-friendly |
 
@@ -62,17 +62,8 @@ Shipped:
 - `modules/notifications/templates/application-guest-confirmation.php`
 - `modules/notifications/templates/application-received.php`
 - `modules/notifications/templates/application-status-changed.php`
-- `modules/notifications/templates/emails/application-confirmation.php`
-- `modules/notifications/templates/emails/application-guest-confirmation.php`
-- `modules/notifications/templates/emails/application-received.php`
-- `modules/notifications/templates/emails/application-status-changed.php`
-- `modules/notifications/templates/emails/deadline-reminder.php`
 - `modules/notifications/templates/emails/email-footer.php`
 - `modules/notifications/templates/emails/email-header.php`
-- `modules/notifications/templates/emails/job-approved.php`
-- `modules/notifications/templates/emails/job-expired.php`
-- `modules/notifications/templates/emails/job-pending-review.php`
-- `modules/notifications/templates/emails/job-rejected.php`
 - `modules/notifications/templates/job-approved.php`
 - `modules/notifications/templates/job-expired.php`
 - `modules/notifications/templates/job-pending-review.php`
@@ -97,7 +88,7 @@ Overridable via `locate_template` (theme can replace):
 | admin/class-admin-settings.php:158 | ? |
 | admin/class-admin-settings.php:262 | ? |
 | admin/class-admin-settings.php:275 | ? |
-| api/endpoints/class-admin-endpoint.php:257 | Listing did not meet the posting guidelines (test send). |
+| api/endpoints/class-admin-endpoint.php:265 | Listing did not meet the posting guidelines (test send). |
 | modules/notifications/class-abstract-email.php:188 | ? |
 | modules/notifications/class-abstract-email.php:205 | ? |
 | modules/notifications/class-abstract-email.php:217 | ? |

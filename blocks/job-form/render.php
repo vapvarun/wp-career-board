@@ -177,8 +177,7 @@ if ( $wcb_edit_board_id > 0 ) {
 	$wcb_board_id = $wcb_edit_board_id;
 }
 if ( 0 === $wcb_board_id && ! empty( $wcb_board_options ) ) {
-	$wcb_default_board_post = function_exists( 'get_option' ) ? (int) get_option( 'wcb_default_board_id', 0 ) : 0;
-	$wcb_board_id           = $wcb_default_board_post > 0 ? $wcb_default_board_post : (int) $wcb_board_options[0]['id'];
+	$wcb_board_id = \WCB\Modules\Boards\BoardsModule::default_for( $wcb_board_options );
 }
 
 // ── Credit banner + credit gate messages ───────────────────────────────────
@@ -294,6 +293,7 @@ $wcb_initial_state = apply_filters(
 		'description'       => $wcb_edit_job ? $wcb_edit_job->post_content : '',
 		'salaryMin'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_min', true ) : '',
 		'salaryMax'         => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_salary_max', true ) : '',
+		'defaultCurrency'   => $wcb_default_currency,
 		'currencyCode'      => $wcb_edit_job
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
@@ -360,16 +360,18 @@ $wcb_initial_state = apply_filters(
 		'buyUrl'            => '',
 		'featured'          => false,
 		'featureError'      => '',
-		'customFieldGroups' => apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
 		// back to the default board id when boardId stays 0.
 		'boardId'           => $wcb_board_id,
 		'boardOptions'      => $wcb_board_options,
+		// Server half of view.js `isGroupOnBoard`, so the first paint already
+		// shows only the selected board's custom-field groups.
+		'isGroupOnBoard'    => static fn (): bool => \WCB\Core\FormCustomFields::group_on_board( $wcb_board_id ),
 		'customFields'      => (object) (
 			$wcb_edit_id > 0
 				? \WCB\Core\FormCustomFields::load_values(
-					(array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) ),
+					(array) apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id ),
 					$wcb_edit_id
 				)
 				: array()
@@ -417,6 +419,7 @@ $wcb_initial_state = apply_filters(
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
 				'errorDescriptionRequired' => __( 'Job description is required before you can continue.', 'wp-career-board' ),
 				'errorLocationRequired'    => __( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
+				'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
 				'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
 				'errorAiFailed'            => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
 				// Count-free fallback for the credit gate; the numbered,
@@ -429,7 +432,7 @@ $wcb_initial_state = apply_filters(
 
 				// Listing window banner.
 				/* translators: %1$s: localised expiry date, e.g. "June 12, 2026". */
-				'listingWindow'            => __( 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).', 'wp-career-board' ),
+				'listingWindow'            => __( 'Your listing stays live until %1$s. You can renew it from your dashboard.', 'wp-career-board' ),
 				/* translators: %s: latest allowed deadline date. */
 				'deadlineHelp'             => __( 'Pick any date up to %s, the longest this board allows.', 'wp-career-board' ),
 
@@ -450,6 +453,9 @@ $wcb_featured_days = \WCB\Admin\Settings::int( 'apply_featured_days', 30 );
 wp_interactivity_state( 'wcb-job-form', $wcb_initial_state );
 
 // ── Step labels ────────────────────────────────────────────────────────────
+$wcb_my_jobs_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
+$wcb_my_jobs_url = '' !== $wcb_my_jobs_url ? $wcb_my_jobs_url . '#jobs' : '';
+
 $wcb_step_labels = array(
 	1 => __( 'Basics', 'wp-career-board' ),
 	2 => __( 'Details', 'wp-career-board' ),
@@ -462,8 +468,18 @@ $wcb_step_labels = array(
 	data-wp-interactive="wcb-job-form"
 >
 
+	<?php
+	// The screen's title, as on every other dashboard view, unless the page
+	// carries its own H1 (Basecamp 10439524696).
+	if ( ! \WCB\Core\ArchiveHeading::page_has_h1() ) :
+		?>
+		<div class="wcb-page-header">
+			<h1 class="wcb-page-title"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Edit Job', 'wp-career-board' ) : _x( 'Post a Job', 'page title', 'wp-career-board' ) ); ?></h1>
+		</div>
+	<?php endif; ?>
+
 	<!-- ── Step indicator ────────────────────────────────────────────────── -->
-	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>">
+	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>" data-wp-class--wcb-hidden="state.submitted">
 		<?php foreach ( $wcb_step_labels as $wcb_step_num => $wcb_step_label ) : ?>
 			<span
 				class="wcb-step<?php echo 1 === $wcb_step_num ? ' wcb-step--active' : ''; ?>"
@@ -484,6 +500,17 @@ $wcb_step_labels = array(
 			<?php endif; ?>
 		<?php endforeach; ?>
 	</nav>
+	<?php // Phones show numbers only, so the step's name is spelled out under them (Basecamp 10439851743). ?>
+	<p class="wcb-steps__caption" aria-hidden="true" data-wp-class--wcb-hidden="state.submitted">
+		<?php foreach ( $wcb_step_labels as $wcb_step_num => $wcb_step_label ) : ?>
+			<span class="<?php echo 1 === $wcb_step_num ? '' : 'wcb-hidden'; ?>" data-wp-class--wcb-hidden="!state.isStep<?php echo esc_attr( (string) $wcb_step_num ); ?>">
+				<?php
+				/* translators: 1: current step number, 2: number of steps, 3: step name. */
+				echo esc_html( sprintf( __( 'Step %1$s of %2$s: %3$s', 'wp-career-board' ), number_format_i18n( $wcb_step_num ), number_format_i18n( count( $wcb_step_labels ) ), $wcb_step_label ) );
+				?>
+			</span>
+		<?php endforeach; ?>
+	</p>
 
 	<!-- ── Credit info banner ────────────────────────────────────────────── -->
 	<div
@@ -503,13 +530,6 @@ $wcb_step_labels = array(
 		><?php esc_html_e( 'Buy Credits →', 'wp-career-board' ); ?></a>
 		<?php endif; ?>
 	</div>
-
-	<!-- ── Listing window banner (deadline preview) ─────────────────────── -->
-	<p
-		class="wcb-listing-window"
-		data-wp-class--wcb-hidden="!state.hasListingWindow"
-		data-wp-text="state.listingWindowMessage"
-	></p>
 
 	<!-- ── Submission success ────────────────────────────────────────────── -->
 	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
@@ -533,9 +553,15 @@ $wcb_step_labels = array(
 			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="state.jobPending">
 				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
-			<button type="button" class="wcb-form-success__reset" data-wp-on--click="actions.resetForm">
-				<?php esc_html_e( 'Post another job', 'wp-career-board' ); ?>
-			</button>
+			<?php // Somewhere to go next, pending or live (Basecamp 10439859260). ?>
+			<div class="wcb-form-success__actions">
+				<?php if ( $wcb_my_jobs_url ) : ?>
+					<a class="wcb-btn wcb-btn--primary" href="<?php echo esc_url( $wcb_my_jobs_url ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
+				<?php endif; ?>
+				<button type="button" class="wcb-form-success__reset" data-wp-on--click="actions.resetForm">
+					<?php esc_html_e( 'Post another job', 'wp-career-board' ); ?>
+				</button>
+			</div>
 		</div>
 	</div>
 
@@ -589,7 +615,7 @@ $wcb_step_labels = array(
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-job-title">
-					<?php esc_html_e( 'Job Title', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Job title', 'wp-career-board' ); ?>
 					<span class="wcb-required" aria-hidden="true">*</span>
 				</label>
 				<input
@@ -612,7 +638,7 @@ $wcb_step_labels = array(
 			<div class="wcb-form-field">
 				<div class="wcb-form-label-row">
 					<label class="wcb-form-label" for="wcb-job-desc">
-						<?php esc_html_e( 'Job Description', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Job description', 'wp-career-board' ); ?>
 						<span class="wcb-required" aria-hidden="true">*</span>
 					</label>
 					<?php if ( apply_filters( 'wcb_ai_description_enabled', false ) ) : ?>
@@ -731,6 +757,8 @@ $wcb_step_labels = array(
 							data-wcb-field="salaryMax"
 							data-wp-bind--value="state.salaryMax"
 							data-wp-on--input="actions.updateField"
+							aria-describedby="wcb-salary-error"
+							data-wp-bind--aria-invalid="state.salaryInvalid"
 						/>
 					</div>
 					<div class="wcb-field-group">
@@ -753,6 +781,7 @@ $wcb_step_labels = array(
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Leave blank to hide salary from candidates.', 'wp-career-board' ); ?>
 				</span>
+				<p class="wcb-field-error" id="wcb-salary-error" role="alert" hidden data-wp-bind--hidden="!state.salaryInvalid" data-wp-text="state.validationError"></p>
 			</div>
 
 			<!-- Remote -->
@@ -782,6 +811,8 @@ $wcb_step_labels = array(
 					aria-describedby="wcb-deadline-help"
 				/>
 				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-text="state.deadlineHelp"></p>
+				<?php // Beside the date it describes, not above the first field before a board is picked (Basecamp 10439851754). ?>
+				<p class="wcb-form-help" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></p>
 			</div>
 
 			<!-- Apply URL -->
@@ -859,7 +890,7 @@ $wcb_step_labels = array(
 
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-job-type">
-						<?php esc_html_e( 'Job Type', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Job type', 'wp-career-board' ); ?>
 					</label>
 					<select
 						id="wcb-job-type"
@@ -910,7 +941,7 @@ $wcb_step_labels = array(
 						data-wp-on--input="actions.updateField"
 						data-wp-class--wcb-hidden="!state.locationIsCustom"
 						aria-label="<?php esc_attr_e( 'Custom location', 'wp-career-board' ); ?>"
-						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote  -  Europe', 'wp-career-board' ); ?>"
+						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote - Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
 					<p class="wcb-field-error" id="wcb-location-error" role="alert" hidden data-wp-bind--hidden="!state.locationInvalid" data-wp-text="state.validationError"></p>
@@ -966,12 +997,8 @@ $wcb_step_labels = array(
 			do_action( 'wcb_job_form_step3_fields', $attributes );
 
 			// Custom-field groups from wcb_job_form_fields (Pro Field Builder
-			// + any add-on). Rendered at the end of step 3 so they appear
-			// just before the preview / submit step.
-			$wcb_step3_custom_groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) ( $attributes['boardId'] ?? 0 ) );
-			if ( ! empty( $wcb_step3_custom_groups ) ) {
-				\WCB\Core\FormCustomFields::render_groups( $wcb_step3_custom_groups, 'updateCustomField', 'wcb-job-step3-custom', (int) $wcb_edit_id );
-			}
+			// + any add-on), at the end of step 3, for every board in the picker.
+			\WCB\Core\FormCustomFields::render_job_groups_by_board( array_merge( array( $wcb_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ), 'updateCustomField', 'wcb-job-step3-custom', (int) $wcb_edit_id );
 			?>
 
 			<div class="wcb-form-nav">
@@ -1000,16 +1027,22 @@ $wcb_step_labels = array(
 					</div>
 					<span
 						class="wcb-cbadge wcb-cbadge--remote"
-						data-wp-class--wcb-cbadge--show="state.isRemote"
+						data-wp-class--wcb-shown="state.isRemote"
 					><?php esc_html_e( 'Remote', 'wp-career-board' ); ?></span>
 				</div>
 
 				<!-- Badges row -->
 				<div class="wcb-preview-card__badges">
-					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-cbadge--show="state.hasType" data-wp-text="state.typeDisplay"></span>
-					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-cbadge--show="state.hasExp" data-wp-text="state.expDisplay"></span>
-					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-cbadge--show="state.hasLocation" data-wp-text="state.locationDisplay"></span>
-					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-cbadge--show="state.hasCategory" data-wp-text="state.categoryDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--type" data-wp-class--wcb-shown="state.hasType" data-wp-text="state.typeDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--exp" data-wp-class--wcb-shown="state.hasExp" data-wp-text="state.expDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--location" data-wp-class--wcb-shown="state.hasLocation" data-wp-text="state.locationDisplay"></span>
+					<span class="wcb-cbadge wcb-cbadge--category" data-wp-class--wcb-shown="state.hasCategory" data-wp-text="state.categoryDisplay"></span>
+				</div>
+
+				<div class="wcb-preview-card__tags" data-wp-bind--hidden="!state.hasTags">
+					<template data-wp-each--tag="state.tagList">
+						<span class="wcb-cbadge wcb-cbadge--tag wcb-shown" data-wp-text="context.tag"></span>
+					</template>
 				</div>
 
 				<!-- Meta row -->
@@ -1031,6 +1064,11 @@ $wcb_step_labels = array(
 						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
 						<span data-wp-text="state.applyEmail"></span>
 					</span>
+				</div>
+
+				<div class="wcb-preview-card__desc" data-wp-bind--hidden="!state.descriptionPreview">
+					<h4 class="wcb-preview-card__desc-title"><?php esc_html_e( 'Description', 'wp-career-board' ); ?></h4>
+					<p class="wcb-preview-card__desc-text" data-wp-text="state.descriptionPreview"></p>
 				</div>
 
 				<?php

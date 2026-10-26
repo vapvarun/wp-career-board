@@ -24,4 +24,6 @@ Stages belong to a job board. Go to **Career Board > Settings > Boards** and cli
 
 A stage can carry the outcome Hired or Rejected. When a card moves into one, the application's status becomes Hired or Rejected and the candidate gets the usual message.
 
+A Submitted application moved past the first stage becomes Reviewing, and a card moved out of an outcome stage reopens as Reviewing. Candidates always see the status, not your stage names.
+
 For stage settings, permissions and the developer reference, read the Pro documentation: Application Pipeline, "Configuring pipeline stages".

@@ -44,12 +44,6 @@
 	margin: 0 0 var(--wcb-space-xs);
 }
 
-.wcb-form-simple .wcb-required {
-	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
-	font-weight: var(--wcb-font-bold);
-	margin-left: 2px; /* hairline gap */
-}
-
 /* ── Two-column grid (Apply URL/Email pair, Classification 2×2) ─────── */
 
 .wcb-form-simple .wcb-form-grid {
@@ -141,10 +135,9 @@
 }
 .wcb-form-simple__error.wcb-shown { display: block; }
 
-/* Credit + listing-window notices — info boxes, same chrome as the error
- * banner so they read as deliberate UI, not orphaned paragraph text. */
-.wcb-form-simple__credit,
-.wcb-form-simple__listing-window {
+/* Credit notice - an info box, same chrome as the error banner so it reads
+ * as deliberate UI, not orphaned paragraph text. */
+.wcb-form-simple__credit {
 	display: none;
 	margin: 0;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -155,8 +148,20 @@
 	border: 1px solid var(--wcb-info-border, #bfdbfe);
 	color: var(--wcb-info-fg, #1d4ed8);
 }
-.wcb-form-simple__credit.wcb-shown,
-.wcb-form-simple__listing-window.wcb-shown { display: block; }
+.wcb-form-simple__credit.wcb-shown { display: block; }
+
+.wcb-form-simple__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-sm);
+}
+
+@media (max-width: 640px) {
+	.wcb-form-simple__actions .wcb-btn {
+		flex: 1 1 100%;
+		justify-content: center;
+	}
+}
 
 /* Insufficient-credit state escalates the credit notice to a warning. */
 .wcb-form-simple__credit--warn {
@@ -164,27 +169,6 @@
 	border-color: var(--wcb-warning-border, #fde68a);
 	color: var(--wcb-warning-fg, #92400e);
 }
-
-/* ── Custom-field groups (wcb_job_form_fields) ───────────────────────── */
-
-.wcb-form-simple .wcb-form-custom-fields {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-lg);
-}
-
-/* Group labels render as <h3> from the shared FormCustomFields renderer.
- * Match the section eyebrow so they don't inherit oversized theme headings. */
-.wcb-form-simple .wcb-form-custom-fields__heading {
-	font-size: var(--wcb-text-xs);
-	font-weight: var(--wcb-font-bold);
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--wcb-text-secondary);
-	margin: var(--wcb-space-sm) 0 0;
-	padding: 0;
-}
-.wcb-form-simple .wcb-form-custom-fields__heading:first-child { margin-top: 0; }
 
 /* ── Success state ───────────────────────────────────────────────────── */
 

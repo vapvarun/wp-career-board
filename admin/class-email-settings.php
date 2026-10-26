@@ -71,13 +71,19 @@ class EmailSettings {
 			true
 		);
 
+		$templates = array();
+		foreach ( self::emails() as $email ) {
+			$templates[ $email->get_id() ] = $email->get_title();
+		}
+
 		wp_localize_script(
 			'wcb-admin-emails',
 			'wcbAdminEmails',
 			array(
-				'restBase' => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'i18n'     => array(
+				'restBase'  => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
+				'nonce'     => wp_create_nonce( 'wp_rest' ),
+				'templates' => $templates,
+				'i18n'      => array(
 					'sending'          => __( 'Sending…', 'wp-career-board' ),
 					'sent'             => __( 'Sent', 'wp-career-board' ),
 					'failed'           => __( 'Failed', 'wp-career-board' ),
@@ -95,20 +101,19 @@ class EmailSettings {
 	}
 
 	/**
-	 * Render just the email settings form — used when embedded as a Settings tab.
+	 * Render the email look and template fields inside the Emails tab's form.
 	 *
 	 * @since 1.0.0
 	 */
 	public function render_form(): void {
 		$settings = wcb_get_email_settings();
 		$brand    = isset( $settings['brand'] ) ? (array) $settings['brand'] : array();
-		$emails   = (array) apply_filters( 'wcb_registered_emails', array() );
+		$emails   = self::emails();
 		?>
 		<div class="wcb-settings-card">
 			<div class="wcb-settings-card-header">
 				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email look', 'wp-career-board' ); ?></h2>
 			</div>
-			<form method="post">
 		<?php wp_nonce_field( 'wcb_email_settings_save', 'wcb_email_nonce' ); ?>
 				<div class="wcb-settings-row">
 					<div class="wcb-settings-row-label"><?php esc_html_e( 'Colour and Logo', 'wp-career-board' ); ?></div>
@@ -129,7 +134,7 @@ class EmailSettings {
 						<label for="wcb-email-footer-text"><?php esc_html_e( 'Footer Text', 'wp-career-board' ); ?></label>
 					</div>
 					<div class="wcb-settings-row-control">
-						<textarea id="wcb-email-footer-text" name="wcb_email[brand][footer_text]" rows="2" style="width:400px"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
+						<textarea id="wcb-email-footer-text" name="wcb_email[brand][footer_text]" rows="2" class="wcb-email-footer-textarea"><?php echo esc_textarea( isset( $brand['footer_text'] ) ? $brand['footer_text'] : '' ); ?></textarea>
 					</div>
 				</div>
 		</div>
@@ -138,13 +143,12 @@ class EmailSettings {
 			<div class="wcb-settings-card-header">
 				<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Email templates', 'wp-career-board' ); ?></h2>
 			</div>
-			<div style="padding: 0 24px 16px;">
+			<div class="wcb-email-templates-body">
 				<div class="wcb-email-templates-wrap">
-				<table class="widefat striped" style="margin-top:12px">
+				<table class="widefat striped wcb-email-templates">
 					<thead>
 						<tr>
 							<th><?php esc_html_e( 'Email', 'wp-career-board' ); ?></th>
-							<th><?php esc_html_e( 'Recipient', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Subject', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Message', 'wp-career-board' ); ?></th>
 							<th><?php esc_html_e( 'Enabled', 'wp-career-board' ); ?></th>
@@ -152,23 +156,32 @@ class EmailSettings {
 						</tr>
 					</thead>
 					<tbody>
-		<?php foreach ( $emails as $email ) : ?>
-			<?php
-			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				continue;
-			}
-			?>
-			<?php
+		<?php
+		$recipients = array(
+			'admin'     => __( 'Admin', 'wp-career-board' ),
+			'candidate' => __( 'Candidate', 'wp-career-board' ),
+			'employer'  => __( 'Employer', 'wp-career-board' ),
+			'guest'     => __( 'Guest', 'wp-career-board' ),
+			'member'    => __( 'Member', 'wp-career-board' ),
+		);
+		foreach ( $emails as $email ) :
 			$id      = $email->get_id();
 			$saved   = isset( $settings[ $id ] ) ? (array) $settings[ $id ] : array();
 			$enabled = isset( $saved['enabled'] ) ? (bool) $saved['enabled'] : true;
 			$subject = isset( $saved['subject'] ) ? $saved['subject'] : '';
 			?>
 						<tr>
-							<td><strong><?php echo esc_html( $email->get_title() ); ?></strong></td>
-							<td><?php echo esc_html( ucfirst( $email->get_recipient() ) ); ?></td>
 							<td>
-								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" style="width:100%;max-width:400px;">
+								<strong><?php echo esc_html( $email->get_title() ); ?></strong>
+								<span class="wcb-email-recipient">
+								<?php
+								/* translators: %s: who receives the email, e.g. Candidate. */
+								echo esc_html( sprintf( __( 'Recipient: %s', 'wp-career-board' ), $recipients[ $email->get_recipient() ] ?? ucfirst( $email->get_recipient() ) ) );
+								?>
+								</span>
+							</td>
+							<td>
+								<input type="text" aria-label="<?php esc_attr_e( 'Email subject', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][subject]" value="<?php echo esc_attr( $subject ); ?>" placeholder="<?php echo esc_attr( $email->get_default_subject() ); ?>" class="wcb-email-subject">
 							</td>
 							<td>
 								<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-body-toggle" data-target="wcb-email-body-<?php echo esc_attr( $id ); ?>" aria-expanded="false" aria-controls="wcb-email-body-<?php echo esc_attr( $id ); ?>">
@@ -177,7 +190,10 @@ class EmailSettings {
 								</button>
 							</td>
 							<td>
-								<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
+								<label class="wcb-email-enabled">
+									<input type="checkbox" aria-label="<?php esc_attr_e( 'Enable this email notification', 'wp-career-board' ); ?>" name="wcb_email[<?php echo esc_attr( $id ); ?>][enabled]" value="1" <?php checked( $enabled ); ?>>
+									<span class="wcb-email-enabled__text"><?php esc_html_e( 'Enabled', 'wp-career-board' ); ?></span>
+								</label>
 							</td>
 							<td>
 								<button type="button" class="wcb-btn wcb-btn--sm wcb-btn--ghost wcb-email-test-btn" data-email-id="<?php echo esc_attr( $id ); ?>" aria-label="
@@ -192,7 +208,7 @@ class EmailSettings {
 							</td>
 						</tr>
 						<tr class="wcb-email-body-row" id="wcb-email-body-<?php echo esc_attr( $id ); ?>" hidden>
-							<td colspan="6">
+							<td colspan="5">
 								<label class="wcb-email-body-label" for="wcb-email-body-field-<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Message body (HTML)', 'wp-career-board' ); ?></label>
 								<textarea id="wcb-email-body-field-<?php echo esc_attr( $id ); ?>" class="wcb-email-body-textarea" name="wcb_email[<?php echo esc_attr( $id ); ?>][body]" rows="8" placeholder="<?php esc_attr_e( 'Leave blank to send the ready-made default message. Click Load default to start from it.', 'wp-career-board' ); ?>"><?php echo esc_textarea( isset( $saved['body'] ) ? (string) $saved['body'] : '' ); ?></textarea>
 								<div class="wcb-email-tags">
@@ -214,7 +230,7 @@ class EmailSettings {
 					</tbody>
 				</table>
 				</div>
-				<p class="description" style="margin-top: 12px;">
+				<p class="description wcb-email-templates-note">
 		<?php
 		/* translators: %s: current admin email address */
 		echo esc_html( sprintf( __( 'Test sends are dispatched to your admin email (%s) and recorded in the activity log below.', 'wp-career-board' ), wp_get_current_user()->user_email ) );
@@ -222,13 +238,6 @@ class EmailSettings {
 				</p>
 			</div>
 		</div>
-
-		<div class="wcb-settings-footer">
-		<?php submit_button( __( 'Save Email Settings', 'wp-career-board' ) ); ?>
-		</div>
-		</form>
-
-		<?php $this->render_activity_log(); ?>
 		<?php
 	}
 
@@ -242,7 +251,7 @@ class EmailSettings {
 	 * @since 1.1.1
 	 */
 	public function render_activity_log(): void {
-		$emails = (array) apply_filters( 'wcb_registered_emails', array() );
+		$emails = self::emails();
 		?>
 		<div class="wcb-settings-card wcb-email-log-card" id="wcb-email-activity-log">
 			<div class="wcb-settings-card-header">
@@ -258,11 +267,6 @@ class EmailSettings {
 						<select id="wcb-log-filter-event" class="wcb-email-log-filter__select">
 							<option value=""><?php esc_html_e( 'All templates', 'wp-career-board' ); ?></option>
 		<?php foreach ( $emails as $email ) : ?>
-			<?php
-			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				continue;
-			}
-			?>
 								<option value="<?php echo esc_attr( $email->get_id() ); ?>"><?php echo esc_html( $email->get_title() ); ?></option>
 		<?php endforeach; ?>
 						</select>
@@ -348,11 +352,8 @@ class EmailSettings {
 		}
 
 		// Per-email settings — only save keys that match registered emails.
-		$emails = (array) apply_filters( 'wcb_registered_emails', array() );
+		$emails = self::emails();
 		foreach ( $emails as $email ) {
-			if ( ! $email instanceof \WCB\Modules\Notifications\AbstractEmail ) {
-				continue;
-			}
 			$id              = $email->get_id();
 			$settings[ $id ] = array(
 				'enabled' => ! empty( $raw[ $id ]['enabled'] ),
@@ -368,12 +369,22 @@ class EmailSettings {
 		// upgrade pass runs.
 		$aggregate           = Settings::all();
 		$aggregate['emails'] = $settings;
+		// Posted with the Emails tab's options.php form; options.php then merges
+		// its own fields over this row and shows "Settings saved."
 		update_option( 'wcb_settings', $aggregate );
-		add_action(
-			'admin_notices',
-			static function () {
-				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Email settings saved.', 'wp-career-board' ) . '</p></div>';
-			}
+	}
+
+	/**
+	 * The registered emails, Free's and any an add-on adds through the filter.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @return array<int, \WCB\Modules\Notifications\AbstractEmail>
+	 */
+	private static function emails(): array {
+		return array_filter(
+			(array) apply_filters( 'wcb_registered_emails', array() ),
+			static fn( $email ): bool => $email instanceof \WCB\Modules\Notifications\AbstractEmail
 		);
 	}
 }

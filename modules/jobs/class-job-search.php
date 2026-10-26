@@ -101,7 +101,9 @@ final class JobSearch {
 	 * @return void
 	 */
 	public static function boot(): void {
-		add_filter( 'posts_clauses', array( self::class, 'clauses' ), 10, 2 );
+		// After JobsMeta::featured_first_clauses() (10): the other-currency split
+		// must lead the ORDER BY, above the featured tier (Basecamp 10402937387).
+		add_filter( 'posts_clauses', array( self::class, 'clauses' ), 20, 2 );
 		add_action( 'save_post_wcb_job', array( self::class, 'index_text' ), 10, 2 );
 		add_action( self::INDEX_HOOK, array( self::class, 'index_batch' ) );
 	}
@@ -372,7 +374,11 @@ final class JobSearch {
 			return $clauses;
 		}
 		global $wpdb;
-		$posts = $wpdb->posts;
+		$posts  = $wpdb->posts;
+		$by_pay = $salary_min || $salary_max || 'salary' === $sort;
+		if ( $by_pay ) {
+			$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} wcb_cur ON ( wcb_cur.post_id = {$posts}.ID AND wcb_cur.meta_key = '_wcb_salary_currency' )";
+		}
 		if ( $salary_min || $salary_max ) {
 			$clauses = self::salary_clauses( $clauses, $salary_min, $salary_max );
 		}
@@ -405,16 +411,41 @@ final class JobSearch {
 			$clauses['fields'] .= ', ( ' . implode( ' + ', $score ) . ' ) AS wcb_relevance';
 			$clauses['orderby'] = "COALESCE( wcb_fr.meta_value = '1', 0 ) DESC, wcb_relevance DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'salary' === $sort ) {
-			// Compared per year: $150-200 an hour is more than $50k a year.
+			// Compared per year: $150-200 an hour is more than $50k a year. The top
+			// of the range, or the one figure a job has, as the salary filter reads it.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_sal ON ( wcb_sal.post_id = {$posts}.ID AND wcb_sal.meta_key = '_wcb_salary_max' )";
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_smn ON ( wcb_smn.post_id = {$posts}.ID AND wcb_smn.meta_key = '_wcb_salary_min' )";
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_su ON ( wcb_su.post_id = {$posts}.ID AND wcb_su.meta_key = '_wcb_salary_type' )";
-			$clauses['orderby'] = self::yearly_sql( 'wcb_sal.meta_value', 'wcb_su.meta_value' ) . " DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
+			$pay                = self::yearly_sql( "COALESCE( NULLIF( wcb_sal.meta_value, '' ), NULLIF( wcb_smn.meta_value, '' ) )", 'wcb_su.meta_value' );
+			$clauses['orderby'] = "{$pay} DESC, {$posts}.post_date DESC, {$posts}.ID DESC";
 		} elseif ( 'closing' === $sort ) {
 			// Soonest first among jobs still open; jobs without a deadline next; jobs already past it last.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_dl ON ( wcb_dl.post_id = {$posts}.ID AND wcb_dl.meta_key = '_wcb_deadline' AND wcb_dl.meta_value <> '' )";
 			$clauses['orderby'] = $wpdb->prepare( "CASE WHEN wcb_dl.meta_value IS NULL THEN 1 WHEN wcb_dl.meta_value < %s THEN 2 ELSE 0 END, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC", current_time( 'Y-m-d' ) );
 		}
+		if ( $by_pay ) {
+			// No exchange rates: pay in the site currency comes first, and pay in
+			// other currencies follows, grouped by currency under the "Highest
+			// salary" sort so ₹1.5M never outranks $100k (Basecamp 10402937387).
+			// A job with no currency set counts as the site's, and under that sort
+			// a job with no pay at all goes last whatever its currency.
+			$other              = self::other_currency_sql();
+			$clauses['orderby'] = 'salary' === $sort
+				? "{$pay} IS NULL, {$other} ASC, CASE WHEN {$other} THEN wcb_cur.meta_value END ASC, {$clauses['orderby']}"
+				: "{$other} ASC, {$clauses['orderby']}";
+		}
 		return $clauses;
+	}
+
+	/**
+	 * SQL true when a job is paid in a currency other than the site's; needs
+	 * the `wcb_cur` join.
+	 *
+	 * @return string
+	 */
+	private static function other_currency_sql(): string {
+		global $wpdb;
+		return $wpdb->prepare( "( wcb_cur.meta_value IS NOT NULL AND wcb_cur.meta_value NOT IN ( '', %s ) )", JobsMeta::default_currency() );
 	}
 
 	/**
@@ -436,9 +467,9 @@ final class JobSearch {
 	 * Salary range on yearly amounts: the job's pay overlaps the range (its top
 	 * reaches the minimum, its bottom is under the maximum). A job with only
 	 * one figure uses it for both ends; a job with no figure is left out.
-	 * Only jobs paid in the site's default currency match, because the
-	 * sliders are in that currency and there are no exchange rates to convert
-	 * with.
+	 * The range is in the site's currency and there are no exchange rates, so
+	 * it applies to jobs paid in that currency; jobs paid in another currency
+	 * are kept, unfiltered, and clauses() lists them after the rest.
 	 *
 	 * @param array<string, string> $clauses Clauses.
 	 * @param int                   $min     Yearly minimum, or 0.
@@ -452,20 +483,22 @@ final class JobSearch {
 			'wcb_fmin' => '_wcb_salary_min',
 			'wcb_fmax' => '_wcb_salary_max',
 			'wcb_ftyp' => '_wcb_salary_type',
-			'wcb_fcur' => '_wcb_salary_currency',
 		) as $alias => $key ) {
 			$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} {$alias} ON ( {$alias}.post_id = {$posts}.ID AND {$alias}.meta_key = '{$key}' )";
 		}
 		$top    = self::yearly_sql( "COALESCE( NULLIF( wcb_fmax.meta_value, '' ), NULLIF( wcb_fmin.meta_value, '' ) )", 'wcb_ftyp.meta_value' );
 		$bottom = self::yearly_sql( "COALESCE( NULLIF( wcb_fmin.meta_value, '' ), NULLIF( wcb_fmax.meta_value, '' ) )", 'wcb_ftyp.meta_value' );
 
-		$clauses['where'] .= " AND {$top} > 0";
-		$clauses['where'] .= $wpdb->prepare( " AND ( wcb_fcur.meta_value IS NULL OR wcb_fcur.meta_value IN ( '', %s ) )", JobsMeta::default_currency() );
+		$range = array();
 		if ( $min ) {
-			$clauses['where'] .= $wpdb->prepare( " AND {$top} >= %d", $min ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $top is built from fixed aliases and constants.
+			$range[] = $wpdb->prepare( "{$top} >= %d", $min ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $top is built from fixed aliases and constants.
 		}
 		if ( $max ) {
-			$clauses['where'] .= $wpdb->prepare( " AND {$bottom} <= %d", $max ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $bottom is built from fixed aliases and constants.
+			$range[] = $wpdb->prepare( "{$bottom} <= %d", $max ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $bottom is built from fixed aliases and constants.
+		}
+		$clauses['where'] .= " AND {$top} > 0";
+		if ( $range ) {
+			$clauses['where'] .= ' AND ( ' . self::other_currency_sql() . ' OR ( ' . implode( ' AND ', $range ) . ' ) )';
 		}
 		return $clauses;
 	}

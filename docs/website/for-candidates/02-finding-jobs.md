@@ -11,14 +11,14 @@ Open the **Find Jobs** page (`/find-jobs/` on a default install). It lists publi
 - Badges for Featured, Remote, job type, experience level and location
 - A short excerpt
 - Salary, if the employer entered one
-- The application deadline, or a closed label
+- The application deadline, labelled "Apply by", or a closed label
 - How long ago the job was posted
 
 Click a card or **View Job** to open the full job page. Use the layout buttons above the results to switch between list and grid view. The site owner sets how many jobs load at a time.
 
 ## Search by keyword
 
-Type in the **Search jobs** box. Jobs must contain every word you type in the title, the description or the company name. Words of one letter are ignored, and only the first six different words are used. Results update without a reload.
+Type in the **Search jobs** box. Jobs must contain every word you type in the title, the description or the company name. Words of one letter are ignored, and only the first six different words are used. Results update without a reload. Your search stays in the box when you reload the page or open a shared link, and you can clear it from the box.
 
 ## Filter jobs
 
@@ -65,9 +65,9 @@ Tags on a job page link to a page that lists only jobs with that tag. Categories
 The job page shows:
 
 - The full description
-- Job details such as work mode, salary, and the **Apply By** date when the employer set a deadline
+- Job details such as work mode, salary, and the **Apply by** date when the employer set a deadline
 - Company information
-- **Apply Now**, or **Apply on Company Site** when the employer applies through their own site
+- **Apply now**, or **Apply on Company Site** when the employer applies through their own site
 
 A job that has expired or was closed shows a notice, no apply button, and up to three open jobs you might like instead.
 
@@ -77,4 +77,4 @@ With WP Career Board Pro and AI matching set up, your **Candidate Dashboard > Ov
 
 ## Save a job
 
-Sign in, then click the bookmark icon on a job card, or **Save Job** on the job page. Saved jobs appear under **Candidate Dashboard > Saved Jobs**. See [Saved jobs](./05-saved-jobs.md).
+Sign in, then click the bookmark icon on a job card, or **Save job** on the job page. Saved jobs appear under **Candidate Dashboard > Saved Jobs**. See [Saved jobs](./05-saved-jobs.md).

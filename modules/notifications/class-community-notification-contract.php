@@ -137,7 +137,7 @@ final class CommunityNotificationContract {
 		);
 		$types['job_expired']                = array(
 			'label'       => __( 'Job listing expired', 'wp-career-board' ),
-			'description' => __( 'Your job listing has expired.', 'wp-career-board' ),
+			'description' => __( 'Your job listing has expired', 'wp-career-board' ),
 			'default_on'  => true,
 		);
 		$types['job_expiring']               = array(

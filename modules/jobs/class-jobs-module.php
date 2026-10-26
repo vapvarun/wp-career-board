@@ -260,14 +260,20 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'labels'          => array(
-					'name'               => __( 'Jobs', 'wp-career-board' ),
-					'singular_name'      => __( 'Job', 'wp-career-board' ),
-					'add_new_item'       => __( 'Add New Job', 'wp-career-board' ),
-					'edit_item'          => __( 'Edit Job', 'wp-career-board' ),
-					'view_item'          => __( 'View Job', 'wp-career-board' ),
-					'search_items'       => __( 'Search Jobs', 'wp-career-board' ),
-					'not_found'          => __( 'No jobs found.', 'wp-career-board' ),
-					'not_found_in_trash' => __( 'No jobs found in Trash.', 'wp-career-board' ),
+					'name'                  => __( 'Jobs', 'wp-career-board' ),
+					'singular_name'         => __( 'Job', 'wp-career-board' ),
+					'add_new_item'          => __( 'Add New Job', 'wp-career-board' ),
+					'edit_item'             => __( 'Edit Job', 'wp-career-board' ),
+					'view_item'             => __( 'View Job', 'wp-career-board' ),
+					'search_items'          => __( 'Search jobs', 'wp-career-board' ),
+					'not_found'             => __( 'No jobs found.', 'wp-career-board' ),
+					'not_found_in_trash'    => __( 'No jobs found in Trash.', 'wp-career-board' ),
+					// Listings and the job page show the company logo; a job's own
+					// image is only the preview when the job is shared (og:image).
+					'featured_image'        => __( 'Share image', 'wp-career-board' ),
+					'set_featured_image'    => __( 'Set share image', 'wp-career-board' ),
+					'remove_featured_image' => __( 'Remove share image', 'wp-career-board' ),
+					'use_featured_image'    => __( 'Use as share image', 'wp-career-board' ),
 				),
 				'public'          => true,
 				'show_in_rest'    => true,
@@ -296,8 +302,8 @@ final class JobsModule {
 			'wcb_category',
 			'wcb_job',
 			array(
-				'label'             => __( 'Job Categories', 'wp-career-board' ),
-				'labels'            => self::taxonomy_labels( __( 'Job Categories', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
+				'label'             => _x( 'Job Categories', 'taxonomy general name', 'wp-career-board' ),
+				'labels'            => self::taxonomy_labels( _x( 'Job Categories', 'taxonomy general name', 'wp-career-board' ), __( 'Job Category', 'wp-career-board' ), true ),
 				'hierarchical'      => true,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-category' ),
@@ -311,7 +317,7 @@ final class JobsModule {
 			'wcb_job',
 			array(
 				'label'             => __( 'Job Types', 'wp-career-board' ),
-				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), __( 'Job Type', 'wp-career-board' ), false ),
+				'labels'            => self::taxonomy_labels( __( 'Job Types', 'wp-career-board' ), _x( 'Job Type', 'taxonomy singular name', 'wp-career-board' ), false ),
 				'hierarchical'      => false,
 				'show_in_rest'      => true,
 				'rewrite'           => array( 'slug' => 'job-type' ),

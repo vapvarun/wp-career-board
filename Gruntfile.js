@@ -107,12 +107,8 @@ module.exports = function ( grunt ) {
 				command: 'npm run start',
 			},
 			pot: {
-				command: [
-					'wp i18n make-pot .',
-					'languages/' + slug + '.pot',
-					'--domain=' + slug,
-					'--exclude=vendor,node_modules,build,dist,docs,tests',
-				].join( ' ' ),
+				// One POT builder for Free and Pro (excludes bin/, theme.json, libs/).
+				command: 'bash bin/make-pot.sh',
 			},
 			version: {
 				command: [

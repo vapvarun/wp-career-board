@@ -10,7 +10,7 @@ Free sends these emails. Each one can be switched off and edited under **Career 
 |---|---|---|
 | **New Job Pending Review** | Admin | An employer submits a job that needs approval |
 | **Report Received** | Admin | A job or member is reported for the first time, and when reports hide a job |
-| **Job Approved** | Employer | A moderator approves a pending job |
+| **Job approved** | Employer | A moderator approves a pending job |
 | **Job Rejected** | Employer | A moderator rejects a pending job |
 | **Job Ending Soon (Employer)** | Employer | 3 days before a job's deadline, once per deadline, with a link to extend it |
 | **Job Expired** | Employer | A job passes its deadline (only jobs that ended in the last 7 days, so turning expiry on for an old site does not email a backlog) |
@@ -29,11 +29,11 @@ Free sends these emails. Each one can be switched off and edited under **Career 
 
 Guests who applied with an email address get the guest confirmation, status and not-selected emails. A guest who left no email cannot be notified.
 
-Every email is written in the recipient's own language: dates and status names follow the recipient's locale, not the locale of whoever triggered it.
+Every email is written in the recipient's own language: dates, numbers and status names follow the recipient's locale, not the locale of whoever triggered it. Members get their profile language. A guest gets the language they applied or saved a job alert in (older guest applications get the site language). The notification address gets the language of the account with that address, or the site language when no account has it.
 
 ## Managing notifications
 
-You can turn each email on or off, change its subject and rewrite its message. Go to **Career Board → Settings → Emails**. The **Email templates** list has one row per email, with **Subject**, **Message** (**Edit** opens the editor), **Enabled** and **Test** columns. Click **Save Email Settings** when you finish.
+You can turn each email on or off, change its subject and rewrite its message. Go to **Career Board → Settings → Emails**. The **Email templates** list has one row per email, with **Subject**, **Message** (**Edit** opens the editor), **Enabled** and **Test** columns. Click **Save changes** at the bottom of the tab when you finish. One button saves the sender, the email look and every template.
 
 ### Edit the message
 
@@ -96,7 +96,7 @@ You can check whether emails are going out in the **Email activity log** card at
 
 ## Emails added by Pro
 
-WP Career Board Pro adds these emails to the same **Emails** tab, with the same subject, message, on/off and test controls: Job Alert Digest, Confirm Job Alert (guest), Credit Top-Up Confirmation, Credit Purchase Receipt, Credit Refund, Low Credit Balance Warning and Featured Listing Ended. Read the Pro documentation for when each one is sent.
+WP Career Board Pro adds these emails to the same **Emails** tab, with the same subject, message, on/off and test controls: Job Alert Digest, Confirm Job Alert (guest), Credit Top-Up Confirmation, Credit Purchase Receipt, Credit Refund, Low Credit Balance Warning and Featured Listing Ended. The four credit emails are listed only while credits are on for Career Board. Read the Pro documentation for when each one is sent.
 
 ## Deadline reminders {#deadline-reminders}
 

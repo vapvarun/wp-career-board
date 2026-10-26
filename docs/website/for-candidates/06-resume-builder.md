@@ -13,9 +13,9 @@ From this tab you can:
 - Click **+ New Resume**, enter a title and click **Create**.
 - Click **Upload CV** to add a PDF, DOC or DOCX file as a resume.
 - Click **Edit** to open a built resume in the resume builder.
-- Click **View** to see a built resume, or **Open PDF** to open an uploaded one.
-- Click **Re-upload PDF** to replace an uploaded PDF.
-- Click **Delete**, then **Confirm**, to remove a resume.
+- Click **View** to see a built resume, or **Open CV** to open an uploaded one.
+- Click **Replace CV** to replace an uploaded CV (PDF, DOC or DOCX).
+- Click **Delete**, then **Confirm**, to remove a resume. Its CV file is deleted too, except a copy already sent to an employer with an application.
 
 The number of resumes you can keep is limited. The site owner sets the limit in **Max Resumes Per Candidate** under **Career Board > Settings > Resumes**, and the default is 2. The tab shows the limit and disables **+ New Resume** when you reach it.
 
@@ -24,13 +24,13 @@ The number of resumes you can keep is limited. The site owner sets the limit in 
 The builder is a set of sections you open and close by clicking the section header. At the top you can:
 
 - Switch the **Public** checkbox. A public resume appears in the candidate directory and search. A private resume is visible only to you and to employers you apply to.
-- Click **Save Resume** to save your changes. A "Resume saved!" message confirms it.
+- Click **Save resume** to save your changes. A "Resume saved!" message confirms it.
 
 Below that, fill in:
 
-- **Professional Summary**
+- **Professional summary**
 - **Years of experience**, which the candidate directory uses for its experience filter
-- **Open to new opportunities**, which puts you in the directory's "Open to work" filter
+- **Open to new opportunities**, which puts you in the directory's "Open to Work" filter
 
 Then add entries in these sections:
 
@@ -44,7 +44,7 @@ Then add entries in these sections:
 | **Languages** | Language and proficiency level (Basic, Conversational, Fluent or Native) |
 | **Portfolio / Links** | Label and URL |
 
-To add an entry, open a section, click **Add Entry**, fill in the fields and click **Done**. Use the edit and remove icons on an entry to change or delete it. Click **Save Resume** when you finish.
+To add an entry, open a section, click **Add Entry**, fill in the fields and click **Done**. Use the edit and remove icons on an entry to change or delete it. Click **Save resume** when you finish.
 
 ## Use a resume when you apply
 

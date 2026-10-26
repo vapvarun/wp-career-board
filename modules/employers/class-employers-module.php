@@ -65,6 +65,10 @@ final class EmployersModule {
 		add_action( 'transition_post_status', array( self::class, 'on_status_change' ), 10, 3 );
 		add_filter( 'wp_insert_post_data', array( self::class, 'plain_company_title' ), 10, 1 );
 		add_action( 'before_delete_post', array( self::class, 'on_company_deleted' ), 10, 2 );
+		add_action( 'post_updated', array( self::class, 'on_company_author_change' ), 10, 3 );
+		add_action( 'updated_post_meta', array( self::class, 'on_company_owner_meta_change' ), 10, 3 );
+		add_action( 'deleted_post_meta', array( self::class, 'on_company_owner_meta_change' ), 10, 3 );
+		add_action( 'delete_user', array( self::class, 'on_company_author_deleted' ), 10, 2 );
 	}
 
 	/**
@@ -143,6 +147,175 @@ final class EmployersModule {
 	public static function on_company_deleted( int $post_id, $post ): void {
 		if ( $post instanceof \WP_Post && 'wcb_company' === $post->post_type && 'trash' !== $post->post_status ) {
 			self::close_company_jobs( $post_id );
+		}
+	}
+
+	/**
+	 * A company handed to another author drops the old links to it.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $after   Post after the update.
+	 * @param \WP_Post $before  Post before the update.
+	 * @return void
+	 */
+	public static function on_company_author_change( int $post_id, $after, $before ): void {
+		if ( 'wcb_company' !== $after->post_type ) {
+			return;
+		}
+		if ( (int) $after->post_author !== (int) $before->post_author ) {
+			self::drop_stale_company_links( $post_id );
+		}
+		if ( $after->post_title !== $before->post_title ) {
+			self::rename_company_jobs( $post_id, $after->post_title );
+		}
+	}
+
+	/**
+	 * Give every company's jobs its current name - the upgrade repair for jobs
+	 * renamed before renames reached them.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	public static function sync_company_names(): void {
+		$page = 1;
+		do {
+			$companies = get_posts(
+				array(
+					'post_type'      => 'wcb_company',
+					'post_status'    => 'any',
+					'posts_per_page' => 200,
+					'paged'          => $page++,
+					'orderby'        => 'ID',
+					'order'          => 'ASC',
+				)
+			);
+			foreach ( $companies as $company ) {
+				self::rename_company_jobs( $company->ID, $company->post_title );
+			}
+			$batch_size = count( $companies );
+		} while ( 200 === $batch_size );
+	}
+
+	/**
+	 * Copy a company's new name onto its jobs.
+	 *
+	 * Each job keeps the name in `_wcb_company_name` for listings, search and
+	 * feeds, so a rename that stops at the company leaves every job on the old
+	 * name (Basecamp 10427543204).
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int    $company_id Company post ID.
+	 * @param string $name       New company name.
+	 * @return void
+	 */
+	private static function rename_company_jobs( int $company_id, string $name ): void {
+		do {
+			$jobs = get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => 'any',
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded drain; every row fetched is renamed, so the set shrinks each pass.
+					'posts_per_page' => 500,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- one company's jobs, on rename only.
+						array(
+							'key'   => '_wcb_company_id',
+							'value' => (string) $company_id,
+						),
+						array(
+							'key'     => '_wcb_company_name',
+							'value'   => $name,
+							'compare' => '!=',
+						),
+					),
+				)
+			);
+			foreach ( $jobs as $job_id ) {
+				update_post_meta( (int) $job_id, '_wcb_company_name', $name );
+			}
+			$batch_size = count( $jobs );
+		} while ( 500 === $batch_size );
+		update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
+	}
+
+	/**
+	 * A co-owner taken off a company drops their link to it.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int|int[] $meta_ids Meta ID(s).
+	 * @param int       $post_id  Post ID.
+	 * @param string    $meta_key Meta key.
+	 * @return void
+	 */
+	public static function on_company_owner_meta_change( $meta_ids, int $post_id, string $meta_key ): void {
+		if ( '_wcb_company_owner' === $meta_key && 'wcb_company' === get_post_type( $post_id ) ) {
+			self::drop_stale_company_links( $post_id );
+		}
+	}
+
+	/**
+	 * Deleting a user with "attribute all content to" hands their companies over
+	 * by a direct posts update, which fires no post_updated.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int      $user_id  User being deleted.
+	 * @param int|null $reassign User their content goes to, or null.
+	 * @return void
+	 */
+	public static function on_company_author_deleted( int $user_id, $reassign ): void {
+		if ( ! $reassign ) {
+			return;
+		}
+		$companies = get_posts(
+			array(
+				'post_type'      => 'wcb_company',
+				'post_status'    => 'any',
+				'author'         => $user_id,
+				'fields'         => 'ids',
+				// shortcut: same 200-company cap as owned_companies().
+				'posts_per_page' => 200, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			)
+		);
+		foreach ( $companies as $company_id ) {
+			self::drop_stale_company_links( (int) $company_id, (int) $reassign );
+		}
+	}
+
+	/**
+	 * Clear `_wcb_company_id` for users linked to a company they no longer own.
+	 *
+	 * The link is how an employer reaches a company an admin created for them,
+	 * so it counts as ownership; once the company has another owner, a link
+	 * left behind would keep the old employer in its applicants (Basecamp
+	 * 10401941306, owner decision: clear stale links).
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $company_id Company post ID.
+	 * @param int $author     Author the company is passing to, when not yet saved.
+	 * @return void
+	 */
+	private static function drop_stale_company_links( int $company_id, int $author = 0 ): void {
+		$owners   = array_map( 'intval', (array) get_post_meta( $company_id, '_wcb_company_owner', false ) );
+		$owners[] = $author ? $author : (int) get_post_field( 'post_author', $company_id );
+		$linked   = get_users(
+			array(
+				'meta_key'   => '_wcb_company_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value' => (string) $company_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'exclude'    => $owners,
+				'fields'     => 'ID',
+				'number'     => 200,
+			)
+		);
+		foreach ( $linked as $user_id ) {
+			delete_user_meta( (int) $user_id, '_wcb_company_id' );
 		}
 	}
 
@@ -452,7 +625,7 @@ final class EmployersModule {
 					'singular_name'      => __( 'Company', 'wp-career-board' ),
 					'add_new_item'       => __( 'Add New Company', 'wp-career-board' ),
 					'edit_item'          => __( 'Edit Company', 'wp-career-board' ),
-					'view_item'          => __( 'View Company', 'wp-career-board' ),
+					'view_item'          => __( 'View company', 'wp-career-board' ),
 					'not_found'          => __( 'No companies found.', 'wp-career-board' ),
 					'not_found_in_trash' => __( 'No companies found in Trash.', 'wp-career-board' ),
 				),
@@ -575,7 +748,7 @@ final class EmployersModule {
 				'applications' => $n_apps,
 				'stats'        => sprintf(
 					/* translators: 1: the open jobs count, 2: the applications count (each already a phrase). */
-					__( '%1$s · %2$s', 'wp-career-board' ),
+					_x( '%1$s · %2$s', 'company card stats', 'wp-career-board' ),
 					/* translators: %s: number of open jobs, already localised. */
 					sprintf( _n( '%s open job', '%s open jobs', $n_open, 'wp-career-board' ), number_format_i18n( $n_open ) ),
 					/* translators: %s: number of applications, already localised. */

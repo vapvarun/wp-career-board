@@ -31,7 +31,7 @@ Open **Candidate Dashboard > Job Alerts**. Each alert shows its keyword and filt
 - Change the frequency in the drop-down.
 - Click **Delete** to remove the alert.
 
-The tab shows how many alerts you have, and your **Overview** has a **Job Alerts** card that opens the tab.
+The tab shows how many alerts you have, and your **Overview** has a **Job alerts** card that opens the tab.
 
 Each person can keep a limited number of alerts. The site owner sets the limit under **Career Board > Settings > Job Alerts**, and the default is 10.
 
@@ -52,7 +52,7 @@ A new job matches when it fits every part of your alert:
 - **Keyword** - every word of your search appears in the job's title, description or company name.
 - **Category**, **job type**, **location**, **experience level** and **tags** - the job has one of the values you chose.
 - **Job board** - the job is on the board you searched.
-- **Salary** - the job's pay range overlaps your minimum and maximum. The alert compares the salary numbers as entered and does not convert between hourly, monthly and yearly pay or between currencies. Jobs with no salary still match.
+- **Salary** - the job's pay range overlaps your minimum and maximum, compared per year (hourly pay counts as 2,080 hours, monthly as 12 months). Only jobs paid in the site's default currency match, and jobs with no salary do not match.
 - **Remote only** - the job is marked remote.
 
 ## The alert email

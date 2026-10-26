@@ -105,7 +105,7 @@
 	height: 0.75rem;
 }
 
-/* Status, then the row's '⋯' menu, on one line at every width. */
+/* Status, then the row's Withdraw or Remove button, on one line at every width. */
 .wcb-cd-app-actions {
 	display: flex;
 	align-items: center;
@@ -430,15 +430,23 @@
 		gap: var(--wcb-space-sm);
 	}
 
-	/* Saved Jobs — stack info above actions */
+	/* Saved jobs, companies and resumes stay one row: avatar, name over a
+	   one-line meta, menu at the end. Stacked, each row ran 120-190px
+	   (Basecamp 10439832512). */
 	.wcb-cd-bookmark-row {
-		flex-direction: column;
-		align-items: flex-start;
 		gap: var(--wcb-space-sm);
+		padding-inline: var(--wcb-space-lg);
 	}
 
-	.wcb-cd-bookmark-actions {
-		width: 100%;
+	.wcb-cd-bookmark-meta {
+		flex-wrap: nowrap;
+		min-width: 0;
+	}
+
+	.wcb-cd-bookmark-meta > span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	/* My Resumes — stack info above action buttons */

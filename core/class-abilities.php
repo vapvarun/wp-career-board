@@ -24,6 +24,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Abilities {
 
 	/**
+	 * Whether an administrator has banned (suspended) this member.
+	 *
+	 * Pre-1.8.0 deletion requests locked through the same flag; they carry a
+	 * schedule but no lock key and are not a ban.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	public static function is_banned( int $user_id ): bool {
+		if ( '1' !== (string) get_user_meta( $user_id, '_wcb_employer_banned', true ) ) {
+			return false;
+		}
+		$scheduled = '' !== (string) get_user_meta( $user_id, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
+		return ! ( $scheduled && ! metadata_exists( 'user', $user_id, \WCB\Modules\Account\AccountDeletionService::META_LOCKED ) );
+	}
+
+	/**
 	 * Whether a suspension leaves this capability available.
 	 *
 	 * An administrator's ban (`_wcb_employer_banned`) removes everything. A
@@ -39,14 +58,10 @@ final class Abilities {
 	 * @return bool
 	 */
 	private static function member_may( \WP_User $user, string $cap ): bool {
-		// Pre-1.8.0 deletion requests locked through the ban flag; they carry a
-		// schedule but no lock key and keep the dashboard exception.
-		$scheduled = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
-		$legacy    = $scheduled && ! metadata_exists( 'user', $user->ID, \WCB\Modules\Account\AccountDeletionService::META_LOCKED );
-
-		if ( '1' === (string) get_user_meta( $user->ID, '_wcb_employer_banned', true ) && ! $legacy ) {
+		if ( self::is_banned( $user->ID ) ) {
 			return false;
 		}
+		$scheduled = '' !== (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_SCHEDULED, true );
 		if ( $scheduled || '1' === (string) get_user_meta( $user->ID, \WCB\Modules\Account\AccountDeletionService::META_LOCKED, true ) ) {
 			return 'wcb_access_candidate_dashboard' === $cap;
 		}

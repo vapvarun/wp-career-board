@@ -20,9 +20,9 @@ Registration creates your company profile from the company name.
 Applicants see your company profile on every job. Open the **Employer Dashboard** and go to **Company > Profile**. You can set:
 
 - **Company Logo** - a JPEG, PNG, WebP or GIF image. Save the profile first, then upload the logo.
-- **Company Name** and **Tagline** - the tagline is a one-line description shown on listings.
-- **About the Company**
-- **Industry**, **Company Size** and **Company Type**
+- **Company name** and **Tagline** - the tagline is a one-line description shown on listings.
+- **About the company**
+- **Industry**, **Company size** and **Company Type**
 - **HQ Location**
 - **Website**, **LinkedIn** and **X (Twitter)**
 - **Founded Year**
@@ -41,8 +41,8 @@ Open **Employer Dashboard > Post a Job**. The form has four steps.
 
 ### Job Basics
 
-- **Job Title** - write the title a candidate would search for. "Senior Frontend Engineer" works better than a clever title.
-- **Job Description** - open with what the role is, then list responsibilities and requirements. Use the inline toolbar and the block menu for headings, lists and links.
+- **Job title** - write the title a candidate would search for. "Senior Frontend Engineer" works better than a clever title.
+- **Job description** - open with what the role is, then list responsibilities and requirements. Use the inline toolbar and the block menu for headings, lists and links.
 
 ### Job Details
 
@@ -53,7 +53,7 @@ Open **Employer Dashboard > Post a Job**. The form has four steps.
 
 ### Classify Your Job
 
-- **Category**, **Job Type** and **Location**. Location is required unless the job is remote. Choose **Other (enter manually)** if your city is not in the list.
+- **Category**, **Job type** and **Location**. Location is required unless the job is remote. Choose **Other (enter manually)** if your city is not in the list.
 - **Experience Level**
 - **Skills / Tags** - comma-separated. These help candidates find your job by keyword.
 
@@ -82,7 +82,7 @@ Open **Employer Dashboard > Applications**. Pick a job from the list, then pick 
 - The applicant's name and submitted date.
 - The current status, which starts as Submitted.
 - The cover letter, and answers to any screening questions.
-- **View Resume** and **Download Resume**.
+- **View resume** and **Download Resume**.
 - Your private notes and rating. Only your hiring team sees them.
 
 You receive a **New application for your job** email for each application.

@@ -383,6 +383,18 @@ wcb_ra_expect( 'job owner adds a note', true, 'POST', "/wcb/v1/applications/{$wc
 wcb_ra_expect( 'another employer adds a note', false, 'POST', "/wcb/v1/applications/{$wcb_app_a}/notes", array( 'text' => 'sec18 intruder' ), $wcb_emp_b );
 wcb_ra_expect( 'another employer reads notes', false, 'GET', "/wcb/v1/applications/{$wcb_app_a}/notes", array(), $wcb_emp_b );
 wcb_ra_expect( 'the candidate reads notes', false, 'GET', "/wcb/v1/applications/{$wcb_app_a}/notes", array(), $wcb_cand_a );
+// Card 10417743552: each note says whether this viewer may delete it, and the
+// flag agrees with the DELETE rule (author or staff).
+\WCB\Modules\Applications\ApplicationNotes::add( $wcb_app_a, 1, 'sec18 admin note' );
+$wcb_notes = wcb_ra_call( 'GET', "/wcb/v1/applications/{$wcb_app_a}/notes", array(), $wcb_emp_a )->get_data();
+$wcb_flags = array_column( (array) $wcb_notes, 'can_delete', 'text' );
+wcb_assert( true === ( $wcb_flags['sec18 note'] ?? null ) && false === ( $wcb_flags['sec18 admin note'] ?? null ), 'notes: the owner may delete their own note, not the admin\'s' );
+$wcb_admin_note = (string) ( array_column( (array) $wcb_notes, 'id', 'text' )['sec18 admin note'] ?? '' );
+wcb_ra_expect( 'job owner deletes the admin\'s note', false, 'DELETE', "/wcb/v1/applications/{$wcb_app_a}/notes/{$wcb_admin_note}", array(), $wcb_emp_a );
+$wcb_flags = array_column( (array) wcb_ra_call( 'GET', "/wcb/v1/applications/{$wcb_app_a}/notes", array(), 1 )->get_data(), 'can_delete', 'text' );
+wcb_assert( true === ( $wcb_flags['sec18 note'] ?? null ) && true === ( $wcb_flags['sec18 admin note'] ?? null ), 'notes: an admin may delete every note' );
+wcb_ra_expect( 'admin deletes the note', true, 'DELETE', "/wcb/v1/applications/{$wcb_app_a}/notes/{$wcb_admin_note}", array(), 1 );
+
 wcb_ra_expect( 'another employer rates', false, 'PATCH', "/wcb/v1/applications/{$wcb_app_a}/rating", array( 'rating' => 1 ), $wcb_emp_b );
 wcb_ra_expect( 'job owner rates', true, 'PATCH', "/wcb/v1/applications/{$wcb_app_a}/rating", array( 'rating' => 4 ), $wcb_emp_a );
 wcb_ra_expect( 'another candidate withdraws', false, 'DELETE', "/wcb/v1/applications/{$wcb_app_a}", array(), $wcb_cand_b );

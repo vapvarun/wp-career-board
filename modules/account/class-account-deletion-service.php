@@ -114,7 +114,7 @@ class AccountDeletionService {
 			$this->execute( $user->ID );
 			return array(
 				'status'  => 'deleted',
-				'message' => __( 'Your account has been deleted.', 'wp-career-board' ),
+				'message' => __( 'Your account has been deleted', 'wp-career-board' ),
 			);
 		}
 
@@ -131,7 +131,7 @@ class AccountDeletionService {
 			'grace_days'    => $grace,
 			'message'       => sprintf(
 				/* translators: %d: number of days. */
-				__( 'Your account will be deleted in %d days. Sign in again before then to cancel.', 'wp-career-board' ),
+				_n( 'Your account will be deleted in %d day. Sign in again before then to cancel.', 'Your account will be deleted in %d days. Sign in again before then to cancel.', $grace, 'wp-career-board' ),
 				$grace
 			),
 		);

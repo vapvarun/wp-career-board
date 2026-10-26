@@ -116,8 +116,7 @@ class EmailAppGuest extends AbstractEmail {
 			return;
 		}
 
-		$meta_name  = (string) get_post_meta( $app_id, '_wcb_guest_name', true );
-		$guest_name = $meta_name ? $meta_name : __( 'Guest', 'wp-career-board' );
+		$guest_name = (string) get_post_meta( $app_id, '_wcb_guest_name', true );
 
 		$job = get_post( $job_id );
 		if ( ! $job instanceof \WP_Post ) {
@@ -126,12 +125,14 @@ class EmailAppGuest extends AbstractEmail {
 
 		$this->send(
 			$to,
-			array(
-				'guest_name' => $guest_name,
+			static fn(): array => array(
+				'guest_name' => '' !== $guest_name ? $guest_name : __( 'Guest', 'wp-career-board' ),
 				'job_title'  => $job->post_title,
 				'job_url'    => (string) get_permalink( $job_id ),
 			),
-			0
+			0,
+			array(),
+			(string) get_post_meta( $app_id, '_wcb_guest_locale', true )
 		);
 	}
 }

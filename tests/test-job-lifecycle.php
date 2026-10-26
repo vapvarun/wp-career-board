@@ -25,6 +25,8 @@ use WCB\Core\JobDeadline;
 use WCB\Modules\Applications\ApplicationLifecycle;
 use WCB\Modules\Applications\ApplicationStatus;
 
+require_once __DIR__ . '/fixtures/lifecycle-queue.php';
+
 $GLOBALS['wcb_test_pass'] = 0;
 $GLOBALS['wcb_test_fail'] = 0;
 
@@ -78,11 +80,14 @@ $wcb_made      = array();
 // ── The open rule ────────────────────────────────────────────────────────
 $wcb_open    = wcb_jl_job( $wcb_employer, $wcb_future );
 $wcb_nodate  = wcb_jl_job( $wcb_employer, '' );
+// "No expiry" stores the key with an empty value; MariaDB casts '' to a date before today.
+$wcb_blank   = wcb_jl_job( $wcb_employer, '' );
+update_post_meta( $wcb_blank, '_wcb_deadline', '' );
 $wcb_lastday = wcb_jl_job( $wcb_employer, $wcb_today );
 $wcb_late    = wcb_jl_job( $wcb_employer, $wcb_past );
 $wcb_closed  = wcb_jl_job( $wcb_employer, $wcb_future, 'wcb_closed' );
 $wcb_old     = wcb_jl_job( $wcb_employer, gmdate( 'Y-m-d', strtotime( $wcb_today . ' -30 days' ) ) );
-array_push( $wcb_made, $wcb_open, $wcb_nodate, $wcb_lastday, $wcb_late, $wcb_closed, $wcb_old );
+array_push( $wcb_made, $wcb_open, $wcb_nodate, $wcb_blank, $wcb_lastday, $wcb_late, $wcb_closed, $wcb_old );
 
 wcb_jl_assert( JobDeadline::accepts_applications( $wcb_open ) && JobDeadline::accepts_applications( $wcb_nodate ), 'open: future deadline or none' );
 wcb_jl_assert( JobDeadline::accepts_applications( $wcb_lastday ), 'open on the deadline day itself' );
@@ -146,6 +151,7 @@ add_action(
 $wcb_expiry->expire_jobs();
 wcb_jl_assert( in_array( $wcb_late, $wcb_announced, true ) && ! in_array( $wcb_old, $wcb_announced, true ) && 'wcb_expired' === get_post_status( $wcb_old ), 'a job 3 days late is announced; one 30 days late (backlog) expires silently' );
 wcb_jl_assert( 'wcb_expired' === get_post_status( $wcb_late ) && 'publish' === get_post_status( $wcb_lastday ), 'expiry on: past-deadline job moves to expired, deadline-day job stays' );
+wcb_jl_assert( 'publish' === get_post_status( $wcb_blank ) && 'publish' === get_post_status( $wcb_nodate ), 'expiry on: a No expiry job (empty or missing deadline) stays published' );
 foreach ( $wcb_bystanders as $wcb_id ) {
 	$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $wcb_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	clean_post_cache( $wcb_id );
@@ -182,14 +188,14 @@ foreach ( array( $wcb_open, $wcb_lastday ) as $wcb_job ) {
 	}
 }
 wp_update_post( array( 'ID' => $wcb_open, 'post_status' => 'wcb_closed' ) );
-wcb_jl_assert( false !== wp_next_scheduled( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_open, 'position_closed' ) ), 'closing a job queues its applications' );
+wcb_jl_assert( wcb_lc_queued( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_open, 'position_closed' ) ), 'closing a job queues its applications' );
 ApplicationLifecycle::close_job_applications( $wcb_open, 'position_closed' );
-wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_open, 'position_closed' ) );
+wcb_lc_clear( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_open, 'position_closed' ) );
 wcb_jl_assert( 'position_closed' === get_post_meta( $wcb_apps[ $wcb_open ]['submitted'], '_wcb_status', true ) && 'position_closed' === get_post_meta( $wcb_apps[ $wcb_open ]['shortlisted'], '_wcb_status', true ), 'open applications become position_closed' );
 wcb_jl_assert( 'hired' === get_post_meta( $wcb_apps[ $wcb_open ]['hired'], '_wcb_status', true ), 'decided applications are left alone' );
 wcb_jl_assert( 'Position closed' === ApplicationStatus::label( 'position_closed', 'candidate' ) && 'Closed' === ApplicationStatus::label( 'position_closed', 'employer' ), 'labels: candidate "Position closed", employer "Closed"' );
 wp_update_post( array( 'ID' => $wcb_lastday, 'post_status' => 'wcb_expired' ) );
-wcb_jl_assert( false === wp_next_scheduled( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_lastday, 'position_closed' ) ) && 'shortlisted' === get_post_meta( $wcb_apps[ $wcb_lastday ]['shortlisted'], '_wcb_status', true ), 'expiry leaves applications for the employer to decide' );
+wcb_jl_assert( ! wcb_lc_queued( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_lastday, 'position_closed' ) ) && 'shortlisted' === get_post_meta( $wcb_apps[ $wcb_lastday ]['shortlisted'], '_wcb_status', true ), 'expiry leaves applications for the employer to decide' );
 
 // ── Reopen gives a new listing period ────────────────────────────────────
 $wcb_request = new WP_REST_Request( 'PATCH', '/wcb/v1/jobs/' . $wcb_late );
@@ -294,7 +300,7 @@ foreach ( $wcb_apps as $wcb_set ) {
 }
 foreach ( $wcb_made as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
-	wp_clear_scheduled_hook( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_id, 'job_removed' ) );
+	wcb_lc_clear( ApplicationLifecycle::CLOSE_HOOK, array( $wcb_id, 'job_removed' ) );
 }
 wp_delete_post( $wcb_company, true );
 require_once ABSPATH . 'wp-admin/includes/user.php';

@@ -269,9 +269,8 @@
 .wcb-meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px 20px; padding:8px 0; }
 .wcb-meta-full { grid-column:1/-1; }
 .wcb-meta-grid label { display:block; font-weight:600; margin-bottom:4px; }
-.wcb-meta-grid input[type=text],
-.wcb-meta-grid input[type=number],
-.wcb-meta-grid input[type=date] { width:100%; }
+/* Every control fills its cell; Apply URL, Apply Email and Company were left at core's widths (Basecamp 10439829031). */
+.wcb-meta-grid :is(input:not([type=checkbox], [type=radio]), select) { width:100%; max-width:100%; box-sizing:border-box; }
 .wcb-salary-prefix { display:inline-flex; align-items:center; gap:6px; }
 .wcb-salary-prefix span { font-size:13px; line-height:1; }
 
@@ -516,6 +515,27 @@
 	align-items: start;
 	padding: 18px 24px;
 	border-bottom: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+/* Stack label over field when the tab panel itself is narrow: between ~780px
+   and ~1000px the admin menu and tab nav leave the field column about 190px,
+   too little for URLs, keys or the credit packs (Basecamp 10431561385).
+   Measured on the panel, not the viewport, because the admin menu sets its
+   width. Every tab's rows sit in a .wcb-settings-section, Pro's included. */
+.wcb-settings-section {
+	container: wcb-settings / inline-size;
+}
+
+@container wcb-settings (max-width: 600px) {
+	.wcb-settings-row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 8px;
+	}
+
+	.wcb-settings-row-label {
+		padding-right: 0;
+		padding-top: 0;
+	}
 }
 
 .wcb-settings-row:last-child {
@@ -796,6 +816,19 @@
 	font-weight: 600;
 	font-size: 13px;
 	color: var(--wcb-contrast, #1e293b);
+}
+
+/* border-box keeps the select inside the editor sidebar; core's padding and
+   border made width:100% overflow and clip the arrow (Basecamp 10431344323). */
+.wcb-trust-box select {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	margin-block-start: var(--wcb-space-xs, 4px);
+}
+
+.wcb-trust-box .description {
+	margin-block-start: 6px;
 }
 
 /* ── Styled confirm modal — T22a ── */
@@ -1438,8 +1471,9 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	flex-shrink: 0;
 }
 
-/* Applications list: active job filter + Export all matching. */
-.wcb-applications-toolbar {
+/* Applications list: active job filter + Export all matching; Jobs list: active employer filter. */
+.wcb-applications-toolbar,
+.wcb-list-filters {
 	clear: both;
 	display: flex;
 	flex-wrap: wrap;

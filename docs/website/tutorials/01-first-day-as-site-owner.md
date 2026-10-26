@@ -47,7 +47,7 @@ The admin menu is hidden while the wizard runs. Click **Exit setup** at the top 
 3. **Jobs** - choose whether jobs publish immediately and set the default listing length in days.
 4. **Emails** - set the sender name, sender email and the address for admin alerts.
 5. **Spam Protection** - keep the hidden honeypot only, or add Cloudflare Turnstile or Google reCAPTCHA and enter its keys.
-6. **Sample Data** - install demo categories, job types, companies and jobs so the board is not empty while you test.
+6. **Sample data** - install demo categories, job types, companies and jobs so the board is not empty while you test.
 
 Each settings step has **Save & Continue** and **Skip for now**. You can change every answer later under **Career Board > Settings**.
 
@@ -115,7 +115,7 @@ When a logged-in visitor reports a job, a **Flagged** filter appears at the top 
 ## Step 8 - Create a test candidate
 
 1. Open another private window.
-2. Visit `/employer-registration/` again and choose **Find a Job**. The Candidate Dashboard also shows **Sign In** and **Create an account** buttons when you are logged out.
+2. Visit `/employer-registration/` again and choose **Find a Job**. The Candidate Dashboard also shows **Sign in** and **Create an account** buttons when you are logged out.
 3. Sign in. By default any logged-in member can apply, save jobs and build a resume, without needing the Candidate role. If you turn on **Require Candidate Role** under **Settings > Sign-ups**, only accounts with the Candidate role can.
 4. In the Candidate Dashboard, open **My Resumes**, click **+ New Resume** or **Upload CV**, and add a resume.
 
@@ -124,11 +124,11 @@ When a logged-in visitor reports a job, a **Flagged** filter appears at the top 
 As the candidate:
 
 1. Open `/find-jobs/` and click the test job.
-2. Click **Apply Now**.
+2. Click **Apply now**.
 3. Choose a saved resume or upload a file, and write a cover letter. The cover letter is optional.
 4. Click **Submit Application**.
 
-The button changes to **Application Submitted**.
+The button changes to **Application submitted**.
 
 ## Step 10 - Check the employer side
 
@@ -146,7 +146,7 @@ Back in the employer window:
 In the candidate window:
 
 1. Open **My Applications**. The test application shows the status Hired.
-2. Bookmark another job on `/find-jobs/`, then open **Saved Jobs** to confirm it appears.
+2. Bookmark another job on `/find-jobs/`, then open **Saved jobs** to confirm it appears.
 3. Open **Profile** and confirm your changes save.
 
 ## Step 12 - Clean up

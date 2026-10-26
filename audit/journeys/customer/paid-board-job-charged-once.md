@@ -3,9 +3,9 @@ id: paid-board-job-charged-once
 priority: critical
 personas: employer.stripe, admin
 requires: mu:autologin, pro
-last_verified: 2026-09-27
+last_verified: 2026-10-23
 needs: cli
-bug_ref: 10344034392, 10340693866
+bug_ref: 10344034392, 10340693866, 10401941213
 ---
 
 # A job on a paid board is charged exactly once, whichever path moves it
@@ -25,7 +25,9 @@ bug_ref: 10344034392, 10340693866
 9. Trash or delete a pending job → its hold comes back
 10. Balance 1, ten parallel posts → exactly one 201, balance 0
 11. `wp wcb credits reconcile --dry-run` → 0 (holds on live jobs are left alone)
-12. tail debug.log diff → expect ZERO new fatal/warning lines
+12. Two board moves at once, one the employer can afford and one they cannot (job on an 8-credit board, moves to a 5-credit and a 50-credit board) → 402 and 200, and the job ends on the 5-credit board charged 5: the board it is on always matches what it is charged. `wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-board-move-concurrency.php` → PASS (fails on the pre-fix code: job left on the 8-credit board charged 5)
+12a. **Parallel board moves leave price and board matching (card:10401941213).** As `mateo.ruiz`, send two `PATCH /wcb/v1/jobs/<id>` board moves at once, one affordable and one not → the answers are 200 and 402, and the job's board price equals its ledger cost.
+13. tail debug.log diff → expect ZERO new fatal/warning lines
 
 Automated: `wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-job-charge.php` (steps 1-9, 11); step 10 needs real concurrent requests.
 

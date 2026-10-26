@@ -3,7 +3,7 @@ id: walkthrough-employer-post-job
 priority: critical
 personas: employer.figma, varundubey
 requires: mu:autologin, seed:jobs
-last_verified: 2026-06-29
+last_verified: 2026-10-25
 ---
 
 # Walkthrough: Employer Post a Job — open the multi-step form, fill it, submit, land in moderation, go live in Find Jobs
@@ -49,7 +49,15 @@ appears in Find Jobs. The whole post-a-job functionality is browser-coverable in
 11. Approve the job by publishing it (Quick Edit → Status: Published, or bulk "Approve") → expect the row to move to Published and the `wcb_job_created`/publish transition to fire.
 
 12. As `employer.figma` (or anonymous), navigate to `$WCB_SITE/find-jobs/` → expect HTTP 200 and the now-published job title visible in the listings (the jobs archive queries `post_status = publish` only — pending jobs never appear here).
+12a. **Post a Job refuses what the API refuses (card:10417436809, card:10417401942, card:10417400763, card:10417402598, card:10421957903, card:10418355276).** Step 2 with Min 90000 and Max 50000: Next shows "The minimum salary is more than the maximum." under the salary row and focuses Max (1440 and 390). API, as the job's employer: `PATCH /wcb/v1/jobs/{id}` with `title: ""` is 400 `wcb_missing_title` and the title is kept; `remote: "false"` stores not remote; `location_custom` alone replaces the job's locations (with `locations` it is added to them); `salary_min` above the stored max is 400 `wcb_salary_range`; a required Pro job field left empty on create is 400 `wcb_required_fields`, while an update that does not touch it passes; `GET /wcb/v1/jobs?per_page=101` is 400, as on WordPress's own routes. Regression test: `tests/test-write-validation.php`.
 
+12b. **Custom fields follow the board picker (card:10439586892).** With Pro and two boards, add a global job field group hidden on board B (Field Builder > the group's board exclusions) and, through `POST /wcb/v1/fields/groups` with `board_id` A, a group scoped to board A. Post a Job and the simple job form, at 1440 and 390: on board A both groups show in the first paint (view source); switch the picker to B → both hide, back to A → both show, with no reload. Create a job on A with both fields filled → both saved and in `GET /wcb/v1/jobs/{id}` `custom_fields` and the job page Additional details; on B neither is saved. Edit job on A pre-fills both.
+12c. **Every step is named on a phone (card:10439851743).** At 390 the stepper shows `Step N of 4: <name>` under the dots on every step; at 768 and up the step labels show and the caption is hidden.
+12d. **The listing window is a hint, not a banner (card:10439851754).** No banner above the first field; under the deadline field one line reads `Your listing stays live until <date>. You can renew it from your dashboard.`. Same on the simple job form.
+12e. **Success state leads somewhere (card:10439859260).** Submit a QA-RFT job → the stepper hides, one success message, a `View my jobs` primary link to the employer dashboard `#jobs`, and Post another job. The simple form shows View your job plus View my jobs. Delete the QA-RFT job.
+12f. **The preview looks like the job (card:10439870262).** Step 4 with type, location, category, tags `React, TypeScript` and a 120-character apply URL → type/location/category render as rounded chips, the tags as outlined chips in the case typed, the URL on one line with an ellipsis, no page overflow at 390; with a feature cost, the Feature row is a 40px bordered row.
+12g. **A typed "Other" location is sent on both forms (card:10440004221).** On the simple job form (`wp-career-board/job-form-simple`), as an employer, pick Location → Other (enter manually), type `QA-RFT Berlin, DE` and submit → the POST body to `/wcb/v1/jobs` has `locations: []` and `location_custom: "QA-RFT Berlin, DE"` (never `__custom__`), the response is 201, and the job shows that location. Repeat on the full form: step 4 shows the typed text as the location chip and the same body is sent. With Require a job location on, neither form is refused. Delete the QA-RFT jobs and their `qa-rft-*` location terms.
+12h. **A multi-choice answer reads as a list (card:10440256553).** With Pro, add a global job field `QA-RFT Equipment`, type Multi-select, choices Laptop / Monitor / Headset, and save a job with Laptop and Monitor ticked. The job page Additional details shows `Laptop` and `Monitor` as two outlined chips like Skills & Tags, never `Laptop,Monitor`, at 1440, 768 and 390 with no overflow. A select whose choice has a different label shows the label. Application answers in admin, the applications CSV and REST `custom_fields[].value` list the labels joined with `, `. Regression test: `tests/test-labelled-values.php`. Delete the QA-RFT field group.
 13. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 
 ## Teardown

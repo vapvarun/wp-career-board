@@ -148,8 +148,8 @@ class SetupWizard extends \WCB\Api\RestController {
 		// tripping on PHP 8.1+ strip_tags(null) in admin-header.php.
 		add_submenu_page(
 			'options.php',
-			__( 'Setup Wizard', 'wp-career-board' ),
-			__( 'Setup Wizard', 'wp-career-board' ),
+			__( 'Setup wizard', 'wp-career-board' ),
+			__( 'Setup wizard', 'wp-career-board' ),
 			'wcb_manage_settings', // phpcs:ignore WordPress.WP.Capabilities.Unknown -- wcb_manage_settings is a registered WCB custom capability.
 			'wcb-setup',
 			array( $this, 'render' )
@@ -203,7 +203,7 @@ class SetupWizard extends \WCB\Api\RestController {
 					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
 				),
 				'sample-data'  => array(
-					'title'       => __( 'Sample Data', 'wp-career-board' ),
+					'title'       => __( 'Sample data', 'wp-career-board' ),
 					'template'    => WCB_DIR . 'admin/views/wizard-steps/sample-data.php',
 					'button_text' => __( 'Finish Setup', 'wp-career-board' ),
 				),

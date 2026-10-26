@@ -386,6 +386,14 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
+		$custom = $request->get_param( 'custom_fields' );
+		if ( is_array( $custom ) ) {
+			$wcb_field_error = \WCB\Core\FormCustomFields::required_error( (array) apply_filters( 'wcb_candidate_form_fields', array(), $user_id ), $custom, $user_id, 'user_meta' );
+			if ( $wcb_field_error ) {
+				return $wcb_field_error;
+			}
+		}
+
 		$bio = $request->get_param( 'bio' );
 		if ( null !== $bio ) {
 			wp_update_user(
@@ -430,7 +438,6 @@ final class CandidatesEndpoint extends RestController {
 		}
 
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
-		$custom = $request->get_param( 'custom_fields' );
 		if ( is_array( $custom ) ) {
 			$groups = (array) apply_filters( 'wcb_candidate_form_fields', array(), (int) $user_id );
 			\WCB\Core\FormCustomFields::save_values( $groups, (int) $user_id, $custom, 'user_meta' );

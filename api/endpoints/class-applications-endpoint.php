@@ -261,20 +261,12 @@ final class ApplicationsEndpoint extends RestController {
 
 		// Required screening questions, checked here and not only in the
 		// browser (a request without JavaScript skipped them).
-		$wcb_missing = \WCB\Core\FormCustomFields::missing_required(
+		$wcb_missing = \WCB\Core\FormCustomFields::required_error(
 			(array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ),
 			(array) ( $request->get_param( 'custom_fields' ) ?? array() )
 		);
 		if ( $wcb_missing ) {
-			return new \WP_Error(
-				'wcb_required_fields',
-				/* translators: %s: comma-separated field labels. */
-				sprintf( __( 'Please answer: %s', 'wp-career-board' ), implode( ', ', $wcb_missing ) ),
-				array(
-					'status' => 400,
-					'fields' => array_keys( $wcb_missing ),
-				)
-			);
+			return $wcb_missing;
 		}
 
 		if ( $is_guest ) {
@@ -438,6 +430,8 @@ final class ApplicationsEndpoint extends RestController {
 			update_post_meta( $app_id, '_wcb_status', \WCB\Modules\Applications\ApplicationStatus::SUBMITTED );
 			if ( $is_guest ) {
 				update_post_meta( $app_id, '_wcb_guest_email', $guest_email );
+				// Later emails (status changes) go out in the language the guest applied in.
+				update_post_meta( $app_id, '_wcb_guest_locale', determine_locale() );
 			}
 
 			// Resume checks run inside the lock too: a request that fails them
@@ -907,15 +901,10 @@ final class ApplicationsEndpoint extends RestController {
 		$file     = $_FILES['resume_file'];
 		$mime     = isset( $file['type'] ) ? (string) $file['type'] : '';
 		$size     = isset( $file['size'] ) ? (int) $file['size'] : 0;
-		$allowed  = array(
-			'application/pdf',
-			'application/msword',
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-		);
 		$max_mb   = $this->resume_max_mb();
 		$max_size = $max_mb * MB_IN_BYTES;
 
-		if ( ! in_array( $mime, $allowed, true ) ) {
+		if ( ! in_array( $mime, \WCB\Core\PrivateFiles::CV_MIMES, true ) ) {
 			return new \WP_Error(
 				'wcb_invalid_file_type',
 				__( 'Only PDF, DOC, and DOCX files are allowed.', 'wp-career-board' ),
@@ -946,11 +935,7 @@ final class ApplicationsEndpoint extends RestController {
 
 		$overrides = array(
 			'test_form' => false,
-			'mimes'     => array(
-				'pdf'  => 'application/pdf',
-				'doc'  => 'application/msword',
-				'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-			),
+			'mimes'     => \WCB\Core\PrivateFiles::CV_MIMES,
 		);
 
 		$attachment_id = \WCB\Core\PrivateFiles::in_private_dir(

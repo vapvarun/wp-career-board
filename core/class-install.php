@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.3.8';
+	const DB_VERSION = '1.4.3';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -500,6 +500,57 @@ final class Install {
 				add_action( 'init', array( Locations::class, 'backfill_remote_flags' ), 25 );
 			}
 
+			// 1.3.9 - jobs saved without a board (wp-admin, import) belong to the
+			// default board but carried no meta, so the board filter and the
+			// Boards counts missed them. One INSERT stores it; new saves stamp it.
+			$wcb_default_board = (int) get_option( 'wcb_default_board_id', 0 );
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.9', '<' ) && $wcb_default_board > 0 ) {
+				global $wpdb;
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair, one statement at any size.
+				$wpdb->query(
+					$wpdb->prepare(
+						"INSERT INTO {$wpdb->postmeta} ( post_id, meta_key, meta_value )
+						SELECT p.ID, '_wcb_board_id', %s FROM {$wpdb->posts} p
+						LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_wcb_board_id'
+						WHERE p.post_type = 'wcb_job' AND m.meta_id IS NULL",
+						(string) $wcb_default_board
+					)
+				);
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- same repair for a stored empty board.
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE {$wpdb->postmeta} m INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id AND p.post_type = 'wcb_job'
+						SET m.meta_value = %s WHERE m.meta_key = '_wcb_board_id' AND m.meta_value IN ( '', '0' )",
+						(string) $wcb_default_board
+					)
+				);
+				wp_cache_flush_group( 'post_meta' );
+			}
+
+			// 1.4.0 - saved industry labels that are just a shipped name, in the
+			// saver's language, become "the default" so every reader sees their own.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.0', '<' ) ) {
+				add_action( 'init', array( Industries::class, 'forget_default_labels' ), 25 );
+			}
+
+			// 1.4.1 - salary ranges saved high-low (the admin editor and imports
+			// never compared them) are put low-high once.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.1', '<' ) ) {
+				self::migrate_reversed_salaries();
+			}
+
+			// 1.4.2 - jobs still carrying a company's old name from before
+			// renames reached them take its current name.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.2', '<' ) ) {
+				\WCB\Modules\Employers\EmployersModule::sync_company_names();
+			}
+
+			// 1.4.3 - No expiry jobs the hourly sweep expired on MariaDB go
+			// back up.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.3', '<' ) ) {
+				self::restore_no_expiry_jobs();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -510,6 +561,57 @@ final class Install {
 			if ( self::verify_tables_exist() ) {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
+		}
+	}
+
+	/**
+	 * Swap salary ranges stored with the minimum above the maximum.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	private static function migrate_reversed_salaries(): void {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade read.
+		$ids = $wpdb->get_col(
+			"SELECT a.post_id FROM {$wpdb->postmeta} a
+			INNER JOIN {$wpdb->postmeta} b ON b.post_id = a.post_id AND b.meta_key = '_wcb_salary_max'
+			INNER JOIN {$wpdb->posts} p ON p.ID = a.post_id AND p.post_type = 'wcb_job'
+			WHERE a.meta_key = '_wcb_salary_min'
+			AND CAST( b.meta_value AS DECIMAL(20,2) ) > 0
+			AND CAST( a.meta_value AS DECIMAL(20,2) ) > CAST( b.meta_value AS DECIMAL(20,2) )"
+		);
+		foreach ( array_map( 'intval', $ids ) as $id ) {
+			\WCB\Modules\Jobs\JobsMeta::order_salary( $id );
+		}
+	}
+
+	/**
+	 * Republish jobs with an empty deadline that sit in Expired.
+	 *
+	 * MariaDB casts an empty deadline to a date before today, so the hourly
+	 * sweep expired every No expiry job there; nothing else expires a job
+	 * without a deadline. A status update, not wp_update_post(): these jobs
+	 * were live all along, so they must not charge credits or send alerts again.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	private static function restore_no_expiry_jobs(): void {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade read.
+		$ids = array_map(
+			'intval',
+			$wpdb->get_col(
+				"SELECT p.ID FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_wcb_deadline'
+				WHERE p.post_type = 'wcb_job' AND p.post_status = 'wcb_expired' AND m.meta_value = ''"
+			)
+		);
+		foreach ( $ids as $id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade repair, cache cleared below.
+			$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $id ) );
+			clean_post_cache( $id );
 		}
 	}
 

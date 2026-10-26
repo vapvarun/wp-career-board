@@ -32,7 +32,7 @@ money/conversion path.
    `data-wp-bind--href="context.job.permalink"`) → expect navigation to the single job at `/jobs/<slug>/`,
    HTTP 200, hero `h1.wcb-job-title` + `.wcb-job-single` wrapper (`blocks/job-listings/render.php:723,776`;
    CPT rewrite slug `jobs`, `modules/jobs/class-jobs-module.php:210-214`).
-5. On the single job (still `anonymous`), click "Apply Now" `button.wcb-apply-trigger`
+5. On the single job (still `anonymous`), click "Apply now" `button.wcb-apply-trigger`
    (`data-wp-on--click="actions.openPanel"`) → expect the slide-in panel `.wcb-apply-panel[role="dialog"]` to
    open (`.wcb-open`), showing guest fields `#wcb-guest-name` + `#wcb-guest-email` because the visitor is not
    logged in (`blocks/job-single/render.php:406-413,882-908`).
@@ -46,7 +46,7 @@ money/conversion path.
    `resume_file` if resume is required) → expect HTTP 200 and JSON body `{ "id": <int>, "job_id": <id>,
    "status": "submitted" }` (`api/endpoints/class-applications-endpoint.php:368-374`).
 8. Back in the browser, after the guest submit resolves → expect the panel to close and the applied badge
-   `.wcb-applied-badge` ("Application Submitted") to show via `state.submitted`
+   `.wcb-applied-badge` ("Application submitted") to show via `state.submitted`
    (`blocks/job-single/render.php:414-416`; `view.js:311-312`).
 9. Re-POST the SAME guest email to the SAME job within 24h → expect HTTP 200 with the SAME `id` and the same
    `{ id, job_id, status: "submitted" }` body as step 7 (1.8.1: a repeat is answered like the first application,
@@ -61,8 +61,8 @@ money/conversion path.
     resume_file or resume_id) → expect HTTP 200, `{ id, job_id, status: "submitted" }`; verify persistence:
     `wp post get <id> --field=post_type` = `wcb_application`, `wp post meta get <id> _wcb_candidate_id` =
     sarah's user ID, `_wcb_status` = `submitted` (`class-applications-endpoint.php:245-319`).
-12. As `sarah.chen` re-open the same job → expect "Apply Now" replaced by the `.wcb-applied-badge`
-    ("Application Submitted") because the already-applied check finds her `wcb_application`
+12. As `sarah.chen` re-open the same job → expect "Apply now" replaced by the `.wcb-applied-badge`
+    ("Application submitted") because the already-applied check finds her `wcb_application`
     (`blocks/job-single/render.php:164-187,414-416`).
 13. tail debug.log diff for this journey's window → expect ZERO new fatal/warning lines (no
     `wp_register_ability` / Interactivity hydration notices).

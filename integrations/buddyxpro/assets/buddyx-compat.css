@@ -202,13 +202,10 @@ html.dark-mode {
  * token-driven transparent/surface background with readable token text.
  */
 
-/* Filled CTAs — keep the brand fill + a legible label. Also covers the
-   Pro <button>s (job-map/resume-map location search) BuddyX's
-   blanket strip below used to catch unfilled — same allowlist, both sides. */
+/* Filled CTAs — keep the brand fill + a legible label. */
 button.wcb-btn--primary,
 button.wcb-search-button,
-button.wcb-search-hero__button,
-button.wcb-jm-location-btn {
+button.wcb-search-hero__button {
 	background-color: var(--wcb-primary-strong) !important;
 	color: var( --wcb-on-primary, #ffffff ) !important;
 	-webkit-text-fill-color: currentColor !important;
@@ -222,10 +219,7 @@ button.wcb-search-button:focus-visible,
 button.wcb-search-button:active,
 button.wcb-search-hero__button:hover,
 button.wcb-search-hero__button:focus-visible,
-button.wcb-search-hero__button:active,
-button.wcb-jm-location-btn:hover,
-button.wcb-jm-location-btn:focus-visible,
-button.wcb-jm-location-btn:active {
+button.wcb-search-hero__button:active {
 	background-color: var(--wcb-primary-dark, var(--wcb-primary-strong)) !important;
 	color: var( --wcb-on-primary, #ffffff ) !important;
 	-webkit-text-fill-color: currentColor !important;
@@ -253,7 +247,7 @@ a.wcb-job-alert-card__btn:active {
    future WCB buttons — ladder pills, view toggles, bookmark/filter/reset icon
    buttons, dashboard chips/pills, bell and db-link actions — without having to
    enumerate every class as new widgets are added. */
-button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-hero__button, .wcb-jm-location-btn) {
+button[class*="wcb-"]:not(.wcb-btn--primary, .wcb-search-button, .wcb-search-hero__button) {
 	background-color: transparent !important;
 	color: var( --wcb-text-primary, #111111 ) !important;
 	-webkit-text-fill-color: currentColor !important;

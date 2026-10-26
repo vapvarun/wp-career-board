@@ -14,28 +14,6 @@
  * @since   1.2.2
  */
 
-/* Filter pill — theme button override neutralizers (scoped to dashboard) */
-.wcb-dashboard .wcb-filter-pill {
-	background: var(--wcb-base);
-	box-shadow: none;
-}
-.wcb-dashboard .wcb-filter-pill:hover:not(.wcb-filter-active):not(.wcb-active) {
-	background: var(--wcb-bg-hover);
-	border-color: var(--wcb-border);
-}
-.wcb-dashboard .wcb-filter-pill:focus {
-	outline: 2px solid transparent;
-}
-.wcb-dashboard .wcb-filter-pill:focus-visible {
-	outline: 2px solid var(--wcb-primary);
-	outline-offset: 2px;
-}
-.wcb-dashboard .wcb-filter-pill.wcb-filter-active,
-.wcb-dashboard .wcb-filter-pill.wcb-active {
-	background: var(--wcb-contrast);
-	color: var(--wcb-base);
-}
-
 /* -- Needs attention -- */
 .wcb-attention {
 	margin-bottom: var(--wcb-space-xl);
@@ -163,7 +141,8 @@
 	display: flex;
 }
 
-.wcb-filter-pill {
+/* Scoped to the dashboard so a theme's button rules cannot out-rank it. */
+.wcb-dashboard .wcb-filter-pill {
 	display: inline-flex;
 	align-items: center;
 	padding: var(--wcb-space-xs) var(--wcb-space-md);
@@ -173,28 +152,29 @@
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-full);
+	box-shadow: none;
 	cursor: pointer;
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast), border-color var(--wcb-transition-fast);
 	white-space: nowrap;
 }
 
-.wcb-filter-pill:hover:not(.wcb-filter-active):not(.wcb-active) {
+.wcb-dashboard .wcb-filter-pill:hover:not(.wcb-filter-active):not(.wcb-active) {
 	background: var(--wcb-bg-hover);
 	color: var(--wcb-text-secondary);
 	border-color: var(--wcb-border);
 }
 
-.wcb-filter-pill:focus {
+.wcb-dashboard .wcb-filter-pill:focus {
 	outline: 2px solid transparent;
 }
 
-.wcb-filter-pill:focus-visible {
+.wcb-dashboard .wcb-filter-pill:focus-visible {
 	outline: 2px solid var(--wcb-primary);
 	outline-offset: 2px;
 }
 
-.wcb-filter-pill.wcb-filter-active,
-.wcb-filter-pill.wcb-active {
+.wcb-dashboard .wcb-filter-pill.wcb-filter-active,
+.wcb-dashboard .wcb-filter-pill.wcb-active {
 	background: var(--wcb-contrast);
 	color: var(--wcb-base);
 	border-color: var(--wcb-contrast);
@@ -224,8 +204,12 @@
 	display: none;
 }
 
-/* Job search input */
-.wcb-job-search {
+/* Job search input. Block-scoped at (0,2,1) like the shared fields, so a
+   theme's input[type="search"] (0,1,1) can't square it off (Kadence,
+   Basecamp 10436196754). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-job-search {
+	box-sizing: border-box;
+	margin: 0;
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
 	padding: var(--wcb-space-sm) var(--wcb-space-md);
@@ -237,7 +221,7 @@
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-.wcb-job-search:focus {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input:is(.wcb-job-search, .wcb-apps-job-search):focus {
 	outline: 2px solid transparent !important;
 	border-color: var(--wcb-primary);
 	box-shadow: var(--wcb-shadow-focus);
@@ -247,7 +231,29 @@
 .wcb-filter-bar .wcb-job-search {
 	flex: 1 1 8rem;
 	min-width: 8rem;
-	min-height: 40px;
+	min-height: var(--wcb-control-h);
+}
+
+/* My Jobs status pills: one group that wraps on desktop and scrolls as a
+ * single row on phones, so the filter reads as one control (Basecamp 10439833707). */
+.wcb-filter-pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+}
+
+@media (max-width: 640px) {
+	.wcb-filter-pills {
+		flex: 1 1 100%;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.wcb-filter-pills .wcb-filter-pill {
+		flex-shrink: 0;
+	}
 }
 
 /* Company filter (employers running several companies). Base look is the shared
@@ -500,7 +506,9 @@
 	background: var(--wcb-bg-subtle);
 }
 
-.wcb-apps-job-search {
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-apps-job-search {
+	box-sizing: border-box;
+	margin: 0;
 	flex: 1;
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -510,12 +518,6 @@
 	color: var(--wcb-contrast);
 	background: var(--wcb-base);
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
-}
-
-.wcb-apps-job-search:focus {
-	outline: 2px solid transparent !important;
-	border-color: var(--wcb-primary);
-	box-shadow: var(--wcb-shadow-focus);
 }
 
 .wcb-apps-selector-hint {
@@ -546,6 +548,7 @@
 	border-bottom: 1px solid var(--wcb-border);
 	cursor: pointer;
 	text-align: start;
+	box-sizing: border-box;
 	width: 100%;
 	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
 }
@@ -1241,10 +1244,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.wcb-filter-pill,
+	.wcb-dashboard .wcb-filter-pill,
 	.wcb-job-row,
-	.wcb-job-search,
-	.wcb-apps-job-search,
+	:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-job-search,
+	:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) input.wcb-apps-job-search,
 	.wcb-apps-job-item,
 	.wcb-field-input {
 		transition: none;
@@ -1281,6 +1284,18 @@
 	margin-inline-start: var(--wcb-space-sm);
 	font-size: var(--wcb-text-sm);
 	color: var(--wcb-text-secondary);
+}
+
+/* A theme's button:hover / button:focus (0,1,1) fills the star (Astra blue
+   square, Basecamp 10436356200); a star stays a bare glyph. */
+.wcb-rating__star:is(:hover, :focus) {
+	background: none;
+	color: transparent;
+	box-shadow: none;
+}
+
+.wcb-rating__star--on:is(:hover, :focus) {
+	color: var(--wcb-warning, #d97706);
 }
 
 .wcb-rating__star:focus-visible {

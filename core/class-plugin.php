@@ -134,6 +134,10 @@ final class Plugin {
 		// converges rather than repeated at each of the six call sites.
 		\WCB\Core\Industries::boot();
 
+		// Jobs, companies, resumes and boards go live only with a title, from
+		// every editor and import, not only the plugin's own forms.
+		\WCB\Core\RequiredTitle::boot();
+
 		// Candidate files (resumes, generated CVs) live in private storage and
 		// download only through the gated handler.
 		\WCB\Core\PrivateFiles::boot();
@@ -379,31 +383,46 @@ final class Plugin {
 			WCB_VERSION
 		);
 
-		// Block assets carry the plugin version so every release busts browser
-		// and CDN caches; asset.php files hold dependencies only.
-		$stamp_version = static function ( array $metadata ): array {
-			if ( str_starts_with( (string) ( $metadata['name'] ?? '' ), 'wp-career-board/' ) ) {
-				$metadata['version'] = WCB_VERSION;
+		self::register_block_set( 'wp-career-board', WCB_DIR, WCB_URL, 'wcb-', WCB_VERSION, $blocks );
+	}
+
+	/**
+	 * Register a plugin's blocks with the shared token and UI stylesheets.
+	 *
+	 * Free and Pro both call this, so a block registers the same way whichever
+	 * plugin ships it. Block assets carry the plugin version so every release
+	 * busts browser and CDN caches; asset.php files hold dependencies only.
+	 *
+	 * @since 1.8.2
+	 * @param string   $block_namespace Block namespace, e.g. 'wp-career-board' or 'wcb'.
+	 * @param string   $dir             Plugin directory with a trailing slash.
+	 * @param string   $url             Plugin URL with a trailing slash.
+	 * @param string   $handle_prefix   Prefix for the per-file style handles.
+	 * @param string   $version         Plugin version stamped on block assets.
+	 * @param string[] $blocks          Block folder names under blocks/.
+	 * @return void
+	 */
+	public static function register_block_set( string $block_namespace, string $dir, string $url, string $handle_prefix, string $version, array $blocks ): void {
+		add_filter(
+			'block_type_metadata',
+			static function ( array $metadata ) use ( $block_namespace, $version ): array {
+				if ( str_starts_with( (string) ( $metadata['name'] ?? '' ), $block_namespace . '/' ) ) {
+					$metadata['version'] = $version;
+				}
+				return $metadata;
 			}
-			return $metadata;
-		};
-		add_filter( 'block_type_metadata', $stamp_version );
+		);
 
 		foreach ( $blocks as $block ) {
-			$block_dir = WCB_DIR . 'blocks/' . $block;
+			$block_dir = $dir . 'blocks/' . $block;
 			if ( ! is_dir( $block_dir ) ) {
 				continue;
 			}
 			register_block_type_from_metadata( $block_dir );
-			wp_enqueue_block_style(
-				'wp-career-board/' . $block,
-				array( 'handle' => 'wcb-frontend-tokens' )
-			);
-			wp_enqueue_block_style(
-				'wp-career-board/' . $block,
-				array( 'handle' => 'wcb-ui' )
-			);
-			$this->enqueue_block_style_array( 'wp-career-board/' . $block, $block_dir, $block );
+			$block_name = $block_namespace . '/' . $block;
+			wp_enqueue_block_style( $block_name, array( 'handle' => 'wcb-frontend-tokens' ) );
+			wp_enqueue_block_style( $block_name, array( 'handle' => 'wcb-ui' ) );
+			self::enqueue_block_style_array( $block_name, $block_dir, $url . 'blocks/' . $block . '/', $handle_prefix . $block . '-style-', $version );
 		}
 	}
 
@@ -416,31 +435,36 @@ final class Plugin {
 	 * the dashboard blocks that ship `style.css` + four `styles/*.css`
 	 * partials). Explicitly registering and attaching each file via
 	 * `wp_enqueue_block_style` makes every declared stylesheet land
-	 * whenever the block appears in a post.
+	 * whenever the block appears in a post. An entry without `file:` is a
+	 * registered handle, such as another block's stylesheet this one builds
+	 * on, and is attached as it is.
 	 *
 	 * @since 1.2.0
-	 * @param string $block_name Fully-qualified block name (namespace/slug).
-	 * @param string $block_dir  Absolute path to the block directory.
-	 * @param string $block_slug Block slug (used to build deterministic style handles).
+	 * @since 1.8.2 Static, shared with Pro; accepts handle entries.
+	 * @param string $block_name    Fully-qualified block name (namespace/slug).
+	 * @param string $block_dir     Absolute path to the block directory.
+	 * @param string $block_url     Block directory URL with a trailing slash.
+	 * @param string $handle_stem   Handle prefix; the entry index is appended.
+	 * @param string $version       Version for the registered files.
 	 * @return void
 	 */
-	private function enqueue_block_style_array( string $block_name, string $block_dir, string $block_slug ): void {
+	private static function enqueue_block_style_array( string $block_name, string $block_dir, string $block_url, string $handle_stem, string $version ): void {
 		$data = wp_json_file_decode( $block_dir . '/block.json', array( 'associative' => true ) );
 		if ( ! is_array( $data ) || empty( $data['style'] ) || ! is_array( $data['style'] ) ) {
 			return;
 		}
 		foreach ( $data['style'] as $index => $entry ) {
-			$relative = ltrim( (string) preg_replace( '#^file:\./?#', '', (string) $entry ), '/' );
+			$entry = (string) $entry;
+			if ( ! str_starts_with( $entry, 'file:' ) ) {
+				wp_enqueue_block_style( $block_name, array( 'handle' => $entry ) );
+				continue;
+			}
+			$relative = ltrim( (string) preg_replace( '#^file:\./?#', '', $entry ), '/' );
 			if ( '' === $relative ) {
 				continue;
 			}
-			$handle = 'wcb-' . $block_slug . '-style-' . (int) $index;
-			wp_register_style(
-				$handle,
-				WCB_URL . 'blocks/' . $block_slug . '/' . $relative,
-				array( 'wcb-frontend-tokens', 'wcb-ui' ),
-				WCB_VERSION
-			);
+			$handle = $handle_stem . (int) $index;
+			wp_register_style( $handle, $block_url . $relative, array( 'wcb-frontend-tokens', 'wcb-ui' ), $version );
 			wp_enqueue_block_style( $block_name, array( 'handle' => $handle ) );
 		}
 	}
@@ -690,7 +714,7 @@ final class Plugin {
 			),
 			array(
 				'name'        => 'wp-career-board/employer-dashboard',
-				'title'       => __( 'Employer Dashboard', 'wp-career-board' ),
+				'title'       => __( 'Employer dashboard', 'wp-career-board' ),
 				'description' => __( 'Tabbed dashboard for employers to manage jobs and applications.', 'wp-career-board' ),
 				'categories'  => array( 'wp-career-board' ),
 				'content'     => '<!-- wp:wp-career-board/employer-dashboard /-->',
@@ -928,12 +952,13 @@ final class Plugin {
 	 * means a site owner / Pro / theme integration can override the entire
 	 * layout system in one place — either through:
 	 *
-	 *   - the `wcb_container_max_width` PHP filter (this method),
-	 *   - the `container_max_width` key under `wcb_settings` (no admin control
-	 *     ships for it; set it with a filter, an mu-plugin or wp option patch), or
+	 *   - Settings > Career Board > Advanced > Content Width (px), stored as
+	 *     `wcb_settings.container_max_width`,
+	 *   - the `wcb_container_max_width` PHP filter (this method), or
 	 *   - a `<style>` block in the active theme that overrides the variable.
 	 *
-	 * Default: 1280 px. Min: 720, max: 1920 (clamped to keep layouts sane).
+	 * Default: 0, meaning the theme's own content width, or 1280 px when the
+	 * theme publishes none. Min: 720, max: 1920 (clamped to keep layouts sane).
 	 *
 	 * @since 1.1.0
 	 * @return void
@@ -1092,7 +1117,7 @@ final class Plugin {
 			WCB_VERSION
 		);
 
-		$this->enqueue_editor_assets();
+		self::enqueue_editor_assets();
 
 		$this->register_confirm_modal_assets();
 
@@ -1114,6 +1139,79 @@ final class Plugin {
 	}
 
 	/**
+	 * Translations for Editor.js's own UI (block menu, tool names, popovers).
+	 *
+	 * Editor.js ships English and only translates what it is handed through
+	 * its i18n option; keys mirror its 2.30 dictionary and the bundled tools.
+	 *
+	 * @since 1.8.2
+	 * @return array<string, mixed>
+	 */
+	public static function editor_i18n(): array {
+		return array(
+			'ui'         => array(
+				'blockTunes'    => array(
+					'toggler' => array(
+						'Click to tune'   => __( 'Click to tune', 'wp-career-board' ),
+						'or drag to move' => __( 'or drag to move', 'wp-career-board' ),
+					),
+				),
+				'inlineToolbar' => array(
+					'converter' => array(
+						'Convert to' => __( 'Convert to', 'wp-career-board' ),
+					),
+				),
+				'toolbar'       => array(
+					'toolbox' => array(
+						'Add' => __( 'Add', 'wp-career-board' ),
+					),
+				),
+				'popover'       => array(
+					'Filter'        => __( 'Filter', 'wp-career-board' ),
+					'Nothing found' => __( 'Nothing found', 'wp-career-board' ),
+					'Convert to'    => __( 'Convert to', 'wp-career-board' ),
+				),
+			),
+			'toolNames'  => array(
+				'Text'       => __( 'Text', 'wp-career-board' ),
+				'Heading'    => __( 'Heading', 'wp-career-board' ),
+				'List'       => __( 'List', 'wp-career-board' ),
+				'Quote'      => __( 'Quote', 'wp-career-board' ),
+				'Delimiter'  => __( 'Delimiter', 'wp-career-board' ),
+				'Marker'     => __( 'Marker', 'wp-career-board' ),
+				'InlineCode' => __( 'Inline code', 'wp-career-board' ),
+				'Link'       => __( 'Link', 'wp-career-board' ),
+				'Bold'       => __( 'Bold', 'wp-career-board' ),
+				'Italic'     => __( 'Italic', 'wp-career-board' ),
+			),
+			'tools'      => array(
+				'link' => array(
+					'Add a link' => __( 'Add a link', 'wp-career-board' ),
+				),
+				'list' => array(
+					'Ordered'   => __( 'Numbered', 'wp-career-board' ),
+					'Unordered' => __( 'Bulleted', 'wp-career-board' ),
+				),
+				'stub' => array(
+					'The block can not be displayed correctly.' => __( 'This block cannot be displayed correctly.', 'wp-career-board' ),
+				),
+			),
+			'blockTunes' => array(
+				'delete'   => array(
+					'Delete'          => __( 'Delete', 'wp-career-board' ),
+					'Click to delete' => __( 'Click to delete', 'wp-career-board' ),
+				),
+				'moveUp'   => array(
+					'Move up' => __( 'Move up', 'wp-career-board' ),
+				),
+				'moveDown' => array(
+					'Move down' => __( 'Move down', 'wp-career-board' ),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Enqueue the rich-text editor stack — Editor.js core, the supported tool
 	 * bundles, our editor CSS, and the WCB bootstrap that initialises them on
 	 * any `.wcb-editor` element.
@@ -1124,10 +1222,13 @@ final class Plugin {
 	 * description is shipped — header, list, quote, marker, inline-code,
 	 * delimiter — to keep the page weight under ~290KB.
 	 *
+	 * Public so the wcb_job admin edit screen loads the same stack.
+	 *
 	 * @since 1.1.0
+	 * @since 1.8.2 Public static, shared with the admin job editor.
 	 * @return void
 	 */
-	private function enqueue_editor_assets(): void {
+	public static function enqueue_editor_assets(): void {
 		$vendor = WCB_URL . 'assets/js/vendor/editorjs/';
 
 		wp_enqueue_script( 'editorjs', $vendor . 'editor.umd.js', array(), '2.30.8', true );
@@ -1158,6 +1259,7 @@ final class Plugin {
 			WCB_VERSION,
 			true
 		);
+		wp_localize_script( 'wcb-editor', 'wcbEditorI18n', self::editor_i18n() );
 	}
 
 	/**

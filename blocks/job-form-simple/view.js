@@ -9,10 +9,10 @@
  * @since   1.1.0
  */
 
-import { store } from '@wordpress/interactivity';
-import { formatSiteDate } from '@wcb/ui';
+import { store, getContext } from '@wordpress/interactivity';
+import { flushEditors, formatSiteDate } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue } from '@wcb/fields';
+import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -62,6 +62,11 @@ const nf = ( value ) => {
 
 const { state, actions } = store( 'wcb-job-form-simple', {
 	state: {
+		// A custom-field group shows only on the boards that use it.
+		get isGroupOnBoard() {
+			return groupOnBoard( getContext().groupBoards, state.boardId );
+		},
+
 		get hasInsufficientCredits() {
 			return state.creditCost > 0 && state.creditBalance < state.creditCost;
 		},
@@ -109,7 +114,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			if ( ! state.deadline ) {
 				return '';
 			}
-			return t( 'listingWindow', 'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).' )
+			return t( 'listingWindow', 'Your listing stays live until %1$s. You can renew it from your dashboard.' )
 				.replace( '%1$s', formatSiteDate( state.deadline, state.locale ) );
 		},
 
@@ -176,7 +181,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					body: JSON.stringify( {
 						title:        state.title,
 						company_type: state.companyName || '',
-						location:     state.locationSlug || 'remote',
+						location:     jobLocationLabel( state.locationSlug, state.locationCustom ),
 					} ),
 				} );
 				const data = yield response.json();
@@ -228,6 +233,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			state.submitting = true;
 
 			try {
+				yield flushEditors();
 
 				// Honeypot — bots that fill all fields trigger a fake success.
 				const hpEl = document.getElementById( 'wcb-hp-simple' );
@@ -243,6 +249,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				}
 				if ( ! state.description.trim() ) {
 					state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
+					return;
+				}
+				if ( salaryInverted( state.salaryMin, state.salaryMax ) ) {
+					state.error = t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' );
 					return;
 				}
 
@@ -270,7 +280,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					description:       state.description,
 					salary_min:        state.salaryMin,
 					salary_max:        state.salaryMax,
-					salary_currency:   state.currencyCode || 'USD',
+					salary_currency:   state.currencyCode || state.defaultCurrency,
 					salary_type:       state.salaryType || 'yearly',
 					remote:            state.remote,
 					deadline:          state.deadline,
@@ -278,7 +288,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					apply_email:       state.applyEmail,
 					categories:        state.categorySlugs,
 					job_types:         state.typeSlug ? [ state.typeSlug ] : [],
-					locations:         state.locationSlug ? [ state.locationSlug ] : [],
+					...jobLocation( state.locationSlug, state.locationCustom ),
 					experience:        state.expSlug ? [ state.expSlug ] : [],
 					tags:              tagSlugs,
 					board_id:          state.boardId ? Number( state.boardId ) : 0,

@@ -8,13 +8,13 @@ Log in as a user with the **Employer** role. If you are not logged in, the form 
 
 ## Post a job step by step
 
-The job form is a 4-step wizard.
+The job form is a 4-step wizard: Basics, Details, Categories and Preview. On a phone the step bar shows numbers, and a line under it names the current step. The page carries a **Post a Job** heading (**Edit Job** when you edit) unless your page already has its own title.
 
 ### Step 1 - Job Basics
 
 - **Post to Board** - shown only when the site has more than one board.
-- **Job Title** - the position name (required).
-- **Job Description** - the role, responsibilities and requirements (required). When the site has AI description tools, a **Generate with AI** button appears here.
+- **Job title** - the position name (required).
+- **Job description** - the role, responsibilities and requirements (required). When the site has AI description tools, a **Generate with AI** button appears here.
 
 ### Step 2 - Job Details
 
@@ -27,13 +27,13 @@ The job form is a 4-step wizard.
 ### Step 3 - Classify Your Job
 
 - **Category** - the industry or function.
-- **Job Type** and **Experience Level** - pick from the lists your site offers.
-- **Location** - pick a location, or choose **Other (enter manually)**. When the site requires a location (the default on new sites), a job needs a location or the Remote option before you can post it.
+- **Job type** and **Experience Level** - pick from the lists your site offers.
+- **Location** - pick a location, or choose **Other (enter manually)** and type one (up to 120 characters). The typed place is added as a location term so the job still appears in location filters, and the job page shows your text. Locations follow the **Order** set under Job Terms. When the site requires a location (the default on new sites), a job needs a location or the Remote option before you can post it.
 - **Skills / Tags** - comma-separated. They help candidates find your job by keyword.
 
 ### Step 4 - Preview & Submit
 
-Review the details, then click **Post Job**. When you edit an existing job, the button reads **Update Job**.
+The preview shows the job as candidates will read it, including the description. Review the details, then click **Post Job**. When you edit an existing job, the button reads **Update Job**.
 
 When the site sells featured placement (Pro), this step also shows a checkbox such as "Feature this job: it lists first for 30 days (2 credits)". See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
 
@@ -41,6 +41,8 @@ When the site sells featured placement (Pro), this step also shows a checkbox su
 
 - **Moderation on (the default):** you see "Job submitted for review. You'll be notified once it's approved." The job goes live when a moderator approves it.
 - **Moderation off:** the job is published straight away and you see "Job posted successfully!" with a link to the listing.
+
+Either way the confirmation shows when the listing stays live (for example "Your listing stays live until June 12, 2026. You can renew it from your dashboard."), a **View my jobs** button and a **Post another job** button.
 
 You get an email when a moderator approves or rejects a job. If the site charges credits and your balance is too short when the moderator approves, the job stays Pending and shows **Awaiting payment** in My Jobs until your balance covers it.
 

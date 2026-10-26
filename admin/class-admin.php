@@ -121,7 +121,7 @@ class Admin {
 		 */
 		$items = (array) apply_filters( 'wcb_safer_defaults_notice', $items );
 		?>
-		<div class="notice notice-info">
+		<div class="notice wcb-notice notice-info">
 			<p><strong><?php esc_html_e( 'WP Career Board 1.8.0: new sites start with safer defaults. Yours kept its settings. Review these when you have a minute:', 'wp-career-board' ); ?></strong></p>
 			<ul class="ul-disc">
 				<?php foreach ( $items as $item ) : ?>
@@ -260,7 +260,7 @@ class Admin {
 		// into admin.php?page=…, which doesn't apply here.
 		global $submenu;
 		$wcb_tax_links = array(
-			'wcb_category'   => __( 'Job Categories', 'wp-career-board' ),
+			'wcb_category'   => _x( 'Job Categories', 'taxonomy general name', 'wp-career-board' ),
 			'wcb_job_type'   => __( 'Job Types', 'wp-career-board' ),
 			'wcb_location'   => __( 'Job Locations', 'wp-career-board' ),
 			'wcb_experience' => __( 'Experience Levels', 'wp-career-board' ),
@@ -296,6 +296,9 @@ class Admin {
 	 * @return string
 	 */
 	public function highlight_parent_for_taxonomies( string $parent_file ): string {
+		if ( '' !== self::edit_screen_submenu() ) {
+			return 'wp-career-board';
+		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
 		if ( isset( $_GET['post_type'] ) && 'wcb_job' === sanitize_key( (string) $_GET['post_type'] )
 			&& isset( $_GET['taxonomy'] )
@@ -312,6 +315,30 @@ class Admin {
 	}
 
 	/**
+	 * The Career Board submenu an Add New / Edit screen belongs to, or ''.
+	 *
+	 * Our post types are registered with show_in_menu false, so on post.php
+	 * and post-new.php WordPress finds no menu to open (Basecamp 10430677630).
+	 *
+	 * @since 1.8.2
+	 * @return string
+	 */
+	private static function edit_screen_submenu(): string {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'post' !== $screen->base ) {
+			return '';
+		}
+		$submenus = array(
+			'wcb_job'         => 'wcb-jobs',
+			'wcb_application' => 'wcb-applications',
+			'wcb_company'     => 'wcb-companies',
+			'wcb_resume'      => 'edit.php?post_type=wcb_resume',
+			'wcb_board'       => 'wcb-settings',
+		);
+		return $submenus[ $screen->post_type ] ?? '';
+	}
+
+	/**
 	 * Highlight the matching submenu item (Job Categories / Job Types / etc.)
 	 * while on its corresponding edit-tags.php screen.
 	 *
@@ -325,6 +352,9 @@ class Admin {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
 		if ( 'wp-career-board' !== $parent_file ) {
 			return $submenu_file;
+		}
+		if ( '' !== self::edit_screen_submenu() ) {
+			return self::edit_screen_submenu();
 		}
 		if ( ! isset( $_GET['taxonomy'] ) ) {
 			return $submenu_file;
@@ -535,11 +565,13 @@ class Admin {
 			<?php endif; ?>
 						</span>
 					</li>
-					<li class="wcb-gs-item">
-						<i data-lucide="circle" class="wcb-gs-icon"></i>
+					<li class="wcb-gs-item <?php echo $total_emp > 0 ? 'wcb-gs-done' : ''; ?>">
+						<i data-lucide="<?php echo $total_emp > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 			<?php esc_html_e( 'Invite an employer', 'wp-career-board' ); ?>
-							&mdash; <a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
+			<?php if ( 0 === $total_emp ) : ?>
+								&mdash; <a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>"><?php esc_html_e( '+ Add User', 'wp-career-board' ); ?></a>
+			<?php endif; ?>
 						</span>
 					</li>
 				</ul>
@@ -634,7 +666,7 @@ class Admin {
 						</h2>
 						<div class="wcb-panel-body">
 		<?php if ( empty( $recent_apps ) ) : ?>
-							<p class="wcb-empty"><?php esc_html_e( 'No applications yet.', 'wp-career-board' ); ?></p>
+							<p class="wcb-empty"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
 						<?php else : ?>
 							<table class="widefat striped">
 								<tbody>
@@ -683,7 +715,7 @@ class Admin {
 				<div class="wcb-dashboard-actions">
 					<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="plus"></i>
-						<span><?php esc_html_e( 'Post a Job', 'wp-career-board' ); ?></span>
+						<span><?php esc_html_e( 'Post a job', 'wp-career-board' ); ?></span>
 					</a>
 					<a href="<?php echo esc_url( admin_url( 'user-new.php' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="user-plus"></i>
@@ -696,7 +728,7 @@ class Admin {
 		<?php if ( ! SetupWizard::is_setup_complete() ) : ?>
 					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wcb-setup' ) ); ?>" class="wcb-action-item">
 						<i data-lucide="settings"></i>
-						<span><?php esc_html_e( 'Setup Wizard', 'wp-career-board' ); ?></span>
+						<span><?php esc_html_e( 'Setup wizard', 'wp-career-board' ); ?></span>
 					</a>
 		<?php endif; ?>
 				</div>
@@ -838,6 +870,11 @@ class Admin {
 					/* translators: %1$s: error message. */
 					'importError'    => __( 'Error: %1$s', 'wp-career-board' ),
 					'requestFailed'  => __( 'Request failed.', 'wp-career-board' ),
+					'banTitle'       => __( 'Ban employer', 'wp-career-board' ),
+					/* translators: %s: employer name. */
+					'banMsg'         => __( 'Ban %s? Their jobs and company page are hidden and they can no longer post jobs or use their dashboard. You can unban them later.', 'wp-career-board' ),
+					'banBulkMsg'     => __( 'Ban the selected employers? Their jobs and company pages are hidden and they can no longer post jobs or use their dashboard. You can unban them later.', 'wp-career-board' ),
+					'banBtn'         => __( 'Ban', 'wp-career-board' ),
 				),
 			)
 		);
@@ -859,12 +896,11 @@ class Admin {
 				'wcbIndustries',
 				array(
 					'i18n' => array(
-						/* translators: %d: number of companies using this industry. */
-						'used'        => __( '%d companies', 'wp-career-board' ),
-						'usedOne'     => __( '1 company', 'wp-career-board' ),
+						/* translators: %d: number of companies using this industry. Label form, so one string fits every count. */
+						'used'        => __( 'Companies: %d', 'wp-career-board' ),
 						'unused'      => __( 'not in use', 'wp-career-board' ),
 						'remove'      => __( 'Remove', 'wp-career-board' ),
-						/* translators: %s: industry name. */
+						/* translators: %s: name of the item being removed (an industry or a category). */
 						'removeAria'  => __( 'Remove %s', 'wp-career-board' ),
 						'keep'        => __( 'Keep', 'wp-career-board' ),
 						'settle'      => __( 'Move those companies to:', 'wp-career-board' ),
@@ -921,7 +957,7 @@ class Admin {
 				'wcb-application-detail',
 				'wcbAppDetail',
 				array(
-					'savedLabel' => __( 'Saved.', 'wp-career-board' ),
+					'savedLabel' => __( 'Saved', 'wp-career-board' ),
 					'errorLabel' => __( 'Could not save.', 'wp-career-board' ),
 					'labels'     => \WCB\Modules\Applications\Widgets\StatusTimeline::status_labels(),
 				)

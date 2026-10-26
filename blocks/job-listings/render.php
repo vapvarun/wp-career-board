@@ -101,7 +101,7 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 			'wcb_job_listings',
 			sprintf(
 				/* translators: %s: meta key the integrator tried to filter on. */
-				esc_html__( 'metaFilter key "%s" is not in the WCB namespace (_wcb_*) and is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', ... ) to enable filtering on custom meta keys.', 'wp-career-board' ),
+				esc_html__( 'metaFilter key "%s" is not in the WCB namespace (_wcb_*) and is not in the allowlist. Register it via add_filter( \'wcb_jobs_allowed_meta_filters\', $callback ) to enable filtering on custom meta keys.', 'wp-career-board' ),
 				esc_html( $wcb_meta_filter_key )
 			),
 			'1.1.0'
@@ -163,7 +163,8 @@ $wcb_trust_badges = array(
 	'premium'  => array( 'label' => __( 'Premium', 'wp-career-board' ) ),
 );
 
-$wcb_jobs_state = array();
+$wcb_jobs_state    = array();
+$wcb_site_currency = \WCB\Modules\Jobs\JobsMeta::default_currency();
 
 // One query for the page's company logos, not a few per card.
 \WCB\Core\CompanyMetaShape::prime_logos( array_map( static fn ( $wcb_p ): int => (int) get_post_meta( $wcb_p->ID, '_wcb_company_id', true ), $wcb_jobs_raw ) );
@@ -197,7 +198,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'title'           => $wcb_job_post->post_title,
 		'permalink'       => get_permalink( $wcb_job_post->ID ),
 		'company'         => $wcb_company_name_val,
-		'initials'        => \WCB\Core\CompanyMetaShape::initials( $wcb_company_name_val ),
+		'initials'        => \WCB\Core\CompanyMetaShape::initials( $wcb_company_name_val, $wcb_job_post->post_title ),
 		'company_logo'    => \WCB\Core\CompanyMetaShape::logo_url( $wcb_company_post_id ),
 		'trust'           => $wcb_trust,
 		'trust_label'     => $wcb_trust_info['label'] ?? '',
@@ -212,7 +213,9 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'board_name'      => '',
 		'salary_min'      => $wcb_salary_min,
 		'salary_max'      => $wcb_salary_max,
-		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : \WCB\Modules\Jobs\JobsMeta::default_currency(), $wcb_salary_type ),
+		// Mirrors REST: the job's currency, or the site's when it has none.
+		'salary_currency' => $wcb_salary_currency ? strtoupper( $wcb_salary_currency ) : $wcb_site_currency,
+		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : $wcb_site_currency, $wcb_salary_type ),
 		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
 		// (fetchJobs() replaces this state with the REST payload); the card binds
 		// the localised `deadline_label`. Seeding both keeps the SSR first paint
@@ -242,6 +245,28 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	 * @param \WP_Post            $post Job post object.
 	 */
 	$wcb_jobs_state[] = (array) apply_filters( 'wcb_job_listing_data', $wcb_job_card, $wcb_job_post );
+}
+
+// Under a salary filter or the salary sort, jobs paid in other currencies
+// follow the site-currency ones (JobSearch::clauses()); a note opens that
+// group. view.js marks the same card after every fetch.
+$wcb_salary_on      = ! empty( $wcb_url_params['salary_min'] ) || ! empty( $wcb_url_params['salary_max'] );
+$wcb_by_pay         = $wcb_salary_on || 'salary' === ( $wcb_url_params['sort'] ?? '' );
+$wcb_break_filtered = sprintf(
+	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies when a salary range is set. */
+	__( 'Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs.', 'wp-career-board' ),
+	$wcb_site_currency
+);
+$wcb_break_sorted = sprintf(
+	/* translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort. */
+	__( 'Paid in other currencies. These follow the %s jobs, highest first within each currency.', 'wp-career-board' ),
+	$wcb_site_currency
+);
+$wcb_prev_out = false;
+foreach ( $wcb_jobs_state as $wcb_i => $wcb_card ) {
+	$wcb_out                                    = $wcb_by_pay && $wcb_site_currency !== ( $wcb_card['salary_currency'] ?? '' );
+	$wcb_jobs_state[ $wcb_i ]['currency_break'] = $wcb_out && ! $wcb_prev_out;
+	$wcb_prev_out                               = $wcb_out;
 }
 
 
@@ -430,20 +455,15 @@ $wcb_state = array(
 	'metaFilter'        => $wcb_meta_filter_attr,
 	'salaryMin'         => 0,
 	'salaryMax'         => 0,
+	'defaultCurrency'   => $wcb_site_currency,
+	// view.js's get currencyBreakNote() takes over on hydration.
+	'currencyBreakNote' => $wcb_salary_on ? $wcb_break_filtered : $wcb_break_sorted,
 	// Symbol used for the salary-filter chip + slider tooltips. Salary
 	// filtering is currency-agnostic (compares raw min/max numbers across
 	// jobs of any currency), so we surface the SITE default currency's
 	// symbol to label the slider — site owners on INR/EUR sites should
 	// see ₹ or € on the filter, not the hardcoded $ the JS used to emit.
-	'currencySymbol'    => (
-		static function (): string {
-			$wcb_settings_default = \WCB\Modules\Jobs\JobsMeta::default_currency();
-			$wcb_catalog          = \WCB\Admin\AdminSettings::get_currency_catalog();
-			return isset( $wcb_catalog[ $wcb_settings_default ]['symbol'] )
-				? (string) $wcb_catalog[ $wcb_settings_default ]['symbol']
-				: '$';
-		}
-	)(),
+	'currencySymbol'    => (string) ( \WCB\Admin\AdminSettings::get_currency_catalog()[ $wcb_site_currency ]['symbol'] ?? '$' ),
 	'filterOptions'     => array(
 		'types'       => $wcb_type_opts,
 		'experiences' => $wcb_exp_opts,
@@ -473,15 +493,19 @@ $wcb_state = array(
 			)
 		),
 		array(
-			'bookmarkRemove'    => __( 'Saved', 'wp-career-board' ),
-			'bookmarkAdd'       => __( 'Save job', 'wp-career-board' ),
-			'anyLabel'          => __( 'Any', 'wp-career-board' ),
+			'bookmarkRemove'        => __( 'Saved', 'wp-career-board' ),
+			'bookmarkAdd'           => __( 'Save job', 'wp-career-board' ),
+			'currencyBreakFiltered' => $wcb_break_filtered,
+			'currencyBreakSorted'   => $wcb_break_sorted,
+			'anyLabel'              => __( 'Any', 'wp-career-board' ),
 			// Label for the removable "Remote only" pill. The pill used to
 			// print the raw filter value, so every locale saw a bare "1".
-			'remoteLabel'       => __( 'Remote only', 'wp-career-board' ),
+			'remoteLabel'           => __( 'Remote only', 'wp-career-board' ),
 			/* translators: %s: the filter's label, e.g. "Full-time". */
-			'removeFilter'      => __( 'Remove filter: %s', 'wp-career-board' ),
-			'alertNetworkError' => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+			'removeFilter'          => __( 'Remove filter: %s', 'wp-career-board' ),
+			/* translators: %s: the search keyword, shown as a removable pill. */
+			'keywordChip'           => __( '"%s"', 'wp-career-board' ),
+			'alertNetworkError'     => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 		)
 	),
 );
@@ -546,12 +570,14 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter jobs', 'wp-career-board' ); ?>">
-			<input type="checkbox" id="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle-input" />
+			<input type="checkbox" id="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle-input" aria-expanded="false" data-wp-context='{"filtersOpen":false}' data-wp-bind--aria-expanded="context.filtersOpen" data-wp-on--change="actions.toggleFilterPanel" />
 			<div class="wcb-filter-panel__header">
-				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
-				<label for="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
-					<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				</label>
+				<h2 class="wcb-filter-panel__heading">
+					<label for="wcb-jobs-filters-toggle" class="wcb-filter-panel__toggle">
+						<?php esc_html_e( 'Filters', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					</label>
+				</h2>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="state.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 
@@ -794,6 +820,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 		$wcb_job_post = null;
 		?>
 		<template data-wp-each--job="state.jobs" data-wp-each-key="context.job.id">
+			<p class="wcb-currency-break" role="note" data-wp-bind--hidden="!context.job.currency_break" data-wp-text="state.currencyBreakNote"></p>
 			<article class="wcb-job-card" data-wp-class--wcb-featured="context.job.featured">
 
 				<div class="wcb-avatar wcb-card-avatar" aria-hidden="true" data-wp-class--wcb-avatar--logo="context.job.company_logo">
@@ -857,7 +884,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 				<div class="wcb-card-footer">
 					<?php do_action( 'wcb_before_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
-						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label" data-wp-text="context.job.deadline_label"></span>
+						<?php // Labelled, or a future date beside "3 weeks ago" reads as a mistake (Basecamp 10431286004). ?>
+						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label"><?php esc_html_e( 'Apply by', 'wp-career-board' ); ?> <span data-wp-text="context.job.deadline_label"></span></span>
 						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
@@ -886,6 +914,10 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			'clear_action'      => 'actions.clearFilters',
 			'clear_hidden_bind' => 'state.noActiveFilters',
 			'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+			'empty_title'       => __( 'No jobs posted yet', 'wp-career-board' ),
+			'empty_body'        => __( 'New openings appear here as soon as employers post them.', 'wp-career-board' ),
+			'filtered_bind'     => 'state.hasActiveFilters',
+			'ssr_filtered'      => '' !== (string) ( $wcb_url_params['search'] ?? '' ) || array() !== (array) $wcb_state['activeFilters'],
 		);
 		require WCB_DIR . 'templates/parts/archive-empty-state.php';
 		?>

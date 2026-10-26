@@ -78,7 +78,7 @@ wp_interactivity_state(
 		require WCB_DIR . 'templates/parts/category-picker.php';
 		?>
 
-		<select class="wcb-filter-select" name="wcb_job_type" aria-label="<?php esc_attr_e( 'Job Type', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_job_type">
+		<select class="wcb-filter-select" name="wcb_job_type" aria-label="<?php esc_attr_e( 'Job type', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_job_type">
 			<option value=""><?php esc_html_e( 'All Types', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_job_types as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_type, $wcb_term->slug ); ?>>

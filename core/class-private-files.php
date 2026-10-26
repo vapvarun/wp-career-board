@@ -75,6 +75,18 @@ final class PrivateFiles {
 	public const LEFT_BEHIND = '_wcb_private_left_behind';
 
 	/**
+	 * File types a CV may be: extension => MIME type.
+	 *
+	 * @since 1.8.2
+	 * @var array<string, string>
+	 */
+	public const CV_MIMES = array(
+		'pdf'  => 'application/pdf',
+		'doc'  => 'application/msword',
+		'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	);
+
+	/**
 	 * Post meta: unix time before which a failed attachment is not retried.
 	 *
 	 * @since 1.8.0

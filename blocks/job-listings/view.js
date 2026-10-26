@@ -28,6 +28,26 @@ let searchDebounceTimer = null;
 const t = ( key, fallback ) => ( state.i18n && state.i18n[ key ] ) || fallback;
 
 /**
+ * Flag the first job of each run paid in another currency. Under a salary
+ * filter or the salary sort the server lists those after the site-currency
+ * jobs, and the flagged card shows the note that opens the group (render.php
+ * flags the first page the same way).
+ *
+ * @param {Array<Object>} jobs Jobs in list order.
+ * @return {Array<Object>} The same jobs with `currency_break` set.
+ */
+const wcbMarkCurrencyBreak = ( jobs ) => {
+	const byPay = state.isSalaryActive || state.sortBy === 'salary';
+	let prev    = false;
+	return jobs.map( ( job ) => {
+		const other = byPay && !! job.salary_currency && job.salary_currency !== state.defaultCurrency;
+		const mark  = { ...job, currency_break: other && ! prev };
+		prev        = other;
+		return mark;
+	} );
+};
+
+/**
  * Substitute a printf-style placeholder without letting `$` sequences in the
  * replacement (currency symbols such as "$60k") be read as capture-group refs.
  *
@@ -211,7 +231,7 @@ function wcbSliderMax( input ) {
 function clearLegacyFilterBar( only = null ) {
 	if ( typeof document === 'undefined' ) return;
 
-	const ALL   = [ 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag', 'salary_min', 'salary_max', 'wcb_remote', 'remote' ];
+	const ALL   = [ 'wcb_search', 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag', 'salary_min', 'salary_max', 'wcb_remote', 'remote' ];
 	const NAMES = only ? ALL.filter( ( name ) => only.includes( name ) ) : ALL;
 
 	NAMES.forEach( ( name ) => {
@@ -220,6 +240,11 @@ function clearLegacyFilterBar( only = null ) {
 				el.checked = false;
 			} else {
 				el.value = '';
+			}
+			// The search box keeps its own state: tell it, or its next submit
+			// sends the cleared keyword again.
+			if ( 'wcb_search' === name ) {
+				el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
 			}
 		} );
 	} );
@@ -330,11 +355,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		// ── Derived: filter state ─────────────────────────────────────
+		// The keyword counts as a filter: it narrows the results like any chip.
 		get noActiveFilters() {
-			return Object.keys( state.activeFilters ).length === 0;
+			return Object.keys( state.activeFilters ).length === 0 && ! state.searchQuery;
 		},
 		get hasActiveFilters() {
-			return Object.keys( state.activeFilters ).length > 0;
+			return ! state.noActiveFilters;
 		},
 
 		/**
@@ -388,6 +414,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 			return !! ( state.activeFilters.salary_min || state.activeFilters.salary_max );
 		},
 
+		get currencyBreakNote() {
+			return state.isSalaryActive
+				? t( 'currencyBreakFiltered', 'Paid in other currencies.' )
+				: t( 'currencyBreakSorted', 'Paid in other currencies.' );
+		},
+
 		get salaryMinDisplay() {
 			return state.salaryMin > 0 ? wcbFormatSalaryShort( state.salaryMin, state.currencySymbol ) : t( 'anyLabel', 'Any' );
 		},
@@ -407,7 +439,10 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 		/** Array of { key, label } for active filter pills. */
 		get activeFilterChips() {
-			return Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
+			const keyword = state.searchQuery
+				? [ { key: 'search', label: wcbFill( t( 'keywordChip', '"%s"' ), '%s', state.searchQuery ), removeLabel: wcbFill( t( 'removeFilter', 'Remove filter: %s' ), '%s', state.searchQuery ) } ]
+				: [];
+			return keyword.concat( Object.entries( state.activeFilters ).map( ( [ key, value ] ) => {
 				let label = value;
 				if ( key.startsWith( 'type_' ) ) {
 					const slug = key.slice( 5 );
@@ -464,7 +499,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 					label = t( 'remoteLabel', 'Remote only' );
 				}
 				return { key, label, removeLabel: wcbFill( t( 'removeFilter', 'Remove filter: %s' ), '%s', label ) };
-			} );
+			} ) );
 		},
 
 		// `resultsLabel` is NOT a getter: it is a plain seeded value that
@@ -687,6 +722,12 @@ const { state, actions } = store( 'wcb-job-listings', {
 			const ctx = getContext();
 			const key = ctx.chip?.key;
 			if ( ! key ) return;
+			if ( 'search' === key ) {
+				state.searchQuery = '';
+				clearLegacyFilterBar( [ 'wcb_search' ] );
+				yield actions.applyFilters();
+				return;
+			}
 			const next = { ...state.activeFilters };
 			delete next[ key ];
 			state.activeFilters = next;
@@ -738,6 +779,11 @@ const { state, actions } = store( 'wcb-job-listings', {
 		},
 
 		// ── Clear all filters ─────────────────────────────────────────
+		// Phones and tablets collapse the panel; the header row is its toggle.
+		toggleFilterPanel( event ) {
+			getContext().filtersOpen = event.target.checked;
+		},
+
 		* clearFilters() {
 			state.activeFilters = {};
 			state.searchQuery = '';
@@ -823,11 +869,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 
 				state.totalCount = total;
 				wcbApplyResultsLabel( data );
-				if ( state.page === 1 ) {
-					state.jobs = jobs;
-				} else {
-					state.jobs = [ ...state.jobs, ...jobs ];
-				}
+				state.jobs = wcbMarkCurrencyBreak( state.page === 1 ? jobs : [ ...state.jobs, ...jobs ] );
 
 				// Truth source for the Load More button — recompute from the
 				// final cumulative count instead of trusting the per-response

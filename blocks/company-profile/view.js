@@ -50,7 +50,7 @@ const { state } = store( 'wcb-company-profile', {
 				}
 			} catch {
 				state.bookmarked    = wasBookmarked;
-				state.bookmarkLabel = t( 'saveFailed', 'Could not save' );
+				state.bookmarkLabel = t( 'saveFailed', 'Could not save.' );
 				setTimeout( () => {
 					state.bookmarkLabel = wasBookmarked ? t( 'saved', 'Saved' ) : t( 'save', 'Save' );
 				}, 3000 );
@@ -76,6 +76,8 @@ const { state } = store( 'wcb-company-profile', {
 				url.searchParams.set( 'company', String( state.companyId ) );
 				// Same rule as page 1: only jobs still taking applications.
 				url.searchParams.set( 'open', '1' );
+				// Same order as page 1, whatever the site's default sort is.
+				url.searchParams.set( 'sort', 'newest' );
 				url.searchParams.set( 'page', String( state.page ) );
 				url.searchParams.set( 'per_page', String( state.perPage ) );
 

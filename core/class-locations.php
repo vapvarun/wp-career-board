@@ -139,11 +139,17 @@ final class Locations {
 			return;
 		}
 
+		// Literal __() calls so the strings reach the POT; keys match self::RESERVED.
+		$labels = array(
+			/* translators: location dropdown label for jobs with no fixed place. */
+			'remote' => __( 'Remote', 'wp-career-board' ),
+			/* translators: location dropdown label for any place not listed. */
+			'other'  => __( 'Other', 'wp-career-board' ),
+		);
 		foreach ( self::RESERVED as $slug => $label ) {
 			if ( ! term_exists( $slug, 'wcb_location' ) ) {
 				wp_insert_term(
-					/* translators: location dropdown label — kept English-default to match the slug. */
-					__( $label, 'wp-career-board' ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- label list is bounded by self::RESERVED.
+					$labels[ $slug ] ?? $label,
 					'wcb_location',
 					array( 'slug' => $slug )
 				);
@@ -318,7 +324,7 @@ final class Locations {
 			return self::all_terms();
 		}
 
-		return $terms;
+		return Taxonomy::sort( $terms );
 	}
 
 	/**
@@ -337,6 +343,6 @@ final class Locations {
 		if ( is_wp_error( $all ) ) {
 			return array();
 		}
-		return array_values( (array) $all );
+		return Taxonomy::sort( (array) $all );
 	}
 }

@@ -2562,7 +2562,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "Add custom fields to job listings, company profiles, and candidate profiles — text, select, checkbox, date, file upload. No code required.",
+                        "editor": "Add custom fields to job listings, company profiles, and candidate profiles — text, select, checkbox, date, file link. No code required.",
                         "align": "center",
                         "align_tablet": "center",
                         "typography_typography": "custom",

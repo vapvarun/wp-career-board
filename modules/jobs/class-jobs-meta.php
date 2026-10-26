@@ -97,6 +97,29 @@ final class JobsMeta {
 	}
 
 	/**
+	 * Put a job's saved salary range low-high.
+	 *
+	 * The REST routes and the job form refuse a minimum above the maximum.
+	 * Writers that save both halves without asking (the admin editor, the
+	 * CSV import, the upgrade repair) call this once both are written.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return bool Whether the pair was swapped.
+	 */
+	public static function order_salary( int $job_id ): bool {
+		$min = (string) get_post_meta( $job_id, '_wcb_salary_min', true );
+		$max = (string) get_post_meta( $job_id, '_wcb_salary_max', true );
+		if ( (float) $min <= 0 || (float) $max <= 0 || (float) $min <= (float) $max ) {
+			return false;
+		}
+		update_post_meta( $job_id, '_wcb_salary_min', $max );
+		update_post_meta( $job_id, '_wcb_salary_max', $min );
+		return true;
+	}
+
+	/**
 	 * Keep a non-negative number, drop anything else.
 	 *
 	 * @since  1.8.0
@@ -105,6 +128,30 @@ final class JobsMeta {
 	 */
 	public static function sanitize_amount( mixed $value ): string {
 		return ( is_numeric( $value ) && (float) $value >= 0 ) ? (string) ( 0 + $value ) : '';
+	}
+
+	/**
+	 * Read a salary typed by a person: "80,000", "$80000", "80k", "1.2m".
+	 *
+	 * Commas are thousands separators and a dot is the decimal point; a
+	 * leading currency symbol or code is ignored. Shared by the CSV and WP Job
+	 * Manager importers, whose salary cells are free text.
+	 *
+	 * @since  1.8.2
+	 * @param  string $text Raw salary text.
+	 * @return string|null Amount, or null when the text is not a single amount.
+	 */
+	public static function parse_amount( string $text ): ?string {
+		$text = preg_replace( '/^[^\d.]+/u', '', strtolower( (string) preg_replace( '/[\s,]+/u', '', $text ) ) );
+		if ( ! preg_match( '/^(\d+(?:\.\d+)?)([km]?)$/', (string) $text, $m ) ) {
+			return null;
+		}
+		$scale = array(
+			''  => 1,
+			'k' => 1000,
+			'm' => 1000000,
+		);
+		return (string) ( (float) $m[1] * $scale[ $m[2] ] );
 	}
 
 	/**

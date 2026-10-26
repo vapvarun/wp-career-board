@@ -24,6 +24,8 @@
 	<exclude-pattern>marketing/*</exclude-pattern>
 	<exclude-pattern>import/*</exclude-pattern>
 	<exclude-pattern>*/wp-career-board/wp-career-board/*</exclude-pattern>
+	<!-- Translation catalogues written by `wp i18n make-php` -->
+	<exclude-pattern>languages/*.l10n.php</exclude-pattern>
 	<!-- Dev-only CLI scripts (not bundled in release zip via .distignore) -->
 	<exclude-pattern>bin/*</exclude-pattern>
 

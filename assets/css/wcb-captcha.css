@@ -1,0 +1,54 @@
+/**
+ * CAPTCHA challenge panel (Turnstile).
+ *
+ * Shown only while Cloudflare asks the visitor to confirm, above the form
+ * they were submitting, whatever the theme.
+ *
+ * @package WP_Career_Board
+ */
+
+.wcb-captcha-challenge {
+	position: fixed;
+	inset-block-end: var(--wcb-space-xl);
+	inset-inline: 0;
+	/* Above the apply panel (100001): the challenge opens from inside it. */
+	z-index: 100002;
+	box-sizing: border-box;
+	inline-size: min(26rem, calc(100% - 2 * var(--wcb-space-md)));
+	margin-inline: auto;
+	padding: var(--wcb-space-lg);
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: var(--wcb-space-md);
+	box-shadow: var(--wcb-shadow-lg);
+}
+
+.wcb-captcha-challenge[hidden] {
+	display: none;
+}
+
+.wcb-captcha-challenge__title {
+	margin: 0;
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+}
+
+.wcb-captcha-challenge__widget {
+	min-block-size: 65px;
+}
+
+.wcb-captcha-challenge__cancel {
+	align-self: flex-end;
+}
+
+@media (max-width: 480px) {
+	.wcb-captcha-challenge {
+		inset-block-end: var(--wcb-space-md);
+		padding: var(--wcb-space-md);
+	}
+
+	.wcb-captcha-challenge__cancel {
+		align-self: stretch;
+	}
+}

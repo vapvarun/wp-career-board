@@ -28,6 +28,8 @@ class AdminCompanies extends \WP_List_Table {
 
 	use SearchBox;
 
+	use ListEmptyState;
+
 	/**
 	 * Employers running each company on the current page: company ID => user ID => name.
 	 *
@@ -95,7 +97,10 @@ class AdminCompanies extends \WP_List_Table {
 
 			<form method="get">
 				<input type="hidden" name="page" value="wcb-companies">
-				<?php $this->render_search_box( 'wcb-company', __( 'Search Companies', 'wp-career-board' ), __( 'Company name…', 'wp-career-board' ) ); ?>
+				<?php if ( '' !== $this->status_view() ) : ?>
+					<input type="hidden" name="post_status" value="<?php echo esc_attr( $this->status_view() ); ?>">
+				<?php endif; ?>
+				<?php $this->render_search_box( 'wcb-company', __( 'Search companies', 'wp-career-board' ), __( 'Company name…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
 		</div>
@@ -115,7 +120,7 @@ class AdminCompanies extends \WP_List_Table {
 	public function get_columns(): array {
 		return array(
 			'cb'          => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all companies', 'wp-career-board' ) ),
-			'title'       => __( 'Company Name', 'wp-career-board' ),
+			'title'       => __( 'Company name', 'wp-career-board' ),
 			'employer'    => __( 'Employer', 'wp-career-board' ),
 			'website'     => __( 'Website', 'wp-career-board' ),
 			'jobs'        => __( 'Active Jobs', 'wp-career-board' ),
@@ -145,9 +150,27 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_bulk_actions(): array {
+		if ( 'trash' === $this->status_view() ) {
+			return array(
+				'untrash' => __( 'Restore', 'wp-career-board' ),
+				'delete'  => __( 'Delete Permanently', 'wp-career-board' ),
+			);
+		}
 		return array(
 			'trash' => __( 'Move to Trash', 'wp-career-board' ),
 		);
+	}
+
+	/**
+	 * The status view the list shows: publish, draft, trash, or '' for All.
+	 *
+	 * @since 1.8.2
+	 * @return string
+	 */
+	private function status_view(): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view switch.
+		$status = isset( $_GET['post_status'] ) ? sanitize_key( wp_unslash( $_GET['post_status'] ) ) : '';
+		return in_array( $status, array( 'publish', 'draft', 'trash' ), true ) ? $status : '';
 	}
 
 	// -------------------------------------------------------------------------
@@ -334,13 +357,17 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'post_status' ) ) ) {
+			$this->filtered_empty_state( 'building-2', __( 'No companies match your filters', 'wp-career-board' ), 'wcb-companies' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="building-2" class="wcb-empty-state__icon"></i>
 			<p class="wcb-empty-state__title"><?php esc_html_e( 'No companies yet', 'wp-career-board' ); ?></p>
 			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Company profiles are created when employers complete their profile on the employer dashboard.', 'wp-career-board' ); ?></p>
 			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_company' ) ); ?>" class="wcb-btn wcb-btn--primary">
-				<?php esc_html_e( 'Add Company', 'wp-career-board' ); ?>
+				<?php esc_html_e( 'Add company', 'wp-career-board' ); ?>
 			</a>
 		</div>
 		<?php
@@ -602,15 +629,22 @@ class AdminCompanies extends \WP_List_Table {
 		}
 
 		foreach ( $company_ids as $company_id ) {
-			if ( ! current_user_can( 'edit_post', $company_id ) ) {
+			// The IDs come from the request: act on companies only.
+			if ( 'wcb_company' !== get_post_type( $company_id ) || ! current_user_can( 'edit_post', $company_id ) ) {
 				continue;
 			}
 			if ( 'trash' === $action ) {
 				wp_trash_post( $company_id );
+			} elseif ( 'untrash' === $action ) {
+				wp_untrash_post( $company_id );
+			} elseif ( 'delete' === $action && current_user_can( 'delete_post', $company_id ) ) {
+				wp_delete_post( $company_id, true );
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-companies' ) );
+		// Back to the view the action ran on, so a Trash cleanup stays in Trash.
+		$view = $this->status_view();
+		wp_safe_redirect( add_query_arg( '' !== $view ? array( 'post_status' => $view ) : array(), admin_url( 'admin.php?page=wcb-companies' ) ) );
 		exit;
 	}
 }

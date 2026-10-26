@@ -33,12 +33,12 @@ Employers and admins get the same columns, in this order.
 |---|---|
 | `ID` | The application ID |
 | `Job ID` | The ID of the job, for matching back to your jobs |
-| `Job Title` | The job's title |
-| `Applicant Name` | The candidate's display name, or the guest name for a guest application |
+| `Job title` | The job's title |
+| `Applicant name` | The candidate's display name, or the guest name for a guest application |
 | `Applicant Email` | The candidate's email, or the guest email |
 | `Status` | The application status: Submitted, Reviewing, Shortlisted, Rejected, Hired, Withdrawn, Closed or Job removed |
 | `Submitted` | The date and time the application was submitted |
-| `Cover Letter` | The cover letter text. Line breaks are kept |
+| `Cover letter` | The cover letter text. Line breaks are kept |
 | `Resume URL` | A link to the uploaded resume file, when one was attached. The link works only for people allowed to open the file |
 | `Screening Answers` | The applicant's answers to the job's screening questions, one `Question: answer` per line |
 

@@ -100,9 +100,16 @@ class TurnstileDriver {
 			array(
 				'provider' => 'turnstile',
 				'siteKey'  => $this->site_key,
+				'i18n'     => array(
+					'title'  => __( 'Please confirm you are human to continue.', 'wp-career-board' ),
+					'cancel' => __( 'Cancel', 'wp-career-board' ),
+				),
 			)
 		);
 
 		wp_enqueue_script( 'wcb-turnstile' );
+
+		// The challenge panel uses the shared card and button styles.
+		wp_enqueue_style( 'wcb-captcha', WCB_URL . 'assets/css/wcb-captcha.css', array( 'wcb-ui' ), WCB_VERSION );
 	}
 }

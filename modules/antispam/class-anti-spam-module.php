@@ -222,7 +222,7 @@ class AntiSpamModule {
 				<div class="wcb-card__body">
 					<div class="wcb-settings-row">
 						<div class="wcb-settings-row-label">
-							<label for="wcb-turnstile-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+							<label for="wcb-turnstile-site-key"><?php esc_html_e( 'Site key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
 							<input type="text" id="wcb-turnstile-site-key" name="wcb_settings[turnstile_site_key]" value="<?php echo esc_attr( $wcb_ts_site ); ?>" class="regular-text">
@@ -239,7 +239,7 @@ class AntiSpamModule {
 					</div>
 					<div class="wcb-settings-row">
 						<div class="wcb-settings-row-label">
-							<label for="wcb-turnstile-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
+							<label for="wcb-turnstile-secret-key"><?php esc_html_e( 'Secret key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
 							<input type="password" id="wcb-turnstile-secret-key" name="wcb_settings[turnstile_secret_key]" value="<?php echo esc_attr( $wcb_ts_secret ); ?>" class="regular-text" autocomplete="off">
@@ -255,7 +255,7 @@ class AntiSpamModule {
 				<div class="wcb-card__body">
 					<div class="wcb-settings-row">
 						<div class="wcb-settings-row-label">
-							<label for="wcb-recaptcha-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+							<label for="wcb-recaptcha-site-key"><?php esc_html_e( 'Site key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
 							<input type="text" id="wcb-recaptcha-site-key" name="wcb_settings[recaptcha_site_key]" value="<?php echo esc_attr( $wcb_rc_site ); ?>" class="regular-text">
@@ -272,7 +272,7 @@ class AntiSpamModule {
 					</div>
 					<div class="wcb-settings-row">
 						<div class="wcb-settings-row-label">
-							<label for="wcb-recaptcha-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
+							<label for="wcb-recaptcha-secret-key"><?php esc_html_e( 'Secret key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
 							<input type="password" id="wcb-recaptcha-secret-key" name="wcb_settings[recaptcha_secret_key]" value="<?php echo esc_attr( $wcb_rc_secret ); ?>" class="regular-text" autocomplete="off">
@@ -298,7 +298,7 @@ class AntiSpamModule {
 				<div class="wcb-card__body">
 					<div class="wcb-settings-row">
 						<div class="wcb-settings-row-label">
-							<label for="wcb-recaptcha-v2-site-key"><?php esc_html_e( 'Site Key', 'wp-career-board' ); ?></label>
+							<label for="wcb-recaptcha-v2-site-key"><?php esc_html_e( 'Site key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
 							<input type="text" id="wcb-recaptcha-v2-site-key" name="wcb_settings[recaptcha_v2_site_key]" value="<?php echo esc_attr( $wcb_v2_site ); ?>" class="regular-text">
@@ -306,7 +306,7 @@ class AntiSpamModule {
 					</div>
 					<div class="wcb-settings-row">
 						<div class="wcb-settings-row-label">
-							<label for="wcb-recaptcha-v2-secret-key"><?php esc_html_e( 'Secret Key', 'wp-career-board' ); ?></label>
+							<label for="wcb-recaptcha-v2-secret-key"><?php esc_html_e( 'Secret key', 'wp-career-board' ); ?></label>
 						</div>
 						<div class="wcb-settings-row-control">
 							<input type="password" id="wcb-recaptcha-v2-secret-key" name="wcb_settings[recaptcha_v2_secret_key]" value="<?php echo esc_attr( $wcb_v2_secret ); ?>" class="regular-text" autocomplete="off">
@@ -341,6 +341,7 @@ class AntiSpamModule {
 								<?php endforeach; ?>
 							</select>
 							<p class="description"><?php esc_html_e( 'Choose a proxy only if your site really is behind it. Anyone can send these headers, so on a direct connection they would let a visitor dodge the limits.', 'wp-career-board' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Behind two layers, such as a CDN in front of a load balancer, pick the CDN\'s own header: Cloudflare for CF-Connecting-IP. X-Forwarded-For would read the CDN\'s address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the wcb_client_ip_trusted_hops filter set to 2.', 'wp-career-board' ); ?></p>
 						</div>
 					</div>
 				</div>

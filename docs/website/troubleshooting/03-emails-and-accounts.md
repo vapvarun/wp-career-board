@@ -27,6 +27,14 @@ Work down this list:
 
 **Fix.** The sign-in message and the expired-link page both offer **Send me a new link**. A new link can be requested about once a minute. If the confirmation email never arrives, work through "Career Board emails are not arriving" above.
 
+## The confirmation link opened the sign-in page
+
+**Symptom.** A member opened the confirmation link and landed on the sign-in page, not their dashboard.
+
+**Cause.** The link signs the member in only on the browser they signed up in. Opened anywhere else (another browser, a phone, a mail app), it confirms the address and shows "Your email address is confirmed. Sign in to continue." This stops anyone who gets hold of the link from signing in as that member.
+
+**Fix.** Nothing is wrong. The member signs in with their password.
+
 ## A guest did not get status emails
 
 **Cause.** Guests are emailed only if they gave an email address when applying. The employer dashboard says so when this is the case: "This applicant left no email address, so they were not notified."

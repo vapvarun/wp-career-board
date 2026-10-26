@@ -418,7 +418,8 @@
 			holder: holder.id,
 			tools: buildTools(),
 			data: htmlToBlocks( textarea.value ),
-			placeholder: editorEl.dataset.placeholder || 'Describe the role, responsibilities and requirements...',
+			placeholder: editorEl.dataset.placeholder || '',
+			i18n: { messages: window.wcbEditorI18n || {} },
 			minHeight: 200,
 			onChange: () => {
 				if ( isSaving ) {
@@ -465,9 +466,44 @@
 		wireToolbar( editorEl, holder, editor );
 
 		editorEl.wcbEditor = editor;
-		// Forms call this before they read the description (Next, Publish).
+		// Store actions yield this (flushEditors in @wcb/ui) before they read the field.
 		editorEl.wcbFlush = () => editor.isReady.then( writeBack );
 		editorEl.dataset.wcbEditorVersion = EDITOR_VERSION;
+		flushOnNativeSubmit( editorEl.closest( 'form' ) );
+	}
+
+	/**
+	 * A native form (the wp-admin job editor) posts the textarea the moment it
+	 * submits, before Editor.js has finished saving the last keystrokes. Hold the
+	 * first submit, flush every editor in the form, then submit again with the
+	 * same button. One listener per form, so two editors never submit twice.
+	 *
+	 * @param {?HTMLFormElement} form Form around the editor.
+	 */
+	function flushOnNativeSubmit( form ) {
+		if ( ! form || form.dataset.wcbEditorSubmit === '1' ) {
+			return;
+		}
+		form.dataset.wcbEditorSubmit = '1';
+		let flushed = false;
+		form.addEventListener( 'submit', ( event ) => {
+			if ( flushed ) {
+				flushed = false;
+				return;
+			}
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			const flushes = Array.from( form.querySelectorAll( '.wcb-editor' ) )
+				.filter( ( el ) => typeof el.wcbFlush === 'function' )
+				.map( ( el ) => el.wcbFlush().catch( () => {} ) );
+			// The flush can settle on microtasks while the browser is still
+			// dispatching this submit, when requestSubmit() is silently ignored;
+			// a task later it is not.
+			Promise.all( flushes ).then( () => setTimeout( () => {
+				flushed = true;
+				form.requestSubmit( event.submitter || undefined );
+			} ) );
+		}, true );
 	}
 
 	function initAll( root ) {

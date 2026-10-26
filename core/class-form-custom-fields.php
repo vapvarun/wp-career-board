@@ -57,6 +57,54 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class FormCustomFields {
 
 	/**
+	 * Render the job field groups of every board a job form can pick.
+	 *
+	 * Each group is printed once, with the boards it shows on in its
+	 * `groupBoards` context, and hidden unless the form's selected board is
+	 * one of them, so switching board in the picker swaps the groups without
+	 * a reload (Basecamp 10439586892). The form's store needs an
+	 * `isGroupOnBoard` getter, seeded server-side with {@see self::group_on_board()}.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int[]  $board_ids Boards the form can post to.
+	 * @param string $update_fn JS action bound on input.
+	 * @param string $id_prefix DOM id prefix.
+	 * @param int    $owner_id  Job being edited (0 = new).
+	 * @return int[] Boards that have at least one group.
+	 */
+	public static function render_job_groups_by_board( array $board_ids, string $update_fn, string $id_prefix, int $owner_id = 0 ): array {
+		$groups = array();
+		$boards = array();
+		foreach ( array_unique( array_map( 'intval', $board_ids ) ) as $board_id ) {
+			foreach ( (array) apply_filters( 'wcb_job_form_fields', array(), $board_id ) as $group ) {
+				$key              = isset( $group['id'] ) ? 'g' . $group['id'] : md5( (string) wp_json_encode( $group ) );
+				$groups[ $key ]   = $group;
+				$boards[ $key ][] = $board_id;
+			}
+		}
+		foreach ( $groups as $key => $group ) {
+			printf( '<div data-wp-context="%s" data-wp-bind--hidden="!state.isGroupOnBoard">', esc_attr( (string) wp_json_encode( array( 'groupBoards' => $boards[ $key ] ) ) ) );
+			self::render_groups( array( $group ), $update_fn, $id_prefix, $owner_id );
+			echo '</div>';
+		}
+		return $boards ? array_values( array_unique( array_merge( ...array_values( $boards ) ) ) ) : array();
+	}
+
+	/**
+	 * Server half of a job form's `isGroupOnBoard` getter.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $board_id The form's selected board.
+	 * @return bool
+	 */
+	public static function group_on_board( int $board_id ): bool {
+		$context = wp_interactivity_get_context();
+		return in_array( $board_id, (array) ( $context['groupBoards'] ?? array() ), true );
+	}
+
+	/**
 	 * Output Interactivity-API-bound markup for an array of field groups.
 	 *
 	 * The one renderer for every custom-field form, the apply form included.
@@ -162,6 +210,38 @@ final class FormCustomFields {
 			}
 		}
 		return $missing;
+	}
+
+	/**
+	 * The error for required fields left empty, or null when none are.
+	 *
+	 * One answer for every form: jobs, companies, candidates, resumes and
+	 * application questions. Values already saved count, so a partial
+	 * update does not have to resubmit every field.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param array<int, array<string, mixed>> $groups     Field groups the form shows.
+	 * @param array<string, mixed>             $submitted  Submitted values.
+	 * @param int                              $owner_id   Record being updated, 0 on create.
+	 * @param string                           $reader     'post_meta' | 'user_meta'.
+	 * @param string                           $key_prefix Meta key prefix the values use.
+	 * @return \WP_Error|null
+	 */
+	public static function required_error( array $groups, array $submitted, int $owner_id = 0, string $reader = 'post_meta', string $key_prefix = '' ): ?\WP_Error {
+		$missing = self::missing_required( $groups, array_merge( self::load_values( $groups, $owner_id, $reader, $key_prefix ), $submitted ) );
+		if ( ! $missing ) {
+			return null;
+		}
+		return new \WP_Error(
+			'wcb_required_fields',
+			/* translators: %s: comma-separated field labels. */
+			sprintf( __( 'Please answer: %s', 'wp-career-board' ), implode( ', ', $missing ) ),
+			array(
+				'status' => 400,
+				'fields' => array_keys( $missing ),
+			)
+		);
 	}
 
 	/**
@@ -763,12 +843,13 @@ final class FormCustomFields {
 	 * repeater values arrive from load_values() already flattened.
 	 *
 	 * @since 1.7.1
+	 * @since 1.8.2 Choice answers show their labels; multi-choice answers are listed one label per item.
 	 *
 	 * @param array<int, array<string, mixed>> $groups     Same shape as render_groups().
 	 * @param int                              $owner_id   Post / user / row id whose meta to read.
 	 * @param string                           $reader     'post_meta' | 'user_meta'. Default post_meta.
 	 * @param string                           $key_prefix Prepended to the meta key being read.
-	 * @return array<int, array{key:string,label:string,type:string,value:string}> Answered fields only.
+	 * @return array<int, array{key:string,label:string,type:string,value:string,items:string[]}> Answered fields only; items lists a choice field's labels.
 	 */
 	public static function labelled_values( array $groups, int $owner_id, string $reader = 'post_meta', string $key_prefix = '' ): array {
 		$values = self::load_values( $groups, $owner_id, $reader, $key_prefix );
@@ -806,11 +887,21 @@ final class FormCustomFields {
 					continue;
 				}
 
+				// A choice shows its label; a multi-choice answer (stored
+				// comma-joined) lists each label, so it reads "Laptop, Monitor".
+				$items = array();
+				if ( in_array( $normalised['type'], array( 'select', 'radio', 'multiselect' ), true ) ) {
+					$items = 'multiselect' === $normalised['type'] ? array_filter( array_map( 'trim', explode( ',', $value ) ), static fn ( string $item ): bool => '' !== $item ) : array( $value );
+					$items = array_values( array_map( static fn ( string $item ): string => (string) ( $normalised['options'][ $item ] ?? $item ), $items ) );
+					$value = implode( wp_get_list_item_separator(), $items );
+				}
+
 				$out[] = array(
 					'key'   => $key,
 					'label' => '' !== $normalised['label'] ? $normalised['label'] : $key,
 					'type'  => $normalised['type'],
 					'value' => $value,
+					'items' => $items,
 				);
 			}
 		}

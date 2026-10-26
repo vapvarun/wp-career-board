@@ -241,7 +241,8 @@ class SeoModule {
 				'@context'    => 'https://schema.org',
 				'@type'       => 'Organization',
 				'name'        => self::plain( get_the_title( $company_id ) ),
-				'url'         => (string) get_permalink( $company_id ),
+				// A draft or trashed company's permalink is a guest 404.
+				'url'         => in_array( get_post_status( $company_id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ? (string) get_permalink( $company_id ) : '',
 				'sameAs'      => esc_url_raw( (string) get_post_meta( $company_id, '_wcb_website', true ) ),
 				'logo'        => (string) get_the_post_thumbnail_url( $company_id, 'medium' ),
 				'description' => $meta['tagline'],

@@ -30,6 +30,8 @@ class AdminCandidates extends \WP_List_Table {
 
 	use ReportedMembers;
 
+	use ListEmptyState;
+
 	/**
 	 * Public resume link per candidate on this page (Pro).
 	 *
@@ -86,7 +88,7 @@ class AdminCandidates extends \WP_List_Table {
 			<?php $this->views(); ?>
 
 			<form method="get">
-				<input type="hidden" name="page" value="wcb-candidates">
+				<?php $this->hidden_inputs( 'wcb-candidates', $this->view_args() ); ?>
 				<?php $this->render_search_box( 'wcb-candidate', __( 'Search Candidates', 'wp-career-board' ), __( 'Name or email…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -109,7 +111,7 @@ class AdminCandidates extends \WP_List_Table {
 			'cb'           => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all candidates', 'wp-career-board' ) ),
 			'name'         => __( 'Name', 'wp-career-board' ),
 			'status'       => __( 'Status', 'wp-career-board' ),
-			'visibility'   => __( 'Profile Visibility', 'wp-career-board' ),
+			'visibility'   => __( 'Profile visibility', 'wp-career-board' ),
 			'applications' => __( 'Applications', 'wp-career-board' ),
 			'bookmarks'    => __( 'Bookmarks', 'wp-career-board' ),
 			'registered'   => __( 'Registered', 'wp-career-board' ),
@@ -206,7 +208,7 @@ class AdminCandidates extends \WP_List_Table {
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=wcb-candidates' ) );
+		wp_safe_redirect( add_query_arg( $this->return_args(), admin_url( 'admin.php?page=wcb-candidates' ) ) );
 		exit;
 	}
 
@@ -221,6 +223,10 @@ class AdminCandidates extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->list_filtered( array( 's', 'wcb_reported', 'wcb_banned' ) ) ) {
+			$this->filtered_empty_state( 'users', __( 'No candidates match your filters', 'wp-career-board' ), 'wcb-candidates' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="users" class="wcb-empty-state__icon"></i>
@@ -250,7 +256,7 @@ class AdminCandidates extends \WP_List_Table {
 				'count_total' => true,
 			)
 		) )->get_total();
-		return $this->member_views( 'wcb-candidates', $count, $args );
+		return $this->member_views( 'wcb-candidates', $count, $args, __( 'Suspended', 'wp-career-board' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -288,8 +294,8 @@ class AdminCandidates extends \WP_List_Table {
 			$query_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
 		}
 
-		if ( $this->reported_active() ) {
-			$query_args['meta_query'] = $this->reported_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		if ( $this->view_meta_query() ) {
+			$query_args['meta_query'] = $this->view_meta_query(); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
 
 		$query       = new \WP_User_Query( $query_args );
@@ -381,17 +387,7 @@ class AdminCandidates extends \WP_List_Table {
 
 		$is_suspended           = '1' === (string) get_user_meta( $item->ID, '_wcb_employer_banned', true );
 		$toggle                 = $is_suspended ? 'unsuspend' : 'suspend';
-		$toggle_url             = wp_nonce_url(
-			add_query_arg(
-				array(
-					'page'   => 'wcb-candidates',
-					'action' => $toggle,
-					'user'   => array( $item->ID ),
-				),
-				admin_url( 'admin.php' )
-			),
-			'bulk-candidates'
-		);
+		$toggle_url             = $this->row_action_url( 'wcb-candidates', $toggle, $item->ID, 'bulk-candidates' );
 		$row_actions[ $toggle ] = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( $toggle_url ),
@@ -434,7 +430,7 @@ class AdminCandidates extends \WP_List_Table {
 		return sprintf(
 			'<span class="wcb-badge wcb-badge--%s">%s</span>',
 			esc_attr( $badge_var ),
-			esc_html( ucfirst( $vis ) )
+			esc_html( 'public' === $vis ? __( 'Public', 'wp-career-board' ) : __( 'Private', 'wp-career-board' ) )
 		);
 	}
 
@@ -469,7 +465,15 @@ class AdminCandidates extends \WP_List_Table {
 		if ( $count > 0 ) {
 			return sprintf(
 				'<a href="%s">%d</a>',
-				esc_url( add_query_arg( array( 'page' => 'wcb-applications' ), admin_url( 'admin.php' ) ) ),
+				esc_url(
+					add_query_arg(
+						array(
+							'page'         => 'wcb-applications',
+							'candidate_id' => $item->ID,
+						),
+						admin_url( 'admin.php' )
+					)
+				),
 				$count
 			);
 		}

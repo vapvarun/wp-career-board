@@ -40,17 +40,18 @@ final class Taxonomy {
 	 * ordered, matched on slug words, so "Entry" never sorts after "Executive".
 	 */
 	private const SENIORITY = array(
-		'intern'    => 10,
-		'entry'     => 20,
-		'junior'    => 30,
-		'mid'       => 40,
-		'senior'    => 50,
-		'lead'      => 60,
-		'principal' => 70,
-		'staff'     => 70,
-		'manager'   => 80,
-		'director'  => 90,
-		'executive' => 100,
+		'intern'     => 10,
+		'internship' => 10,
+		'entry'      => 20,
+		'junior'     => 30,
+		'mid'        => 40,
+		'senior'     => 50,
+		'lead'       => 60,
+		'principal'  => 70,
+		'staff'      => 70,
+		'manager'    => 80,
+		'director'   => 90,
+		'executive'  => 100,
 	);
 
 	/**
@@ -77,10 +78,141 @@ final class Taxonomy {
 					add_action( $taxonomy . '_edit_form_fields', array( self::class, 'render_edit_field' ) );
 					add_action( 'created_' . $taxonomy, array( self::class, 'save_order' ) );
 					add_action( 'edited_' . $taxonomy, array( self::class, 'save_order' ) );
+					add_filter( 'manage_edit-' . $taxonomy . '_columns', array( self::class, 'add_order_column' ) );
+					add_filter( 'manage_edit-' . $taxonomy . '_sortable_columns', array( self::class, 'add_order_column_sort' ) );
+					add_filter( 'manage_' . $taxonomy . '_custom_column', array( self::class, 'render_order_column' ), 10, 3 );
 				}
 			},
 			20
 		);
+		add_action( 'quick_edit_custom_box', array( self::class, 'render_quick_edit_field' ), 10, 3 );
+		add_action( 'pre_get_terms', array( self::class, 'sort_by_order' ) );
+		add_filter( 'terms_clauses', array( self::class, 'order_ties_by_name' ), 10, 3 );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_term_list_script' ) );
+	}
+
+	/**
+	 * Order column on the term list, so the sort is visible without opening
+	 * each term (Basecamp 10417521347).
+	 *
+	 * @param array<string, string> $columns List columns.
+	 * @return array<string, string>
+	 */
+	public static function add_order_column( array $columns ): array {
+		$columns[ self::ORDER_META ] = __( 'Order', 'wp-career-board' );
+		return $columns;
+	}
+
+	/**
+	 * Make the Order column sortable.
+	 *
+	 * @param array<string, string> $columns Sortable columns.
+	 * @return array<string, string>
+	 */
+	public static function add_order_column_sort( array $columns ): array {
+		$columns[ self::ORDER_META ] = self::ORDER_META;
+		return $columns;
+	}
+
+	/**
+	 * Order cell: the number, or a dash when the term sorts by name. Term
+	 * meta is primed for the whole page by the list query.
+	 *
+	 * @param string $content Cell content.
+	 * @param string $column  Column slug.
+	 * @param int    $term_id Term ID.
+	 * @return string
+	 */
+	public static function render_order_column( $content, string $column, int $term_id ): string {
+		if ( self::ORDER_META !== $column ) {
+			return (string) $content;
+		}
+		$order = (string) get_term_meta( $term_id, self::ORDER_META, true );
+		return '' === $order ? '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . esc_html__( 'Sorted by name', 'wp-career-board' ) . '</span>' : esc_html( $order );
+	}
+
+	/**
+	 * Order field in the term list's Quick Edit; core's inline save fires
+	 * edited_{taxonomy}, so save_order() stores it.
+	 *
+	 * @param string $column    Column slug.
+	 * @param string $screen    'edit-tags' on a term list.
+	 * @param string $taxonomy  Taxonomy slug.
+	 * @return void
+	 */
+	public static function render_quick_edit_field( string $column, string $screen, string $taxonomy = '' ): void {
+		if ( 'edit-tags' !== $screen || self::ORDER_META !== $column || ! in_array( $taxonomy, self::TAXONOMIES, true ) ) {
+			return;
+		}
+		?>
+		<fieldset>
+			<div class="inline-edit-col">
+				<label>
+					<span class="title"><?php esc_html_e( 'Order', 'wp-career-board' ); ?></span>
+					<span class="input-text-wrap"><input type="number" name="wcb_order" class="ptitle" min="0" step="1" value="" /></span>
+				</label>
+			</div>
+		</fieldset>
+		<?php
+	}
+
+	/**
+	 * Sort the term list by Order when its column header is clicked; terms
+	 * with no Order keep their place after the ordered ones.
+	 *
+	 * @param \WP_Term_Query $query Term query.
+	 * @return void
+	 */
+	public static function sort_by_order( \WP_Term_Query $query ): void {
+		$vars = &$query->query_vars;
+		if ( self::ORDER_META !== ( $vars['orderby'] ?? '' ) || ! array_intersect( (array) $vars['taxonomy'], self::TAXONOMIES ) ) {
+			return;
+		}
+		// A get_terms_args change reaches neither the meta query nor the ORDER BY,
+		// and core builds ORDER BY from the meta query before it re-parses
+		// query_vars, so set both here (Basecamp 10417521347).
+		$vars['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- admin list sort, one page.
+			'relation'  => 'OR',
+			'wcb_order' => array(
+				'key'  => self::ORDER_META,
+				'type' => 'NUMERIC',
+			),
+			'no_order'  => array(
+				'key'     => self::ORDER_META,
+				'compare' => 'NOT EXISTS',
+			),
+		);
+		$query->meta_query->parse_query_vars( $vars );
+	}
+
+	/**
+	 * Terms with the same Order (or none) follow by name.
+	 *
+	 * @param array<string, string> $clauses    Query clauses.
+	 * @param string[]              $taxonomies Taxonomies queried.
+	 * @param array<string, mixed>  $args       Query args.
+	 * @return array<string, string>
+	 */
+	public static function order_ties_by_name( array $clauses, array $taxonomies, array $args ): array {
+		if ( self::ORDER_META === ( $args['orderby'] ?? '' ) && '' !== $clauses['orderby'] && array_intersect( $taxonomies, self::TAXONOMIES ) ) {
+			$clauses['orderby'] .= ' ' . $clauses['order'] . ', t.name';
+			$clauses['order']    = 'ASC';
+		}
+		return $clauses;
+	}
+
+	/**
+	 * Quick Edit prefill script on the five term lists.
+	 *
+	 * @param string $hook Admin page hook.
+	 * @return void
+	 */
+	public static function enqueue_term_list_script( string $hook ): void {
+		$screen = get_current_screen();
+		if ( 'edit-tags.php' !== $hook || ! $screen || ! in_array( $screen->taxonomy, self::TAXONOMIES, true ) ) {
+			return;
+		}
+		wp_enqueue_script( 'wcb-term-order', WCB_URL . 'assets/js/admin/term-order.js', array( 'inline-edit-tax' ), WCB_VERSION, true );
 	}
 
 	/**
@@ -101,11 +233,7 @@ final class Taxonomy {
 			return array();
 		}
 
-		usort(
-			$terms,
-			static fn( \WP_Term $a, \WP_Term $b ): int => array( self::position( $a ), strtolower( $a->name ) ) <=> array( self::position( $b ), strtolower( $b->name ) )
-		);
-
+		$terms    = self::sort( $terms );
 		$children = array();
 		$ids      = wp_list_pluck( $terms, 'term_id' );
 		foreach ( $terms as $term ) {
@@ -136,6 +264,21 @@ final class Taxonomy {
 	}
 
 	/**
+	 * Terms in dropdown order: the admin's Order, then by name.
+	 *
+	 * @since 1.8.2
+	 * @param \WP_Term[] $terms Terms.
+	 * @return \WP_Term[]
+	 */
+	public static function sort( array $terms ): array {
+		usort(
+			$terms,
+			static fn( \WP_Term $a, \WP_Term $b ): int => array( self::position( $a ), strtolower( $a->name ) ) <=> array( self::position( $b ), strtolower( $b->name ) )
+		);
+		return $terms;
+	}
+
+	/**
 	 * Sort position: the admin's Order, else a seniority guess for experience
 	 * levels, else last (then by name).
 	 *
@@ -148,8 +291,10 @@ final class Taxonomy {
 			return (int) $order;
 		}
 		if ( 'wcb_experience' === $term->taxonomy ) {
+			// Whole slug words only: "international-programs" is not an intern level.
+			$words = explode( '-', $term->slug );
 			foreach ( self::SENIORITY as $word => $position ) {
-				if ( str_contains( $term->slug, $word ) ) {
+				if ( in_array( $word, $words, true ) ) {
 					return $position;
 				}
 			}

@@ -174,7 +174,7 @@ wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'POST /jobs a
 add_filter( 'wcb_job_payment_exempt', '__return_true', 99 );
 
 WP_CLI::log( '--- Jobs: POST /wcb/v1/jobs (employer) ---' );
-$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_job__', 'description' => 'Test job for REST suite' ), $employer_id );
+$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'remote' => true, 'title' => '__wcb_test_job__', 'description' => 'Test job for REST suite' ), $employer_id );
 $create_status = $r->get_status();
 wcb_assert( in_array( $create_status, array( 200, 201 ), true ), 'POST /jobs as employer returns 200 or 201' );
 $test_job_id = $r->get_data()['id'] ?? 0;
@@ -192,6 +192,27 @@ if ( $job_id ) {
 	$r = wcb_rest( 'GET', "/wcb/v1/jobs/{$job_id}", array(), 0 );
 	wcb_assert( 200 === $r->get_status(), 'GET /jobs/{id} returns 200 for anonymous' );
 	wcb_assert( (int) ( $r->get_data()['id'] ?? 0 ) === $job_id, 'returned job has correct ID' );
+}
+
+// ---------------------------------------------------------------------------
+// Jobs: POST /wcb/v1/jobs/{id}/view (the job page counts its view)
+// ---------------------------------------------------------------------------
+
+WP_CLI::log( '--- Jobs: POST /wcb/v1/jobs/{id}/view ---' );
+if ( $job_id ) {
+	global $wpdb;
+	$wcb_views = static fn (): int => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_job_views WHERE job_id = %d", $job_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	$wcb_since = gmdate( 'Y-m-d H:i:s', time() - 5 );
+	$wcb_before = $wcb_views();
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/view", array(), 0 );
+	wcb_assert( 204 === $r->get_status() && $wcb_before + 1 === $wcb_views(), 'a visitor opening a live job adds one view' );
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/view", array(), (int) get_post_field( 'post_author', $job_id ) );
+	wcb_assert( 204 === $r->get_status() && $wcb_before + 1 === $wcb_views(), "the job's author opening it adds none" );
+	if ( $pending_job_id ) {
+		$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$pending_job_id}/view", array(), 0 );
+		wcb_assert( 404 === $r->get_status(), 'a job that is not live is not counted (404)' );
+	}
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}wcb_job_views WHERE job_id = %d AND viewed_at >= %s", $job_id, get_date_from_gmt( $wcb_since ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 }
 
 // ---------------------------------------------------------------------------
@@ -757,6 +778,7 @@ if ( ! $wcb_link_employer ) {
 		delete_user_meta( $wcb_link_employer, '_wcb_company_id' );
 
 		$r = wcb_rest( 'POST', '/wcb/v1/jobs', array(
+			'remote'      => true,
 			'title'       => '__wcb_test_orphan_job__',
 			'description' => 'Test job posted with no reciprocal company user meta',
 		), $wcb_link_employer );
@@ -836,7 +858,7 @@ if ( $employer_id ) {
 		}
 	};
 
-	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'remote' => true, 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
 	wcb_assert( 403 === $r->get_status(), 'POST /jobs over the active-job cap returns 403' );
 	$wcb_drop_probe( $r );
 	$cap_err = $r->get_data();
@@ -846,7 +868,7 @@ if ( $employer_id ) {
 	// wcb_employer_active_job_limit_message must be able to override the copy.
 	$custom_copy = static fn(): string => '__wcb_test_cap_message__';
 	add_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
-	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'remote' => true, 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
 	wcb_assert( '__wcb_test_cap_message__' === ( $r->get_data()['message'] ?? '' ), 'wcb_employer_active_job_limit_message overrides the copy' );
 	$wcb_drop_probe( $r );
 	remove_filter( 'wcb_employer_active_job_limit_message', $custom_copy );
@@ -855,7 +877,7 @@ if ( $employer_id ) {
 	remove_filter( 'wcb_credits_enabled', $credits_off, 99 );
 	$credits_on = '__return_true';
 	add_filter( 'wcb_credits_enabled', $credits_on, 99 );
-	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'remote' => true, 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
 	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'credits enabled lifts the active-job cap' );
 	$capped_job_id = (int) ( $r->get_data()['id'] ?? 0 );
 	if ( $capped_job_id ) {
@@ -865,7 +887,7 @@ if ( $employer_id ) {
 	remove_filter( 'wcb_employer_active_job_limit', $cap_callback );
 
 	// Default is unlimited — the quota must be inert with no filter attached.
-	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
+	$r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'remote' => true, 'title' => '__wcb_test_cap_job__', 'description' => 'cap probe' ), $employer_id );
 	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'default active-job limit of 0 leaves posting unlimited' );
 	$uncapped_job_id = (int) ( $r->get_data()['id'] ?? 0 );
 	if ( $uncapped_job_id ) {

@@ -62,8 +62,13 @@
 	transition: background var(--wcb-transition-snappy) ease;
 }
 
-.wcb-search-hero__button:hover {
+/* Colour and border restated with the fill: a theme's button:hover can
+ * otherwise win just one of them (Basecamp 10345889841). */
+.wcb-search-hero__button:hover,
+.wcb-search-hero__button:active {
 	background: var(--wcb-primary-dark);
+	color: var(--wcb-on-primary, #ffffff);
+	border: none;
 }
 
 .wcb-search-hero__button:focus-visible {
@@ -85,12 +90,32 @@
 	}
 }
 
+/* Tablet: the search gets its own full-width row and the filters share the
+   row below, as on Find Jobs. On one row the selects squeezed the search to
+   under 100px at 768 (Basecamp 10439833472). */
+@media (max-width: 1024px) {
+	.wcb-search-hero--horizontal .wcb-search-hero__form {
+		flex-wrap: wrap;
+	}
+
+	.wcb-search-hero--horizontal .wcb-search-hero__field--keyword {
+		flex-basis: 100%;
+	}
+
+	.wcb-search-hero--horizontal .wcb-search-hero__field--select {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+}
+
 @media (max-width: 640px) {
 	.wcb-search-hero__form {
 		flex-direction: column;
 	}
 
-	.wcb-search-hero__field--select {
+	/* A full-width primary button on a phone, like Find Jobs and Find Candidates. */
+	.wcb-search-hero__field--select,
+	.wcb-search-hero__button {
 		width: 100%;
 	}
 }

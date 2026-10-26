@@ -100,6 +100,14 @@ final class Industries {
 		if ( ! is_array( $stored ) ) {
 			return self::defaults();
 		}
+		// An empty label is a shipped industry the owner kept as it is: show
+		// it in the reader's language rather than the saver's.
+		$defaults = self::defaults();
+		foreach ( $stored as $slug => $label ) {
+			if ( '' === $label && isset( $defaults[ $slug ] ) ) {
+				$stored[ $slug ] = $defaults[ $slug ];
+			}
+		}
 		return self::clean( $stored );
 	}
 
@@ -169,7 +177,53 @@ final class Industries {
 	 * @return void
 	 */
 	public static function save( array $map ): void {
-		update_option( self::OPTION, self::clean( $map ) );
+		update_option( self::OPTION, self::without_default_labels( self::clean( $map ), array( self::defaults() ) ) );
+		self::flush_cache();
+	}
+
+	/**
+	 * Blank every shipped label that matches a default in one of the given
+	 * languages, so only labels the owner changed are stored.
+	 *
+	 * @since 1.8.2
+	 * @param array<string,string>               $map      Slug => label.
+	 * @param array<int, array<string, string>> $defaults defaults() in each language to compare with.
+	 * @return array<string,string>
+	 */
+	private static function without_default_labels( array $map, array $defaults ): array {
+		foreach ( $map as $slug => $label ) {
+			foreach ( $defaults as $set ) {
+				if ( isset( $set[ $slug ] ) && $set[ $slug ] === $label ) {
+					$map[ $slug ] = '';
+					break;
+				}
+			}
+		}
+		return $map;
+	}
+
+	/**
+	 * One-off repair (DB 1.4.0): labels saved before 1.8.2 hold the shipped
+	 * name in whatever language the admin used. Blank the ones that match a
+	 * default in English or any installed language.
+	 *
+	 * @since 1.8.2
+	 * @return void
+	 */
+	public static function forget_default_labels(): void {
+		$stored = get_option( self::OPTION, null );
+		if ( ! is_array( $stored ) ) {
+			return;
+		}
+		$sets = array();
+		foreach ( array_unique( array_merge( array( 'en_US' ), get_available_languages() ) ) as $locale ) {
+			$switched = switch_to_locale( $locale );
+			$sets[]   = self::defaults();
+			if ( $switched ) {
+				restore_previous_locale();
+			}
+		}
+		update_option( self::OPTION, self::without_default_labels( $stored, $sets ) );
 		self::flush_cache();
 	}
 

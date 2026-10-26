@@ -18,6 +18,8 @@ Your range shows as a pill above the results, such as "$80k+" or "Up to $120k". 
 
 The filter compares pay per year, the same way the **Highest salary** sort does: hourly pay counts as 2,080 hours a year and monthly pay as 12 months. A job paying 40 per hour (about 83,000 a year) matches a minimum of 80,000; a job paying 3,000 a month (36,000 a year) does not.
 
-The slider labels use the site's default currency, set under **Career Board → Settings → Jobs → Default Salary Currency**. While a salary filter is on, only jobs paid in that currency match, because the plugin has no exchange rates to convert with. Each job card still shows the job's own currency.
+The slider labels use the site's default currency, set under **Career Board → Settings → Jobs → Default Salary Currency**. The plugin has no exchange rates, so the range applies only to jobs paid in that currency. Jobs paid in another currency are not hidden: they are listed after the matching jobs, under a note that the range does not apply to them. Jobs with no salary are left out while a salary filter is on. Each job card shows the job's own currency.
 
-Job alerts that include a salary range use the same rules, so an alert sends the same jobs the saved search showed.
+The **Highest salary** sort works the same way: jobs paid in the default currency come first, highest pay first, then the other currencies, grouped by currency and highest first within each.
+
+Job alerts that include a salary range compare pay per year too, but match only jobs paid in the default currency, so an alert never emails a job whose pay it could not check.

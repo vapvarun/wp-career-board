@@ -35,6 +35,31 @@ class BpIntegration {
 	public function boot(): void {
 		add_action( 'bp_init', array( $this, 'register_member_types' ) );
 		add_action( 'wcb_job_created', array( $this, 'activity_job_posted' ) );
+		// Priority 20: Pro's group-aware entry (wcb_job_approved, fired at 10)
+		// goes first and this one then finds it instead of posting a twin.
+		add_action( 'transition_post_status', array( $this, 'activity_job_first_published' ), 20, 3 );
+	}
+
+	/**
+	 * Announce a job published by any path other than the job form.
+	 *
+	 * The job form announces through wcb_job_created once the price is
+	 * collected, so a job inserted already published ('new') is left to it;
+	 * imports skip the stream on purpose. Reopening an ended job is not a new
+	 * job, so it never posts again.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Previous status.
+	 * @param \WP_Post $post       Post.
+	 * @return void
+	 */
+	public function activity_job_first_published( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'wcb_job' !== $post->post_type || 'publish' !== $new_status || in_array( $old_status, array( 'new', 'publish', 'wcb_expired', 'wcb_closed' ), true ) ) {
+			return;
+		}
+		$this->activity_job_posted( $post->ID );
 	}
 
 	/**
@@ -94,7 +119,7 @@ class BpIntegration {
 			return;
 		}
 		$job = get_post( $job_id );
-		if ( ! $job instanceof \WP_Post || 'publish' !== $job->post_status ) {
+		if ( ! $job instanceof \WP_Post || 'publish' !== $job->post_status || self::job_activity_exists( $job_id ) ) {
 			return;
 		}
 
@@ -113,5 +138,21 @@ class BpIntegration {
 				'hide_sitewide' => false,
 			)
 		);
+	}
+
+	/**
+	 * Whether the stream already announces this job, from Free or from Pro
+	 * (component 'wcb', or 'groups' with the job as the secondary item).
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return bool
+	 */
+	public static function job_activity_exists( int $job_id ): bool {
+		global $wpdb;
+		$table = buddypress()->activity->table_name;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- BP table name; one indexed lookup per publish.
+		return (bool) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE type = 'wcb_job_posted' AND ( ( component IN ( 'wp-career-board', 'wcb' ) AND item_id = %d ) OR ( component = 'groups' AND secondary_item_id = %d ) ) LIMIT 1", $job_id, $job_id ) );
 	}
 }

@@ -28,6 +28,10 @@ final class Roles {
 	 * @return void
 	 */
 	public function register(): void {
+		// Role names are stored in English and translated when shown, the way
+		// WordPress does its own roles. Storing __() wrote whichever language
+		// the last visitor used into wp_user_roles for everyone.
+		add_filter( 'gettext_with_context', array( self::class, 'translate_role_name' ), 10, 4 );
 		$this->add_employer_role();
 		$this->add_candidate_role();
 		$this->add_moderator_role();
@@ -43,7 +47,7 @@ final class Roles {
 	private function add_employer_role(): void {
 		$this->sync_role(
 			'wcb_employer',
-			__( 'Employer', 'wp-career-board' ),
+			'Employer',
 			array(
 				'read'                          => true,
 				'wcb_post_jobs'                 => true,
@@ -63,7 +67,7 @@ final class Roles {
 	private function add_candidate_role(): void {
 		$this->sync_role(
 			'wcb_candidate',
-			__( 'Candidate', 'wp-career-board' ),
+			'Candidate',
 			array(
 				'read'                           => true,
 				'wcb_apply_jobs'                 => true,
@@ -90,13 +94,36 @@ final class Roles {
 	private function add_moderator_role(): void {
 		$this->sync_role(
 			'wcb_board_moderator',
-			__( 'Job Moderator', 'wp-career-board' ),
+			'Job moderator',
 			array(
 				'read'                  => true,
 				'wcb_moderate_jobs'     => true,
 				'wcb_access_admin_jobs' => true,
 			)
 		);
+	}
+
+	/**
+	 * Translate our role names wherever WordPress shows a role
+	 * (translate_user_role(), which reads the "User role" context).
+	 *
+	 * @since 1.8.2
+	 * @param string $translation Translated text.
+	 * @param string $text        Stored role name.
+	 * @param string $context     Gettext context.
+	 * @param string $domain      Text domain.
+	 * @return string
+	 */
+	public static function translate_role_name( string $translation, string $text, string $context, string $domain ): string {
+		if ( 'User role' !== $context || 'default' !== $domain ) {
+			return $translation;
+		}
+		$names = array(
+			'Employer'      => __( 'Employer', 'wp-career-board' ),
+			'Candidate'     => __( 'Candidate', 'wp-career-board' ),
+			'Job moderator' => __( 'Job moderator', 'wp-career-board' ),
+		);
+		return $names[ $text ] ?? $translation;
 	}
 
 	/**

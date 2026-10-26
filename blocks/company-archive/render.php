@@ -259,12 +259,14 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 	<div class="wcb-archive-layout">
 
 		<aside class="wcb-filter-panel" aria-label="<?php esc_attr_e( 'Filter companies', 'wp-career-board' ); ?>">
-			<input type="checkbox" id="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle-input" />
+			<input type="checkbox" id="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle-input" aria-expanded="false" data-wp-context='{"filtersOpen":false}' data-wp-bind--aria-expanded="context.filtersOpen" data-wp-on--change="actions.toggleFilterPanel" />
 			<div class="wcb-filter-panel__header">
-				<h2 class="wcb-filter-panel__heading"><?php esc_html_e( 'Filters', 'wp-career-board' ); ?></h2>
-				<label for="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle" aria-label="<?php esc_attr_e( 'Toggle filters', 'wp-career-board' ); ?>">
-					<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-				</label>
+				<h2 class="wcb-filter-panel__heading">
+					<label for="wcb-companies-filters-toggle" class="wcb-filter-panel__toggle">
+						<?php esc_html_e( 'Filters', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'chevron-down' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
+					</label>
+				</h2>
 				<button type="button" class="wcb-filter-panel__clear" data-wp-on--click="actions.clearFilters" data-wp-class--wcb-hidden="callbacks.noActiveFilters"><?php esc_html_e( 'Clear all', 'wp-career-board' ); ?></button>
 			</div>
 
@@ -421,6 +423,9 @@ $wcb_empty = array(
 	'clear_action'      => 'actions.clearFilters',
 	'clear_hidden_bind' => 'callbacks.noActiveFilters',
 	'clear_label'       => __( 'Clear filters', 'wp-career-board' ),
+	'empty_title'       => __( 'No companies yet', 'wp-career-board' ),
+	'empty_body'        => __( 'Companies appear here once employers set up their profiles.', 'wp-career-board' ),
+	'filtered_bind'     => 'callbacks.hasActiveFilters',
 	// Without this the "no companies match" panel is in the SSR markup with no
 	// `hidden` attribute, so it paints for one frame on a page that DOES have
 	// companies, until Interactivity binds `wp_bind_hidden`.

@@ -537,6 +537,16 @@ final class EmployersEndpoint extends RestController {
 		$name = $request->get_param( 'name' );
 		if ( null !== $name ) {
 			$data['post_title'] = sanitize_text_field( (string) $name );
+			if ( '' === trim( $data['post_title'] ) ) {
+				return new \WP_Error( 'wcb_missing_name', __( 'Company name is required.', 'wp-career-board' ), array( 'status' => 400 ) );
+			}
+		}
+		$custom = $request->get_param( 'custom_fields' );
+		if ( is_array( $custom ) ) {
+			$wcb_field_error = \WCB\Core\FormCustomFields::required_error( (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID ), $custom, (int) $post->ID );
+			if ( $wcb_field_error ) {
+				return $wcb_field_error;
+			}
 		}
 		$desc = $request->get_param( 'description' );
 		if ( null !== $desc ) {
@@ -570,7 +580,6 @@ final class EmployersEndpoint extends RestController {
 		}
 
 		// Persist filter-injected custom fields (Pro Field Builder + add-ons).
-		$custom = $request->get_param( 'custom_fields' );
 		if ( is_array( $custom ) ) {
 			$groups = (array) apply_filters( 'wcb_company_form_fields', array(), (int) $post->ID );
 			\WCB\Core\FormCustomFields::save_values( $groups, (int) $post->ID, $custom );
@@ -784,14 +793,7 @@ final class EmployersEndpoint extends RestController {
 				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
 				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
-				$status_labels  = array(
-					'publish'     => __( 'Published', 'wp-career-board' ),
-					'draft'       => __( 'Draft', 'wp-career-board' ),
-					'pending'     => __( 'Pending', 'wp-career-board' ),
-					'private'     => __( 'Private', 'wp-career-board' ),
-					'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
-					'wcb_expired' => __( 'Expired', 'wp-career-board' ),
-				);
+				$status_labels  = self::job_status_labels();
 				// Mirror the public-facing 'closed' / 'expired' status used by
 				// the dashboard JS; matches the inverse mapping in
 				// JobsEndpoint::get_item().
@@ -904,14 +906,7 @@ final class EmployersEndpoint extends RestController {
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 
-				$status_labels = array(
-					'publish'     => 'Published',
-					'draft'       => 'Draft',
-					'pending'     => 'Pending',
-					'private'     => 'Private',
-					'wcb_closed'  => 'Closed',
-					'wcb_expired' => 'Expired',
-				);
+				$status_labels = self::job_status_labels();
 
 				$rejected      = self::is_rejected_job( $p );
 				$public_status = match ( $p->post_status ) {
@@ -1553,5 +1548,22 @@ final class EmployersEndpoint extends RestController {
 		// canonical filter as class-companies-endpoint so extension authors
 		// only have to hook one place.
 		return (array) apply_filters( 'wcb_rest_prepare_company', $data, $post, null );
+	}
+
+	/**
+	 * Translated label for each job status shown on the employer dashboard.
+	 *
+	 * @since 1.8.2
+	 * @return array<string, string>
+	 */
+	private static function job_status_labels(): array {
+		return array(
+			'publish'     => __( 'Published', 'wp-career-board' ),
+			'draft'       => __( 'Draft', 'wp-career-board' ),
+			'pending'     => __( 'Pending', 'wp-career-board' ),
+			'private'     => __( 'Private', 'wp-career-board' ),
+			'wcb_closed'  => __( 'Closed', 'wp-career-board' ),
+			'wcb_expired' => __( 'Expired', 'wp-career-board' ),
+		);
 	}
 }

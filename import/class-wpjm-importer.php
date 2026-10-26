@@ -287,7 +287,7 @@ class WpjmImporter {
 			} elseif ( 'skipped' === $r ) {
 				++$result['skipped'];
 			} else {
-				$result['errors'][] = sprintf( 'ID %d: %s', $source_id, $r );
+				$result['errors'][] = sprintf( /* translators: 1: source post ID, 2: reason it was skipped. */ __( 'ID %1$d: %2$s', 'wp-career-board' ), $source_id, $r );
 			}
 		}
 
@@ -320,7 +320,7 @@ class WpjmImporter {
 
 		$source = get_post( $source_id );
 		if ( ! $source ) {
-			return 'source post not found';
+			return __( 'source post not found', 'wp-career-board' );
 		}
 
 		$new_id = wp_insert_post(
@@ -343,7 +343,6 @@ class WpjmImporter {
 
 		// ── Meta mapping ─────────────────────────────────────────────────────
 		$meta_map = array(
-			'_job_salary'          => '_wcb_salary_min',
 			'_job_salary_currency' => '_wcb_salary_currency',
 			'_job_expires'         => '_wcb_deadline',
 			'_featured'            => '_wcb_featured',
@@ -372,9 +371,12 @@ class WpjmImporter {
 			wp_set_object_terms( $new_id, $wpjm_location, 'wcb_location' );
 		}
 
-		// salary_max: WPJM stores one salary value — copy to both min and max.
-		$salary = get_post_meta( $source_id, '_job_salary', true );
-		if ( '' !== $salary ) {
+		// WPJM stores one free-text salary ("$80,000", "80k"): it becomes both
+		// min and max. Text that is not one amount (a range, "Negotiable") is
+		// left unset rather than guessed.
+		$salary = \WCB\Modules\Jobs\JobsMeta::parse_amount( (string) get_post_meta( $source_id, '_job_salary', true ) );
+		if ( null !== $salary ) {
+			update_post_meta( $new_id, '_wcb_salary_min', $salary );
 			update_post_meta( $new_id, '_wcb_salary_max', $salary );
 		}
 
@@ -516,7 +518,7 @@ class WpjmImporter {
 			} elseif ( 'skipped' === $r ) {
 				++$result['skipped'];
 			} else {
-				$result['errors'][] = sprintf( 'ID %d: %s', $source_id, $r );
+				$result['errors'][] = sprintf( /* translators: 1: source post ID, 2: reason it was skipped. */ __( 'ID %1$d: %2$s', 'wp-career-board' ), $source_id, $r );
 			}
 		}
 
@@ -556,7 +558,7 @@ class WpjmImporter {
 
 		$source = get_post( $source_id );
 		if ( ! $source ) {
-			return 'source post not found';
+			return __( 'source post not found', 'wp-career-board' );
 		}
 
 		$new_id = wp_insert_post(
@@ -734,7 +736,7 @@ class WpjmImporter {
 		}
 		$source = get_post( $source_id );
 		if ( ! $source instanceof \WP_Post ) {
-			return 'source post not found';
+			return __( 'source post not found', 'wp-career-board' );
 		}
 		$job = get_posts(
 			array(

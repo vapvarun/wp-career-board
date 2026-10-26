@@ -165,7 +165,8 @@ class ApplicationCommands extends AbstractCliCommand {
 			);
 		}
 
-		if ( empty( $rows ) ) {
+		// Machine formats print an empty list ([] for JSON) so scripts can parse it.
+		if ( empty( $rows ) && 'table' === $format ) {
 			\WP_CLI::log( 'No applications found.' );
 			return;
 		}

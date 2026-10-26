@@ -185,10 +185,9 @@
 	outline: 2px solid transparent !important;
 	box-shadow: var(--wcb-shadow-focus);
 }
-
 /* Mouse press only: some block themes (TT25) draw a 2px white outline on
    :focus. Keyboard focus keeps the ring above. */
-:is(.wcb-btn, .wcb-search-button, .wcb-search-hero__button, .wcb-jm-location-btn):focus:not(:focus-visible) {
+:is(.wcb-btn, .wcb-search-button, .wcb-search-hero__button):focus:not(:focus-visible) {
 	outline: none;
 }
 
@@ -429,7 +428,10 @@
 	transition: border-color var(--wcb-transition-fast), box-shadow var(--wcb-transition-fast);
 }
 
-:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
+/* `[class]` brings this to (0,3,1): the field rule above counts its
+   input:not([type=...]) arm, so a bare textarea override lost and left the
+   text against the top border (Basecamp 10436294696). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) textarea[class]:is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email) {
 	height: auto;
 	min-height: 120px;
 	padding: var(--wcb-space-md) var(--wcb-space-lg);
@@ -482,7 +484,7 @@
 }
 
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(input:not([type="radio"], [type="checkbox"]), select, textarea):is(.wcb-input, .wcb-field, .wcb-field-input, .wcb-rf-input, .wcb-rf-textarea, .wcb-rb-input, .wcb-rb-textarea, .wcb-rb-summary-textarea, .wcb-cb-input, .wcb-apply-resume-select, .wcb-alert-guest-email)[aria-invalid="true"] {
-	border-color: var(--wcb-danger);
+	border-color: var(--wcb-danger-fg);
 }
 
 :is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-form-label, .wcb-field-label, .wcb-rf-label, .wcb-rb-label, .wcb-rb-summary-label, .wcb-cb-custom-label) {
@@ -1117,7 +1119,7 @@
 }
 
 /* UI-010: keyboard focus ring on toolbar icon buttons (bookmark + view
-   switcher). `.wcb-chip` already had one; these were missing (WCAG 2.4.7). */
+   switcher), which were missing (WCAG 2.4.7). */
 .wcb-bookmark-btn:focus-visible,
 .wcb-layout-btn:focus-visible,
 .wcb-view-btn:focus-visible {
@@ -1154,8 +1156,12 @@
 /* Visually-hidden checkbox that powers the mobile collapse toggle below.
  * Pure-CSS sibling-selector toggle - no JS needed, no per-archive store
  * changes. Native checkbox keeps full keyboard + screen reader support;
- * the `<label>` chevron acts as the trigger. */
+ * the `<label>` (the whole "Filters" heading row) acts as the trigger. On
+ * wide screens the panel is always open, so the checkbox leaves the tab
+ * order there. */
 .wcb-filter-panel__toggle-input {
+	display: none;
+
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -1167,7 +1173,7 @@
 	white-space: nowrap;
 }
 
-.wcb-filter-panel__toggle {
+.wcb-filter-panel__toggle svg {
 	display: none;
 }
 
@@ -1452,18 +1458,27 @@
 		padding: var(--wcb-space-md) var(--wcb-space-lg);
 	}
 
+	.wcb-filter-panel__toggle-input {
+		display: block;
+	}
+
 	.wcb-filter-panel__header {
 		padding-bottom: 0;
 		border-bottom: 0;
 		margin-bottom: 0;
 	}
 
+	.wcb-filter-panel__heading {
+		flex: 1;
+		min-width: 0;
+	}
+
 	.wcb-filter-panel__toggle {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 32px;
-		height: 32px;
+		min-width: 40px;
+		min-height: 40px;
 		cursor: pointer;
 		color: var(--wcb-text-secondary, #6b7280);
 		border-radius: var(--wcb-radius-sm);
@@ -1477,9 +1492,21 @@
 		color: var(--wcb-contrast, #0f172a);
 	}
 
+	/* The heading row is the tap target, chevron at its end. */
+	.wcb-filter-panel__heading .wcb-filter-panel__toggle {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--wcb-space-sm);
+		width: 100%;
+		color: inherit;
+	}
+
 	.wcb-filter-panel__toggle svg {
+		display: block;
 		width: 16px;
 		height: 16px;
+		flex-shrink: 0;
+		color: var(--wcb-text-secondary, #6b7280);
 		transition: transform 0.2s ease;
 	}
 
@@ -1517,65 +1544,6 @@
 	min-width: 0;
 }
 
-/* ── Chip filter row ──────────────────────────────────────────────────────── */
-
-/* Shared chip primitive used by every archive filter bar. The earlier
- * `.wcb-chip` / `.wcb-chip-bar` definitions lived inside
- * `blocks/job-listings/style.css`, which meant the same class behaved
- * differently on `/companies/` (no rules loaded, falls back to native
- * button) and `/find-jobs/` (styled chip). Hoisting the rules into the
- * global ui primitives stylesheet ensures every block — including the
- * new Companies chip-bar and any future archive block — renders the
- * same affordance for free. Block-local stylesheets may still override
- * locally if a block needs a different size, but no block should
- * redefine the default state of `.wcb-chip` again. */
-
-.wcb-chip-bar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-chip {
-	display: inline-flex;
-	align-items: center;
-	height: var(--wcb-space-3xl);
-	padding-inline: var(--wcb-space-md);
-	border: 1px solid var(--wcb-border, #e2e8f0);
-	border-radius: var(--wcb-radius-full);
-	font-size: var(--wcb-text-sm);
-	font-weight: var(--wcb-font-medium);
-	color: var(--wcb-contrast, #0f172a);
-	background: var(--wcb-base, #ffffff);
-	cursor: pointer;
-	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
-	white-space: nowrap;
-}
-
-.wcb-chip:hover {
-	border-color: var(--wcb-primary, #2563eb);
-	background: var(--wcb-info-bg, #dbeafe);
-	color: var(--wcb-primary-text, #1d4ed8);
-}
-
-.wcb-chip:focus-visible {
-	outline: 2px solid var(--wcb-primary, #2563eb);
-	outline-offset: 2px;
-}
-
-.wcb-chip.wcb-chip-active {
-	border-color: var(--wcb-primary-strong);
-	background: var(--wcb-primary-strong);
-	color: var(--wcb-on-primary, #ffffff);
-}
-
-.wcb-chip.wcb-chip-active:hover {
-	background: var(--wcb-primary-dark, #1d4ed8);
-	border-color: var(--wcb-primary-dark, #1d4ed8);
-	color: var(--wcb-on-primary, #ffffff);
-}
-
 /* ── Badge ────────────────────────────────────────────────────────────────── */
 
 .wcb-badge {
@@ -1602,6 +1570,38 @@
 	border: 1px solid var(--wcb-border, #e2e8f0);
 	color: var(--wcb-text-secondary, #6b7280);
 }
+
+/* ── Card chip (job cards + Post a Job preview) ──────────────────────────── */
+
+/* Hidden by default; shown when data-wp-class adds .wcb-shown.
+ * Padding aligned with `.wcb-ca-chip` (Companies) + `.wcb-ra-card-location`
+ * /`.wcb-ra-skill-tag` (Find Candidates): `0.15rem var(--wcb-space-sm)`. */
+.wcb-cbadge {
+	display: none;
+	align-items: center;
+	gap: var(--wcb-space-xs); /* 0.2rem ≈ 3px → xs */
+	padding: var(--wcb-space-xs) var(--wcb-space-sm); /* 0.15rem ≈ 2px → xs */
+	border-radius: var(--wcb-radius-full);
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-medium);
+	line-height: 1.4;
+	white-space: nowrap;
+	background: var(--wcb-surface);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-cbadge.wcb-shown {
+	display: inline-flex;
+}
+
+/* All meta badges use the neutral Companies chip palette so Find Jobs,
+ * Companies, and Find Candidates cards share one chip style. The earlier
+ * yellow/green/red palette made Jobs cards visually louder than the
+ * other two archives. Featured stays as a subtle warning tint - it IS
+ * a meaningful promotion marker, but the soft variant keeps it from
+ * dominating the card. */
+.wcb-cbadge--featured { background: var(--wcb-warning-bg-soft); color: var(--wcb-warning-fg); }
+.wcb-cbadge--tag      { background: transparent; border: 1px solid var(--wcb-border); color: var(--wcb-text-secondary); }
 
 /* ── Layout utilities ─────────────────────────────────────────────────────── */
 
@@ -1684,6 +1684,14 @@
 	text-align: start;
 	color: inherit;
 	transition: border-color var(--wcb-transition-fast);
+}
+
+/* A theme's button:hover / button:focus (0,1,1) fills the tile (Astra blue,
+   Kadence navy); keep the card's own surface (Basecamp 10436072102). */
+.wcb-stat-card--link:is(:hover, :focus) {
+	background: var(--wcb-base, #ffffff);
+	color: inherit;
+	box-shadow: none;
 }
 
 .wcb-stat-card--link:hover {
@@ -2109,6 +2117,23 @@
 	gap: var(--wcb-space-xl);
 }
 
+/* Side-by-side panels end level: the grid stretches each panel, the panel is a
+   column, its empty-state card fills it and the card's action sits at the
+   bottom, so one wrapped hint no longer pushes one card lower (Basecamp
+   10439937451). Stacked under 1024px, each card is its own height again. */
+.wcb-dashboard .wcb-two-col > .wcb-panel {
+	display: flex;
+	flex-direction: column;
+}
+
+.wcb-dashboard .wcb-two-col > .wcb-panel > .wcb-empty-state {
+	flex: 1 1 auto;
+}
+
+.wcb-dashboard .wcb-two-col > .wcb-panel > .wcb-empty-state > .wcb-btn {
+	margin-block-start: auto;
+}
+
 .wcb-dashboard .wcb-panel {
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
@@ -2137,8 +2162,13 @@
 	color: var(--wcb-contrast);
 }
 
-/* (0,3,0): beats the block-scope link reset in frontend-components.css. */
+/* (0,3,0): beats the block-scope link reset in frontend-components.css.
+   40px tall on every pointer, not only touch: the owner put usability ahead
+   of a text-size link on a mouse (Basecamp 10439833492). */
 .wcb-dashboard .wcb-main .wcb-panel-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 40px;
 	padding: 0;
 	border: none;
 	background: none;
@@ -2148,10 +2178,6 @@
 	color: var(--wcb-primary-text); /* text-safe shade: raw primary missed 4.5:1 on tinted panels */
 	text-decoration: none;
 	cursor: pointer;
-}
-
-.wcb-dashboard .wcb-main .wcb-panel-link:hover {
-	text-decoration: underline;
 }
 
 /* Account and password save feedback. */
@@ -2281,13 +2307,6 @@
 	color: var(--wcb-text-secondary);
 }
 
-.wcb-notifications__empty {
-	padding: var(--wcb-space-xl);
-	text-align: center;
-	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary);
-}
-
 @media (max-width: 1024px) {
 	.wcb-dashboard .wcb-main {
 		padding: var(--wcb-space-xl);
@@ -2316,19 +2335,21 @@
    look on a pointer device and gain height (not size) on touch and on phones. */
 @media (pointer: coarse), (max-width: 640px) {
 	.wcb-btn--sm,
-	.wcb-chip,
-	.wcb-panel-link,
 	.wcb-bell-action,
 	.wcb-filter-panel__clear,
 	.wcb-active-chip,
-	.wcb-apps-filter-bar .wcb-filter-pill {
+	.wcb-filter-pill,
+	button.wcb-apps-chip,
+	.wcb-job-report__trigger,
+	.wcb-post-apply-alert-btn {
 		display: inline-flex;
 		align-items: center;
 		min-height: 40px;
 	}
 
 	/* Icon-only, not a text pill — needs both dimensions bumped. */
-	.wcb-active-chip-remove {
+	.wcb-active-chip-remove,
+	.wcb-rating__star {
 		min-width: 40px;
 		min-height: 40px;
 	}
@@ -2447,5 +2468,23 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 }
 
 .wcb-toast[hidden] {
+	display: none;
+}
+
+/* ── Required marker and inline field error ──────────────────────────────
+   One look on every form (Post a Job, registration). Basecamp 10412873869. */
+.wcb-required {
+	color: var(--wcb-danger-fg); /* 4.5:1 at label size; --wcb-danger was 3.7:1 */
+	font-weight: var(--wcb-font-bold);
+	margin-inline-start: 2px;
+}
+
+.wcb-field-error {
+	margin: var(--wcb-space-xs) 0 0;
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-danger-fg, #991b1b);
+}
+
+.wcb-field-error[hidden] {
 	display: none;
 }

@@ -22,10 +22,10 @@
  *
  * @package WP_Career_Board
  */
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue } from '@wcb/fields';
-import { formatSiteDate } from '@wcb/ui';
+import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
+import { flushEditors, formatSiteDate } from '@wcb/ui';
 
 /**
  * Translation reader.
@@ -94,7 +94,7 @@ const num = ( value, options ) => new Intl.NumberFormat( locale(), options ).for
  * Attach a validation message to one field ('' clears it).
  *
  * @param {Object} state   Store state.
- * @param {string} field   title | description | location, or '' to clear.
+ * @param {string} field   title | description | salary | location, or '' to clear.
  * @param {string} message Message shown under that field.
  */
 const setValidation = ( state, field, message ) => {
@@ -178,19 +178,6 @@ const showDescription = ( value ) => {
 		source.value = value;
 		source.dispatchEvent( new Event( 'wcb:editor:hydrate', { bubbles: true } ) );
 	}
-};
-
-/**
- * Make the description textarea current. The rich editor saves asynchronously, so
- * a click right after typing would otherwise read the text from before the last
- * edit and see an empty or stale description.
- *
- * @return {Promise<void>} Resolves when the description state is up to date.
- */
-const flushDescription = () => {
-	const holder = document.getElementById( 'wcb-editor-job-desc' );
-	const editor = holder && holder.closest( '.wcb-editor' );
-	return editor && editor.wcbFlush ? editor.wcbFlush().catch( () => {} ) : Promise.resolve();
 };
 
 const { state } = store(
@@ -283,7 +270,7 @@ const { state } = store(
 				if ( ! min && ! max ) {
 					return '';
 				}
-				const symbol = symbolFor( state.currencyCode || 'USD' );
+				const symbol = symbolFor( state.currencyCode || state.defaultCurrency );
 				const suffix = state.salaryType === 'monthly'
 					? t( 'salaryPerMonth', '/mo' )
 					: state.salaryType === 'hourly'
@@ -334,6 +321,14 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return state.locationSlug === '__custom__';
 			},
+			get tagList() {
+				const { state } = store( 'wcb-job-form' );
+				return ( state.tags || '' ).split( ',' ).map( ( tag ) => tag.trim() ).filter( Boolean );
+			},
+			get hasTags() {
+				const { state } = store( 'wcb-job-form' );
+				return state.tagList.length > 0;
+			},
 			get hasCategory() {
 				const { state } = store( 'wcb-job-form' );
 				return state.categorySlugs.length > 0;
@@ -369,9 +364,23 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return 'description' === state.validationField && ! ! state.validationError;
 			},
+			// Step 4 shows the description as text: parsed, never run or injected,
+			// with paragraph and list breaks kept (Basecamp 10430670040).
+			get descriptionPreview() {
+				const { state } = store( 'wcb-job-form' );
+				const doc = new DOMParser().parseFromString( state.description || '', 'text/html' );
+				doc.querySelectorAll( 'br' ).forEach( ( el ) => el.replaceWith( '\n' ) );
+				doc.querySelectorAll( 'li' ).forEach( ( el ) => el.prepend( '• ' ) );
+				doc.querySelectorAll( 'p, li, h1, h2, h3, h4, h5, h6, blockquote, div' ).forEach( ( el ) => el.append( '\n' ) );
+				return doc.body.textContent.replace( /\n{3,}/g, '\n\n' ).trim();
+			},
 			get locationInvalid() {
 				const { state } = store( 'wcb-job-form' );
 				return 'location' === state.validationField && ! ! state.validationError;
+			},
+			get salaryInvalid() {
+				const { state } = store( 'wcb-job-form' );
+				return 'salary' === state.validationField && ! ! state.validationError;
 			},
 
 			// More than one company to post for: show the Company picker.
@@ -394,6 +403,12 @@ const { state } = store(
 			get jobPending() {
 				const { state } = store( 'wcb-job-form' );
 				return state.jobStatus === 'pending';
+			},
+
+			// A custom-field group shows only on the boards that use it.
+			get isGroupOnBoard() {
+				const { state } = store( 'wcb-job-form' );
+				return groupOnBoard( getContext().groupBoards, state.boardId );
 			},
 
 			// ── Credit getters ────────────────────────────────────────────────
@@ -438,7 +453,7 @@ const { state } = store(
 				return fill(
 					t(
 						'listingWindow',
-						'Listing runs until %1$s. Reopen on the dashboard to extend (counts as a republish).'
+						'Your listing stays live until %1$s. You can renew it from your dashboard.'
 					),
 					'%1$s',
 					formatSiteDate( state.deadline, state.locale )
@@ -576,7 +591,7 @@ const { state } = store(
 						body: JSON.stringify( {
 							title: state.title,
 							company_type: state.companyName || '',
-							location: state.locationSlug || 'remote',
+							location: jobLocationLabel( state.locationSlug, state.locationCustom ),
 						} ),
 					} );
 					const data = yield response.json();
@@ -596,7 +611,7 @@ const { state } = store(
 			* nextStep() {
 				const { state } = store( 'wcb-job-form' );
 
-				// Guards a real gap now: flushDescription() below yields, so a
+				// Guards a real gap now: flushEditors() below yields, so a
 				// second click in the same tick used to re-enter before this ran
 				// (Basecamp 10348706675).
 				if ( state.stepping ) {
@@ -606,7 +621,7 @@ const { state } = store(
 
 				try {
 					if ( state.step === 1 ) {
-						yield flushDescription();
+						yield flushEditors();
 						if ( ! state.title.trim() ) {
 							setValidation( state, 'title', t( 'errorTitleRequired', 'Job title is required before you can continue.' ) );
 							focusField( 'wcb-job-title' );
@@ -617,6 +632,11 @@ const { state } = store(
 							focusField( 'wcb-editor-job-desc' );
 							return;
 						}
+					}
+					if ( state.step === 2 && salaryInverted( state.salaryMin, state.salaryMax ) ) {
+						setValidation( state, 'salary', t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' ) );
+						focusField( 'wcb-salary-max' );
+						return;
 					}
 					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
 						setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
@@ -669,7 +689,7 @@ const { state } = store(
 			* submitJob() {
 				const { state } = store( 'wcb-job-form' );
 
-				// Set before the first yield: flushDescription() below yields, so a
+				// Set before the first yield: flushEditors() below yields, so a
 				// second click in the same tick used to re-enter before this ran
 				// (Basecamp 10348706675).
 				if ( state.submitting ) {
@@ -679,7 +699,7 @@ const { state } = store(
 
 				try {
 
-				yield flushDescription();
+				yield flushEditors();
 
 				// Honeypot check — bots filling all fields get a fake success response.
 				const hpEl = document.getElementById( 'wcb-hp' );
@@ -717,7 +737,7 @@ const { state } = store(
 						description:     state.description,
 						salary_min:      state.salaryMin,
 						salary_max:      state.salaryMax,
-						salary_currency: state.currencyCode || 'USD',
+						salary_currency: state.currencyCode || state.defaultCurrency,
 						salary_type:     state.salaryType || 'yearly',
 						remote:          state.remote,
 						deadline:        state.deadline,
@@ -725,12 +745,7 @@ const { state } = store(
 						apply_email:     state.applyEmail,
 						categories:      state.categorySlugs,
 						job_types:       state.typeSlug ? [ state.typeSlug ] : [],
-						locations:       state.locationSlug && state.locationSlug !== '__custom__'
-							? [ state.locationSlug ]
-							: [],
-						location_custom: state.locationSlug === '__custom__'
-							? ( state.locationCustom || '' ).trim()
-							: '',
+						...jobLocation( state.locationSlug, state.locationCustom ),
 						experience:      state.expSlug ? [ state.expSlug ] : [],
 						tags:              tagSlugs,
 						board_id:          state.boardId ? Number( state.boardId ) : 0,

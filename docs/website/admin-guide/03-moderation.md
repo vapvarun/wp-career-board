@@ -45,7 +45,7 @@ The job moves to Draft and the employer gets the **Job Rejected** email, which i
 Admins have full control over all jobs from **WP Career Board → Jobs**:
 
 - **Edit** any job (correct errors, add missing info)
-- **Trash** or **Delete Permanently** spam or low-quality listings (administrators only). Deleting a job with many applicants finishes quickly: its open applications are marked **Job removed** in background batches of 200, and candidates are still told, using the job title saved with their application. The applications stay in the candidate's history
+- **Trash** or **Delete Permanently** spam or low-quality listings (administrators only). Deleting a job with many applicants finishes quickly: its open applications are marked **Job removed** in background batches of 200, and candidates are still told, using the job title saved with their application. The applications stay in the candidate's history. Open the **Trash** view above the Jobs or Companies list to see trashed items. There, **Restore** brings an item back and **Delete Permanently** removes it for good. When a filter matches nothing, the list says "No jobs match your filters" and offers **Clear filters**
 
 ## Reported jobs (flagged) {#reported-jobs-flagged}
 
@@ -100,7 +100,7 @@ Administrators can suspend a candidate from **Career Board → Candidates**:
 1. Go to **Career Board → Candidates**.
 2. Hover a candidate's row and click **Suspend**, or select several rows and choose **Suspend** from the bulk actions.
 
-A suspended candidate loses Career Board abilities such as applying and saving jobs. Click **Restore** (or the **Restore** bulk action) to lift the suspension.
+A suspended candidate loses Career Board abilities such as applying and saving jobs. Click **Restore** (or the **Restore** bulk action) to lift the suspension. A **Suspended** view above the list shows only suspended candidates once there is at least one.
 
 The **Delete** bulk action opens WordPress's own Delete Users screen to confirm. Deleting a candidate removes their personal data and keeps their past applications for employers as "Deleted candidate".
 
@@ -110,7 +110,7 @@ When you delete an employer on WordPress's Delete Users screen, choose **Attribu
 
 ### Banning employers
 
-Administrators can use **Ban** on **Career Board → Employers** to stop an employer posting and take their live and pending jobs and their company page off the site. **Unban** puts back exactly what was live or pending. A job you edited, approved or deleted while the ban was on is left as you set it. Suspending a candidate hides their public resume the same way. In the Jobs list a hidden job shows as **Hidden: employer banned**.
+Administrators can use **Ban** on **Career Board → Employers** to stop an employer posting and take their live and pending jobs and their company page off the site. **Unban** puts back exactly what was live or pending. A job you edited, approved or deleted while the ban was on is left as you set it. Suspending a candidate hides their public resume the same way. In the Jobs list a hidden job shows as **Hidden: employer banned**. A **Banned** view above the Employers list shows only banned employers once there is at least one.
 
 ## Admin notifications
 

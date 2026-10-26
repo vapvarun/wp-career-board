@@ -37,4 +37,4 @@ The template file is `languages/wp-career-board.pot`. You can:
 
 ## Email language
 
-Each email is sent in the recipient's own language, taken from the language set on their user profile.
+Each email is sent in the recipient's own language, taken from the language set on their user profile. Guests get the language of the page they applied or saved a job alert on.

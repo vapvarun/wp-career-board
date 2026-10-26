@@ -29,7 +29,7 @@ let wcbSearchTimer = null;
 // rows loaded so far rather than the matches found is a second bug on top.
 // Keep it that way — if you need a new plural label, resolve it server-side.
 
-const { state } = store( 'wcb-company-archive', {
+const { state, callbacks } = store( 'wcb-company-archive', {
 	state: {
 		get isGrid() {
 			return state.layout === 'grid';
@@ -72,6 +72,9 @@ const { state } = store( 'wcb-company-archive', {
 		// affordance only appears when there's something to clear.
 		noActiveFilters() {
 			return state.industries.length === 0 && state.sizes.length === 0 && ! state.searchQuery;
+		},
+		hasActiveFilters() {
+			return ! callbacks.noActiveFilters();
 		},
 	},
 
@@ -116,6 +119,11 @@ const { state } = store( 'wcb-company-archive', {
 				state.sizes = [ ...state.sizes, sizeSlug ];
 			}
 			wcbFetchCompanies();
+		},
+
+		// Phones and tablets collapse the panel; the header row is its toggle.
+		toggleFilterPanel( event ) {
+			getContext().filtersOpen = event.target.checked;
 		},
 
 		clearFilters() {

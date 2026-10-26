@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.8.1
+ * Version:     1.8.2
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.8.1' );
+define( 'WCB_VERSION', '1.8.2' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -72,7 +72,7 @@ if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
 			if ( ! function_exists( 'wp_is_ability_granted' ) || ! wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 				return;
 			}
-			echo '<div class="notice notice-error"><p>' .
+			echo '<div class="notice wcb-notice notice-error"><p>' .
 				esc_html__( 'WP Career Board is missing files from its update library, so automatic updates are turned off. Reinstall WP Career Board to restore them.', 'wp-career-board' ) .
 				'</p></div>';
 		}

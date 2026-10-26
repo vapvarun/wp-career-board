@@ -58,6 +58,8 @@
     background: var(--wcb-base, #ffffff); color: var(--wcb-contrast, #1e293b);
     cursor: pointer; text-decoration: none; transition: all 0.12s ease;
 }
+/* display above outranks the browser's [hidden] rule (Basecamp 10430704186). */
+.wcb-btn[hidden] { display: none; }
 .wcb-btn:hover { background: var(--wcb-bg-hover, #f1f5f9); color: var(--wcb-contrast, #1e293b); text-decoration: none; }
 .wcb-btn:active { transform: scale(0.97); }
 .wcb-btn:focus-visible { outline: 2px solid var(--wcb-primary, #2563eb); outline-offset: 2px; }
@@ -106,13 +108,17 @@
 }
 
 /* ── Premium Tables ── */
-.wcb-admin .wp-list-table {
+/* .wcb-plain-table: a hand-built table with this look but not core's list-table
+   phone layout, which turns each row into a flex strip (it expects WP_List_Table markup). */
+.wcb-admin .wp-list-table,
+.wcb-admin .wcb-plain-table {
     border-radius: var(--wcb-radius-lg, 8px);
     overflow: hidden;
     box-shadow: var(--wcb-shadow-sm, 0 1px 3px rgba(0,0,0,0.06));
     border: 1px solid var(--wcb-border, #e2e8f0);
 }
-.wcb-admin .wp-list-table thead th {
+.wcb-admin .wp-list-table thead th,
+.wcb-admin .wcb-plain-table thead th {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -121,10 +127,12 @@
     background: var(--wcb-bg-subtle, #f8fafc);
     border-bottom: 2px solid var(--wcb-border, #e2e8f0);
 }
-.wcb-admin .wp-list-table tbody tr:hover {
+.wcb-admin .wp-list-table tbody tr:hover,
+.wcb-admin .wcb-plain-table tbody tr:hover {
     background: var(--wcb-bg-subtle, #f8fafc);
 }
-.wcb-admin .wp-list-table tfoot th {
+.wcb-admin .wp-list-table tfoot th,
+.wcb-admin .wcb-plain-table tfoot th {
     background: var(--wcb-bg-subtle, #f8fafc);
 }
 
@@ -195,9 +203,22 @@
     padding: 6px 12px;
     transition: border-color var(--wcb-transition-snappy, 0.15s ease), box-shadow var(--wcb-transition-snappy, 0.15s ease);
 }
+/* A field never runs past its column: core's .regular-text is a fixed 25em
+   and the settings grid lets the control column shrink below it on tablets
+   (Basecamp 10431561385). Pro's tabs render in the same rows. */
+.wcb-admin .wcb-settings-row-control :is(input:not([type="checkbox"], [type="radio"]), select, textarea) {
+    box-sizing: border-box;
+    max-width: 100%;
+}
 .wcb-admin .form-table select,
 .wcb-admin .wcb-settings-row-control select {
-    padding-right: 30px;
+    /* Core already sizes a select to 40px through its line-height; block
+       padding on top made it 52px beside 40px inputs (Basecamp 10439829015). */
+    padding-block: 0;
+    line-height: 38px; /* core raises it on phones */
+    padding-inline-end: 30px;
+    /* Core caps selects at 25rem, wider than a phone column. */
+    max-width: 100%;
 }
 .wcb-admin .form-table input:focus,
 .wcb-admin .form-table select:focus,
@@ -277,4 +298,10 @@
 .toplevel_page_wp-career-board div.error:not(.wcb-notice),
 .toplevel_page_wp-career-board div.updated:not(.wcb-notice) {
     display: none !important;
+}
+
+/* The license SDK prints its activation result right after its own control;
+   that is the owner's answer to "did my key work?", not a third-party nag. */
+.wcb-admin .edd-sl-sdk__license-control + .notice.inline-notice {
+    display: block !important;
 }

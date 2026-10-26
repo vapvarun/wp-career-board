@@ -109,6 +109,27 @@
 		history.replaceState( null, '', url.toString() );
 	}
 
+	/**
+	 * On phones the nav stacks above the panels, so a tapped tab's panel can
+	 * open below the fold. Scroll it into view, only in that stacked layout.
+	 *
+	 * @param {Element} nav Clicked nav item.
+	 */
+	function reveal( nav ) {
+		var side = nav.closest( '.wcb-settings-sidebar' );
+		var sec  = document.querySelector( SECTION + '.' + ACTIVE );
+		if ( ! side || ! sec || side.getBoundingClientRect().bottom > sec.getBoundingClientRect().top ) {
+			return;
+		}
+		var bar    = document.getElementById( 'wpadminbar' );
+		var offset = bar && 'fixed' === getComputedStyle( bar ).position ? bar.offsetHeight : 0;
+		var reduce = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		window.scrollTo( {
+			top: sec.getBoundingClientRect().top + window.scrollY - offset - 8,
+			behavior: reduce ? 'auto' : 'smooth',
+		} );
+	}
+
 	// Click handler.
 	document.querySelectorAll( NAV ).forEach( function ( item ) {
 		item.addEventListener( 'click', function ( e ) {
@@ -116,6 +137,7 @@
 			var section = this.getAttribute( 'data-section' );
 			activate( section );
 			syncUrl( section );
+			reveal( this );
 		});
 	});
 
@@ -149,4 +171,11 @@
 
 	// Activate from URL hash / ?tab= / default.
 	activate( getInitialSection() );
+
+	// A form result rendered deep in a panel (the CSV import summary) opts in
+	// with data-wcb-reveal so the reload after submit lands on it.
+	var result = document.querySelector( SECTION + '.' + ACTIVE + ' [data-wcb-reveal]' );
+	if ( result ) {
+		result.scrollIntoView( { block: 'center' } );
+	}
 })();

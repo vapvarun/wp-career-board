@@ -12,8 +12,8 @@ last_walked: 2026-06-26
 
 ## As admin
 1. `?autologin=1` → `wp-admin/admin.php?page=wcb-settings#emails` → expect the Brand Settings card and an Email Templates table.
-2. **Brand:** pick a header colour, click **Choose Image** → the WP media frame opens, select a logo → preview shows; set Footer Text → **Save Email Settings**. Values persist under `wcb_settings['emails']['brand']` (colour via `sanitize_hex_color`, footer via `wp_kses_post`).
-3. The table lists all 9 Free emails (Job Pending/Approved/Rejected/Expired, Application Received/Confirmation/Guest/Status, Deadline Reminder) with Recipient (candidate / employer / admin), an editable Subject (placeholder = default), and an Enabled checkbox. Untick one, edit a subject → save → "Email settings saved." and the new values reload.
+2. **Brand:** pick a header colour, click **Choose Image** → the WP media frame opens, select a logo → preview shows; set Footer Text → **Save changes** (the tab's one button). Values persist under `wcb_settings['emails']['brand']` (colour via `sanitize_hex_color`, footer via `wp_kses_post`).
+3. The table lists all 9 Free emails (Job Pending/Approved/Rejected/Expired, Application Received/Confirmation/Guest/Status, Deadline Reminder) with Recipient (candidate / employer / admin), an editable Subject (placeholder = default), and an Enabled checkbox. Untick one, edit a subject → save → "Settings saved." and the new values reload.
 4. Click a row's **Send test** (paper-plane icon) → button shows "Sending…" → `POST /wp-json/wcb/v1/admin/emails/test {email_id}` fires `AbstractEmail::test_send()` to the current admin's email, bypassing the enable toggle → button flips to "Sent" (or "Failed"). The mail lands in the admin inbox.
 5. Scroll to **Email Activity Log** → filter by Template and Status (Sent / Failed / Sent (test) / Failed (test)) → **Refresh** → the just-fired test appears as a **Sent (test)** pill, so test sends never pollute production delivery metrics. Page through with Previous / Next.
 

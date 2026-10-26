@@ -1,6 +1,6 @@
 # Settings
 
-You can set how jobs are reviewed and listed, who can sign up, how emails look and which pages hold each feature. Open **Career Board → Settings** in wp-admin. The sidebar groups tabs by the job you came to do, and each tab saves on its own with its own **Save Changes** button. Saving keeps you on the same tab.
+You can set how jobs are reviewed and listed, who can sign up, how emails look and which pages hold each feature. Open **Career Board → Settings** in wp-admin. The sidebar groups tabs by the job you came to do, and each tab saves on its own with its own **Save changes** button. Saving keeps you on the same tab. The **Help** group at the bottom of the sidebar has a **Documentation** link that opens these docs in a new tab.
 
 The defaults below are what a fresh install uses. A few defaults are safer on sites created from 1.8.0 on; those are marked "new sites". Sites that existed before 1.8.0 keep their settings and see one notice listing the safer defaults.
 
@@ -23,7 +23,7 @@ WP Career Board Pro adds more tabs to this group (Boards, Field Builder and Job 
 | **Hide a job after this many reports** | 3 | When this many members with standing report a job, it is taken off the site as Pending until you review it under Jobs → Flagged. 0 turns auto-hide off (0-50). See [Moderation](./03-moderation.md#reported-jobs-flagged) |
 | **Default listing length (days)** | 30 | The default job length, and the latest deadline an employer can pick: employers may shorten it but not extend it. A job saved in the admin editor with a blank deadline gets this length (tick **No expiry** there for an evergreen job). A board's own listing length, if set, wins. At its deadline a job stops taking applications and leaves listings, feeds and the sitemap within the hour. Its page stays up as an expired page (noindex, similar open jobs) so shared links keep working, and employers reopen it with a new deadline. There is no switch for this on sites created from 1.8.0 on. On sites created before 1.8.0 that had it off, past-deadline jobs keep listing until you click **End jobs at their deadline**, a button shown under this field only while the setting is off. Only jobs that ended in the last 7 days email their employer, so switching on does not email a backlog |
 | **Jobs Per Page** | 12 | Jobs per page in the job listings block (1-100). 12 fills the 2, 3 and 4 column grids evenly; sites that already saved a value keep it |
-| **Default order** | Featured, then newest | How job lists are ordered before a visitor picks a sort: Featured then newest, Closing soonest, Highest salary, or Oldest first. A keyword search always shows the best matches first |
+| **Default order** | Newest first | How job lists are ordered before a visitor picks a sort: Newest first, Closing soonest, Highest salary, or Oldest first. Newest first lists featured jobs at the top. A keyword search always shows the best matches first |
 | **Default Salary Currency** | USD | Pre-selected on the job form; employers can pick another per job |
 | **Featured Duration (days)** | 30 | How long a job stays featured before it reverts (1-365). See [Featured Listing Expiry](./08-featured-expiry.md) |
 
@@ -64,7 +64,7 @@ Sign-ups from one connection are limited to 5 an hour. Developers can change tha
 The **Privacy** tab shows two lists:
 
 - **Pending account deletions** - members who asked to delete their account, with the date it runs and a **Keep account** button to cancel it for them. The grace period is 14 days by default.
-- **Privacy request log** - every personal-data export and erase request the plugin processed, kept as evidence. Visitor IP addresses are stored only as a one-way hash.
+- **Privacy request log** - every personal-data export and erase request the plugin processed, and every deleted account, kept as evidence. Requests from people with no account show as **Guest (no account)**. Visitor IP addresses are stored only as a one-way hash.
 
 See [GDPR & Privacy](./04-gdpr.md).
 
@@ -131,7 +131,7 @@ A honeypot field protects every submission form automatically. For a stronger se
 
 A CAPTCHA runs only once the chosen provider has both a site key and a secret key saved. Switching providers keeps the keys you entered for the others, so you can switch back without retyping. The provider guards the sign-up, job-submission and job-application forms, and the mobile app is told whether a CAPTCHA is required.
 
-**Visitor IP address.** Sign-ups, guest applications and app sign-ins are limited per visitor IP address. If your site runs behind Cloudflare, a load balancer or another proxy, every visitor reaches WordPress from the proxy's address, so choose your proxy here: Cloudflare (CF-Connecting-IP), a load balancer or proxy (X-Forwarded-For) or an Nginx proxy (X-Real-IP). Leave it on **Direct connection** otherwise, because anyone can send these headers.
+**Visitor IP address.** Sign-ups, guest applications and app sign-ins are limited per visitor IP address. If your site runs behind Cloudflare, a load balancer or another proxy, every visitor reaches WordPress from the proxy's address, so choose your proxy here: Cloudflare (CF-Connecting-IP), a load balancer or proxy (X-Forwarded-For) or an Nginx proxy (X-Real-IP). Leave it on **Direct connection** otherwise, because anyone can send these headers. Behind two layers, such as a CDN in front of a load balancer, choose the CDN's own header (Cloudflare for CF-Connecting-IP); X-Forwarded-For would read the CDN's address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the `wcb_client_ip_trusted_hops` filter set to 2.
 
 ### Advanced
 
@@ -143,4 +143,4 @@ A CAPTCHA runs only once the chosen provider has both a site key and a secret ke
 
 ## Saving settings
 
-Click **Save Changes** at the bottom of a tab. Each tab saves separately and saving one tab never changes another.
+Click **Save changes** at the bottom of a tab. Each tab saves separately and saving one tab never changes another.

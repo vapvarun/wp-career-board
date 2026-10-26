@@ -1,285 +1,69 @@
 {
   "mode": "combo",
-  "release_version": "1.8.1",
-  "pro_version": "1.8.1",
-  "ran_at": "2026-10-13T22:49:04Z",
-  "sections": {
-    "A_fresh_install": {
-      "pass": 0,
-      "fail": 0,
-      "skipped": 3
+  "scope": "1.8.2 post-bump confirmation; full touched-surface re-walk passed earlier the same day (14/14); re-stamped 2026-10-26T08:58:01Z after b04a23c, which only changes the DB 1.4.3 repair query form; that path re-verified on this stack",
+  "checks": [
+    {
+      "id": "A1",
+      "name": "Versions, module URLs, log",
+      "result": "pass",
+      "evidence": "wp plugin list: wp-career-board 1.8.2 and wp-career-board-pro 1.8.2 both active; job page script modules (job-single/view.js, wcb-fetch.js, wcb-fields.js, wcb-ui.js) served ?ver=1.8.2; docker logs cb182-combo-wp-1 --since 30m: zero non-access-log lines (no PHP warnings/notices from wp-career-board*)."
     },
-    "B_upgrade": {
-      "pass": 0,
-      "fail": 0,
-      "skipped": 1
+    {
+      "id": "A2a",
+      "name": "Candidate apply, instant submit carries cover letter",
+      "result": "pass",
+      "evidence": "1440 (marcus.williams, job 127, click) and 390 (sarah.chen, job 128, focus+Enter): POST /wcb/v1/jobs/{id}/apply 200, request body contained the typed letter; DB _wcb_cover_letter matched exactly; no page/console errors.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/apply-8921-marcus.williams-1440.png"
     },
-    "C_core_flows": {
-      "pass": 18,
-      "fail": 0,
-      "skipped": 1
+    {
+      "id": "A2b",
+      "name": "Employer sees application",
+      "result": "pass",
+      "evidence": "ahmed.karim dashboard Applications view lists both new applications and shows the cover letter text at 1440 and 390 (after tapping the row); no horizontal overflow, no JS errors.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/emp-apps-1440.png"
     },
-    "D_regression_guards": {
-      "pass": 60,
-      "fail": 0,
-      "skipped": 5
+    {
+      "id": "A2c",
+      "name": "Employer posts job via /post-a-job/",
+      "result": "pass",
+      "evidence": "1440: filled title, description, salary, apply email, category, type, location, experience, Preview, Post Job -> POST /wcb/v1/jobs 201 (id 1055, status pending), 'Job submitted for review' shown; no credit/payment gate hit. 390: step 1 -> Next -> Back, typed text intact, no overflow.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/pj-final.png"
     },
-    "E_pro_smoke": {
-      "pass": 12,
-      "fail": 0,
-      "skipped": 2
+    {
+      "id": "A2d",
+      "name": "Admin approves pending job",
+      "result": "pass",
+      "evidence": "Career Board > Jobs, Pending Review: Approve row action + confirm modal -> job 1055 status publish. No errors.",
+      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/adm-approved.png"
     },
-    "E2_environment": {
-      "pass": 4,
-      "fail": 0,
-      "skipped": 2
+    {
+      "id": "A3",
+      "name": "Pro supplement P1-P6",
+      "result": "pass",
+      "evidence": "See .last-smoke-pass-pro.json: P1 P2 P3 P4 P6 pass; P5 partial (no licensing server)."
     },
-    "F_cross_browser": {
-      "pass": 3,
-      "fail": 0,
-      "skipped": 2
+    {
+      "id": "D.no-expiry-mariadb.restore-after-b04a23c",
+      "status": "pass",
+      "evidence": "combo stack, after b04a23c (repair writes via $wpdb->update): db 1.4.2 -> 1.4.3, blank-deadline expired job -> publish, past-deadline and no-meta jobs stay wcb_expired; no new debug.log lines"
     },
-    "G_post_release": {
-      "pass": 0,
-      "fail": 0,
-      "skipped": 1
-    },
-    "S_pro_supplements": {
-      "pass": 5,
-      "fail": 0,
-      "skipped": 1
+    {
+      "id": "suite.after-b04a23c",
+      "status": "pass",
+      "evidence": "Free + Pro tests/test-*.php 65/65 on wb-listora.local after b04a23c; require_job_location restored to true"
     }
-  },
+  ],
+  "release_version": "1.8.2",
+  "pro_version": "1.8.2",
+  "ran_at": "2026-10-26T08:58:01Z",
   "hard_fails": [],
+  "failures": [],
   "untested": [
     {
-      "id": "A.activation.first-request",
-      "reason": "env: no clean install or previous zip on this box",
-      "needs": "Fresh site + zip. Live state that holds: /find-jobs/ 200, wcb-manifest.json has no icons key, 15 wcb tables."
-    },
-    {
-      "id": "A.db.tables-and-version",
-      "reason": "env: no clean install",
-      "needs": "Fresh site. Live: 15 wcb_ tables = 14 expected (3 Free + 9 Pro + 2 SDK) + legacy wp_wcb_job_boards residue; wcb_db_version 1.3.8 == DB_VERSION; wcbp_db_version 1.16 == ProInstall::DB_VERSION."
-    },
-    {
-      "id": "A.pro.pairs-cleanly",
-      "reason": "env: no clean install",
-      "needs": "Fresh site. Lockstep (1.8.1/1.8.1) and the deactivate-Free guard were verified live (S_pro_supplements P1/P2)."
-    },
-    {
-      "id": "B.migration.silent",
-      "reason": "env: no 1.8.0 zip to upgrade from",
-      "needs": "1.8.0 zip upgrade, then read debug.log of the activation request."
-    },
-    {
-      "id": "D.location-dropdown-scope",
-      "reason": "Control no longer exists: Company Profile HQ is a text input, not a dropdown",
-      "needs": "Runbook row rewrite"
-    },
-    {
-      "id": "D.vector-column-mariadb-11-7",
-      "reason": "env: needs a fresh MariaDB 11.7+/MySQL 9 install to repro",
-      "needs": "Live state holds: wp_wcb_ai_vectors exists, wcbp_db_version 1.16 == ProInstall::DB_VERSION"
-    },
-    {
-      "id": "D.wizard-blank-symlink-windows",
-      "reason": "env: macOS real directories, wizard shows 'Setup already completed'",
-      "needs": "Symlinked or Windows install"
-    },
-    {
-      "id": "D.site-currency-default",
-      "reason": "Would need Settings > Jobs currency changed to EUR; editor default USD == site currency was confirmed",
-      "needs": "A second currency site setting (change and restore)"
-    },
-    {
-      "id": "D.verify-link-browser-bound",
-      "reason": "Needs a mail catcher and two browser contexts",
-      "needs": "Mailpit link + second context"
-    },
-    {
-      "id": "D.candidate-role-follows-activity.backfill",
-      "reason": "Role grant on first application verified; DB 1.3.7 backfill cron not exercised (would reset wcb_db_version)",
-      "needs": "Set wcb_db_version 1.3.7, load a page, run wcb_backfill_candidate_role"
-    },
-    {
-      "id": "D.deleted-user-listings.bulk",
-      "reason": "Delete (no reassign + reassign) verified; the 250-job batch and the orphan-SQL repair were not run",
-      "needs": "250-job fixture and DB 1.3.7 reset"
-    },
-    {
-      "id": "D.guest-apply-account-email.retry",
-      "reason": "409 text and Sign in link verified; a second submit with a fresh email was not made (it would create an application)",
-      "needs": "A disposable guest application"
-    },
-    {
-      "id": "D.employer-zero-count-filter.zero-job",
-      "reason": "Zero-count status pill verified; the 'No applications yet for this job.' branch is unreachable because the job picker lists only jobs that have applications",
-      "needs": "A way to select a job with zero applications"
-    },
-    {
-      "id": "H.applications-zero.status-tab",
-      "reason": "WP hides zero-count status links; empty search shows 'No applications found' with no fatal",
-      "needs": "A status link that shows (0)"
-    },
-    {
-      "id": "C.candidate.mobile.apply",
-      "reason": "Browse and dashboard walked at 390; the apply drawer was only driven at 1440",
-      "needs": "Apply flow at 390"
-    },
-    {
-      "id": "E.pro.notifications-pro",
-      "reason": "Email preference modes (email-only / instant / digest) not exercised",
-      "needs": "Preference toggle + triggering event"
-    },
-    {
-      "id": "E.pro.migration",
-      "reason": "stub: module has zero hook bindings",
-      "needs": "n/a until wired"
-    },
-    {
-      "id": "P5.updater-routing",
-      "reason": "env: no store reachable / no valid license",
-      "needs": "EDD-SL store + license"
-    },
-    {
-      "id": "P3.license-key-entry",
-      "reason": "Entering a key would call the live store",
-      "needs": "Test license"
-    },
-    {
-      "id": "F.firefox-desktop+safari-ios",
-      "reason": "Chromium-only MCP",
-      "needs": "Human spot-check"
-    },
-    {
-      "id": "F.rtl.real-locale",
-      "reason": "No RTL locale installed",
-      "needs": "ar locale plus built -rtl.css twins"
-    },
-    {
-      "id": "G.post-release",
-      "reason": "Runs on production after tagging",
-      "needs": "24h of production monitoring"
-    },
-    {
-      "id": "money.figma-zero-credits",
-      "reason": "employer.figma holds 56 credits and no live company (its company is trashed), so it cannot show the 0-credit state; the same contract was walked as employer.vercel (balance 0)",
-      "needs": "Reset figma ledger (credits settings were not touched)"
+      "item": "Pro P3 step 4 / P5 step 1: enter a test license key and confirm activation persists; updater 'update available' with valid license",
+      "reason": "no licensing server or valid key in the Docker stacks; activating a real license was prohibited"
     }
   ],
-  "coverage": {
-    "multisite": "not tested (single site)",
-    "rtl": "not tested this run (no RTL locale installed)",
-    "concurrency": "partial: 11 guest applications behind one rightmost-hop IP gave 10x200 then 429; AI limiter lock counted 3 then 29 then 429; guest same-email repeat returned one id and one row; no parallel fan-out",
-    "uninstall": "not tested",
-    "scale": "Jobs archive 139 jobs, applications admin 162, companies 26 (paginated, 10-20 per page); no 2000-row seed this run",
-    "viewports": "1440 and 390 light for every employer, candidate, public and admin surface; dark spot-check on employer Overview, Applications, Credits, My Jobs (visual pass, no layout breaks)"
-  },
-  "top3": [
-    "Nothing blocks the release: every 1.8.1 security and data guard held, debug.log has no plugin entries, 15 of 15 admin pages and 22 settings panels render clean at 1440 and 390.",
-    "All earlier failures are resolved at 15e0f0f: Find Jobs keyword search takes one Back, multi-value deep links keep their filters, the failed status save restores the control, the saved-company separator is clean, and every settings password form sits in a form with a hidden username field.",
-    "No open soft items. Remaining gaps are environment-only (see untested and manual_required): fresh-install and upgrade rows, Firefox and Safari iOS, RTL locale, licensed updater."
-  ],
-  "failures": [],
   "debug_log_issues": [],
-  "manual_required": [
-    "Firefox desktop: native date pickers (job deadline, listing form)",
-    "Safari iOS: resume upload and scroll in long dashboards",
-    "RTL locale (ar) with built -rtl.css twins",
-    "Plain-http clipboard: confirm Copy link and Pro Job Feed Copy URL on a real http origin in Safari"
-  ],
-  "notes": [
-    "debug.log: 8898490 -> 9026603 bytes. Every entry attributable to the plugin paths is harness-induced: two 'headers already sent' warnings from my own wp eval-file printing the credits CSV in-process, 3 warnings from a null get_post() in my eval, 'Unknown column name' from my own query on wp_wcb_application_stages (column is label), WP_Date_Query notices from my use of ?w=1440 (core week query var) on the employer dashboard URL, and phar/WP-CLI Deprecated lines. No plugin Fatal, Warning, Notice or Deprecated.",
-    "Browser console: 125 'Blocked script execution in about:blank (sandboxed frame)' errors on wp-admin Settings. They come from the 25 empty sandbox='' .wcb-email-preview__frame iframes; no WCB JS touches those frames (emails.js only sets srcdoc on click), so the source is the Playwright harness, not the plugin. Also an Editor.js '[LOG] Block paragraph skipped because saved data is invalid' on every employer dashboard load (empty Post a Job editor), informational only.",
-    "Runbook drift (not product bugs): D.deleted-user-listings says all of publish/pending/draft jobs become wcb_closed, code (EmployersModule::retire_owned_listings) closes published/expired jobs and moves pending/future ones to draft by owner decision; D.delete-account-spacing asserts label margin-block-start > 0 and buttons inside .wcb-settings-row-actions, the form has gap 8px, label margin 0 and no such wrapper; D.load-more row's anchor is multi-line so a one-line grep misses it; Pro runbook P6 says wcbp_db_version 1.8, ProInstall::DB_VERSION is 1.16; Pro P6 lists wcb_push_devices in the Pro 9 and a 14-table total, live count is 15 with legacy wcb_job_boards; D.resume-map-pins row now also needs _wcb_resume_public=1 on the resume (privacy gate) and its empty state is .wcb-empty-state.",
-    "Fixture state found on the site: employer.figma and employer.stripe companies (56664, 56665) are in trash and they own no live jobs, so ownership checks used a QA job authored by figma; employer.figma has 56 credits; Main Board (id 4) charges 3 credits, Northwind Careers and Remote Engineering are free.",
-    "Money: Post a Job as employer.vercel (balance 0) on Main Board shows 'This board requires 3 credits. Your balance: 0. Contact the site owner to add credits.' and the UI submit shows 'Insufficient credits. This board requires 3 credits but your balance is 0.'; POST /wcb/v1/jobs returns 402 wcb_insufficient_credits {cost:3,balance:0}; no job row was created. employer.figma (56 credits) showed 'Posting deducts 3 credits. Balance after: 53 (currently 56).'",
-    "Settings changed and restored: users_can_register 0 -> 1 -> 0 (candidate registration walk), wcbp_feed_enabled '' -> 1 -> '' (Copy URL only renders when the feed is on), wcb_settings.jobs_per_page 10 -> 11 -> 10 via the admin form (merge contract: every existing key unchanged; the form added defaults report_auto_hide_threshold, jobs_default_sort, job_schema_enabled, social_tags_enabled, default_country), apply_resume_required toggled in-process for guest tests and restored (identical option value). Plugin Free was deactivated and reactivated for P2 (9 wcb cron events present again plus the one-shot wcb_private_files_migrate).",
-    "Side effects restored: sarah.chen notification unread state, siobhan role (subscriber), employer.vercel rating on Priya Patel (4 then cleared), Jordan Lee pipeline stage (Screening -> Interview -> Screening), sarah.chen saved companies (2 saved then removed) and saved job (saved then unsaved), alex.kumar GDPR export request deleted.",
-    "Previous-run findings re-checked: E.pro.pipeline.dangling-stage-id is not a defect (20 applications carry _wcb_stage_id 0 and all are withdrawn/position_closed/job_removed, OFF_BOARD by design, Kanban for the live jobs lists every card); D.job-description-shortcodes.excerpt is fixed at HEAD (Text::excerpt strips shortcodes).",
-    "Not re-done because the previous pass already proved them and nothing in HEAD moved: admin approve/reject modal reject path, Pro Job Feed XML body, push module device registration."
-  ],
-  "resolved": [
-    {
-      "id": "D.find-jobs-url-state",
-      "origin": "from",
-      "observed": "Verified fixed at 78076d0. Deep link ?type=full-time,contract&category=engineering&remote=1 shows 9 jobs; after Experience = Mid Level the URL is ?remote=1&type=full-time%2Ccontract&experience=mid-level&category=engineering (both type values kept, 5 jobs); Back returns to the starting URL, Experience empty, 9 jobs, at 1440 and 390. Clean start: type=part-time (1 job), experience=senior (0 jobs), Back, Back return each prior state (1 job, then 132). /jobs/ same (full-time 113, +Mid Level 55, Back x2 -> 113 then 132). The type select still shows only Full-time for a two-value deep link (single select; filter result is correct).",
-      "url": "http://career-board.local/find-jobs/?type=full-time,contract&category=engineering&remote=1"
-    },
-    {
-      "id": "C.employer.applications.status-failure-control",
-      "origin": "from",
-      "observed": "Verified fixed at 78076d0. employer.vercel, Alex Kumar (app 56556, Shortlisted): with PATCH aborted, choosing Rejected shows 'Could not update the status. Please try again.' and the select reads Shortlisted again, at 1440 and 390. Unblocked: Shortlisted -> Reviewing persisted after reload, then restored to Shortlisted (DB _wcb_status = shortlisted).",
-      "url": "http://career-board.local/employer-dashboard/#applications (employer.vercel, Head of Marketing, Priya Patel)"
-    },
-    {
-      "id": "C.candidate.save-job.saved-company-meta-separator",
-      "origin": "from",
-      "observed": "Verified fixed at 78076d0. alex.kumar Saved Jobs rows read 'Marketlane Commerce · Ottawa, ON, Remote · Full-time' and 'Paysmith · Remote, San Francisco, CA · Full-time'; Northpeak Cloud (empty industry) in #saved-companies reads 'Remote' with no dot at 1440 and 390 (bookmark toggled on then off, restored); employer.vercel #saved-resumes (two temporary bookmarks, removed) reads 'Senior Platform Engineer · Remote' and 'Marketing Coordinator · Paris, France'.",
-      "url": "http://career-board.local/candidate-dashboard/#saved-companies (sarah.chen, saved Northpeak Cloud)"
-    },
-    {
-      "id": "C.candidate.profile.password-fields-outside-form",
-      "origin": "from",
-      "observed": "Verified fixed at 78076d0. All 5 password inputs on candidate and employer #settings are inside forms (saveAccount, changePassword, confirmDeletion); '[DOM] Password field is not contained in a form' no longer logged. Enter in Change Password with a wrong current password shows 'Your current password is incorrect.' with no reload (1440 and 390); Save changes unchanged shows 'Account updated.' with no reload; Delete my account Cancel closes the form; wrong password + DELETE shows 'That password is incorrect.' with no reload; panel edges 403-1257 (1440) and 32-358 (390) match the other panels.",
-      "url": "http://career-board.local/candidate-dashboard/#settings"
-    },
-    {
-      "id": "D.find-jobs-keyword-search-back-double-entry",
-      "origin": "from",
-      "observed": "Verified fixed at 15e0f0f, anonymous, 1440 and 390. /find-jobs/ (132 jobs) -> 'engineer' + Enter -> ?search=engineer (45 jobs, box 'engineer'); one Back returns /find-jobs/ with 132 jobs and an empty box. Deep link ?type=full-time,contract&remote=1 (36 jobs): search 'engineer' gives ?remote=1&type=full-time%2Ccontract&search=engineer (17 jobs, type=full-time,contract kept in the URL); one Back returns the deep link, 36 jobs, empty box. Experience = Mid Level (?...&experience=mid-level, 17 jobs) then one Back returns the deep link with Experience empty and 36 jobs.",
-      "url": "http://career-board.local/find-jobs/"
-    },
-    {
-      "id": "C.dashboards.settings.password-form-missing-username-field",
-      "origin": "from",
-      "observed": "Verified fixed at 15e0f0f. alex.kumar /candidate-dashboard/#settings and employer.vercel /employer-dashboard/#settings, 1440 and 390: all 3 forms with a password input (account, change password, delete account) hold a hidden input autocomplete=username with the member's login (alex.kumar / employer.vercel); 0 password inputs outside a form; CDP Audits log shows no 'Password forms should have (optionally hidden) username fields' and no 'not contained in a form' issue (only generic FormEmptyIdAndNameAttributes / FormLabelHasNeitherFor hints). Enter in Change Password with a wrong current password shows 'Your current password is incorrect.' with no reload (window marker kept, hash #settings, 403 from /wcb/v1/account expected); Delete my account opens the form and Cancel closes it (nothing scheduled).",
-      "url": "http://career-board.local/candidate-dashboard/#settings"
-    }
-  ],
-  "rewalk": {
-    "commit": "78076d0",
-    "scope": [
-      "D.find-jobs-url-state (1440+390, /find-jobs/, /jobs/, keyword)",
-      "C.employer.applications.status-failure-control (1440+390)",
-      "saved rows meta line (candidate Saved Jobs, Saved Companies, employer Saved resumes)",
-      "settings forms on both dashboards (password in form, Enter, save, delete-account Cancel and wrong password)",
-      "regression sweep: Overview/My Jobs/My Applications row menus, panel edges, 390 horizontal scroll, debug.log"
-    ],
-    "at": "2026-10-13T22:27:48Z",
-    "result": "4 of 4 earlier failures verified fixed; 2 new soft findings; debug.log grew 9026603 -> 9062897 bytes with no wp-career-board / wp-career-board-pro entries (WP-CLI phar/Deprecated lines only)",
-    "restored": [
-      "employer.vercel app 56556 status Shortlisted (changed to Reviewing and back)",
-      "alex.kumar company 56521 bookmark toggled on then off",
-      "employer.vercel two temporary _wcb_resume_bookmark rows deleted"
-    ]
-  },
-  "layer1_delta": [
-    "previous run wrote ran_at 22:20:00Z before it finished (clock 22:16Z); rewalk uses the real clock",
-    "rewalk 2 at 15e0f0f uses the real clock; debug.log 9062897 -> 9062897 bytes, no new entries",
-    "rewalk 3 at b615987 (companies): no failures; debug.log unchanged"
-  ],
-  "rewalks": [
-    {
-      "commit": "15e0f0f",
-      "scope": [
-        "D.find-jobs-keyword-search-back-double-entry (1440+390: keyword, deep link keeps type, Experience Back)",
-        "C.dashboards.settings.password-form-missing-username-field (candidate+employer, 1440+390: hidden username, Audits log, wrong-password Enter, delete-account Cancel)",
-        "debug.log delta"
-      ],
-      "at": "2026-10-13T22:33:21Z"
-    },
-    {
-      "commit": "b615987",
-      "scope": [
-        "EmployersModule::owned_companies() SQL: employer.vercel 2 companies (56521,56522), figma/alex/stripe none, live==all",
-        "employer.vercel 1440+390: Companies cards (3 jobs/3 apps, 3 jobs/2 apps), My Jobs + Applications company filter 6/3/3 and 5/3/2 then All restores, Post a Job picker + preview company switches, Overview/Needs attention/sidebar identity",
-        "employer.stripe no-company state, alex.kumar wrong-role card",
-        "REST employers/me/applications?company_id: own 200 (3,2 apps), foreign 56523/68515/99999999 403 wcb_company_forbidden",
-        "debug.log delta 9123052 -> 9123052, no new entries"
-      ],
-      "at": "2026-10-13T22:49:04Z"
-    }
-  ]
+  "verdict": "SHIP"
 }

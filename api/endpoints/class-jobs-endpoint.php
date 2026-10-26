@@ -76,6 +76,18 @@ final class JobsEndpoint extends RestController {
 			)
 		);
 
+		// The job page counts its own view from the browser, so a full-page
+		// cache that never runs PHP still counts it. Public, like reading the job.
+		register_rest_route(
+			$this->namespace,
+			'/jobs/(?P<id>\d+)/view',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'record_view' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/jobs/(?P<id>\d+)/bookmark',
@@ -141,8 +153,9 @@ final class JobsEndpoint extends RestController {
 			$request->set_param( 'per_page', $wcb_per_page > 0 ? $wcb_per_page : 15 );
 		}
 
-		// Clamp per_page in the handler (the schema declares maximum: 100 but
-		// schema validation only emits a warning; clamp here to enforce it).
+		// The schema answers per_page above 100 with a 400, as WordPress's own
+		// routes do; this clamp covers a schema widened through the
+		// wcb_jobs_collection_params filter.
 		$per_page = max( 1, min( 100, (int) ( $request->get_param( 'per_page' ) ?? 15 ) ) );
 		$paged    = max( 1, (int) ( $request->get_param( 'page' ) ?? 1 ) );
 
@@ -555,6 +568,14 @@ final class JobsEndpoint extends RestController {
 		$wcb_board_id = \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $request->get_param( 'board_id' ) );
 		$request->set_param( 'board_id', $wcb_board_id );
 
+		$wcb_field_error = $this->salary_error( $request ) ?? \WCB\Core\FormCustomFields::required_error(
+			(array) apply_filters( 'wcb_job_form_fields', array(), $wcb_board_id ),
+			(array) ( $request->get_param( 'custom_fields' ) ?? array() )
+		);
+		if ( $wcb_field_error ) {
+			return $wcb_field_error;
+		}
+
 		// Credit gate — if board has a credit cost, check employer balance.
 		$wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 		if ( $wcb_credit_cost > 0 && ! JobPayment::is_exempt() ) {
@@ -621,7 +642,7 @@ final class JobsEndpoint extends RestController {
 			'_wcb_salary_max'      => $request->get_param( 'salary_max' ),
 			'_wcb_salary_currency' => $request->get_param( 'salary_currency' ) ?? '',
 			'_wcb_salary_type'     => $salary_type_raw ?? 'yearly',
-			'_wcb_remote'          => $request->get_param( 'remote' ) ? '1' : '0',
+			'_wcb_remote'          => rest_sanitize_boolean( $request->get_param( 'remote' ) ) ? '1' : '0',
 			'_wcb_board_id'        => $wcb_board_id,
 		);
 		foreach ( $meta as $key => $value ) {
@@ -751,20 +772,53 @@ final class JobsEndpoint extends RestController {
 			return $wcb_company_error;
 		}
 
+		// Every refusal before the first write: the board move below saves.
+		if ( null !== $request->get_param( 'title' ) && '' === trim( sanitize_text_field( (string) $request->get_param( 'title' ) ) ) ) {
+			return new \WP_Error( 'wcb_missing_title', __( 'Job title is required.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+		$wcb_field_error = $this->salary_error( $request, $post->ID );
+		if ( ! $wcb_field_error && is_array( $request->get_param( 'custom_fields' ) ) ) {
+			$wcb_field_error = \WCB\Core\FormCustomFields::required_error(
+				(array) apply_filters( 'wcb_job_form_fields', array(), $request->has_param( 'board_id' ) ? (int) $request->get_param( 'board_id' ) : (int) get_post_meta( $post->ID, '_wcb_board_id', true ) ),
+				$request->get_param( 'custom_fields' ),
+				$post->ID
+			);
+		}
+		if ( $wcb_field_error ) {
+			return $wcb_field_error;
+		}
+
 		// A board move changes the price: collect the difference (or hand it
 		// back) before anything else changes, and refuse the move if the
 		// employer can't pay it.
 		$wcb_new_board = $request->get_param( 'board_id' );
 		if ( null !== $wcb_new_board ) {
-			$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
-			// Compare resolved boards: a job with no board meta already lives on the default board.
-			if ( \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_new_board ) !== \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_old_board ) ) {
-				update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
-				$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
-				if ( is_wp_error( $wcb_paid ) ) {
-					update_post_meta( $post->ID, '_wcb_board_id', $wcb_old_board );
-					return $wcb_paid;
+			// One move per job at a time, with the old board read inside the
+			// lock: a refused move restored the board it read before another
+			// move landed, leaving the job on the dearer board at the cheaper
+			// price (Basecamp 10401941213).
+			global $wpdb;
+			$wcb_move_lock = 'wcb_' . md5( DB_NAME . $wpdb->prefix . 'wcb_board_move_' . $post->ID );
+			if ( 1 !== (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK( %s, 10 )', $wcb_move_lock ) ) ) {
+				return new \WP_Error(
+					'wcb_job_busy',
+					__( 'This job is being updated. Please try again in a moment.', 'wp-career-board' ),
+					array( 'status' => 409 )
+				);
+			}
+			try {
+				$wcb_old_board = (int) get_post_meta( $post->ID, '_wcb_board_id', true );
+				// Compare resolved boards: a job with no board meta already lives on the default board.
+				if ( \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_new_board ) !== \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_old_board ) ) {
+					update_post_meta( $post->ID, '_wcb_board_id', (int) $wcb_new_board );
+					$wcb_paid = JobPayment::charge( $post->ID, 'board_change' );
+					if ( is_wp_error( $wcb_paid ) ) {
+						update_post_meta( $post->ID, '_wcb_board_id', $wcb_old_board );
+						return $wcb_paid;
+					}
 				}
+			} finally {
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK( %s )', $wcb_move_lock ) );
 			}
 		}
 
@@ -950,7 +1004,7 @@ final class JobsEndpoint extends RestController {
 		}
 		$remote = $request->get_param( 'remote' );
 		if ( null !== $remote ) {
-			update_post_meta( $post->ID, '_wcb_remote', $remote ? '1' : '0' );
+			update_post_meta( $post->ID, '_wcb_remote', rest_sanitize_boolean( $remote ) ? '1' : '0' );
 		}
 
 		// Moderators set Featured directly (the admin toggle). Employers buy it
@@ -972,7 +1026,8 @@ final class JobsEndpoint extends RestController {
 					$wcb_term = wp_insert_term( $wcb_loc_custom, 'wcb_location' );
 				}
 				if ( ! is_wp_error( $wcb_term ) && isset( $wcb_term['term_id'] ) ) {
-					wp_set_object_terms( $post->ID, array( (int) $wcb_term['term_id'] ), 'wcb_location', true );
+					// Added to the request's own locations; on its own it replaces the job's.
+					wp_set_object_terms( $post->ID, array( (int) $wcb_term['term_id'] ), 'wcb_location', $request->has_param( 'locations' ) );
 					update_post_meta( $post->ID, '_wcb_location_custom', $wcb_loc_custom );
 				}
 			} else {
@@ -1204,13 +1259,9 @@ final class JobsEndpoint extends RestController {
 	 * Persist custom-field values posted alongside a job create/update.
 	 *
 	 * The job form posts `custom_fields` keyed by sanitized field key. The
-	 * `wcb_job_form_fields` filter resolves field groups per board id, and
-	 * board 0 holds the global groups shown on boardless job-form pages.
-	 * A given form render shows exactly one of those sets, but the endpoint
-	 * can't know which `boardId` the block was rendered with — so we validate
-	 * the submitted values against the union of board 0 and the job's own
-	 * board. WCB\Core\FormCustomFields::save_values() only writes keys that
-	 * appear in the resolved groups, so the union never persists stray keys.
+	 * `wcb_job_form_fields` filter resolves the groups the job's board uses,
+	 * the same set the form shows for that board, so only those keys are
+	 * written (Basecamp 10439586892).
 	 *
 	 * @since 1.1.1
 	 *
@@ -1224,15 +1275,7 @@ final class JobsEndpoint extends RestController {
 			return;
 		}
 
-		$board_id = (int) get_post_meta( $job_id, '_wcb_board_id', true );
-		$groups   = (array) apply_filters( 'wcb_job_form_fields', array(), 0 );
-		if ( $board_id > 0 ) {
-			$groups = array_merge(
-				$groups,
-				(array) apply_filters( 'wcb_job_form_fields', array(), $board_id )
-			);
-		}
-
+		$groups = (array) apply_filters( 'wcb_job_form_fields', array(), (int) get_post_meta( $job_id, '_wcb_board_id', true ) );
 		\WCB\Core\FormCustomFields::save_values( $groups, $job_id, $custom_fields );
 	}
 
@@ -1278,6 +1321,28 @@ final class JobsEndpoint extends RestController {
 				'id'      => $post->ID,
 			)
 		);
+	}
+
+	/**
+	 * Count a view of a live job, sent by the job page once it loads.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function record_view( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$post = get_post( (int) $request['id'] );
+		if ( ! $post || 'wcb_job' !== $post->post_type || 'publish' !== $post->post_status ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Job not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$this->record_job_view( $post->ID );
+		return new \WP_REST_Response( null, 204 );
 	}
 
 	/**
@@ -1756,7 +1821,7 @@ final class JobsEndpoint extends RestController {
 			'rejection_reason'       => $rejection_reason,
 			// Company fields.
 			'company'                => $company_name,
-			'initials'               => $this->company_initials( $company_name ),
+			'initials'               => \WCB\Core\CompanyMetaShape::initials( $company_name, $post->post_title ),
 			'company_logo'           => \WCB\Core\CompanyMetaShape::logo_url( $company_id ),
 			'trust'                  => $trust,
 			'trust_label'            => $trust_info['label'] ?? '',
@@ -1880,20 +1945,26 @@ final class JobsEndpoint extends RestController {
 	}
 
 	/**
-	 * Get company initials (up to 2 chars) from a company name.
+	 * A minimum above the maximum, after this request, is refused.
 	 *
-	 * @since 1.0.0
+	 * A value the request leaves out is read from the job, so a PATCH of one
+	 * side is checked against the other.
 	 *
-	 * @param string $name Company name.
-	 * @return string
+	 * @since 1.8.2
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @param int              $job_id  Job being updated, 0 on create.
+	 * @return \WP_Error|null
 	 */
-	private function company_initials( string $name ): string {
-		$words = array_filter( explode( ' ', trim( $name ) ) );
-		$init  = '';
-		foreach ( array_slice( $words, 0, 2 ) as $word ) {
-			$init .= mb_strtoupper( mb_substr( $word, 0, 1 ) );
+	private function salary_error( \WP_REST_Request $request, int $job_id = 0 ): ?\WP_Error {
+		$min = $request->has_param( 'salary_min' ) ? (string) $request->get_param( 'salary_min' ) : (string) get_post_meta( $job_id, '_wcb_salary_min', true );
+		$max = $request->has_param( 'salary_max' ) ? (string) $request->get_param( 'salary_max' ) : (string) get_post_meta( $job_id, '_wcb_salary_max', true );
+		$min = (float) \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $min );
+		$max = (float) \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $max );
+		if ( $min > 0 && $max > 0 && $min > $max ) {
+			return new \WP_Error( 'wcb_salary_range', __( 'Minimum salary cannot be more than the maximum.', 'wp-career-board' ), array( 'status' => 400 ) );
 		}
-		return '' !== $init ? $init : '?';
+		return null;
 	}
 
 	/**

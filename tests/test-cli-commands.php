@@ -182,6 +182,21 @@ if ( is_array( $pending ) ) {
 }
 wcb_assert( $all_pending, 'all items have pending status' );
 
+WP_CLI::log( '--- Test 5b: an empty list is still JSON ---' );
+$wcb_empty_co = (int) wp_insert_post(
+	array(
+		'post_type'   => 'wcb_company',
+		'post_status' => 'publish',
+		'post_title'  => 'Harbourline Logistics',
+		'post_name'   => 'harbourline-logistics-cli-empty',
+	)
+);
+$r            = wcb_run( 'wcb job list --company=harbourline-logistics-cli-empty --format=json' );
+wp_delete_post( $wcb_empty_co, true );
+wcb_assert( array() === json_decode( $r['stdout'], true ), 'a list with no rows prints [] for --format=json' );
+$r = wcb_run( 'wcb application list --job=999999999 --format=json' );
+wcb_assert( array() === json_decode( $r['stdout'], true ), 'an application list with no rows prints [] for --format=json' );
+
 // ---------------------------------------------------------------------------
 // 6. wp wcb job list --format=ids
 // ---------------------------------------------------------------------------

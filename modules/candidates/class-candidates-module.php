@@ -48,6 +48,7 @@ final class CandidatesModule {
 		// applicant, and author archives showed their names.
 		add_filter( 'rest_user_query', array( $this, 'hide_applicants_from_user_rest' ), 10, 2 );
 		add_action( 'template_redirect', array( $this, 'guard_candidate_author_archive' ), 0 );
+		add_filter( 'wp_sitemaps_users_query_args', array( $this, 'hide_applicants_from_user_sitemap' ) );
 
 		// A candidate is anyone who has applied or has a resume (owner decision,
 		// 1.8.1), so the role follows the first of either and every screen can
@@ -143,12 +144,30 @@ final class CandidatesModule {
 	}
 
 	/**
-	 * 404 the author archive of a member who is only a candidate.
+	 * Leave members whose only published posts are applications and resumes out
+	 * of the users sitemap, which would otherwise list their 404 author pages.
 	 *
-	 * Candidates publish nothing that belongs on an author page; the archive
-	 * only confirmed the account exists and printed its name.
+	 * @since 1.8.2
+	 * @param array<string, mixed> $args WP_User_Query args.
+	 * @return array<string, mixed>
+	 */
+	public function hide_applicants_from_user_sitemap( array $args ): array {
+		$types = array_values( array_diff( (array) ( $args['has_published_posts'] ?? array() ), array( 'wcb_application', 'wcb_resume' ) ) );
+		if ( $types ) {
+			$args['has_published_posts'] = $types;
+		}
+		return $args;
+	}
+
+	/**
+	 * 404 the author archive of a member who is only a candidate and has
+	 * published nothing but applications and resumes.
+	 *
+	 * Such an archive only confirmed the account exists and printed its name.
+	 * A candidate who writes (blog posts, a Member Blog profile) keeps it.
 	 *
 	 * @since 1.8.0
+	 * @since 1.8.2 Kept for a candidate with other published content.
 	 * @return void
 	 */
 	public function guard_candidate_author_archive(): void {
@@ -157,6 +176,10 @@ final class CandidatesModule {
 		}
 		$author = get_queried_object();
 		if ( ! $author instanceof \WP_User || array_diff( (array) $author->roles, array( 'wcb_candidate', 'subscriber' ) ) ) {
+			return;
+		}
+		$types = array_diff( get_post_types( array( 'public' => true ) ), array( 'attachment', 'wcb_application', 'wcb_resume' ) );
+		if ( $types && (int) count_user_posts( $author->ID, array_values( $types ), true ) > 0 ) {
 			return;
 		}
 		global $wp_query;
@@ -215,7 +238,7 @@ final class CandidatesModule {
 					// that only ever contains resumes.
 					'search_items'       => __( 'Search Resumes', 'wp-career-board' ),
 					'all_items'          => __( 'All Resumes', 'wp-career-board' ),
-					'view_item'          => __( 'View Resume', 'wp-career-board' ),
+					'view_item'          => __( 'View resume', 'wp-career-board' ),
 					'new_item'           => __( 'New Resume', 'wp-career-board' ),
 					'add_new'            => __( 'Add New Resume', 'wp-career-board' ),
 				),

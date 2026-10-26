@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,74 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.2 - October 2026 =
+
+A polish release: screens say what happened, data stays in step with its source, emails reach each reader in their language, and plugin controls keep their look on any theme.
+
+* New      - Jobs and Companies Trash views offer Restore and Delete Permanently; Candidates get a Suspended view and Employers a Banned view.
+* New      - Job category, type, location, experience and tag lists get an Order column with sorting and a Quick Edit field.
+* New      - The Employers Active Jobs number and the Candidates Applications number open that member's own list, with a removable filter chip.
+* New      - Settings has a Help group that links to the documentation.
+* Improve  - Filtered admin lists and dashboard lists say "No ... match your filters" with Clear filters; "No ... yet" shows only when there is nothing at all.
+* Improve  - Emails reach guests in the language they applied in, and each account in its own language or the site language.
+* Improve  - Role names and shipped industries are stored in English and shown in each reader's language; a database repair fixes labels saved in another language.
+* Improve  - Find Jobs keeps the keyword visible after a reload or from a shared link, as a removable pill that Clear all empties.
+* Improve  - A choice answer in a custom field shows its label, and a multi-choice answer lists each choice, on the job page, in admin, the CSV and the REST API.
+* Improve  - Custom field groups show for every board in the job form and swap when the board changes; Field Builder fields share one spaced layout.
+* Improve  - Employer registration marks required fields, shows inline errors instead of the browser popup, and greets signed-in members with "Set Up Your Profile".
+* Improve  - The Emails settings tab has one form and one Save changes button for sender, look and templates.
+* Improve  - Buttons, panel links and dashboard controls are at least 40px tall, and plugin controls keep their look on Astra, Kadence and other themes.
+* Improve  - Imported salaries read 80,000, $80000, 80k and 1.2m correctly.
+* Improve  - Jobs paid in another currency are listed after site-currency jobs under a salary filter or sort, with a note, instead of being dropped.
+* Improve  - Too few credits on the employer dashboard comes with a Buy credits button.
+* Improve  - My Resumes says Open CV and Replace CV, and Replace CV takes the same PDF, DOC and DOCX files as Upload CV.
+* Improve  - Help text names real settings tabs and no longer mentions release numbers.
+* Fix      - Jobs, companies, resumes and boards cannot go live without a title, and job forms refuse a minimum salary above the maximum or an empty required field.
+* Fix      - Every job stores its board, so the board filter finds jobs saved in wp-admin; an upgrade step repairs older jobs.
+* Fix      - Deleting the default board hands the role to a live board instead of leaving jobs without one.
+* Fix      - Two board moves at once leave the job on the board it is charged for.
+* Fix      - Renaming a company updates the name on its jobs, and job pages no longer link to a draft or trashed company.
+* Fix      - Passing a company to another owner removes the previous employer's access to its applicants.
+* Fix      - Opening a job page counts a view.
+* Fix      - Turnstile lets a challenged visitor through.
+* Fix      - The email confirmation link says the email is confirmed when it is opened in another browser.
+* Fix      - Job Form (Simple) sends a typed Other location.
+* Fix      - Email template folders added through the template folders filter are used.
+* Fix      - A candidate with published blog posts keeps their author page, and members with only applications are left out of the users sitemap.
+* Fix      - The employer applications panel lets go of an applicant hidden by a filter, so actions never apply to someone out of view.
+* Fix      - Deleting a note is offered only to members who may delete it, with a reason when a delete fails.
+* Fix      - Saving email choices keeps the setting of an email that is hidden right now.
+* Fix      - Settings selects, the Job Search Hero and side-by-side dashboard panels fit their space on phones and tablets.
+* Fix      - Our own admin notices show on Career Board screens.
+* Fix      - Job Type screens read Edit Job Type and Add New Job Type, and the menu reads Job Categories.
+* Fix      - wp wcb job list and wp wcb application list print an empty list for JSON, CSV and ids output when nothing matches.
+* Fix      - A cover letter, job description or profile typed right before clicking Submit or Save is sent in full, on the site and in the wp-admin job editor.
+* Fix      - Jobs set to No expiry stay published on MariaDB servers instead of expiring at the next hourly check; an upgrade step republishes the ones already expired.
+* Fix      - Jobs published by a moderator's approval or from the admin editor appear in the BuddyPress activity stream, once per job.
+* Fix      - The Highest salary sort lists the best-paid jobs first and jobs without a salary last, including jobs with no currency set.
+* Fix      - Job cards for jobs without a company show the job's initials instead of a question mark.
+* Fix      - On phones and tablets the whole Filters heading opens and closes the filter panel, with a larger tap target and the open state announced to screen readers.
+* Fix      - The candidate dashboard shows a My Resumes count and requests job alerts only on sites that offer them.
+* Fix      - The employer dashboard shows a Saved resumes tab only on sites with resumes.
+* Fix      - The sign-up role cards only describe features your site offers.
+* Fix      - The apply form only offers resume options your site can send.
+* Fix      - Candidates see a message when their profile could not be saved.
+* Fix      - Application counts in the employer job picker are no longer cut off.
+* Fix      - The Employers screen no longer counts people whose user account was deleted.
+* Fix      - License activation errors show on the License screen, so you can see why a key was not accepted.
+* Fix      - Searching applications finds guest applicants by name or email.
+* Fix      - Email activity log times show in the site's timezone instead of the viewer's.
+* Fix      - The email templates list fits narrow screens, with every column reachable without sideways scrolling.
+* Fix      - On phones, choosing a Settings tab scrolls straight to that tab's options.
+* Fix      - Banning an employer asks you to confirm first, and a banned member sees an account suspended message instead of a prompt to register.
+* Fix      - The setup wizard no longer pre-selects demo content on a site that already has jobs.
+* Fix      - History retention counts days in site time, so sites west of UTC keep their history for the full window.
+* Security - A guest's job page no longer carries resume data, and account deletions are written to the privacy log.
+* Dev      - New filters wcb_docs_url, wcb_job_single_sidebar_cta and wcb_client_ip_trusted_hops, and helper JobsMeta::parse_amount().
+* Dev      - Shared helpers for Pro: PrivateFiles::CV_MIMES, RequiredTitle::TYPES, the ListEmptyState trait and one block registration loop.
+* Dev      - Translation-ready: every string in the POT, with de_DE, es_ES, fr_FR, ko_KR and nl_NL complete.
+* Compat   - Aligned with WP Career Board Pro 1.8.2. Install both updates together.
 
 = 1.8.1 - October 2026 =
 

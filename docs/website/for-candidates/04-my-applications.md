@@ -45,6 +45,6 @@ The button only appears when the site allows withdrawing. The site owner can tur
 **Overview** is the first tab of the dashboard. It shows:
 
 - Cards with your number of applications, shortlisted applications and saved jobs, plus your resume count
-- With Pro, a **Job Alerts** card that opens the alerts tab
+- With Pro, a **Job alerts** card that opens the alerts tab
 - Your recent applications and recently saved jobs, each with a **View all** link
 - With Pro AI matching, a **Recommended for you** list

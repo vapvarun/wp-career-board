@@ -9,7 +9,7 @@
  * @since   1.0.0
  */
 
-import { store } from '@wordpress/interactivity';
+import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 
 /**
@@ -22,6 +22,43 @@ import { wcbFetch } from '@wcb/fetch';
  * @return {string} Translated string.
  */
 const t = ( key ) => ( state.i18n && state.i18n[ key ] ) || '';
+
+/**
+ * Drop the inline error once the member edits the field it points at.
+ *
+ * @param {string} field State key of the edited field.
+ */
+const clearInvalid = ( field ) => {
+	if ( field === state.invalidField ) {
+		state.invalidField = '';
+		state.fieldError   = '';
+	}
+};
+
+/**
+ * First required field that is empty or malformed, as [ stateKey, inputId, i18nKey ].
+ * The form is novalidate, so this replaces the browser's own popup (Basecamp 10412873869).
+ *
+ * @return {string[]|null} The failing field, or null when the form is complete.
+ */
+const firstInvalid = () => {
+	const checks = [];
+	if ( ! state.isLoggedIn ) {
+		checks.push(
+			[ 'firstName', 'wcb-reg-first-name', 'errorFirstName', () => !! state.firstName.trim() ],
+			[ 'lastName', 'wcb-reg-last-name', 'errorLastName', () => !! state.lastName.trim() ],
+			[ 'email', 'wcb-reg-email', 'errorEmail', () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( state.email.trim() ) ]
+		);
+	}
+	if ( 'employer' === state.role ) {
+		checks.push( [ 'companyName', 'wcb-reg-company', 'errorCompanyName', () => !! state.companyName.trim() ] );
+	}
+	if ( ! state.isLoggedIn ) {
+		checks.push( [ 'password', 'wcb-reg-password', 'errorPassword', () => state.password.length >= 8 ] );
+	}
+	const failed = checks.find( ( check ) => ! check[ 3 ]() );
+	return failed ? failed.slice( 0, 3 ) : null;
+};
 
 const { state } = store( 'wcb-employer-registration', {
 	state: {
@@ -36,6 +73,11 @@ const { state } = store( 'wcb-employer-registration', {
 				? t( 'roleTitleCandidate' )
 				: t( 'roleTitleEmployer' );
 		},
+		// One field at a time carries the inline error, like Post a Job. Each
+		// field group names its field in data-wp-context.
+		get fieldInvalid() {
+			return getContext().field === state.invalidField;
+		},
 		get emailLabel() {
 			return state.role === 'candidate'
 				? t( 'emailLabel' )
@@ -47,35 +89,24 @@ const { state } = store( 'wcb-employer-registration', {
 		selectCandidate() {
 			state.role  = 'candidate';
 			state.error = '';
+			state.invalidField = '';
 		},
 		selectEmployer() {
 			state.role  = 'employer';
 			state.error = '';
+			state.invalidField = '';
 		},
 		backToRolePicker() {
 			state.role  = '';
 			state.error = '';
+			state.invalidField = '';
 		},
 
-		updateFirstName( event ) {
-			state.firstName = event.target.value;
-		},
-		updateLastName( event ) {
-			state.lastName = event.target.value;
-		},
-		updateEmail( event ) {
-			state.email = event.target.value;
-		},
-		updateCompanyName( event ) {
-			state.companyName = event.target.value;
-		},
-		updatePassword( event ) {
-			state.password = event.target.value;
-		},
 		updateField( event ) {
 			const field = event.target.dataset.wcbField;
 			if ( field ) {
 				state[ field ] = event.target.value;
+				clearInvalid( field );
 			}
 		},
 
@@ -111,6 +142,14 @@ const { state } = store( 'wcb-employer-registration', {
 			}
 
 			if ( state.submitting ) {
+				return;
+			}
+
+			const invalid = firstInvalid();
+			if ( invalid ) {
+				state.invalidField = invalid[ 0 ];
+				state.fieldError   = t( invalid[ 2 ] );
+				document.getElementById( invalid[ 1 ] )?.focus();
 				return;
 			}
 

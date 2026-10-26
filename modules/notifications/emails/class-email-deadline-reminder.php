@@ -71,8 +71,8 @@ class EmailDeadlineReminder extends AbstractEmail {
 	public function get_default_body(): string {
 		return self::heading( __( 'Your saved job is closing soon', 'wp-career-board' ) )
 			. '<p>' . sprintf(
-				/* translators: 1: job title (bold), 2: days left, 3: deadline date */
-				esc_html__( 'The application window for %1$s is closing in %2$s day(s). It closes on %3$s.', 'wp-career-board' ),
+				/* translators: 1: job title (bold), 2: days left, 3: deadline date. Label form: the number is filled in later. */
+				esc_html__( 'The application window for %1$s closes on %3$s. Days left: %2$s.', 'wp-career-board' ),
 				'<strong>{job_title}</strong>',
 				'{days_left}',
 				'{deadline_date}'

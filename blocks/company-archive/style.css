@@ -44,11 +44,9 @@
 	flex: 0 0 auto;
 }
 
-/* -- Filter bar (chip rows stacked vertically) --
- * 1.2.0 — selects replaced with `.wcb-chip-bar` rows defined globally in
- * `assets/css/wcb-ui.css`. The filter bar is the column that hosts both
- * chip rows (Industry + Size) and absorbs the remaining horizontal space
- * so the layout toggle on the right keeps its edge alignment. */
+/* -- Filter bar --
+ * Hosts the filter rows and absorbs the remaining horizontal space so the
+ * layout toggle on the right keeps its edge alignment. */
 .wcb-ca-filter-bar {
 	display: flex;
 	flex-direction: column;

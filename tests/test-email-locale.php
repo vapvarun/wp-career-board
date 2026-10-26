@@ -1,12 +1,13 @@
 <?php
 /**
- * Recipient-language email tests (1.8.0).
+ * Email language tests (1.8.2).
  *
  * Run: wp eval-file wp-content/plugins/wp-career-board/tests/test-email-locale.php
  *
- * Pins: values an email builds from the language (dates, status labels) are made
- * after the switch to the recipient's locale, not in the language of whoever
- * triggered it. No language pack is needed: month names are faked per locale.
+ * Pins: a guest gets later emails in the language they applied in; an email
+ * to the notification address goes out in that account's language, or the
+ * site language when no account has it, never in the language of whoever
+ * triggered it; strings inside the merge values follow the same switch.
  *
  * @package WP_Career_Board
  */
@@ -19,6 +20,9 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	return;
 }
 
+use WCB\Modules\Notifications\Emails\EmailAppStatus;
+use WCB\Modules\Notifications\Emails\EmailJobPending;
+
 $GLOBALS['wcb_test_pass'] = 0;
 $GLOBALS['wcb_test_fail'] = 0;
 
@@ -29,7 +33,7 @@ $GLOBALS['wcb_test_fail'] = 0;
  * @param string $label     Human-readable test label.
  * @return void
  */
-function wcb_assert( bool $condition, string $label ): void {
+function wcb_el_assert( bool $condition, string $label ): void {
 	if ( $condition ) {
 		++$GLOBALS['wcb_test_pass'];
 		WP_CLI::log( "  PASS: {$label}" );
@@ -39,52 +43,123 @@ function wcb_assert( bool $condition, string $label ): void {
 	}
 }
 
-// Let the switcher accept de_DE without a language pack, and fake its month names.
-$wcb_switcher = new ReflectionProperty( $GLOBALS['wp_locale_switcher'], 'available_languages' );
-$wcb_switcher->setAccessible( true );
-$wcb_was = $wcb_switcher->getValue( $GLOBALS['wp_locale_switcher'] );
-$wcb_switcher->setValue( $GLOBALS['wp_locale_switcher'], array_merge( (array) $wcb_was, array( 'de_DE' ) ) );
+/**
+ * The language of a German-speaking member's request.
+ *
+ * @return string
+ */
+function wcb_el_german(): string {
+	return 'de_DE';
+}
 
-$wcb_fake = static function ( $translation, $text ) {
-	return 'de_DE' === determine_locale() && 'March' === $text ? 'DE-' . $text : $translation;
-};
-add_filter( 'gettext', $wcb_fake, 10, 2 );
-add_filter( 'pre_option_date_format', static fn() => 'F' );
+WP_CLI::log( 'Email language' );
+
+if ( 'en_US' !== get_locale() || ! in_array( 'de_DE', get_available_languages(), true ) ) {
+	WP_CLI::error( 'Needs an en_US site with de_DE installed.' );
+}
 
 $wcb_mail = array();
 add_filter(
 	'pre_wp_mail',
-	static function ( $short, $atts ) use ( &$wcb_mail ) {
-		$wcb_mail[] = (string) ( $atts['message'] ?? '' );
+	static function ( $short, array $atts ) use ( &$wcb_mail ) {
+		$wcb_mail[] = $atts;
 		return true;
 	},
 	10,
 	2
 );
+// A request from a German-speaking member: WordPress loads their language
+// through determine_locale(), while the site language stays en_US.
+$wcb_german = static function ( bool $on ): void {
+	remove_filter( 'determine_locale', 'wcb_el_german', 5 );
+	if ( $on ) {
+		// Before the locale switcher's own filter, as a member's request is.
+		add_filter( 'determine_locale', 'wcb_el_german', 5 );
+	}
+	unload_textdomain( 'wp-career-board', true );
+};
+$wcb_last   = static function () use ( &$wcb_mail ): string {
+	$m = end( $wcb_mail );
+	return $m ? $m['subject'] . "\n" . $m['message'] : '';
+};
 
-$wcb_tag  = 'el' . strtolower( wp_generate_password( 5, false, false ) );
-$wcb_user = (int) wp_insert_user( array( 'user_login' => "{$wcb_tag}_de", 'user_email' => "{$wcb_tag}@example.test", 'user_pass' => wp_generate_password(), 'role' => 'wcb_candidate' ) );
-update_user_meta( $wcb_user, 'locale', 'de_DE' );
+// A guest who applied on the German site, moved by an English-speaking employer.
+$wcb_job = (int) wp_insert_post(
+	array(
+		'post_type'   => 'wcb_job',
+		'post_status' => 'publish',
+		'post_title'  => 'EL test job',
+	)
+);
+$wcb_app = (int) wp_insert_post(
+	array(
+		'post_type'   => 'wcb_application',
+		'post_status' => 'publish',
+		'post_title'  => 'EL test application',
+	)
+);
+update_post_meta( $wcb_app, '_wcb_job_id', $wcb_job );
+update_post_meta( $wcb_app, '_wcb_candidate_id', 0 );
+update_post_meta( $wcb_app, '_wcb_guest_email', 'wcb-el-guest@example.test' );
+update_post_meta( $wcb_app, '_wcb_guest_name', 'EL Guest' );
+update_post_meta( $wcb_app, '_wcb_guest_locale', 'de_DE' );
 
-$wcb_when = (int) strtotime( '2026-03-15 12:00:00 UTC' );
-$wcb_mail = array();
-do_action( 'wcb_account_deletion_requested', $wcb_user, $wcb_when );
-wcb_assert( 1 === count( $wcb_mail ) && str_contains( $wcb_mail[0], 'DE-March' ), 'the deletion date is written in the recipient\'s language' );
+( new EmailAppStatus() )->handle( $wcb_app, 'submitted', 'reviewing' );
+wcb_el_assert( str_contains( $wcb_last(), 'Bewerbungsstatus' ), 'a status email reaches a German guest in German' );
 
-update_user_meta( $wcb_user, 'locale', '' );
-$wcb_mail = array();
-do_action( 'wcb_account_deletion_requested', $wcb_user, $wcb_when );
-wcb_assert( 1 === count( $wcb_mail ) && str_contains( $wcb_mail[0], 'March' ) && ! str_contains( $wcb_mail[0], 'DE-' ), 'a member on the site language is unchanged' );
+delete_post_meta( $wcb_app, '_wcb_guest_locale' );
+$wcb_german( true );
+( new EmailAppStatus() )->handle( $wcb_app, 'submitted', 'reviewing' );
+$wcb_german( false );
+wcb_el_assert( str_contains( $wcb_last(), 'application status' ) && ! str_contains( $wcb_last(), 'Bewerbungsstatus' ), 'a guest from before 1.8.2 gets the site language, not the language of whoever moved them' );
 
-// Teardown.
-require_once ABSPATH . 'wp-admin/includes/user.php';
-wp_delete_user( $wcb_user );
-$wcb_switcher->setValue( $GLOBALS['wp_locale_switcher'], $wcb_was );
+// The notification address: an account's own language, else the site language.
+wp_update_post(
+	array(
+		'ID'          => $wcb_job,
+		'post_status' => 'pending',
+	)
+);
+$wcb_admin  = get_user_by( 'email', (string) get_option( 'admin_email' ) );
+$wcb_before = $wcb_admin instanceof WP_User ? (string) get_user_meta( $wcb_admin->ID, 'locale', true ) : '';
+$wcb_notify = \WCB\Admin\Settings::string( 'notification_email', '' );
+$wcb_set    = static function ( string $to ): void {
+	add_filter(
+		'option_wcb_settings',
+		static function ( $s ) use ( $to ) {
+			$s                       = (array) $s;
+			$s['notification_email'] = $to;
+			return $s;
+		}
+	);
+};
+
+$wcb_set( 'wcb-el-nobody@example.test' );
+$wcb_german( true );
+( new EmailJobPending() )->handle( $wcb_job );
+$wcb_german( false );
+wcb_el_assert( str_contains( $wcb_last(), 'Action Required' ), 'a German employer posting sends the address with no account an English email' );
+
+if ( $wcb_admin instanceof WP_User ) {
+	remove_all_filters( 'option_wcb_settings' );
+	$wcb_set( $wcb_admin->user_email );
+	update_user_meta( $wcb_admin->ID, 'locale', 'de_DE' );
+	( new EmailJobPending() )->handle( $wcb_job );
+	wcb_el_assert( str_contains( $wcb_last(), 'Aktion erforderlich' ), 'the notification address of a German admin gets German' );
+	update_user_meta( $wcb_admin->ID, 'locale', $wcb_before );
+}
+remove_all_filters( 'option_wcb_settings' );
+wcb_el_assert( 'en_US' === determine_locale(), 'every switch is restored' );
+
+// Cleanup.
+remove_all_filters( 'pre_wp_mail' );
+wp_delete_post( $wcb_app, true );
+wp_delete_post( $wcb_job, true );
 
 WP_CLI::log( '' );
 WP_CLI::log( '  Total: ' . ( $GLOBALS['wcb_test_pass'] + $GLOBALS['wcb_test_fail'] ) . '  Pass: ' . $GLOBALS['wcb_test_pass'] . '  Fail: ' . $GLOBALS['wcb_test_fail'] );
 if ( $GLOBALS['wcb_test_fail'] > 0 ) {
 	WP_CLI::error( $GLOBALS['wcb_test_fail'] . ' test(s) failed.' );
 } else {
-	WP_CLI::success( 'All email locale tests passed.' );
+	WP_CLI::success( 'All email language tests passed.' );
 }

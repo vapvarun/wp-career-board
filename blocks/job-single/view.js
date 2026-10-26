@@ -14,7 +14,7 @@
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue } from '@wcb/fields';
-import { copyText, showError } from '@wcb/ui';
+import { copyText, flushEditors, showError } from '@wcb/ui';
 
 // Holds the element that triggered the apply panel so focus can be restored on close.
 let panelTriggerEl = null;
@@ -37,11 +37,11 @@ const { state } = store( 'wcb-job-single', {
 		customFields: {},
 		get bookmarkLabel() {
 			if ( state.bookmarkFailed ) {
-				return t( 'bookmarkFailed', 'Could not save' );
+				return t( 'bookmarkFailed', 'Could not save.' );
 			}
 			return state.bookmarked
 				? t( 'bookmarkSaved', 'Saved' )
-				: t( 'bookmarkSave', 'Save Job' );
+				: t( 'bookmarkSave', 'Save job' );
 		},
 		get hasResumes() {
 			return state.userResumes && state.userResumes.length > 0;
@@ -250,6 +250,7 @@ const { state } = store( 'wcb-job-single', {
 			state.submitting = true;
 
 			try {
+				yield flushEditors();
 				// Honeypot — bots that autofill all fields trigger a fake success.
 				const hpEl = document.getElementById( 'wcb-hp-apply' );
 				if ( hpEl && hpEl.value ) {
@@ -441,6 +442,26 @@ const { state } = store( 'wcb-job-single', {
 				state.reportError = t( 'connectionError', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.reportSubmitting = false;
+			}
+		},
+	},
+	callbacks: {
+		// Count the view from the browser, so a cached page still counts it.
+		// A prerendered page waits until the visitor actually opens it.
+		countView() {
+			if ( ! state.countView ) {
+				return;
+			}
+			const send = () => {
+				const url = state.apiBase + '/jobs/' + String( state.jobId ) + '/view';
+				if ( ! navigator.sendBeacon || ! navigator.sendBeacon( url ) ) {
+					fetch( url, { method: 'POST', keepalive: true, credentials: 'omit' } ).catch( () => {} );
+				}
+			};
+			if ( document.prerendering ) {
+				document.addEventListener( 'prerenderingchange', send, { once: true } );
+			} else {
+				send();
 			}
 		},
 	},

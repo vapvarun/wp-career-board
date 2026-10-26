@@ -20,7 +20,7 @@ needs: cli
    ```
    Note the current value of `jobs_per_page` and `notification_email` (a non-listings key)
 2. Navigate to `/wp-admin/admin.php?page=wcb-settings&tab=listings&autologin=1` → expect 200, "Job Listings" section is visible
-3. Edit ONLY the `jobs_per_page` field: change its value from the current value to `15` (or a different number). Do NOT touch any other field. Submit the form ("Save Changes" button)
+3. Edit ONLY the `jobs_per_page` field: change its value from the current value to `15` (or a different number). Do NOT touch any other field. Submit the form ("Save changes" button)
 4. Expect redirect to `admin.php?page=wcb-settings&tab=listings&settings-updated=1` with a "Settings saved." notice
 5. Verify persistence:
    ```bash

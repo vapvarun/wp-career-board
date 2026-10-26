@@ -30,6 +30,8 @@ class AdminApplications extends \WP_List_Table {
 
 	use SearchBox;
 
+	use ListEmptyState;
+
 	/**
 	 * Most job / candidate IDs a search feeds into the meta_query below.
 	 *
@@ -108,23 +110,31 @@ class AdminApplications extends \WP_List_Table {
 			);
 			?>
 			<p class="wcb-applications-toolbar">
-				<?php if ( $wcb_job_filter > 0 ) : ?>
-					<span class="wcb-filter-chip">
-						<?php
+				<?php
+				if ( $wcb_job_filter > 0 ) {
+					$this->filter_chip(
 						/* translators: %s: job title */
-						printf( esc_html__( 'Job: %s', 'wp-career-board' ), esc_html( (string) get_post_field( 'post_title', $wcb_job_filter ) ) );
-						?>
-						<a href="<?php echo esc_url( remove_query_arg( array( 'job_id', 'paged' ) ) ); ?>" aria-label="<?php esc_attr_e( 'Show all jobs', 'wp-career-board' ); ?>">&times;</a>
-					</span>
+						sprintf( __( 'Job: %s', 'wp-career-board' ), (string) get_post_field( 'post_title', $wcb_job_filter ) ),
+						array( 'job_id' ),
+						__( 'Show all jobs', 'wp-career-board' )
+					);
+				}
+				if ( $this->candidate_filter() > 0 ) {
+					$this->filter_chip(
+						/* translators: %s: candidate display name */
+						sprintf( __( 'Candidate: %s', 'wp-career-board' ), (string) get_the_author_meta( 'display_name', $this->candidate_filter() ) ),
+						array( 'candidate_id' ),
+						__( 'Show all candidates', 'wp-career-board' )
+					);
+				}
+				?>
+				<?php if ( $this->get_pagination_arg( 'total_items' ) > 0 ) : ?>
+					<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
 				<?php endif; ?>
-				<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
 			</p>
 
 			<form method="get">
-				<input type="hidden" name="page" value="wcb-applications">
-				<?php foreach ( array_diff_key( $this->filter_args(), array( 's' => 1 ) ) as $wcb_key => $wcb_val ) : ?>
-					<input type="hidden" name="<?php echo esc_attr( $wcb_key ); ?>" value="<?php echo esc_attr( $wcb_val ); ?>">
-				<?php endforeach; ?>
+				<?php $this->hidden_inputs( 'wcb-applications', array_diff_key( $this->filter_args(), array( 's' => 1 ) ) ); ?>
 				<?php $this->render_search_box( 'wcb-application', __( 'Search Applications', 'wp-career-board' ), __( 'Job title or candidate name…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -148,7 +158,7 @@ class AdminApplications extends \WP_List_Table {
 			'candidate' => __( 'Candidate', 'wp-career-board' ),
 			'job'       => __( 'Job', 'wp-career-board' ),
 			'status'    => __( 'Status', 'wp-career-board' ),
-			'change'    => __( 'Change Status', 'wp-career-board' ),
+			'change'    => __( 'Change status', 'wp-career-board' ),
 			'date'      => __( 'Date', 'wp-career-board' ),
 		);
 	}
@@ -281,6 +291,12 @@ class AdminApplications extends \WP_List_Table {
 				'value' => (string) $this->job_filter(),
 			);
 		}
+		if ( $this->candidate_filter() > 0 ) {
+			$clauses[] = array(
+				'key'   => '_wcb_candidate_id',
+				'value' => (string) $this->candidate_filter(),
+			);
+		}
 
 		// Custom search: match by job title or candidate name/email (not post title).
 		if ( $search ) {
@@ -334,6 +350,18 @@ class AdminApplications extends \WP_List_Table {
 				);
 			}
 
+			// Guest half - guests have no user row; their name and email live on
+			// the application. Sibling OR clauses share one postmeta join.
+			if ( strlen( $search ) >= self::MIN_USER_SEARCH_LEN ) {
+				foreach ( array( '_wcb_guest_name', '_wcb_guest_email' ) as $guest_key ) {
+					$search_clauses[] = array(
+						'key'     => $guest_key,
+						'value'   => $search,
+						'compare' => 'LIKE',
+					);
+				}
+			}
+
 			if ( count( $search_clauses ) > 1 ) {
 				$clauses[] = $search_clauses;
 			} else {
@@ -350,17 +378,6 @@ class AdminApplications extends \WP_List_Table {
 	}
 
 	/**
-	 * Whether the Trash view is showing.
-	 *
-	 * @since 1.8.0
-	 * @return bool
-	 */
-	private function is_trash_view(): bool {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view switch.
-		return isset( $_GET['post_status'] ) && 'trash' === $_GET['post_status'];
-	}
-
-	/**
 	 * Job the list is narrowed to, 0 for all jobs.
 	 *
 	 * @since 1.8.0
@@ -372,20 +389,24 @@ class AdminApplications extends \WP_List_Table {
 	}
 
 	/**
+	 * Candidate the list is narrowed to (Career Board > Candidates links here), 0 for all.
+	 *
+	 * @since 1.8.2
+	 * @return int
+	 */
+	private function candidate_filter(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
+		return isset( $_GET['candidate_id'] ) ? absint( $_GET['candidate_id'] ) : 0;
+	}
+
+	/**
 	 * The current filters as query args, for links that must keep them.
 	 *
 	 * @since 1.8.0
 	 * @return array<string,string>
 	 */
 	private function filter_args(): array {
-		$args = array();
-		foreach ( array( 'app_status', 'job_id', 'post_status', 's' ) as $key ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filters.
-			if ( isset( $_GET[ $key ] ) && '' !== $_GET[ $key ] ) {
-				$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			}
-		}
-		return $args;
+		return $this->list_args( array( 'app_status', 'job_id', 'candidate_id', 'post_status', 's' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -399,16 +420,29 @@ class AdminApplications extends \WP_List_Table {
 	 * @return array<string,string>
 	 */
 	protected function get_views(): array {
-		// Views keep the job filter; switching status or Trash drops the others.
-		$base_url = add_query_arg( array_intersect_key( $this->filter_args(), array( 'job_id' => 1 ) ), admin_url( 'admin.php?page=wcb-applications' ) );
+		// Views keep the job and candidate filters; switching status or Trash drops the others.
+		$base_url = add_query_arg(
+			array_intersect_key(
+				$this->filter_args(),
+				array(
+					'job_id'       => 1,
+					'candidate_id' => 1,
+				)
+			),
+			admin_url( 'admin.php?page=wcb-applications' )
+		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current = isset( $_GET['app_status'] ) ? sanitize_text_field( wp_unslash( $_GET['app_status'] ) ) : '';
 		$trash   = $this->is_trash_view();
 
-		$counts = $this->job_filter() > 0
-			? \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $this->job_filter() )
-			: $this->get_status_counts();
+		if ( $this->job_filter() > 0 ) {
+			$counts = \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $this->job_filter() );
+		} elseif ( $this->candidate_filter() > 0 ) {
+			$counts = \WCB\Modules\Applications\ApplicationStatus::counts( 'candidate', $this->candidate_filter() );
+		} else {
+			$counts = $this->get_status_counts();
+		}
 
 		$views = array();
 
@@ -474,11 +508,15 @@ class AdminApplications extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
+		if ( $this->filter_args() ) {
+			$this->filtered_empty_state( 'mail', __( 'No applications match your filters', 'wp-career-board' ), 'wcb-applications' );
+			return;
+		}
 		?>
 		<div class="wcb-empty-state">
 			<i data-lucide="mail" class="wcb-empty-state__icon"></i>
-			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications found', 'wp-career-board' ); ?></p>
-			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Applications appear here once candidates apply to your jobs. Try adjusting the search or status filter above.', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__title"><?php esc_html_e( 'No applications yet', 'wp-career-board' ); ?></p>
+			<p class="wcb-empty-state__desc"><?php esc_html_e( 'Applications appear here once candidates apply to your jobs.', 'wp-career-board' ); ?></p>
 		</div>
 		<?php
 	}
@@ -750,7 +788,8 @@ class AdminApplications extends \WP_List_Table {
 		);
 
 		foreach ( $app_ids as $app_id ) {
-			if ( ! current_user_can( 'edit_post', $app_id ) ) {
+			// The IDs come from the request: act on applications only.
+			if ( 'wcb_application' !== get_post_type( $app_id ) || ! current_user_can( 'edit_post', $app_id ) ) {
 				continue;
 			}
 			if ( 'trash' === $action ) {

@@ -177,9 +177,11 @@ final class AccountEndpoint extends RestController {
 		}
 
 		// Only optional emails can be turned off; anything else in the list is dropped.
+		// Choices for emails not shown right now (switched off by the owner) are kept.
 		$optout = $request->get_param( 'email_optout' );
 		if ( null !== $optout ) {
-			update_user_meta( $user_id, '_wcb_email_optout', array_values( array_intersect( (array) $optout, array_keys( AbstractEmail::optional_emails() ) ) ) );
+			$shown = array_keys( AbstractEmail::optional_emails() );
+			update_user_meta( $user_id, '_wcb_email_optout', array_values( array_unique( array_merge( array_intersect( (array) $optout, $shown ), array_diff( AbstractEmail::opted_out( $user_id ), $shown ) ) ) ) );
 			if ( 1 === count( $update ) ) {
 				return rest_ensure_response( array( 'email_optout' => AbstractEmail::opted_out( $user_id ) ) );
 			}

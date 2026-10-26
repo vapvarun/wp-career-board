@@ -289,6 +289,7 @@ the folder directly (nginx ignores its .htaccess).
 | Action | Args | When |
 |---|---|---|
 | `wcb_job_single_after_description` | `(int $job_id)` | Right after the job description; Pro prints the job's custom field "Additional details" (public fields to visitors, "Employer only" to the job's employer, "Admin only" to staff). |
+| `wcb_job_single_sidebar_cta` | `(bool $show, int $job_id)` | Filter. Whether the Job Details sidebar repeats the hero's Apply now / View Applications button. Default `true`; return `false` to keep only the hero button. |
 
 Job listing sidebar chips for custom fields toggle `meta_<key>` in the listing's `activeFilters` (`actions.toggleMetaChip` with context `{ metaKey, metaValue }`); a `meta_<key>` URL param is applied on first paint. Pro handles its "Filterable" fields through `wcb_job_search_args`.
 
@@ -424,6 +425,7 @@ WordPress's `users_can_register`), which uses the same sanitizer.
 |---|---|---|---|
 | `wcb_settings_schema` | filter | `$fields` | Add setting keys: `$fields['my_key'] = array( 'default' => false, 'sanitize' => 'rest_sanitize_boolean' )`. Pro registers its keys here. |
 | `wcb_settings_sanitize` | filter | `$output, $input` | Last look at the cleaned option before it is saved. |
+| `wcb_docs_url` | filter | `$url` | The Help → Documentation link at the end of the Settings nav (1.8.2). Point it at your own docs. |
 | `wcb_page_definitions` | filter | `$defs` | Add a page: `title`, `slug`, `content` (block markup), `label`, `desc`, optional `aliases` (older slugs still accepted). Register the key in `wcb_settings_schema` too. Pro adds Find Candidates (`resume_archive_page`, slug `find-candidates`, alias `find-resumes`) and Job Map (`job_map_page`). |
 | `wcb_wizard_required_pages` | filter, deprecated 1.8.0 | `$defs` | Use `wcb_page_definitions`. Still applied. |
 | `wcb_page_settings` | filter, deprecated 1.8.0 | `$rows` | Use `wcb_page_definitions`. Still applied (label and desc). |
@@ -477,7 +479,7 @@ hydrated result set (an agency account can hold thousands of listings).
 | `wcb_job_pipeline_url` | `$url, $job_id` | The **Pipeline** link on each My Jobs row. Empty in Free; Pro fills it. |
 | `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
 
-The term meta key is `wcb_order` (integer, `show_in_rest`). It is registered on `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience` and `wcb_tag`, and edited in the **Order** field of each term screen.
+The term meta key is `wcb_order` (integer, `show_in_rest`). It is registered on `wcb_category`, `wcb_job_type`, `wcb_location`, `wcb_experience` and `wcb_tag`, and edited in the **Order** field of each term screen, the term list's Order column and Quick Edit (1.8.2). The list sorts by it from the column header.
 
 ## Convention
 
@@ -532,6 +534,7 @@ the site still runs. This class only decides what to hand back once core says ye
 | `wcb_app_password_max_failures` | filter | `$max` | Failed sign-ins per bucket before lockout. Default 5. |
 | `wcb_app_password_max_attempts_per_ip` | filter | `$max` | Total attempts per IP per hour. Default 20. |
 | `wcb_app_password_client_ip_header` | filter | `$header` | `$_SERVER` key carrying the real client IP. Empty by default. |
+| `wcb_client_ip_trusted_hops` | filter | `$trusted_hops` | Proxies that append to a forwarded header, counted from the server. Default 1. |
 | `wcb_app_credential_issued` | action | `$user_id, $app_id, $app_name` | A member exchanged their password for a credential. |
 | `wcb_app_credential_revoked` | action | `$user_id, $uuid` | A member revoked their own credential (app sign-out). |
 

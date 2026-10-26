@@ -38,7 +38,7 @@ class EmailJobApproved extends AbstractEmail {
 	 * @return string
 	 */
 	public function get_title(): string {
-		return __( 'Job Approved', 'wp-career-board' );
+		return __( 'Job approved', 'wp-career-board' );
 	}
 
 	/**

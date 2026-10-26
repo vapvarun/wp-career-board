@@ -213,7 +213,7 @@ Requires: `wcb/manage-settings`.
 wp wcb job run-expiry --user=1
 ```
 
-> **Tip:** On a site that still lists jobs past their deadline (set before 1.8.0), the setting behind this command is off and the command prints a warning and expires nothing.
+> **Tip:** On a site that still lists jobs past their deadline (an older site that kept its previous behaviour), the setting behind this command is off and the command prints a warning and expires nothing.
 > Turn it on with the **End jobs at their deadline** button under **Career Board > Settings > Jobs**; the button shows only while the setting is off.
 
 ---

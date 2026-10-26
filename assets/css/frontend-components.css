@@ -76,6 +76,13 @@
 	text-decoration: none;
 }
 
+/* Links drawn as buttons, at (0,3,1): Astra underlines content links with
+   `.ast-single-post .entry-content a` (0,2,1), which beats the rule above
+   (Basecamp 10436093928). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) a:is(.wcb-btn, .wcb-job-alert-card__btn, .wcb-cp-link):any-link {
+	text-decoration: none;
+}
+
 [class*="wp-block-wp-career-board"] h1,
 [class*="wp-block-wp-career-board"] h2,
 [class*="wp-block-wp-career-board"] h3,
@@ -265,9 +272,11 @@
 }
 
 /* A section whose body is a card (its empty state) puts its title on that
-   card's edge; over list rows the padding lines the title up with row text. */
+   card's edge, with no divider over the card's own border; over list rows the
+   padding lines the title up with row text. */
 .wcb-panel:has(> .wcb-empty-state.wcb-shown:not(.wcb-empty-state--plain)) > .wcb-panel-header {
 	padding-inline: 0;
+	border-bottom: 0;
 }
 
 .wcb-panel-body {
@@ -509,6 +518,73 @@
 	gap: var(--wcb-space-xs);
 }
 
+/* ── Custom-field groups — the FormCustomFields renderer ──────────────
+ *
+ * One rhythm for Field Builder fields in every form that embeds them (job,
+ * company, candidate, resume, application): space between fields, label over
+ * input, a group heading sized as a section eyebrow rather than the theme's
+ * <h3>, and range types side by side. The doubled class outranks
+ * `.entry-content h3` on classic themes without !important.
+ */
+.wcb-form-custom-fields {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-lg);
+	min-width: 0;
+}
+
+.wcb-form-custom-fields .wcb-form-custom-fields__heading {
+	font-size: var(--wcb-text-xs);
+	font-weight: var(--wcb-font-bold);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--wcb-text-secondary);
+	margin: var(--wcb-space-md) 0 0;
+	padding: 0 0 var(--wcb-space-xs);
+	border-block-end: 1px solid var(--wcb-border);
+}
+
+.wcb-form-custom-fields .wcb-form-custom-fields__heading:first-child {
+	margin-block-start: 0;
+}
+
+.wcb-form-field--custom {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+	margin: 0;
+}
+
+.wcb-form-field--custom .wcb-radio-group,
+.wcb-form-field--custom .wcb-multiselect-group {
+	gap: var(--wcb-space-sm);
+}
+
+.wcb-field-range {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wcb-space-md);
+}
+
+.wcb-field-range__part {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+	min-width: 0;
+}
+
+.wcb-field-range__label {
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+@media (max-width: 480px) {
+	.wcb-field-range {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 /* ── Job form categories (templates/parts/job-category-field.php) ─────
  *
  * The multi-pick shown when a job may have more than one category: chosen
@@ -708,6 +784,14 @@
 	clip: rect(0, 0, 0, 0);
 	white-space: nowrap;
 	border: 0;
+}
+
+/* A file input is hidden behind its styled label, so the label shows the focus:
+   inside the label (Upload CV, Replace CV, apply resume) or right after it
+   (company logo, profile photo). */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(label:has(> input[type="file"]:focus-visible), input[type="file"]:focus-visible + label) {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
 }
 
 /* ── Listings Header / Search / Sort — shared archive primitives ──────── */
@@ -943,6 +1027,7 @@
 	cursor: pointer;
 	transition: border-color var(--wcb-transition-snappy), color var(--wcb-transition-snappy), background var(--wcb-transition-snappy);
 	white-space: nowrap;
+	min-height: 40px; /* Save job: tap target, and level with Apply beside it */
 }
 
 [class*="wp-block-wp-career-board"] .wcb-bookmark-hero-btn:hover,
@@ -1132,7 +1217,13 @@
 [class*="wp-block-wcb-"] [role="tab"],
 [class*="wp-block-wcb-"] .wcb-role-card,
 [class*="wp-block-wcb-"] .wcb-sidebar a:not(.wcb-btn),
-[class*="wp-block-wcb-"] .wcb-nav-item {
+[class*="wp-block-wcb-"] .wcb-nav-item,
+/* Chips, badges, menu items and name links read as controls or titles, not
+   body links, so Astra's `.ast-single-post .entry-content a` underline must
+   not reach them (Basecamp 10439870246, 10439827925). Links inside a
+   description stay underlined: they are body copy. */
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-badge, .wcb-tag, .wcb-share-btn, .wcb-row-menu__item, .wcb-panel-link),
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name) {
 	text-decoration: none !important;
 	box-shadow: none;
 }
@@ -1144,8 +1235,11 @@
 [class*="wp-block-wcb-"] .wcb-job-card a:hover,
 [class*="wp-block-wcb-"] .wcb-cp-job-title a:hover,
 [class*="wp-block-wcb-"] .wcb-card-title a:hover,
-[class*="wp-block-wcb-"] .wcb-listing-title a:hover {
-	text-decoration: underline;
+[class*="wp-block-wcb-"] .wcb-listing-title a:hover,
+:is([class*="wp-block-wp-career-board"], [class*="wp-block-wcb-"]) :is(.wcb-hero-company-link, .wcb-company-card-name, .wcb-company-link, .wcb-ak-back-link, .wcb-cd-bookmark-title a, .wcb-cd-app-title a, .wcb-app-name, .wcb-panel-link):is(:hover, :focus-visible) {
+	/* !important to beat the `none !important` above; titles, names and
+	   panel links underline on hover and keyboard focus only. */
+	text-decoration: underline !important;
 }
 
 /* ── Focus Visible — Global ──────────────────────────────────────────── */

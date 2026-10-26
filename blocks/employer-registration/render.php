@@ -53,19 +53,21 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 // WordPress ships with "Anyone can register" off. The form used to render
 // anyway and only failed after the visitor had filled every field.
 if ( ! $wcb_user && ! get_option( 'users_can_register' ) && ! is_multisite() ) {
-	?>
-	<div <?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--closed' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-		<div class="wcb-reg-closed">
-			<?php echo \WCB\Core\Icon::svg( 'user-x' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-			<p class="wcb-reg-closed__text">
-				<?php esc_html_e( 'New account registration is closed on this site.', 'wp-career-board' ); ?>
-			</p>
-			<a href="<?php echo esc_url( wp_login_url( (string) get_permalink() ) ); ?>" class="wcb-btn wcb-btn--primary">
-				<?php esc_html_e( 'Sign in', 'wp-career-board' ); ?>
-			</a>
-		</div>
-	</div>
-	<?php
+	$wcb_gate = array(
+		'icon'    => 'user-x',
+		'title'   => __( 'Employer registration', 'wp-career-board' ),
+		'message' => __( 'New account registration is closed on this site. If you already have an account, sign in. Otherwise, contact the site owner to get one.', 'wp-career-board' ),
+		'actions' => array(
+			array(
+				'label'   => __( 'Sign in', 'wp-career-board' ),
+				'url'     => wp_login_url( (string) get_permalink() ),
+				'primary' => true,
+			),
+		),
+	);
+	echo '<div ' . get_block_wrapper_attributes( array( 'class' => 'wcb-employer-reg wcb-employer-reg--closed' ) ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wrapper attributes escaped by core.
+	require WCB_DIR . 'templates/parts/dashboard-gate.php';
+	echo '</div>';
 	return;
 }
 
@@ -81,6 +83,9 @@ if ( $wcb_user && '' === trim( $wcb_first_name . $wcb_last_name ) ) {
 	$wcb_first_name = $parts[0] ?? '';
 	$wcb_last_name  = $parts[1] ?? '';
 }
+
+// Resume building and candidate search ship in Pro's Resumes module.
+$wcb_resumes_enabled = (bool) apply_filters( 'wcb_pro_resumes_enabled', false );
 
 /*
  * Company-size buckets. The slugs are the machine contract stored in
@@ -120,6 +125,8 @@ wp_interactivity_state(
 		'submitting'      => false,
 		'submitted'       => false,
 		'error'           => '',
+		'invalidField'    => '',
+		'fieldError'      => '',
 		'dashboardUrl'    => '',
 		'verifyPending'   => false,
 		'resendSent'      => false,
@@ -130,11 +137,17 @@ wp_interactivity_state(
 		 * seeded here. Keys must match the t( 'key', … ) reads in view.js exactly.
 		 */
 		'i18n'            => array(
-			'roleTitleCandidate' => __( 'Create a Candidate Account', 'wp-career-board' ),
-			'roleTitleEmployer'  => __( 'Create an Employer Account', 'wp-career-board' ),
+			// A signed-in member keeps their account and only gains a role (Basecamp 10431435128).
+			'roleTitleCandidate' => $wcb_user ? __( 'Set Up Your Candidate Profile', 'wp-career-board' ) : __( 'Create a Candidate Account', 'wp-career-board' ),
+			'roleTitleEmployer'  => $wcb_user ? __( 'Set Up Your Employer Profile', 'wp-career-board' ) : __( 'Create an Employer Account', 'wp-career-board' ),
 			'emailLabel'         => __( 'Email', 'wp-career-board' ),
 			'emailLabelWork'     => __( 'Work Email', 'wp-career-board' ),
 			'errorMissingFields' => __( 'Please fill in all required fields.', 'wp-career-board' ),
+			'errorFirstName'     => __( 'Enter your first name.', 'wp-career-board' ),
+			'errorLastName'      => __( 'Enter your last name.', 'wp-career-board' ),
+			'errorEmail'         => __( 'Enter a valid email address.', 'wp-career-board' ),
+			'errorCompanyName'   => __( 'Enter your company name.', 'wp-career-board' ),
+			'errorPassword'      => __( 'Use at least 8 characters.', 'wp-career-board' ),
 			'errorRegistration'  => __( 'Registration failed. Please try again.', 'wp-career-board' ),
 			'errorConnection'    => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 			'resendDone'         => __( 'We sent you a new link. It can take a minute to arrive.', 'wp-career-board' ),
@@ -148,7 +161,7 @@ wp_interactivity_state(
 >
 	<?php /* ── Success state ── */ ?>
 	<div class="wcb-reg-success wcb-hidden" data-wp-class--wcb-hidden="!state.submitted">
-		<h2 class="wcb-reg-success-title"><?php esc_html_e( 'Account created!', 'wp-career-board' ); ?></h2>
+		<h2 class="wcb-reg-success-title"><?php echo $wcb_user ? esc_html__( 'Your profile is ready!', 'wp-career-board' ) : esc_html__( 'Account created!', 'wp-career-board' ); ?></h2>
 		<div class="wcb-hidden" data-wp-class--wcb-hidden="!state.verifyPending">
 			<p><?php esc_html_e( 'Check your inbox: we sent you a link to confirm your email address. Open it to sign in.', 'wp-career-board' ); ?></p>
 			<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.resendVerification" data-wp-bind--disabled="state.resendSent">
@@ -158,10 +171,10 @@ wp_interactivity_state(
 		</div>
 		<div data-wp-class--wcb-hidden="state.verifyPending">
 		<p data-wp-class--wcb-hidden="state.isCandidate">
-			<?php esc_html_e( 'You are now logged in as an employer. Set up your company profile to start posting jobs.', 'wp-career-board' ); ?>
+			<?php echo $wcb_user ? esc_html__( 'Your account can now post jobs. Set up your company profile to get started.', 'wp-career-board' ) : esc_html__( 'You are now logged in as an employer. Set up your company profile to start posting jobs.', 'wp-career-board' ); ?>
 		</p>
 		<p data-wp-class--wcb-hidden="!state.isCandidate">
-			<?php esc_html_e( 'You are now logged in as a candidate. Start browsing jobs and building your resume.', 'wp-career-board' ); ?>
+			<?php echo $wcb_user ? esc_html__( 'Your account can now apply to jobs. Start browsing jobs and building your resume.', 'wp-career-board' ) : esc_html__( 'You are now logged in as a candidate. Start browsing jobs and building your resume.', 'wp-career-board' ); ?>
 		</p>
 		<a class="wcb-btn wcb-btn--primary" data-wp-bind--href="state.dashboardUrl">
 			<?php esc_html_e( 'Go to Dashboard', 'wp-career-board' ); ?>
@@ -177,24 +190,29 @@ wp_interactivity_state(
 	<?php /* ── Step 1: Role picker ── */ ?>
 	<div class="wcb-reg-form-wrap" data-wp-class--wcb-hidden="state.submitted">
 		<div class="wcb-role-picker" data-wp-class--wcb-hidden="state.role">
-			<h2 class="wcb-reg-title"><?php esc_html_e( 'Join WP Career Board', 'wp-career-board' ); ?></h2>
+			<h1 class="wcb-reg-title">
+				<?php
+				/* translators: %s: site name. */
+				echo esc_html( sprintf( __( 'Join %s', 'wp-career-board' ), get_bloginfo( 'name' ) ) );
+				?>
+			</h1>
 			<?php if ( ! $wcb_is_logged_in ) : ?>
 			<p class="wcb-reg-subtitle">
 				<?php esc_html_e( 'Already have an account?', 'wp-career-board' ); ?>
 				<a href="<?php echo esc_url( $wcb_login_url ); ?>" class="wcb-reg-link"><?php esc_html_e( 'Sign in', 'wp-career-board' ); ?></a>
 			</p>
 			<?php endif; ?>
-			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to...', 'wp-career-board' ); ?></p>
+			<p class="wcb-role-prompt"><?php esc_html_e( 'I want to…', 'wp-career-board' ); ?></p>
 			<div class="wcb-role-options">
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectCandidate" aria-label="<?php esc_attr_e( 'Find a Job', 'wp-career-board' ); ?>">
 					<span class="wcb-role-icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Find a Job', 'wp-career-board' ); ?></span>
-					<span class="wcb-role-desc"><?php esc_html_e( 'Browse jobs, apply, and build your resume', 'wp-career-board' ); ?></span>
+					<span class="wcb-role-desc"><?php echo $wcb_resumes_enabled ? esc_html__( 'Browse jobs, apply, and build your resume', 'wp-career-board' ) : esc_html__( 'Browse jobs, apply, and track your applications', 'wp-career-board' ); ?></span>
 				</button>
 				<button type="button" class="wcb-role-card" data-wp-on--click="actions.selectEmployer" aria-label="<?php esc_attr_e( 'Hire Talent', 'wp-career-board' ); ?>">
 					<span class="wcb-role-icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'building-2' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 					<span class="wcb-role-label"><?php esc_html_e( 'Hire Talent', 'wp-career-board' ); ?></span>
-					<span class="wcb-role-desc"><?php esc_html_e( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ); ?></span>
+					<span class="wcb-role-desc"><?php echo $wcb_resumes_enabled ? esc_html__( 'Post jobs, manage applications, and find candidates', 'wp-career-board' ) : esc_html__( 'Post jobs, review applicants, and manage hiring', 'wp-career-board' ); ?></span>
 				</button>
 			</div>
 		</div>
@@ -220,14 +238,14 @@ wp_interactivity_state(
 				</div>
 			</div>
 
-			<form class="wcb-reg-form" data-wp-on--submit="actions.submit">
+			<form class="wcb-reg-form" novalidate data-wp-on--submit="actions.submit">
 				<?php /* Honeypot - hidden from sighted users and ARIA; bot-only field. */ ?>
 				<input type="text" name="wcb_hp_reg" id="wcb-hp-reg" style="display:none!important" tabindex="-1" autocomplete="off" aria-hidden="true" aria-label="<?php esc_attr_e( 'Leave this field blank', 'wp-career-board' ); ?>" />
 
 				<?php if ( ! $wcb_is_logged_in ) : ?>
 				<div class="wcb-reg-row">
-					<div class="wcb-field-group">
-						<label class="wcb-field-label" for="wcb-reg-first-name"><?php esc_html_e( 'First Name', 'wp-career-board' ); ?></label>
+					<div class="wcb-field-group" data-wp-context='{"field":"firstName"}'>
+						<label class="wcb-field-label" for="wcb-reg-first-name"><?php esc_html_e( 'First Name', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 						<input
 							id="wcb-reg-first-name"
 							type="text"
@@ -236,11 +254,15 @@ wp_interactivity_state(
 							required
 							aria-required="true"
 							data-wp-bind--value="state.firstName"
-							data-wp-on--input="actions.updateFirstName"
+							data-wcb-field="firstName"
+							data-wp-on--input="actions.updateField"
+							data-wp-bind--aria-invalid="state.fieldInvalid"
+							aria-describedby="wcb-reg-first-name-error"
 						/>
+						<p class="wcb-field-error" id="wcb-reg-first-name-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 					</div>
-					<div class="wcb-field-group">
-						<label class="wcb-field-label" for="wcb-reg-last-name"><?php esc_html_e( 'Last Name', 'wp-career-board' ); ?></label>
+					<div class="wcb-field-group" data-wp-context='{"field":"lastName"}'>
+						<label class="wcb-field-label" for="wcb-reg-last-name"><?php esc_html_e( 'Last Name', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 						<input
 							id="wcb-reg-last-name"
 							type="text"
@@ -249,13 +271,17 @@ wp_interactivity_state(
 							required
 							aria-required="true"
 							data-wp-bind--value="state.lastName"
-							data-wp-on--input="actions.updateLastName"
+							data-wcb-field="lastName"
+							data-wp-on--input="actions.updateField"
+							data-wp-bind--aria-invalid="state.fieldInvalid"
+							aria-describedby="wcb-reg-last-name-error"
 						/>
+						<p class="wcb-field-error" id="wcb-reg-last-name-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 					</div>
 				</div>
 
-				<div class="wcb-field-group">
-					<label class="wcb-field-label" for="wcb-reg-email" data-wp-text="state.emailLabel"></label>
+				<div class="wcb-field-group" data-wp-context='{"field":"email"}'>
+					<label class="wcb-field-label" for="wcb-reg-email"><span data-wp-text="state.emailLabel"></span> <span class="wcb-required" aria-hidden="true">*</span></label>
 					<input
 						id="wcb-reg-email"
 						type="email"
@@ -264,8 +290,12 @@ wp_interactivity_state(
 						required
 						aria-required="true"
 						data-wp-bind--value="state.email"
-						data-wp-on--input="actions.updateEmail"
+						data-wcb-field="email"
+						data-wp-on--input="actions.updateField"
+						data-wp-bind--aria-invalid="state.fieldInvalid"
+						aria-describedby="wcb-reg-email-error"
 					/>
+					<p class="wcb-field-error" id="wcb-reg-email-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 				</div>
 				<?php else : ?>
 				<p class="wcb-reg-logged-in-note">
@@ -276,17 +306,22 @@ wp_interactivity_state(
 				</p>
 				<?php endif; ?>
 
-				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
-					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company Name', 'wp-career-board' ); ?></label>
+				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate" data-wp-context='{"field":"companyName"}'>
+					<label class="wcb-field-label" for="wcb-reg-company"><?php esc_html_e( 'Company name', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 					<input
 						id="wcb-reg-company"
 						type="text"
 						class="wcb-field-input"
 						autocomplete="organization"
 						data-wp-bind--required="!state.isCandidate"
+						data-wp-bind--aria-required="!state.isCandidate"
 						data-wp-bind--value="state.companyName"
-						data-wp-on--input="actions.updateCompanyName"
+						data-wcb-field="companyName"
+						data-wp-on--input="actions.updateField"
+						data-wp-bind--aria-invalid="state.fieldInvalid"
+						aria-describedby="wcb-reg-company-error"
 					/>
+					<p class="wcb-field-error" id="wcb-reg-company-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 				</div>
 				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
 					<label class="wcb-field-label" for="wcb-reg-website"><?php esc_html_e( 'Company Website', 'wp-career-board' ); ?></label>
@@ -306,7 +341,7 @@ wp_interactivity_state(
 						</select>
 					</div>
 					<div class="wcb-field-group wcb-field-half">
-						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company Size', 'wp-career-board' ); ?></label>
+						<label class="wcb-field-label" for="wcb-reg-size"><?php esc_html_e( 'Company size', 'wp-career-board' ); ?></label>
 						<select id="wcb-reg-size" class="wcb-field-input"
 							data-wp-bind--value="state.companySize" data-wp-on--change="actions.updateField" data-wcb-field="companySize">
 							<option value=""><?php esc_html_e( 'Select…', 'wp-career-board' ); ?></option>
@@ -325,8 +360,8 @@ wp_interactivity_state(
 				</div>
 
 				<?php if ( ! $wcb_is_logged_in ) : ?>
-				<div class="wcb-field-group">
-					<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?></label>
+				<div class="wcb-field-group" data-wp-context='{"field":"password"}'>
+					<label class="wcb-field-label" for="wcb-reg-password"><?php esc_html_e( 'Password', 'wp-career-board' ); ?> <span class="wcb-required" aria-hidden="true">*</span></label>
 					<input
 						id="wcb-reg-password"
 						type="password"
@@ -335,8 +370,12 @@ wp_interactivity_state(
 						required
 						aria-required="true"
 						data-wp-bind--value="state.password"
-						data-wp-on--input="actions.updatePassword"
+						data-wcb-field="password"
+						data-wp-on--input="actions.updateField"
+						data-wp-bind--aria-invalid="state.fieldInvalid"
+						aria-describedby="wcb-reg-password-error"
 					/>
+					<p class="wcb-field-error" id="wcb-reg-password-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 					<span class="wcb-form-hint"><?php esc_html_e( 'Minimum 8 characters', 'wp-career-board' ); ?></span>
 				</div>
 				<?php endif; ?>
@@ -348,15 +387,18 @@ wp_interactivity_state(
 					class="wcb-btn wcb-btn--primary wcb-btn--full"
 					data-wp-bind--disabled="state.submitting"
 				>
-					<span data-wp-class--wcb-hidden="state.submitting"><?php esc_html_e( 'Create Account', 'wp-career-board' ); ?></span>
-					<span data-wp-class--wcb-hidden="!state.submitting"><?php esc_html_e( 'Creating account…', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="state.submitting"><?php echo $wcb_user ? esc_html__( 'Continue', 'wp-career-board' ) : esc_html__( 'Create Account', 'wp-career-board' ); ?></span>
+					<span data-wp-class--wcb-hidden="!state.submitting"><?php echo $wcb_user ? esc_html__( 'Saving…', 'wp-career-board' ) : esc_html__( 'Creating account…', 'wp-career-board' ); ?></span>
 				</button>
 
 				<p class="wcb-reg-terms">
 					<?php
 					printf(
-						/* translators: 1: privacy policy link open, 2: link close */
-						esc_html__( 'By creating an account you agree to our %1$sPrivacy Policy%2$s.', 'wp-career-board' ),
+						$wcb_user
+							/* translators: 1: privacy policy link open, 2: link close */
+							? esc_html__( 'By continuing you agree to our %1$sPrivacy Policy%2$s.', 'wp-career-board' )
+							/* translators: 1: privacy policy link open, 2: link close */
+							: esc_html__( 'By creating an account you agree to our %1$sPrivacy Policy%2$s.', 'wp-career-board' ),
 						'<a href="' . esc_url( (string) get_privacy_policy_url() ) . '" target="_blank" rel="noopener noreferrer">',
 						'</a>'
 					);

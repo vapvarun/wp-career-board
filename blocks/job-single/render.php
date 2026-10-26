@@ -108,7 +108,8 @@ if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
 	$wcb_company_name = $wcb_company_post->post_title;
 }
 
-$wcb_company_url = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_permalink( $wcb_company_id ) : '';
+// A draft or trashed company has no public page to link to.
+$wcb_company_url = ( $wcb_company_post instanceof \WP_Post && in_array( $wcb_company_post->post_status, \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ) ? (string) get_permalink( $wcb_company_id ) : '';
 // Same logo the company page and directory show (the company's featured image).
 $wcb_company_logo    = ( $wcb_company_post instanceof \WP_Post ) ? (string) get_the_post_thumbnail_url( $wcb_company_id, 'thumbnail' ) : '';
 $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true ) : '';
@@ -264,8 +265,13 @@ $wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 $wcb_user_resumes            = array();
 $wcb_resume_page_url         = '';
 $wcb_career_board_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
-if ( post_type_exists( 'wcb_resume' ) ) {
-	$wcb_resume_posts = get_posts(
+// Gated on the Pro filter, not post_type_exists(): Free registers wcb_resume
+// itself, but only Pro can turn a builder resume into the PDF the apply
+// endpoint attaches, so on Free a saved resume is not a sendable choice.
+$wcb_resumes_enabled = (bool) apply_filters( 'wcb_pro_resumes_enabled', false );
+if ( $wcb_resumes_enabled ) {
+	// A guest has no resumes: 'author' => 0 would match every member's.
+	$wcb_resume_posts = $wcb_current_user_id <= 0 ? array() : get_posts(
 		array(
 			'post_type'      => 'wcb_resume',
 			'post_status'    => 'publish',
@@ -320,6 +326,7 @@ wp_interactivity_state(
 	'wcb-job-single',
 	array(
 		'jobId'                => $wcb_job_id,
+		'countView'            => ! $wcb_is_job_owner && 'publish' === $wcb_job->post_status,
 		'apiBase'              => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'                => wp_create_nonce( 'wp_rest' ),
 		'panelOpen'            => false,
@@ -341,7 +348,7 @@ wp_interactivity_state(
 		// generated on submit (wcb_resume_pdf_attachment_id), so all are eligible.
 		'selectedResumeId'     => ! empty( $wcb_user_resumes ) ? (int) $wcb_user_resumes[0]['id'] : 0,
 		'resumePageUrl'        => $wcb_resume_page_url,
-		'proActive'            => post_type_exists( 'wcb_resume' ),
+		'proActive'            => $wcb_resumes_enabled,
 		'careerBoardProActive' => $wcb_career_board_pro_active,
 		'jobPermalink'         => (string) get_permalink( $wcb_job_id ),
 		'jobTitle'             => $wcb_job->post_title,
@@ -368,9 +375,9 @@ wp_interactivity_state(
 		// renders must therefore be translated server-side and seeded here. view.js reads
 		// them only through its t( key, fallback ) helper.
 		'i18n'                 => array(
-			'bookmarkFailed'       => __( 'Could not save', 'wp-career-board' ),
+			'bookmarkFailed'       => __( 'Could not save.', 'wp-career-board' ),
 			'bookmarkSaved'        => __( 'Saved', 'wp-career-board' ),
-			'bookmarkSave'         => __( 'Save Job', 'wp-career-board' ),
+			'bookmarkSave'         => __( 'Save job', 'wp-career-board' ),
 			'guestFieldsRequired'  => __( 'Please enter your name and email to apply.', 'wp-career-board' ),
 			'resumeRequiredError'  => __( 'Please attach your resume to apply.', 'wp-career-board' ),
 			'applicationFailed'    => __( 'Application could not be submitted. Please try again.', 'wp-career-board' ),
@@ -386,6 +393,7 @@ wp_interactivity_state(
 <div
 	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-job-single' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-single"
+	data-wp-init="callbacks.countView"
 >
 
 	<?php /* ── Hero banner ──────────────────────────────────────────────── */ ?>
@@ -506,10 +514,10 @@ wp_interactivity_state(
 						data-wp-on--click="actions.openPanel"
 						data-wp-class--wcb-hidden="state.submitted"
 					>
-					<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'Apply now', 'wp-career-board' ); ?>
 					</button>
 					<p class="wcb-applied-badge" data-wp-class--wcb-shown="state.submitted">
-					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
+					<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application submitted', 'wp-career-board' ); ?>
 					</p>
 				<?php endif; ?>
 				<?php if ( ! $wcb_apply_external && is_user_logged_in() && apply_filters( 'wcb_pro_alerts_enabled', false ) ) : ?>
@@ -544,11 +552,11 @@ wp_interactivity_state(
 					data-wp-class--wcb-bookmarked="state.bookmarked"
 					data-wp-bind--disabled="state.bookmarking"
 					data-wp-bind--aria-label="state.bookmarkLabel"
-					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save Job', 'wp-career-board' ) ); ?>"
+					aria-label="<?php echo $wcb_is_bookmarked ? esc_attr( __( 'Saved', 'wp-career-board' ) ) : esc_attr( __( 'Save job', 'wp-career-board' ) ); ?>"
 					title="<?php esc_attr_e( 'Save this job', 'wp-career-board' ); ?>"
 				>
 					<?php echo \WCB\Core\Icon::svg( 'bookmark' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save Job', 'wp-career-board' ) ); ?></span>
+					<span data-wp-text="state.bookmarkLabel"><?php echo $wcb_is_bookmarked ? esc_html( __( 'Saved', 'wp-career-board' ) ) : esc_html( __( 'Save job', 'wp-career-board' ) ); ?></span>
 				</button>
 			<?php endif; ?>
 		</div>
@@ -652,7 +660,7 @@ wp_interactivity_state(
 
 			<?php if ( ! empty( $wcb_categories ) ) : ?>
 				<div class="wcb-detail-section">
-					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job Categories', 'wp-career-board' ); ?></h3>
+					<h3 class="wcb-section-heading-sm"><?php esc_html_e( 'Job categories', 'wp-career-board' ); ?></h3>
 					<div class="wcb-tag-row">
 				<?php foreach ( $wcb_categories as $wcb_cat ) : ?>
 							<a href="<?php echo esc_url( (string) get_term_link( $wcb_cat ) ); ?>" class="wcb-tag">
@@ -705,7 +713,7 @@ wp_interactivity_state(
 				<dl class="wcb-detail-list">
 					<?php if ( $wcb_type ) : ?>
 						<div class="wcb-detail-row">
-							<dt><?php esc_html_e( 'Job Type', 'wp-career-board' ); ?></dt>
+							<dt><?php esc_html_e( 'Job type', 'wp-career-board' ); ?></dt>
 							<dd><?php echo esc_html( $wcb_type ); ?></dd>
 						</div>
 					<?php endif; ?>
@@ -740,17 +748,18 @@ wp_interactivity_state(
 
 					<?php if ( $wcb_deadline_formatted ) : ?>
 						<div class="wcb-detail-row">
-							<dt><?php esc_html_e( 'Apply By', 'wp-career-board' ); ?></dt>
+							<dt><?php esc_html_e( 'Apply by', 'wp-career-board' ); ?></dt>
 							<dd><?php echo esc_html( $wcb_deadline_formatted ); ?></dd>
 						</div>
 					<?php endif; ?>
 
 					<?php if ( $wcb_apply_email && ! $wcb_deadline_passed ) : ?>
-						<div class="wcb-detail-row wcb-detail-row--stacked">
+						<div class="wcb-detail-row">
 							<dt><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></dt>
-							<dd>
+							<dd class="wcb-detail-row__truncate">
 								<a
 									class="wcb-apply-email-link"
+									title="<?php echo esc_attr( $wcb_apply_email ); ?>"
 									href="<?php echo esc_url( 'mailto:' . $wcb_apply_email . '?subject=' . rawurlencode( sprintf( /* translators: %s: job title */ __( 'Application for %s', 'wp-career-board' ), $wcb_job->post_title ) ) ); ?>"
 								><?php echo esc_html( $wcb_apply_email ); ?></a>
 							</dd>
@@ -783,15 +792,23 @@ wp_interactivity_state(
 					<?php endif; ?>
 				</dl>
 
-				<?php // The hero holds the one filled action; the sidebar repeats it outlined. ?>
-				<?php if ( $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
+				<?php
+				/*
+				 * The hero holds the one filled action; the sidebar repeats it outlined so it
+				 * stays in reach (the sidebar is sticky) after the hero scrolls away, and sits
+				 * after the description on phones. A site that wants only the hero button
+				 * returns false here (Basecamp 10417182252).
+				 */
+				$wcb_sidebar_cta = (bool) apply_filters( 'wcb_job_single_sidebar_cta', true, $wcb_job_id );
+				?>
+				<?php if ( $wcb_sidebar_cta && $wcb_is_job_owner && $wcb_dashboard_url ) : ?>
 					<a
 						href="<?php echo esc_url( add_query_arg( 'job_apps', $wcb_job_id, $wcb_dashboard_url ) ); ?>"
 						class="wcb-btn wcb-btn--secondary wcb-btn--full"
 					>
 					<?php esc_html_e( 'View Applications', 'wp-career-board' ); ?>
 					</a>
-				<?php elseif ( $wcb_show_apply && ! $wcb_deadline_passed ) : ?>
+				<?php elseif ( $wcb_sidebar_cta && $wcb_show_apply && ! $wcb_deadline_passed ) : ?>
 					<?php // A closed job says so once, in the hero and the body notice. ?>
 					<?php if ( $wcb_apply_external ) : ?>
 						<a
@@ -809,10 +826,10 @@ wp_interactivity_state(
 							data-wp-on--click="actions.openPanel"
 							data-wp-class--wcb-hidden="state.submitted"
 						>
-						<?php esc_html_e( 'Apply Now', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'Apply now', 'wp-career-board' ); ?>
 						</button>
 						<p class="wcb-applied-badge wcb-applied-badge--center" data-wp-class--wcb-shown="state.submitted">
-						<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application Submitted', 'wp-career-board' ); ?>
+						<?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Application submitted', 'wp-career-board' ); ?>
 						</p>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -877,7 +894,7 @@ wp_interactivity_state(
 				<div class="wcb-sidebar-card wcb-company-card">
 					<h3 class="wcb-card-title">
 						<?php echo \WCB\Core\Icon::svg( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?>
-						<?php esc_html_e( 'About the Company', 'wp-career-board' ); ?>
+						<?php esc_html_e( 'About the company', 'wp-career-board' ); ?>
 					</h3>
 					<div class="wcb-company-card-header">
 						<div class="wcb-avatar wcb-avatar--sm<?php echo $wcb_company_logo ? ' wcb-avatar--logo' : ''; ?>">
@@ -1082,7 +1099,7 @@ wp_interactivity_state(
 					</div>
 		<?php endif; ?>
 
-		<?php $wcb_show_pro_picker = is_user_logged_in() && post_type_exists( 'wcb_resume' ); ?>
+		<?php $wcb_show_pro_picker = is_user_logged_in() && $wcb_resumes_enabled; ?>
 
 				<div class="wcb-apply-resume-section">
 		<?php if ( $wcb_show_pro_picker ) : ?>
@@ -1156,7 +1173,7 @@ wp_interactivity_state(
 
 				<div class="wcb-cover-letter-head">
 					<label class="wcb-field-label" for="wcb-cover-letter">
-		<?php esc_html_e( 'Cover Letter', 'wp-career-board' ); ?>
+		<?php esc_html_e( 'Cover letter', 'wp-career-board' ); ?>
 						<span class="wcb-field-hint"><?php esc_html_e( '(optional)', 'wp-career-board' ); ?></span>
 					</label>
 					<button

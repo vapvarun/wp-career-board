@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "WP Career Board REST API",
-        "version": "1.8.1",
+        "version": "1.8.2",
         "description": "REST API for WP Career Board (Free). Namespaced under `wcb/v1`. WP Career Board Pro adds its own routes to the same namespace; those are catalogued in the Pro plugin's own spec.\n\nThis document is generated from the live route registrations and scoped to the routes this plugin registers, so it never includes routes from Pro or any other plugin on the same install.",
         "contact": {
             "name": "Wbcom Designs",
@@ -3725,6 +3725,40 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/wcb/v1/jobs/{id}/view": {
+            "post": {
+                "tags": [
+                    "Jobs"
+                ],
+                "operationId": "post_wcb_v1_jobs_id_view",
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
                     }
                 }
             }
