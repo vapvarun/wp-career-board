@@ -101,6 +101,7 @@ $cmd = sprintf(
 				':(exclude).distignore', // packaging only; bin/verify-zip.sh gates the zip.
 				':(exclude)*.md',
 				':(exclude)readme.txt',
+				':(exclude)*.pot', // translator template; WordPress never loads it at runtime.
 				// Tooling config. composer.json and package.json are safe to drop:
 				// .distignore keeps both OUT of the zip, and a change to a shipped
 				// dependency always rewrites the matching lockfile, which stays in.
