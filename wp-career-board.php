@@ -26,6 +26,8 @@ define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
 define( 'WCB_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WCB_EDD_ITEM_ID', 1659888 );
+// Licence and update host for WP Career Board and Pro; the SDK falls back to https://wbcomdesigns.com.
+define( 'WCB_LICENCE_HOST', 'https://updates.wbcomdesigns.com' );
 
 // Polyfill wp_is_ability_granted() — WP 6.9 core ships the Abilities API
 // registry but no top-level "is granted" helper. Loaded early so any block
@@ -33,26 +35,49 @@ define( 'WCB_EDD_ITEM_ID', 1659888 );
 // inside the file means this yields the moment WP core ships the helper.
 require_once WCB_DIR . 'core/abilities-api-polyfill.php';
 
-// EDD Software Licensing SDK — automatic updates from wbcomdesigns.com.
+/**
+ * One licence-server request (activate, deactivate, check or get_version) for WP Career Board and Pro. Goes
+ * through the bundled SDK, so it uses the same host as update checks and falls back to the old host when the
+ * new one cannot be reached. Returns the decoded reply, or false when no host answered.
+ *
+ * @since  1.8.2
+ * @param  array<string,mixed> $params EDD Software Licensing parameters (edd_action, license, item_id).
+ * @return object|false
+ */
+function wcb_licence_request( array $params ) {
+	if ( ! class_exists( '\\EasyDigitalDownloads\\Updater\\Requests\\API' ) ) {
+		return false;
+	}
+	// Name the fallback here as well: on an early request (plugin activation) the SDK registry has not run yet.
+	// method_exists() is a real runtime check: another plugin's older SDK copy (no set_fallback) can own the class.
+	// @phpstan-ignore function.alreadyNarrowedType
+	if ( method_exists( '\\EasyDigitalDownloads\\Updater\\Requests\\API', 'set_fallback' ) ) {
+		\EasyDigitalDownloads\Updater\Requests\API::set_fallback( WCB_LICENCE_HOST, 'https://wbcomdesigns.com' );
+	}
+	return ( new \EasyDigitalDownloads\Updater\Requests\API( WCB_LICENCE_HOST ) )->make_request( $params );
+}
+
+// EDD Software Licensing SDK — automatic updates from updates.wbcomdesigns.com (fallback wbcomdesigns.com).
 // Free plugin uses a shared community license key for silent update checks.
 add_action(
 	'edd_sl_sdk_registry',
 	static function ( \EasyDigitalDownloads\Updater\Registry $registry ): void {
 		$registry->register(
 			array(
-				'id'          => 'wp-career-board',
-				'url'         => 'https://wbcomdesigns.com',
-				'item_id'     => WCB_EDD_ITEM_ID,
-				'version'     => WCB_VERSION,
-				'file'        => WCB_FILE,
-				'license'     => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
+				'id'           => 'wp-career-board',
+				'url'          => WCB_LICENCE_HOST,
+				'fallback_url' => 'https://wbcomdesigns.com',
+				'item_id'      => WCB_EDD_ITEM_ID,
+				'version'      => WCB_VERSION,
+				'file'         => WCB_FILE,
+				'license'      => 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00',
 				// Free ships a preset community key (auto-activated below); it only
 				// enables silent update checks and gates nothing. The SDK shows the
 				// "Manage License" plugins-row button and modal, whose JS/CSS load
 				// from this bundled libs copy via plugins_url() (no 404). option_name
 				// points the SDK at the same wcb_license_key option seeded below, so
 				// the modal prefills the key. Pro loads the same shared copy.
-				'option_name' => 'wcb_license_key',
+				'option_name'  => 'wcb_license_key',
 			)
 		);
 	}
@@ -87,42 +112,36 @@ if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
  * the wcb_preset_activated flag, so running on both hooks is safe.
  *
  * Wbcom licensing model: the license is for AUTOMATIC UPDATES via EDD
- * Software Licensing only. It does NOT gate any plugin functionality —
- * if activation fails (network error, EDD store rejecting the key, 403
- * Forbidden response), the plugin still works the same. So we set the
- * `wcb_preset_activated` flag unconditionally after one attempt; the
- * remote call is best-effort and never retries.
- *
- * Earlier behaviour retried the remote on every admin_init when the
- * response was anything other than a valid license, surfacing the
- * remote 403 as a recurring PHP error in admin.
+ * Software Licensing only. It does NOT gate any plugin functionality, so
+ * any reply from the store (valid or a licence "no") ends the attempts and
+ * sets `wcb_preset_activated`. Only "no host answered" (or the SDK not
+ * loaded yet) leaves it unset, and then a 12h backoff transient stops a
+ * failing store from being retried on every admin page.
  */
 function wcb_maybe_activate_preset_license(): void {
 	$preset_key = 'wbcomfree5b8c1e7a9d3f2a4c6e0d1b7f9c2a6e00';
 	$option     = 'wcb_license_key';
 	$activated  = 'wcb_preset_activated';
 
-	if ( get_option( $activated ) ) {
+	if ( get_option( $activated ) || get_transient( 'wcb_preset_activation_backoff' ) ) {
 		return;
 	}
 
 	update_option( $option, $preset_key, false );
-	update_option( $activated, 1, false );
 
-	// Best-effort remote activation; result is not enforced anywhere.
-	wp_remote_post(
-		'https://wbcomdesigns.com',
+	// Best-effort remote activation; the reply's licence status is not enforced anywhere.
+	$reply = wcb_licence_request(
 		array(
-			'timeout'  => 15,
-			'blocking' => false,
-			'body'     => array(
-				'edd_action' => 'activate_license',
-				'license'    => $preset_key,
-				'item_id'    => WCB_EDD_ITEM_ID,
-				'url'        => home_url(),
-			),
+			'edd_action' => 'activate_license',
+			'license'    => $preset_key,
+			'item_id'    => WCB_EDD_ITEM_ID,
 		)
 	);
+	if ( is_object( $reply ) ) {
+		update_option( $activated, 1, false );
+	} else {
+		set_transient( 'wcb_preset_activation_backoff', 1, 12 * HOUR_IN_SECONDS );
+	}
 }
 add_action( 'admin_init', 'wcb_maybe_activate_preset_license' );
 register_activation_hook( WCB_FILE, 'wcb_maybe_activate_preset_license' );

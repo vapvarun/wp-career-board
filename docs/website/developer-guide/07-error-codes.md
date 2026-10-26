@@ -117,7 +117,7 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 
 ## Integrations tab installer
 
-The **Settings > Integrations** tab installs other Wbcom plugins. Its failures come back to that screen as a message, not as a REST status. The codes are `wcb_cap` (the user may not install plugins), `wcb_fs` (WordPress has no file access), `wcb_unknown_companion`, `wcb_no_item`, `wcb_no_license`, `wcb_license_invalid`, `wcb_license_activation_failed`, `wcb_store_unreachable`, `wcb_store_bad_response`, `wcb_no_package`, `wcb_download_rejected`, `wcb_install_failed` and `wcb_activate`.
+The **Settings > Integrations** tab installs other Wbcom plugins. Its failures come back to that screen as a message, not as a REST status. The codes are `wcb_cap` (the user may not install plugins), `wcb_fs` (WordPress has no file access), `wcb_unknown_companion`, `wcb_no_item`, `wcb_no_license`, `wcb_license_invalid`, `wcb_license_activation_failed`, `wcb_store_unreachable`, `wcb_no_package`, `wcb_download_rejected`, `wcb_install_failed` and `wcb_activate`.
 
 ## Use the codes in your own routes
 
