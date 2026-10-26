@@ -608,12 +608,9 @@ final class Install {
 				WHERE p.post_type = 'wcb_job' AND p.post_status = 'wcb_expired' AND m.meta_value = ''"
 			)
 		);
-		if ( ! $ids ) {
-			return;
-		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade repair, ids read above.
-		$wpdb->query( "UPDATE {$wpdb->posts} SET post_status = 'publish' WHERE ID IN ( " . implode( ',', $ids ) . ' )' );
 		foreach ( $ids as $id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade repair, cache cleared below.
+			$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $id ) );
 			clean_post_cache( $id );
 		}
 	}
