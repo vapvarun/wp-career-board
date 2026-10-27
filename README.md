@@ -2,7 +2,7 @@
 
 A job board for WordPress built on Gutenberg blocks and the Interactivity API, with employer and candidate dashboards, application tracking and company profiles.
 
-Version 1.8.1 | Requires WordPress 6.9, PHP 8.1 | GPL-2.0-or-later
+Version 1.8.2 | Requires WordPress 6.9, PHP 8.1 | GPL-2.0-or-later
 
 ## What it does
 
@@ -41,18 +41,16 @@ Site owners who want to run a job board, careers listing or hiring directory on 
 
 | | |
 |---|---|
-| Plugin page and download | [store.wbcomdesigns.com/wp-career-board](https://store.wbcomdesigns.com/wp-career-board/) |
-| Product site | [wpcareerboard.com](https://wpcareerboard.com/) |
-| Pro add-on | [WP Career Board Pro](https://store.wbcomdesigns.com/wp-career-board-pro/) - adds a Kanban hiring pipeline, multiple boards, resumes, credits, AI tools and more. See the store page for pricing. |
+| Product site and download | [wpcareerboard.com](https://wpcareerboard.com/) |
+| Pro add-on | [WP Career Board Pro](https://wpcareerboard.com/pricing/) - adds a Kanban hiring pipeline, multiple boards, resumes, credits, AI tools and more. See the pricing page. |
 
-The plugin is not listed on wordpress.org. Download it from the store page.
+The plugin is not listed on wordpress.org. Download it from wpcareerboard.com.
 
 ## Documentation
 
 | | |
 |---|---|
 | Documentation hub | [docs.wbcomdesigns.com/products/wp-career-board](https://docs.wbcomdesigns.com/products/wp-career-board/) |
-| Store documentation | [store.wbcomdesigns.com/wp-career-board/docs](https://store.wbcomdesigns.com/wp-career-board/docs/) |
 | Release notes | [wbcomdesigns.com/release-notes/wp-career-board](https://wbcomdesigns.com/release-notes/wp-career-board/) |
 
 ## Requirements
