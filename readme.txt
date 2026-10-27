@@ -84,6 +84,7 @@ A polish release: screens say what happened, data stays in step with its source,
 * Improve  - Too few credits on the employer dashboard comes with a Buy credits button.
 * Improve  - My Resumes says Open CV and Replace CV, and Replace CV takes the same PDF, DOC and DOCX files as Upload CV.
 * Improve  - Help text names real settings tabs and no longer mentions release numbers.
+* Improve  - Update and licence requests go to updates.wbcomdesigns.com, and fall back to wbcomdesigns.com on their own if it cannot be reached.
 * Fix      - Jobs, companies, resumes and boards cannot go live without a title, and job forms refuse a minimum salary above the maximum or an empty required field.
 * Fix      - Every job stores its board, so the board filter finds jobs saved in wp-admin; an upgrade step repairs older jobs.
 * Fix      - Deleting the default board hands the role to a live board instead of leaving jobs without one.
