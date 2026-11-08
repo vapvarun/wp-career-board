@@ -74,6 +74,7 @@ A fix release for 1.8.2.
 * Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
 * Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.
 * Fix      - The dashboard's Recent Applications names a guest applicant instead of showing (deleted).
+* Fix      - The email activity log shows dates in the site's date and time format for every admin, not each browser's own format.
 * Fix      - Moving jobs to the default board, on board delete or upgrade, shows straight away on sites whose object cache cannot flush a group.
 * Dev      - wp wcb scale seed, benchmark and teardown clear only Career Board data from the object cache instead of the whole site's cache.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.

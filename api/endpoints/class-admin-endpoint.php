@@ -364,6 +364,9 @@ final class AdminEndpoint extends RestController {
 					'subject'    => is_array( $payload ) && isset( $payload['subject'] ) ? (string) $payload['subject'] : '',
 					'status'     => (string) $row['status'],
 					'sent_at'    => (string) $row['sent_at'],
+					// Site date and time format, formatted here so every admin sees one string
+					// (the browser's locale gave en-IN and en-US admins different dates).
+					'sent_label' => mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row['sent_at'] ),
 				);
 			},
 			$rows
