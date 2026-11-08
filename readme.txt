@@ -73,6 +73,8 @@ A fix release for 1.8.2.
 * Fix      - A cover letter or candidate bio keeps its paragraphs and bullet lists after saving, and its editor offers only the formatting that is kept.
 * Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
 * Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.
+* Fix      - Moving jobs to the default board, on board delete or upgrade, shows straight away on sites whose object cache cannot flush a group.
+* Dev      - wp wcb scale seed, benchmark and teardown clear only Career Board data from the object cache instead of the whole site's cache.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.
 * Compat   - Aligned with WP Career Board Pro 1.8.3. Install both updates together.
 

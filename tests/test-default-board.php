@@ -80,6 +80,9 @@ $wcb_empty = $wcb_job();
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- test fixture: an empty stored board as older code left it.
 $wpdb->update( $wpdb->postmeta, array( 'meta_value' => '' ), array( 'post_id' => $wcb_empty, 'meta_key' => '_wcb_board_id' ) );
 wp_cache_delete( $wcb_empty, 'post_meta' );
+// Warm both jobs' meta cache: the upgrade must drop it itself (a group flush is not there on every backend).
+get_post_meta( $wcb_plain, '_wcb_board_id', true );
+get_post_meta( $wcb_empty, '_wcb_board_id', true );
 $wcb_version = (string) get_option( 'wcb_db_version' );
 update_option( 'wcb_db_version', '1.3.8', false );
 Install::maybe_migrate();
@@ -87,6 +90,17 @@ wcb_db_assert( $wcb_default === (int) get_post_meta( $wcb_plain, '_wcb_board_id'
 wcb_db_assert( $wcb_default === (int) get_post_meta( $wcb_empty, '_wcb_board_id', true ), 'the upgrade fixes a stored empty board' );
 wcb_db_assert( $wcb_other === (int) get_post_meta( $wcb_chosen, '_wcb_board_id', true ), 'the upgrade leaves a chosen board alone' );
 wcb_db_assert( version_compare( (string) get_option( 'wcb_db_version' ), $wcb_version, '>=' ), 'the upgrade records the DB version' );
+
+// A bulk board move drops each moved job's cached meta.
+$wcb_moved = $wcb_job( array( '_wcb_board_id' => $wcb_other ) );
+get_post_meta( $wcb_moved, '_wcb_board_id', true );
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- test fixture: the bulk move the board delete does.
+$wpdb->update( $wpdb->postmeta, array( 'meta_value' => (string) $wcb_default ), array( 'post_id' => $wcb_moved, 'meta_key' => '_wcb_board_id' ) );
+wcb_db_assert( $wcb_other === (int) get_post_meta( $wcb_moved, '_wcb_board_id', true ), 'control: a direct query leaves the cached board behind' );
+$wcb_lc = wp_cache_get_last_changed( 'posts' );
+\WCB\Modules\Boards\BoardsModule::forget_job_meta( array( $wcb_moved, $wcb_moved ) );
+wcb_db_assert( $wcb_default === (int) get_post_meta( $wcb_moved, '_wcb_board_id', true ), 'forget_job_meta() makes the moved job read its new board' );
+wcb_db_assert( $wcb_lc !== wp_cache_get_last_changed( 'posts' ), 'forget_job_meta() retires cached post queries' );
 
 // The board filter finds them.
 $wcb_res  = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/jobs' ) );
@@ -101,7 +115,7 @@ $wcb_ids  = array_map( static fn ( $j ) => (int) ( $j['id'] ?? 0 ), (array) ( $w
 wcb_db_assert( in_array( $wcb_plain, $wcb_ids, true ) || (int) ( $wcb_data['total'] ?? 0 ) > 100, 'the default board filter finds a job that had no board' );
 
 // Cleanup.
-foreach ( array( $wcb_plain, $wcb_chosen, $wcb_empty, $wcb_other ) as $wcb_id ) {
+foreach ( array( $wcb_plain, $wcb_chosen, $wcb_empty, $wcb_moved, $wcb_other ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }
 

@@ -509,6 +509,13 @@ final class Install {
 			$wcb_default_board = (int) get_option( 'wcb_default_board_id', 0 );
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.9', '<' ) && $wcb_default_board > 0 ) {
 				global $wpdb;
+				// The jobs about to change, so their cached meta can be dropped after.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair.
+				$wcb_board_jobs = $wpdb->get_col(
+					"SELECT p.ID FROM {$wpdb->posts} p
+					LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_wcb_board_id'
+					WHERE p.post_type = 'wcb_job' AND ( m.meta_id IS NULL OR m.meta_value IN ( '', '0' ) )"
+				);
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair, one statement at any size.
 				$wpdb->query(
 					$wpdb->prepare(
@@ -527,7 +534,7 @@ final class Install {
 						(string) $wcb_default_board
 					)
 				);
-				wp_cache_flush_group( 'post_meta' );
+				\WCB\Modules\Boards\BoardsModule::forget_job_meta( $wcb_board_jobs );
 			}
 
 			// 1.4.0 - saved industry labels that are just a shipped name, in the

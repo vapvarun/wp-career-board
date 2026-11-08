@@ -45,7 +45,7 @@ final class Industries {
 	 * @since 1.7.1
 	 * @var string
 	 */
-	private const CACHE_GROUP = 'wcb_companies';
+	public const CACHE_GROUP = 'wcb_companies';
 
 	/**
 	 * Companies rewritten per pass by {@see Industries::reassign()}.
