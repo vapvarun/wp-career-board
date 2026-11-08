@@ -141,7 +141,9 @@ $wcb_payload = ApplicationStatus::payload( 'hired', 'candidate' );
 wcb_assert( array( 'status', 'status_label', 'status_tone', 'statusLabel' ) === array_keys( $wcb_payload ), 'payload carries status, status_label, status_tone (+ legacy statusLabel)' );
 
 // ── One writer, one event per real change ────────────────────────────────
-$wcb_app = wcb_lc_app( $wcb_job, $wcb_candidate );
+// Count from here: other plugins (BuddyNext's welcome email) mail new users too.
+$GLOBALS['wcb_mail_to'] = array();
+$wcb_app                = wcb_lc_app( $wcb_job, $wcb_candidate );
 $r       = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'reviewing' ), $wcb_employer );
 wcb_assert( 200 === $r->get_status() && true === $r->get_data()['changed'], 'employer moves submitted -> reviewing' );
 wcb_assert( 'Reviewing' === $r->get_data()['status_label'] && 'warning' === $r->get_data()['status_tone'], 'response carries label + tone' );
