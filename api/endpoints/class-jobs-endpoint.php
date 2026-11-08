@@ -1772,10 +1772,10 @@ final class JobsEndpoint extends RestController {
 		$cat_term_objs  = get_the_terms( $post->ID, 'wcb_category' );
 		$tag_term_objs  = get_the_terms( $post->ID, 'wcb_tag' );
 
-		$loc_names  = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'name' ) : array();
-		$type_names = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
-		$exp_names  = is_array( $exp_term_objs ) ? wp_list_pluck( $exp_term_objs, 'name' ) : array();
-		$cat_names  = is_array( $cat_term_objs ) ? wp_list_pluck( $cat_term_objs, 'name' ) : array();
+		$loc_names  = \WCB\Core\Taxonomy::names( $loc_term_objs );
+		$type_names = \WCB\Core\Taxonomy::names( $type_term_objs );
+		$exp_names  = \WCB\Core\Taxonomy::names( $exp_term_objs );
+		$cat_names  = \WCB\Core\Taxonomy::names( $cat_term_objs );
 		$cat_slugs  = is_array( $cat_term_objs ) ? wp_list_pluck( $cat_term_objs, 'slug' ) : array();
 		$type_slugs = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'slug' ) : array();
 		$loc_slugs  = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'slug' ) : array();

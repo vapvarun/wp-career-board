@@ -243,24 +243,55 @@ final class Taxonomy {
 		}
 
 		$out   = array();
-		$names = wp_list_pluck( $terms, 'name', 'term_id' );
+		$names = array_map( array( self::class, 'plain' ), wp_list_pluck( $terms, 'name', 'term_id' ) );
 		$walk  = static function ( int $parent_id, int $depth ) use ( &$walk, &$out, $children, $names ): void {
 			foreach ( $children[ $parent_id ] ?? array() as $term ) {
 				$out[] = (object) array(
 					'id'          => (int) $term->term_id,
 					'slug'        => $term->slug,
-					'name'        => $term->name,
+					'name'        => self::plain( $term->name ),
 					'depth'       => $depth,
 					'parent'      => $parent_id,
 					// Child names repeat across groups ("Other", "Management"): search shows whose.
 					'parent_name' => (string) ( $names[ $parent_id ] ?? '' ),
-					'label'       => str_repeat( '— ', $depth ) . $term->name,
+					'label'       => str_repeat( '— ', $depth ) . self::plain( $term->name ),
 				);
 				$walk( (int) $term->term_id, $depth + 1 );
 			}
 		};
 		$walk( 0, 0 );
 		return $out;
+	}
+
+	/**
+	 * A term name as plain text.
+	 *
+	 * WordPress stores term names HTML-encoded ("R&D" is saved as "R&amp;D").
+	 * PHP output hides that because esc_html() does not double-encode, but
+	 * text written by data-wp-text, the REST API or the app shows the entity.
+	 * Every name that leaves as text goes through here; PHP still escapes it
+	 * on output.
+	 *
+	 * @since 1.8.3
+	 * @param string $name Stored term name.
+	 * @return string
+	 */
+	public static function plain( string $name ): string {
+		return html_entity_decode( $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	}
+
+	/**
+	 * Plain-text names of a get_the_terms() or wp_get_object_terms() result.
+	 *
+	 * @since 1.8.3
+	 * @param mixed $terms WP_Term[], names (string[]), false or WP_Error.
+	 * @return string[]
+	 */
+	public static function names( $terms ): array {
+		if ( ! is_array( $terms ) ) {
+			return array();
+		}
+		return array_map( static fn( $t ): string => self::plain( $t instanceof \WP_Term ? $t->name : (string) $t ), array_values( $terms ) );
 	}
 
 	/**

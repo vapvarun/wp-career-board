@@ -791,8 +791,8 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts ): array {
-				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
-				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
+				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 				$status_labels  = self::job_status_labels();
 				// Mirror the public-facing 'closed' / 'expired' status used by
@@ -829,8 +829,8 @@ final class EmployersEndpoint extends RestController {
 							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
 						)
 						: __( 'No applicants', 'wp-career-board' ),
-					'location'         => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'location'         => implode( ', ', $location_terms ),
+					'type'             => implode( ', ', $type_terms ),
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},
@@ -902,8 +902,8 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $app_counts, $wcb_job_form_url ): array {
-				$location_terms = wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) );
-				$type_terms     = wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
+				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
 				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
 
@@ -941,8 +941,8 @@ final class EmployersEndpoint extends RestController {
 						number_format_i18n( $app_count )
 					)
 					: __( 'No applicants', 'wp-career-board' ),
-					'location'         => is_wp_error( $location_terms ) ? '' : implode( ', ', $location_terms ),
-					'type'             => is_wp_error( $type_terms ) ? '' : implode( ', ', $type_terms ),
+					'location'         => implode( ', ', $location_terms ),
+					'type'             => implode( ', ', $type_terms ),
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
 				);
 			},

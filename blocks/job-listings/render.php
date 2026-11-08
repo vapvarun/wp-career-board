@@ -170,10 +170,10 @@ $wcb_site_currency = \WCB\Modules\Jobs\JobsMeta::default_currency();
 \WCB\Core\CompanyMetaShape::prime_logos( array_map( static fn ( $wcb_p ): int => (int) get_post_meta( $wcb_p->ID, '_wcb_company_id', true ), $wcb_jobs_raw ) );
 
 foreach ( $wcb_jobs_raw as $wcb_job_post ) {
-	$wcb_location_terms   = wp_get_object_terms( $wcb_job_post->ID, 'wcb_location', array( 'fields' => 'names' ) );
-	$wcb_type_terms       = wp_get_object_terms( $wcb_job_post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
-	$wcb_exp_terms        = wp_get_object_terms( $wcb_job_post->ID, 'wcb_experience', array( 'fields' => 'names' ) );
-	$wcb_cat_terms        = wp_get_object_terms( $wcb_job_post->ID, 'wcb_category', array( 'fields' => 'names' ) );
+	$wcb_location_terms   = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
+	$wcb_type_terms       = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+	$wcb_exp_terms        = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_experience', array( 'fields' => 'names' ) ) );
+	$wcb_cat_terms        = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_category', array( 'fields' => 'names' ) ) );
 	$wcb_salary_min       = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_min', true );
 	$wcb_salary_max       = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_max', true );
 	$wcb_salary_currency  = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_currency', true );
@@ -203,10 +203,10 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		'trust'           => $wcb_trust,
 		'trust_label'     => $wcb_trust_info['label'] ?? '',
 		'verified'        => null !== $wcb_trust_info,
-		'location'        => is_wp_error( $wcb_location_terms ) ? '' : implode( ', ', $wcb_location_terms ),
-		'type'            => is_wp_error( $wcb_type_terms ) ? '' : implode( ', ', $wcb_type_terms ),
-		'experience'      => is_wp_error( $wcb_exp_terms ) ? '' : implode( ', ', $wcb_exp_terms ),
-		'category'        => is_wp_error( $wcb_cat_terms ) ? '' : implode( ', ', $wcb_cat_terms ),
+		'location'        => implode( ', ', $wcb_location_terms ),
+		'type'            => implode( ', ', $wcb_type_terms ),
+		'experience'      => implode( ', ', $wcb_exp_terms ),
+		'category'        => implode( ', ', $wcb_cat_terms ),
 		'remote'          => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_remote', true ),
 		'featured'        => '1' === get_post_meta( $wcb_job_post->ID, '_wcb_featured', true ),
 		'board_id'        => (int) get_post_meta( $wcb_job_post->ID, '_wcb_board_id', true ),

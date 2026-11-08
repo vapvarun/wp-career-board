@@ -341,14 +341,14 @@ wp_interactivity_state(
 
 		$wcb_cp_jobs_state = array();
 		foreach ( $wcb_open_jobs as $wcb_jpost ) {
-			$wcb_jloc            = wp_get_object_terms( $wcb_jpost->ID, 'wcb_location', array( 'fields' => 'names' ) );
-			$wcb_jtype           = wp_get_object_terms( $wcb_jpost->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
+			$wcb_jloc            = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_jpost->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
+			$wcb_jtype           = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_jpost->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
 			$wcb_cp_jobs_state[] = array(
 				'id'        => $wcb_jpost->ID,
 				'title'     => $wcb_jpost->post_title,
 				'permalink' => (string) get_permalink( $wcb_jpost->ID ),
-				'type'      => is_wp_error( $wcb_jtype ) ? '' : implode( ', ', $wcb_jtype ),
-				'location'  => is_wp_error( $wcb_jloc ) ? '' : implode( ', ', $wcb_jloc ),
+				'type'      => implode( ', ', $wcb_jtype ),
+				'location'  => implode( ', ', $wcb_jloc ),
 			);
 		}
 

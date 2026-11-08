@@ -46,9 +46,9 @@ $wcb_category_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_category' );
 $wcb_tag_terms        = wp_get_object_terms( $wcb_job_id, 'wcb_tag' );
 
 // Plain-text strings used in sidebar detail list.
-$wcb_location   = ! is_wp_error( $wcb_location_terms ) ? implode( ', ', wp_list_pluck( $wcb_location_terms, 'name' ) ) : '';
-$wcb_type       = ! is_wp_error( $wcb_type_terms ) ? implode( ' · ', wp_list_pluck( $wcb_type_terms, 'name' ) ) : '';
-$wcb_experience = ! is_wp_error( $wcb_experience_terms ) ? implode( ', ', wp_list_pluck( $wcb_experience_terms, 'name' ) ) : '';
+$wcb_location   = implode( ', ', \WCB\Core\Taxonomy::names( $wcb_location_terms ) );
+$wcb_type       = implode( ' · ', \WCB\Core\Taxonomy::names( $wcb_type_terms ) );
+$wcb_experience = implode( ', ', \WCB\Core\Taxonomy::names( $wcb_experience_terms ) );
 $wcb_categories = ! is_wp_error( $wcb_category_terms ) ? $wcb_category_terms : array();
 $wcb_tags       = ! is_wp_error( $wcb_tag_terms ) ? $wcb_tag_terms : array();
 

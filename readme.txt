@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -67,12 +67,14 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 A fix release for 1.8.2.
 
 * Fix      - The Users screen in wp-admin no longer stops with a fatal error when another plugin saved a role without a name.
+* Fix      - Category, location and type names with an ampersand or quote read correctly on Find Jobs filter pills, job cards, company pages and in the REST API.
 * Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back after updating.
 * Fix      - Saving a member on the Edit User screen no longer drops their Employer or Candidate role; new Career Board roles checkboxes add or remove it.
 * Fix      - A cover letter or candidate bio keeps its paragraphs and bullet lists after saving, and its editor offers only the formatting that is kept.
 * Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
 * Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.
+* Compat   - Aligned with WP Career Board Pro 1.8.3. Install both updates together.
 
 = 1.8.2 - October 2026 =
 

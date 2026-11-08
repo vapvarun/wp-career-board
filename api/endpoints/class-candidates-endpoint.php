@@ -478,8 +478,8 @@ final class CandidatesEndpoint extends RestController {
 
 			$loc_term_objs  = get_the_terms( $post->ID, 'wcb_location' );
 			$type_term_objs = get_the_terms( $post->ID, 'wcb_job_type' );
-			$loc_names      = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'name' ) : array();
-			$type_names     = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
+			$loc_names      = \WCB\Core\Taxonomy::names( $loc_term_objs );
+			$type_names     = \WCB\Core\Taxonomy::names( $type_term_objs );
 
 			$items[] = array(
 				'id'           => $post->ID,
