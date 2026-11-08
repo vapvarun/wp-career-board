@@ -80,7 +80,34 @@ $wcb_mk    = static function ( string $slug, string $role ) use ( $wcb_s, $wcb_p
 WP_CLI::log( '--- grant_member_role ---' );
 $wcb_sub = $wcb_mk( 'sub', 'subscriber' );
 Roles::grant_member_role( new WP_User( $wcb_sub ), 'wcb_employer' );
-wcb_assert( array( 'wcb_employer' ) === array_values( ( new WP_User( $wcb_sub ) )->roles ), 'a subscriber becomes an employer only' );
+$wcb_roles = ( new WP_User( $wcb_sub ) )->roles;
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_employer', $wcb_roles, true ), 'a subscriber keeps subscriber and gains employer' );
+Roles::grant_member_role( new WP_User( $wcb_sub ), 'wcb_candidate' );
+wcb_assert( 3 === count( array_intersect( array( 'subscriber', 'wcb_candidate', 'wcb_employer' ), ( new WP_User( $wcb_sub ) )->roles ) ), 'an employer who applies keeps both roles and subscriber' );
+
+$wcb_swap = static fn () => true;
+add_filter( 'wcb_member_role_replaces_default', $wcb_swap );
+$wcb_old = $wcb_mk( 'old', 'subscriber' );
+Roles::grant_member_role( new WP_User( $wcb_old ), 'wcb_employer' );
+wcb_assert( array( 'wcb_employer' ) === array_values( ( new WP_User( $wcb_old ) )->roles ), 'wcb_member_role_replaces_default restores the old swap' );
+$wcb_ed2 = $wcb_mk( 'ed2', 'editor' );
+Roles::grant_member_role( new WP_User( $wcb_ed2 ), 'wcb_employer' );
+wcb_assert( in_array( 'editor', ( new WP_User( $wcb_ed2 ) )->roles, true ), 'the swap filter never demotes an editor' );
+
+WP_CLI::log( '--- restore_default_role repair ---' );
+$wcb_lost   = $wcb_mk( 'lost', 'wcb_candidate' );
+$wcb_lost2  = $wcb_mk( 'lost2', 'wcb_employer' );
+( new WP_User( $wcb_lost2 ) )->add_role( 'wcb_candidate' );
+Roles::restore_default_role( 1 );
+wcb_assert( in_array( 'wcb_candidate', ( new WP_User( $wcb_lost ) )->roles, true ) && ! in_array( 'subscriber', ( new WP_User( $wcb_lost ) )->roles, true ), 'repair respects the swap filter' );
+remove_filter( 'wcb_member_role_replaces_default', $wcb_swap );
+Roles::restore_default_role( 1 );
+$wcb_roles = ( new WP_User( $wcb_lost ) )->roles;
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'repair gives a candidate-only member subscriber back' );
+$wcb_roles = ( new WP_User( $wcb_lost2 ) )->roles;
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_employer', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'repair gives an employer + candidate member subscriber back' );
+$wcb_ed_roles = ( new WP_User( $wcb_ed2 ) )->roles;
+wcb_assert( ! in_array( 'subscriber', $wcb_ed_roles, true ), 'repair leaves a member with another role alone' );
 $wcb_ed = $wcb_mk( 'ed', 'editor' );
 Roles::grant_member_role( new WP_User( $wcb_ed ), 'wcb_candidate' );
 $wcb_roles = ( new WP_User( $wcb_ed ) )->roles;

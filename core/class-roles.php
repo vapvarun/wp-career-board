@@ -201,28 +201,106 @@ final class Roles {
 	}
 
 	/**
-	 * Give an existing user a plugin role when they sign up from the frontend.
+	 * Background hook that gives members their default role back (1.8.3).
 	 *
-	 * A plain member (only the site's default role, e.g. subscriber) is
-	 * switched to the plugin role, matching wp-admin's replace semantics so
-	 * they don't end up as subscriber + employer, and BuddyPress member types
-	 * follow set_role(). Anyone holding another role keeps it and gets the
-	 * plugin role added: set_role() used to turn a logged-in administrator or
-	 * editor into a plain employer/candidate.
+	 * @since 1.8.3
+	 */
+	public const REPAIR_HOOK = 'wcb_restore_default_role';
+
+	/**
+	 * The roles a member gets from signing up, applying or posting.
+	 *
+	 * @since 1.8.3
+	 */
+	private const MEMBER_ROLES = array( 'wcb_employer', 'wcb_candidate' );
+
+	/**
+	 * Give a user a plugin role when they become an employer or candidate.
+	 *
+	 * The role is added, so the member keeps the site's default role and every
+	 * permission other plugins give it (enrolling, submitting listings,
+	 * posting). Until 1.8.3 a plain member's default role was replaced.
+	 * Sites that want that back return true from
+	 * `wcb_member_role_replaces_default`.
 	 *
 	 * @since 1.8.0
+	 * @since 1.8.3 Adds the role instead of replacing the default role.
 	 *
-	 * @param \WP_User $user User signing up.
+	 * @param \WP_User $user User becoming an employer or candidate.
 	 * @param string   $role wcb_employer or wcb_candidate.
 	 * @return void
 	 */
 	public static function grant_member_role( \WP_User $user, string $role ): void {
 		$plain = array( (string) get_option( 'default_role', 'subscriber' ), 'subscriber' );
-		if ( array() === array_diff( (array) $user->roles, $plain ) ) {
+		if ( array() === array_diff( (array) $user->roles, $plain ) && self::replaces_default_role( $user, $role ) ) {
 			$user->set_role( $role );
 			return;
 		}
 		$user->add_role( $role );
+	}
+
+	/**
+	 * Whether this site swaps the default role for the plugin role.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param \WP_User $user User becoming an employer or candidate.
+	 * @param string   $role wcb_employer or wcb_candidate.
+	 * @return bool
+	 */
+	private static function replaces_default_role( \WP_User $user, string $role ): bool {
+		/**
+		 * Filters whether becoming an employer or candidate replaces a plain
+		 * member's default role instead of adding to it.
+		 *
+		 * @since 1.8.3
+		 *
+		 * @param bool     $replace Default false: the default role is kept.
+		 * @param \WP_User $user    User becoming an employer or candidate.
+		 * @param string   $role    wcb_employer or wcb_candidate.
+		 */
+		return (bool) apply_filters( 'wcb_member_role_replaces_default', false, $user, $role );
+	}
+
+	/**
+	 * Give the default role back to members who lost it before 1.8.3.
+	 *
+	 * Only members holding nothing but employer and/or candidate are touched,
+	 * 200 a batch in the background after the upgrade. Skipped when the site
+	 * opted into replacing the default role.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param int $page Batch number, from 1.
+	 * @return void
+	 */
+	public static function restore_default_role( int $page = 1 ): void {
+		$default = (string) get_option( 'default_role', 'subscriber' );
+		if ( null === get_role( $default ) || in_array( $default, self::MEMBER_ROLES, true ) ) {
+			return;
+		}
+		// The set never shrinks (members keep their plugin roles), so paging by ID is stable.
+		$ids = get_users(
+			array(
+				'role__in' => self::MEMBER_ROLES,
+				'orderby'  => 'ID',
+				'order'    => 'ASC',
+				'number'   => 200,
+				'paged'    => max( 1, $page ),
+				'fields'   => 'ID',
+			)
+		);
+		foreach ( $ids as $id ) {
+			$user  = new \WP_User( (int) $id );
+			$roles = (array) $user->roles;
+			$role  = in_array( 'wcb_employer', $roles, true ) ? 'wcb_employer' : 'wcb_candidate';
+			if ( array() === array_diff( $roles, self::MEMBER_ROLES ) && ! self::replaces_default_role( $user, $role ) ) {
+				$user->add_role( $default );
+			}
+		}
+		if ( 200 === count( $ids ) ) {
+			wp_schedule_single_event( time() + 30, self::REPAIR_HOOK, array( max( 1, $page ) + 1 ) );
+		}
 	}
 
 	/**

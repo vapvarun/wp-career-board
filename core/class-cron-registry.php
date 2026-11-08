@@ -52,6 +52,7 @@ final class CronRegistry {
 	 *   wcb_process_account_deletions  ← modules/account/class-account-deletion-service.php (CRON_HOOK const)
 	 *   wcb_prune_logs                 ← modules/gdpr/class-gdpr-module.php (PRUNE_HOOK const)
 	 *   wcb_backfill_candidate_role    ← modules/candidates/class-candidates-module.php (BACKFILL_HOOK, single, re-armed per batch)
+ *   wcb_restore_default_role       ← core/class-roles.php (REPAIR_HOOK, single, re-armed per batch)
 	 *
 	 * @since 1.1.1
 	 *
@@ -68,6 +69,7 @@ final class CronRegistry {
 			\WCB\Core\PrivateFiles::MIGRATE_HOOK,
 			\WCB\Modules\Jobs\JobSearch::INDEX_HOOK,
 			\WCB\Modules\Candidates\CandidatesModule::BACKFILL_HOOK,
+			Roles::REPAIR_HOOK,
 		);
 	}
 }

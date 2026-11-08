@@ -350,7 +350,6 @@ final class EmployersEndpoint extends RestController {
 				'first_name'   => $first_name,
 				'last_name'    => $last_name,
 				'display_name' => trim( $first_name . ' ' . $last_name ),
-				'role'         => 'wcb_employer',
 			)
 		);
 
@@ -361,6 +360,8 @@ final class EmployersEndpoint extends RestController {
 				array( 'status' => 500 )
 			);
 		}
+		// Created on the site's default role, then given ours on top of it.
+		\WCB\Core\Roles::grant_member_role( new \WP_User( (int) $user_id ), 'wcb_employer' );
 
 		// Create the employer's company profile and link it to the user.
 		$company_id = wp_insert_post(

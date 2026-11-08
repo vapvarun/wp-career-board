@@ -104,6 +104,22 @@ class BpIntegration {
 			10,
 			2
 		);
+		// Members now get our roles added (1.8.3), which fires add_user_role,
+		// not set_user_role. Append so an employer who applies keeps both types.
+		add_action(
+			'add_user_role',
+			function ( int $user_id, string $role ): void {
+				$types = array(
+					'wcb_employer'  => 'employer',
+					'wcb_candidate' => 'candidate',
+				);
+				if ( isset( $types[ $role ] ) ) {
+					bp_set_member_type( $user_id, $types[ $role ], true );
+				}
+			},
+			10,
+			2
+		);
 	}
 
 	/**

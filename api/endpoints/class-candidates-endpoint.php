@@ -258,7 +258,6 @@ final class CandidatesEndpoint extends RestController {
 				'first_name'   => $first_name,
 				'last_name'    => $last_name,
 				'display_name' => trim( $first_name . ' ' . $last_name ),
-				'role'         => 'wcb_candidate',
 			)
 		);
 
@@ -269,6 +268,8 @@ final class CandidatesEndpoint extends RestController {
 				array( 'status' => 500 )
 			);
 		}
+		// Created on the site's default role, then given ours on top of it.
+		\WCB\Core\Roles::grant_member_role( new \WP_User( (int) $user_id ), 'wcb_candidate' );
 
 		// With verification on, the account stays signed out until the
 		// emailed link is opened (EmailVerification handles it).

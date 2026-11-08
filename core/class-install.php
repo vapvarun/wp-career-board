@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.3';
+	const DB_VERSION = '1.4.4';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -552,6 +552,12 @@ final class Install {
 			// back up.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.3', '<' ) ) {
 				self::restore_no_expiry_jobs();
+			}
+
+			// 1.4.4 - members who lost the site's default role when they became
+			// an employer or candidate get it back, in the background.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) && ! wp_next_scheduled( Roles::REPAIR_HOOK, array( 1 ) ) ) {
+				wp_schedule_single_event( time() + 30, Roles::REPAIR_HOOK, array( 1 ) );
 			}
 
 			// Only bump the stored DB version if every expected table now
