@@ -77,8 +77,10 @@ A fix release for 1.8.2.
 * Fix      - The email activity log shows dates in the site's date and time format for every admin, not each browser's own format.
 * Fix      - Turning Usage Data on or off on the License screen shows its success or error message under the toggle.
 * Fix      - Deleting a company removes its headquarters location link, so location counts stay right; links left by earlier deletions are cleared on update.
+* Fix      - On Reign 8.0.9 and later, job, company and dashboard pages show one page heading instead of two.
 * Fix      - Moving jobs to the default board, on board delete or upgrade, shows straight away on sites whose object cache cannot flush a group.
 * Dev      - wp wcb scale seed, benchmark and teardown clear only Career Board data from the object cache instead of the whole site's cache.
+* Dev      - Removed the Reign left-panel links, which hooked a filter Reign never had; add Career Board pages to Reign's Left Panel menu in Appearance > Menus.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.
 * Compat   - Aligned with WP Career Board Pro 1.8.3. Install both updates together.
 
