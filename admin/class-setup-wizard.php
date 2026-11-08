@@ -588,13 +588,17 @@ class SetupWizard extends \WCB\Api\RestController {
 				$created_ids['companies'][] = (int) $existing->ID;
 				continue;
 			}
-			$cid = wp_insert_post(
+			// Companies joined before their jobs were posted.
+			$joined_gmt = gmdate( 'Y-m-d H:i:s', time() - wp_rand( 25, 60 ) * DAY_IN_SECONDS );
+			$cid        = wp_insert_post(
 				array(
-					'post_type'   => 'wcb_company',
-					'post_title'  => $co['title'],
-					'post_name'   => $co['slug'],
-					'post_status' => 'publish',
-					'post_author' => $author_id,
+					'post_type'     => 'wcb_company',
+					'post_title'    => $co['title'],
+					'post_name'     => $co['slug'],
+					'post_status'   => 'publish',
+					'post_author'   => $author_id,
+					'post_date'     => get_date_from_gmt( $joined_gmt ),
+					'post_date_gmt' => $joined_gmt,
 				)
 			);
 			if ( $cid && ! is_wp_error( $cid ) ) {
@@ -747,7 +751,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				),
 			),
 			array(
-				'title'   => 'Backend Engineer — Payments',
+				'title'   => 'Backend Engineer, Payments',
 				'slug'    => 'wcb-sample-backend-engineer-payments',
 				'company' => 'payflow',
 				'content' => "Build reliable, secure payment systems processing millions of transactions.\n\n**What you'll do:**\n- Design and build APIs for payment processing, settlements, and reconciliation\n- Work with Go and PostgreSQL in a microservices architecture\n- Ensure PCI DSS compliance across all payment flows",
@@ -792,7 +796,10 @@ class SetupWizard extends \WCB\Api\RestController {
 			),
 		);
 
-		foreach ( $jobs as $job ) {
+		// Spread the sample over the last three weeks: "posted today" on every
+		// job read as fake on a fresh board.
+		$job_age = array( 1, 2, 4, 6, 9, 12, 15, 19 );
+		foreach ( $jobs as $job_index => $job ) {
 			$existing = get_page_by_path( $job['slug'], OBJECT, 'wcb_job' );
 			if ( $existing ) {
 				// Re-track on re-run so wcb_sample_data_ids stays complete.
@@ -801,14 +808,17 @@ class SetupWizard extends \WCB\Api\RestController {
 			}
 			$cid = $company_ids[ $job['company'] ] ?? 0;
 
-			$jid = wp_insert_post(
+			$posted_gmt = gmdate( 'Y-m-d H:i:s', time() - $job_age[ $job_index % count( $job_age ) ] * DAY_IN_SECONDS - wp_rand( 0, 8 ) * HOUR_IN_SECONDS );
+			$jid        = wp_insert_post(
 				array(
-					'post_type'    => 'wcb_job',
-					'post_title'   => $job['title'],
-					'post_name'    => $job['slug'],
-					'post_content' => self::sample_content_to_html( $job['content'] ),
-					'post_status'  => 'publish',
-					'post_author'  => $author_id,
+					'post_type'     => 'wcb_job',
+					'post_title'    => $job['title'],
+					'post_name'     => $job['slug'],
+					'post_content'  => self::sample_content_to_html( $job['content'] ),
+					'post_status'   => 'publish',
+					'post_author'   => $author_id,
+					'post_date'     => get_date_from_gmt( $posted_gmt ),
+					'post_date_gmt' => $posted_gmt,
 				)
 			);
 

@@ -66,6 +66,7 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 
 A fix release for 1.8.2.
 
+* Improve  - Wizard sample jobs and companies are dated across recent weeks instead of all today.
 * Fix      - The Users screen in wp-admin no longer stops with a fatal error when another plugin saved a role without a name.
 * Fix      - Category, location and type names with an ampersand or quote read correctly on Find Jobs filter pills, job cards, company pages and in the REST API.
 * Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back after updating.
