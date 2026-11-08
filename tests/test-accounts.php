@@ -113,6 +113,41 @@ Roles::grant_member_role( new WP_User( $wcb_ed ), 'wcb_candidate' );
 $wcb_roles = ( new WP_User( $wcb_ed ) )->roles;
 wcb_assert( in_array( 'editor', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'an editor keeps editor and gains candidate' );
 
+WP_CLI::log( '--- Edit User screen keeps Career Board roles ---' );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_set_current_user( 1 );
+$wcb_eu = $wcb_mk( 'eu', 'subscriber' );
+( new WP_User( $wcb_eu ) )->add_role( 'wcb_employer' );
+// Saves the core Edit User form the way user-edit.php does: edit_user() reads $_POST.
+$wcb_save  = static function ( int $id, string $role, ?array $boxes ): array {
+	$_POST = array(
+		'role'     => $role,
+		'email'    => get_userdata( $id )->user_email,
+		'nickname' => get_userdata( $id )->nickname,
+	);
+	if ( null !== $boxes ) {
+		$_POST['wcb_member_roles']       = $boxes;
+		$_POST['wcb_member_roles_nonce'] = wp_create_nonce( 'wcb_member_roles_' . $id );
+	}
+	edit_user( $id );
+	$_POST = array();
+	clean_user_cache( $id );
+	return array_values( ( new WP_User( $id ) )->roles );
+};
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', array( 'wcb_employer' ) );
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_employer', $wcb_roles, true ), 'saving Edit User unchanged keeps subscriber and employer' );
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', array( 'wcb_employer', 'wcb_candidate' ) );
+wcb_assert( 3 === count( array_intersect( array( 'subscriber', 'wcb_employer', 'wcb_candidate' ), $wcb_roles ) ), 'ticking Candidate adds it on top' );
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', array() );
+wcb_assert( array( 'subscriber' ) === $wcb_roles, 'unticking both takes them away and keeps subscriber' );
+$wcb_roles = $wcb_save( $wcb_eu, 'wcb_employer', array() );
+wcb_assert( in_array( 'wcb_employer', $wcb_roles, true ), 'Employer picked in the dropdown counts as ticked' );
+( new WP_User( $wcb_eu ) )->set_role( 'subscriber' );
+( new WP_User( $wcb_eu ) )->add_role( 'wcb_candidate' );
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', null );
+wcb_assert( array( 'subscriber' ) === $wcb_roles, 'control: without the boxes (no nonce) core behaviour is untouched' );
+wp_set_current_user( 0 );
+
 WP_CLI::log( '--- deletion request + cancel keeps a ban ---' );
 $wcb_emp = $wcb_mk( 'emp', 'wcb_employer' );
 update_user_meta( $wcb_emp, '_wcb_employer_banned', '1' );

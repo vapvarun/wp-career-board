@@ -74,6 +74,8 @@ function bp_notifications_add_notification( $args = array() ) {}
 function bp_register_member_type( $member_type, $args = array() ) {}
 /** @return false|string[] */
 function bp_set_member_type( $user_id, $member_type, $append = false ) {}
+
+function bp_remove_member_type( $user_id, $member_type ) {}
 /** @return bool */
 function groups_delete_groupmeta( $group_id, $meta_key = false, $meta_value = false, $delete_all = false ) {}
 /** @return BP_Groups_Group|false */

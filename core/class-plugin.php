@@ -96,6 +96,8 @@ final class Plugin {
 			add_action( 'init', array( new \WCB\Core\Roles(), 'register' ), 5 );
 			add_action( 'admin_bar_menu', array( \WCB\Core\Roles::class, 'moderation_bar_node' ), 80 );
 			add_action( \WCB\Core\Roles::REPAIR_HOOK, array( \WCB\Core\Roles::class, 'restore_default_role' ) );
+			add_action( 'edit_user_profile', array( \WCB\Core\Roles::class, 'render_member_roles' ) );
+			add_action( 'profile_update', array( \WCB\Core\Roles::class, 'save_member_roles' ) );
 		}
 
 		// Reserved location terms ('remote', 'other') — runs after the

@@ -54,6 +54,15 @@ To let Editors act as employers, grant `wcb_post_jobs`, `wcb_view_applications`,
 - Applying for a job or creating a resume adds the Candidate role the same way.
 - Members who lost the default role in an earlier version get it back automatically after updating to 1.8.3.
 
+## Editing a member's roles
+
+A member can hold the site role and a Career Board role at the same time, for example Subscriber and Employer. The **Role** dropdown on **Users > Edit User** shows one role only, so the screen also has a **Career Board roles** section with an **Employer** and a **Candidate** checkbox.
+
+- Saving the screen keeps every ticked Career Board role, whatever the Role dropdown shows.
+- Untick a box and save to take that role away. The member keeps the Role chosen in the dropdown.
+- Picking Employer or Candidate in the Role dropdown counts as ticking that box.
+- **Change role to...** on the Users list is WordPress's own bulk action and replaces every role, Career Board roles included.
+
 ## Who can apply
 
 By default any logged-in member can apply to jobs and manage a resume, even without the Candidate role. A member who can post jobs but does not hold the apply capability cannot apply.

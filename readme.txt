@@ -67,6 +67,7 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 A fix release for 1.8.2.
 
 * Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back after updating.
+* Fix      - Saving a member on the Edit User screen no longer drops their Employer or Candidate role; new Career Board roles checkboxes add or remove it.
 * Fix      - A cover letter or candidate bio keeps its paragraphs and bullet lists after saving, and its editor offers only the formatting that is kept.
 * Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
 * Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.

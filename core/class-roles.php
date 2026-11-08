@@ -240,6 +240,77 @@ final class Roles {
 	}
 
 	/**
+	 * Employer and Candidate checkboxes on the core Edit User screen.
+	 *
+	 * Core's Role dropdown holds one role, so a member who is Subscriber and
+	 * Employer shows as Subscriber, and saving the screen would drop Employer.
+	 * These boxes carry the plugin roles through the save; unticking one is
+	 * how an owner takes it away.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param \WP_User $user User being edited.
+	 * @return void
+	 */
+	public static function render_member_roles( \WP_User $user ): void {
+		if ( ! current_user_can( 'promote_user', $user->ID ) ) {
+			return;
+		}
+		$names = wp_roles()->role_names;
+		?>
+		<h2><?php esc_html_e( 'Career Board', 'wp-career-board' ); ?></h2>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Career Board roles', 'wp-career-board' ); ?></th>
+				<td>
+					<fieldset>
+						<legend class="screen-reader-text"><?php esc_html_e( 'Career Board roles', 'wp-career-board' ); ?></legend>
+						<?php wp_nonce_field( 'wcb_member_roles_' . $user->ID, 'wcb_member_roles_nonce' ); ?>
+						<?php foreach ( self::MEMBER_ROLES as $role ) : ?>
+							<label>
+								<input type="checkbox" name="wcb_member_roles[]" value="<?php echo esc_attr( $role ); ?>" <?php checked( in_array( $role, (array) $user->roles, true ) ); ?> />
+								<?php echo esc_html( translate_user_role( $names[ $role ] ?? $role ) ); ?>
+							</label><br />
+						<?php endforeach; ?>
+						<p class="description"><?php esc_html_e( 'Added on top of the Role above, so the member keeps it.', 'wp-career-board' ); ?></p>
+					</fieldset>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Apply the Career Board boxes after core has saved the Role dropdown.
+	 *
+	 * Runs on `profile_update`, which fires after core's set_role, and only
+	 * for a save from the Edit User screen (our nonce present). A plugin role
+	 * picked in the dropdown counts as ticked.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param int $user_id User saved.
+	 * @return void
+	 */
+	public static function save_member_roles( int $user_id ): void {
+		$nonce = isset( $_POST['wcb_member_roles_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['wcb_member_roles_nonce'] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'wcb_member_roles_' . $user_id ) || ! current_user_can( 'promote_user', $user_id ) ) {
+			return;
+		}
+		$ticked   = isset( $_POST['wcb_member_roles'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['wcb_member_roles'] ) ) : array();
+		$ticked[] = isset( $_POST['role'] ) ? sanitize_key( wp_unslash( $_POST['role'] ) ) : '';
+		$user     = new \WP_User( $user_id );
+		foreach ( self::MEMBER_ROLES as $role ) {
+			$has = in_array( $role, (array) $user->roles, true );
+			if ( in_array( $role, $ticked, true ) && ! $has ) {
+				$user->add_role( $role );
+			} elseif ( ! in_array( $role, $ticked, true ) && $has ) {
+				$user->remove_role( $role );
+			}
+		}
+	}
+
+	/**
 	 * Whether this site swaps the default role for the plugin role.
 	 *
 	 * @since 1.8.3
