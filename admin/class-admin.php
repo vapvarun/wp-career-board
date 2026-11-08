@@ -292,10 +292,13 @@ class Admin {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @param  string $parent_file The parent menu file currently set.
-	 * @return string
+	 * @param  mixed  $parent_file The parent menu file currently set.
+	 * @return mixed
 	 */
-	public function highlight_parent_for_taxonomies( string $parent_file ): string {
+	public function highlight_parent_for_taxonomies( $parent_file ) {
+		if ( ! is_string( $parent_file ) ) {
+			return $parent_file; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( '' !== self::edit_screen_submenu() ) {
 			return 'wp-career-board';
 		}

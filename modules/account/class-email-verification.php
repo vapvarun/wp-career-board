@@ -95,10 +95,13 @@ class EmailVerification {
 	 * `login_message`: the "email confirmed" line on that screen.
 	 *
 	 * @since 1.8.2
-	 * @param string $message Existing message HTML.
-	 * @return string
+	 * @param mixed  $message Existing message HTML.
+	 * @return mixed
 	 */
-	public function confirmed_message( string $message ): string {
+	public function confirmed_message( $message ) {
+		if ( ! is_string( $message ) ) {
+			return $message; // Another filter handed back a non-string: pass it on untouched.
+		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 		if ( ! isset( $_GET['wcb_verified'] ) ) {
 			return $message;

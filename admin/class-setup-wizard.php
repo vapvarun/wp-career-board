@@ -78,10 +78,13 @@ class SetupWizard extends \WCB\Api\RestController {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param string $classes Space-separated body classes.
-	 * @return string
+	 * @param mixed  $classes Space-separated body classes.
+	 * @return mixed
 	 */
-	public function focus_mode_class( string $classes ): string {
+	public function focus_mode_class( $classes ) {
+		if ( ! is_string( $classes ) ) {
+			return $classes; // Another filter handed back a non-string: pass it on untouched.
+		}
 		$screen = get_current_screen();
 		return $screen && 'admin_page_wcb-setup' === $screen->id ? $classes . ' wcb-wizard-focus' : $classes;
 	}

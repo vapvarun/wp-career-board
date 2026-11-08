@@ -1064,10 +1064,13 @@ final class Plugin {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $template Theme-resolved template path.
-	 * @return string Plugin-shipped template path or original.
+	 * @param mixed  $template Theme-resolved template path.
+	 * @return mixed Plugin-shipped template path or original.
 	 */
-	public function use_wcb_archive_template( string $template ): string {
+	public function use_wcb_archive_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		// A block theme renders its own template; see TemplateOverride::block_theme().
 		if ( \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;

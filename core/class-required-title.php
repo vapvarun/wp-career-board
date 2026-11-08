@@ -121,10 +121,13 @@ final class RequiredTitle {
 	/**
 	 * `redirect_post_location`: carry the notice to the edit screen.
 	 *
-	 * @param string $location Redirect URL.
-	 * @return string
+	 * @param mixed  $location Redirect URL.
+	 * @return mixed
 	 */
-	public static function carry_notice( string $location ): string {
+	public static function carry_notice( $location ) {
+		if ( ! is_string( $location ) ) {
+			return $location; // Another filter handed back a non-string: pass it on untouched.
+		}
 		return self::$held ? add_query_arg( self::NOTICE_ARG, '1', remove_query_arg( 'message', $location ) ) : $location;
 	}
 

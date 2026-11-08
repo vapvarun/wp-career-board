@@ -155,10 +155,13 @@ final class RssFeedEnrichment {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $excerpt Default RSS excerpt.
-	 * @return string
+	 * @param mixed  $excerpt Default RSS excerpt.
+	 * @return mixed
 	 */
-	public function enrich_excerpt( string $excerpt ): string {
+	public function enrich_excerpt( $excerpt ) {
+		if ( ! is_string( $excerpt ) ) {
+			return $excerpt; // Another filter handed back a non-string: pass it on untouched.
+		}
 		$post = get_post();
 		if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
 			return $excerpt;

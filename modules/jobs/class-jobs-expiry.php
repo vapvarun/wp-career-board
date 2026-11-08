@@ -105,11 +105,14 @@ final class JobsExpiry {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param string   $link Permalink core built.
+	 * @param mixed    $link Permalink core built.
 	 * @param \WP_Post $post Post.
-	 * @return string
+	 * @return mixed
 	 */
-	public function ended_job_link( string $link, \WP_Post $post ): string {
+	public function ended_job_link( $link, \WP_Post $post ) {
+		if ( ! is_string( $link ) ) {
+			return $link; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( 'wcb_job' !== $post->post_type || '' === $post->post_name || ! in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) ) {
 			return $link;
 		}

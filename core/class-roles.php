@@ -107,15 +107,20 @@ final class Roles {
 	 * Translate our role names wherever WordPress shows a role
 	 * (translate_user_role(), which reads the "User role" context).
 	 *
+	 * Untyped on purpose: a role saved without a name (membership and role
+	 * plugins do this) reaches gettext as null, and a strict string here took
+	 * the whole Users screen down (1.8.3).
+	 *
 	 * @since 1.8.2
-	 * @param string $translation Translated text.
-	 * @param string $text        Stored role name.
-	 * @param string $context     Gettext context.
-	 * @param string $domain      Text domain.
-	 * @return string
+	 * @since 1.8.3 Accepts any value and passes non-strings through.
+	 * @param mixed $translation Translated text.
+	 * @param mixed $text        Stored role name.
+	 * @param mixed $context     Gettext context.
+	 * @param mixed $domain      Text domain.
+	 * @return mixed
 	 */
-	public static function translate_role_name( string $translation, string $text, string $context, string $domain ): string {
-		if ( 'User role' !== $context || 'default' !== $domain ) {
+	public static function translate_role_name( $translation, $text, $context, $domain ) {
+		if ( ! is_string( $text ) || 'User role' !== $context || 'default' !== $domain ) {
 			return $translation;
 		}
 		$names = array(

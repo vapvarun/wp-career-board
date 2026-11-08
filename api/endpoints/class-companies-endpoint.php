@@ -347,11 +347,14 @@ final class CompaniesEndpoint extends RestController {
 	 *
 	 * @since 1.2.6
 	 *
-	 * @param string    $where Existing WHERE clause.
+	 * @param mixed     $where Existing WHERE clause.
 	 * @param \WP_Query $query Current WP_Query instance.
-	 * @return string
+	 * @return mixed
 	 */
-	public function restrict_company_search_to_title( string $where, \WP_Query $query ): string {
+	public function restrict_company_search_to_title( $where, \WP_Query $query ) {
+		if ( ! is_string( $where ) ) {
+			return $where; // Another filter handed back a non-string: pass it on untouched.
+		}
 		global $wpdb;
 
 		if ( 'wcb_company' !== $query->get( 'post_type' ) ) {

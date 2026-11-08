@@ -148,6 +148,34 @@ $wcb_roles = $wcb_save( $wcb_eu, 'subscriber', null );
 wcb_assert( array( 'subscriber' ) === $wcb_roles, 'control: without the boxes (no nonce) core behaviour is untouched' );
 wp_set_current_user( 0 );
 
+WP_CLI::log( '--- core filters survive a null from another plugin ---' );
+// A role saved without a name reaches gettext as null; it took wp-admin > Users down in 1.8.2.
+wcb_assert( null === translate_user_role( null ), 'a role with no name translates to null, no fatal' );
+wcb_assert( 'Employer' === translate_user_role( 'Employer' ), 'control: our role names still translate' );
+$wcb_null_safe = array(
+	'gettext_with_context' => array( null, null, 'User role', 'default' ),
+	'login_redirect'       => array( null, null, new WP_User( 1 ) ),
+	'the_content'          => array( null ),
+	'the_content_feed'     => array( null ),
+	'the_excerpt_rss'      => array( null ),
+	'template_include'     => array( null ),
+	'single_template'      => array( null ),
+	'archive_template'     => array( null ),
+	'parent_file'          => array( null ),
+	'admin_body_class'     => array( null ),
+	'login_message'        => array( null ),
+	'redirect_post_location' => array( null ),
+);
+foreach ( $wcb_null_safe as $wcb_hook => $wcb_args ) {
+	$wcb_err = '';
+	try {
+		apply_filters( $wcb_hook, ...$wcb_args );
+	} catch ( \TypeError $e ) {
+		$wcb_err = str_contains( $e->getFile(), 'wp-career-board' ) ? $e->getMessage() : '';
+	}
+	wcb_assert( '' === $wcb_err, "{$wcb_hook} passes a null through ({$wcb_err})" );
+}
+
 WP_CLI::log( '--- deletion request + cancel keeps a ban ---' );
 $wcb_emp = $wcb_mk( 'emp', 'wcb_employer' );
 update_user_meta( $wcb_emp, '_wcb_employer_banned', '1' );

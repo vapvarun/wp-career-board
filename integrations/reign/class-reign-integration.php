@@ -43,10 +43,13 @@ class ReignIntegration {
 	/**
 	 * Return Reign-compatible single job template when viewing a wcb_job post.
 	 *
-	 * @param string $template Default template path.
-	 * @return string
+	 * @param mixed  $template Default template path.
+	 * @return mixed
 	 */
-	public function single_template( string $template ): string {
+	public function single_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_singular( 'wcb_job' ) ) {
 			return $template;
 		}
@@ -66,10 +69,13 @@ class ReignIntegration {
 	/**
 	 * Return Reign-compatible archive template for wcb_job post-type archives.
 	 *
-	 * @param string $template Default template path.
-	 * @return string
+	 * @param mixed  $template Default template path.
+	 * @return mixed
 	 */
-	public function archive_template( string $template ): string {
+	public function archive_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_post_type_archive( 'wcb_job' ) ) {
 			return $template;
 		}
