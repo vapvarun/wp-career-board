@@ -63,4 +63,44 @@ final class ApplicationsMeta {
 			);
 		}
 	}
+	/**
+	 * Who applied, as the admin screens name them.
+	 *
+	 * One answer for the Applications list and the dashboard's Recent
+	 * Applications: a member by display name, a guest by the name they gave
+	 * (flagged so the screen can badge it), and "(deleted)" only when the
+	 * member account is gone. The dashboard called every guest "(deleted)".
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param int $app_id Application ID.
+	 * @return array{name:string, guest:bool, email:string, user:?\WP_User}
+	 */
+	public static function admin_applicant( int $app_id ): array {
+		$user_id = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
+		$user    = $user_id ? get_userdata( $user_id ) : false;
+		if ( $user instanceof \WP_User ) {
+			return array(
+				'name'  => $user->display_name,
+				'guest' => false,
+				'email' => $user->user_email,
+				'user'  => $user,
+			);
+		}
+		if ( 0 === $user_id ) {
+			$name = (string) get_post_meta( $app_id, '_wcb_guest_name', true );
+			return array(
+				'name'  => '' !== $name ? $name : __( '(unknown)', 'wp-career-board' ),
+				'guest' => true,
+				'email' => (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
+				'user'  => null,
+			);
+		}
+		return array(
+			'name'  => __( '(deleted)', 'wp-career-board' ),
+			'guest' => false,
+			'email' => '',
+			'user'  => null,
+		);
+	}
 }
