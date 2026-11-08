@@ -107,6 +107,7 @@ final class Plugin {
 		if ( class_exists( \WCB\Core\Locations::class ) ) {
 			add_action( 'init', array( \WCB\Core\Locations::class, 'seed_reserved_terms' ), 20 );
 			add_action( 'set_object_terms', array( \WCB\Core\Locations::class, 'flag_remote_on_terms' ), 10, 4 );
+			add_action( 'before_delete_post', array( \WCB\Core\Locations::class, 'forget_company_hq' ) );
 			add_filter( 'update_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
 			add_filter( 'add_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
 		}

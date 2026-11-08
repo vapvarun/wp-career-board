@@ -195,6 +195,56 @@ final class Locations {
 	}
 
 	/**
+	 * Unlink a company's HQ location when the company is deleted.
+	 *
+	 * wcb_location is not registered for wcb_company, so wp_delete_post()
+	 * leaves the link behind and the term keeps a count from a post that is
+	 * gone. Runs on before_delete_post.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param int $post_id Post being deleted.
+	 * @return void
+	 */
+	public static function forget_company_hq( int $post_id ): void {
+		if ( 'wcb_company' === get_post_type( $post_id ) ) {
+			wp_delete_object_term_relationships( $post_id, 'wcb_location' );
+		}
+	}
+
+	/**
+	 * Remove HQ links left by companies deleted before 1.8.3 (upgrade repair).
+	 *
+	 * @since 1.8.3
+	 * @return void
+	 */
+	public static function remove_orphan_hq_links(): void {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair.
+		$term_ids = array_map(
+			'intval',
+			$wpdb->get_col(
+				"SELECT DISTINCT tt.term_taxonomy_id FROM {$wpdb->term_relationships} tr
+				INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'wcb_location'
+				LEFT JOIN {$wpdb->posts} p ON p.ID = tr.object_id
+				WHERE p.ID IS NULL"
+			)
+		);
+		if ( array() === $term_ids ) {
+			return;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair; only links to posts that no longer exist.
+		$wpdb->query(
+			"DELETE tr FROM {$wpdb->term_relationships} tr
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'wcb_location'
+			LEFT JOIN {$wpdb->posts} p ON p.ID = tr.object_id
+			WHERE p.ID IS NULL"
+		);
+		wp_update_term_count_now( $term_ids, 'wcb_location' );
+		clean_term_cache( $term_ids, 'wcb_location' );
+	}
+
+	/**
 	 * Find or create the term for the given HQ input.
 	 *
 	 * @since 1.2.3

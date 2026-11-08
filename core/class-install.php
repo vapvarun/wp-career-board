@@ -566,6 +566,10 @@ final class Install {
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) && ! wp_next_scheduled( Roles::REPAIR_HOOK, array( 1 ) ) ) {
 				wp_schedule_single_event( time() + 30, Roles::REPAIR_HOOK, array( 1 ) );
 			}
+			// 1.4.4 - HQ location links left by companies deleted before 1.8.3.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) ) {
+				add_action( 'init', array( Locations::class, 'remove_orphan_hq_links' ), 25 );
+			}
 
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
