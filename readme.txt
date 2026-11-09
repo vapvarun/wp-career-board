@@ -66,15 +66,21 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 
 A fix release for 1.8.2.
 
+* Improve  - Every date and time is saved in UTC and shown in your site's timezone (Settings > General), the same on admin screens, member pages, emails and job pages.
+* Improve  - A job deadline now closes at the end of its day in your site's timezone; existing deadlines are converted on update.
+* Improve  - The setup wizard's sample data creates no user accounts; with Wbcom Demo Installer active it opens that installer instead, and otherwise adds the same sample companies and jobs.
+* Improve  - The setup wizard can create a Jobs menu with Find Jobs, Companies and Post a Job, placed only in an empty menu location.
 * Improve  - Wizard sample jobs and companies are dated across recent weeks instead of all today.
 * Fix      - The Users screen in wp-admin no longer stops with a fatal error when another plugin saved a role without a name.
 * Fix      - Category, location and type names with an ampersand or quote read correctly on Find Jobs filter pills, job cards, company pages and in the REST API.
-* Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back after updating.
+* Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back as soon as you update, without waiting for WP-Cron.
+* Fix      - The job forms keep what an employer typed through a page refresh or an ended login, with a Start over button.
 * Fix      - Saving a member on the Edit User screen no longer drops their Employer or Candidate role; new Career Board roles checkboxes add or remove it.
 * Fix      - A cover letter or candidate bio keeps its paragraphs and bullet lists after saving, and its editor offers only the formatting that is kept.
 * Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
 * Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.
-* Fix      - The dashboard's Recent Applications names a guest applicant instead of showing (deleted).
+* Fix      - The dashboard's Recent Applications names a guest applicant instead of showing (deleted), and an application from a deleted member reads Deleted candidate without a Guest badge.
+* Fix      - Posted dates such as "3 hours ago", new-application counts and the guest duplicate check no longer drift by your site's UTC offset.
 * Fix      - The email activity log shows dates in the site's date and time format for every admin, not each browser's own format.
 * Fix      - Turning Usage Data on or off on the License screen shows its success or error message under the toggle.
 * Fix      - Deleting a company removes its headquarters location link, so location counts stay right; links left by earlier deletions are cleared on update.
@@ -83,6 +89,8 @@ A fix release for 1.8.2.
 * Dev      - wp wcb scale seed, benchmark and teardown clear only Career Board data from the object cache instead of the whole site's cache.
 * Dev      - Removed the Reign left-panel links, which hooked a filter Reign never had; add Career Board pages to Reign's Left Panel menu in Appearance > Menus.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.
+* Dev      - Every time in the wcb/v1 REST API is sent as ISO 8601 with its offset; jobs add deadline_day for date pickers.
+* Dev      - New wcb_display_timezone filter sets the timezone times are shown in, for example each member's own.
 * Compat   - Aligned with WP Career Board Pro 1.8.3. Install both updates together.
 
 = 1.8.2 - October 2026 =
