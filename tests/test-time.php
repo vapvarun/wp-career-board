@@ -97,6 +97,22 @@ $wcb_row = (string) $wpdb->get_var( $wpdb->prepare( "SELECT created_at FROM {$wp
 wcb_assert( $wcb_row >= $wcb_before && $wcb_row <= gmdate( 'Y-m-d H:i:s', time() + 5 ), 'history rows are written in UTC' );
 $wpdb->delete( $wpdb->prefix . 'wcb_gdpr_log', array( 'action' => 'time_guard' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
+WP_CLI::log( '--- converting old site-time rows (DST, rerun) ---' );
+update_option( 'timezone_string', 'America/New_York' );
+$wcb_tt = $wpdb->prefix . 'wcb_time_guard';
+$wpdb->query( "CREATE TABLE {$wcb_tt} ( id INT AUTO_INCREMENT PRIMARY KEY, at DATETIME NOT NULL )" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->insert( $wcb_tt, array( 'at' => '2025-07-10 09:00:00' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->insert( $wcb_tt, array( 'at' => '2025-12-10 09:00:00' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wcb_conv_was = get_option( 'wcb_utc_converted', array() );
+Time::local_column_to_utc( $wcb_tt, 'at' );
+$wcb_rows = $wpdb->get_col( "SELECT at FROM {$wcb_tt} ORDER BY id" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+wcb_assert( '2025-07-10 13:00:00' === $wcb_rows[0], 'a July row on a New York site moves +4h (daylight time)' );
+wcb_assert( '2025-12-10 14:00:00' === $wcb_rows[1], 'a December row moves +5h (standard time)' );
+Time::local_column_to_utc( $wcb_tt, 'at' );
+wcb_assert( $wcb_rows === $wpdb->get_col( "SELECT at FROM {$wcb_tt} ORDER BY id" ), 'running the conversion again changes nothing' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->query( "DROP TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+update_option( 'wcb_utc_converted', $wcb_conv_was, false );
+
 wp_delete_post( $wcb_job, true );
 update_option( 'timezone_string', $wcb_tz_was );
 update_option( 'gmt_offset', $wcb_off_was );

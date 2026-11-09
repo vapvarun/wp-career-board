@@ -293,11 +293,15 @@ final class Time {
 	 *
 	 * Old rows were written with current_time( 'mysql' ) in the site's own
 	 * timezone, so they convert with wp_timezone(), never display_timezone()
-	 * (standard rule 10). Run once, behind a DB version.
+	 * (standard rule 10). Each row takes the offset in force when it was
+	 * written: one UPDATE whose CASE walks the zone's transitions (daylight
+	 * saving) and reads every row's original value, so no row moves twice
+	 * and no MySQL timezone tables are needed. A converted table/column is
+	 * recorded in the `wcb_utc_converted` option, so a rerun (a failed
+	 * upgrade, a restored option, Pro running its own step) changes nothing.
 	 *
-	 * ponytail: one offset (today's) for every row, so rows written on the
-	 * other side of a daylight-saving change land an hour off; exact per-row
-	 * conversion needs MySQL timezone tables most hosts lack.
+	 * ponytail: rows written in the repeated hour of a fall-back night cannot
+	 * be told apart and take the earlier offset.
 	 *
 	 * @since 1.8.3
 	 *
@@ -307,12 +311,51 @@ final class Time {
 	 */
 	public static function local_column_to_utc( string $table, string $column ): void {
 		global $wpdb;
-		$offset = wp_timezone()->getOffset( new \DateTimeImmutable( 'now' ) );
-		if ( 0 === $offset || $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade.
+		$done = (array) get_option( 'wcb_utc_converted', array() );
+		$key  = $table . '.' . $column;
+		if ( in_array( $key, $done, true ) ) {
 			return;
 		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off upgrade on a plugin table; names come from code.
-		$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET {$column} = DATE_SUB( {$column}, INTERVAL %d SECOND )", $offset ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off upgrade on a plugin table; names come from code.
+		if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
+			return;
+		}
+		$oldest = (string) $wpdb->get_var( "SELECT MIN( {$column} ) FROM {$table}" );
+		$sql    = '' === $oldest ? '' : self::local_to_utc_case( $column, $oldest );
+		if ( '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" ) ) {
+			update_option( 'wcb_utc_converted', array_merge( $done, array( $key ) ), false );
+		}
+		// phpcs:enable
+	}
+
+	/**
+	 * The SQL that turns a site-local column value into UTC, offset by offset.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param string $column Column name, from code.
+	 * @param string $oldest Oldest local value in the column.
+	 * @return string SQL expression, or '' when the zone is UTC throughout.
+	 */
+	private static function local_to_utc_case( string $column, string $oldest ): string {
+		$zone  = wp_timezone();
+		$start = strtotime( $oldest . ' UTC' ) - DAY_IN_SECONDS;
+		$trans = $zone->getTransitions( $start, time() + DAY_IN_SECONDS );
+		if ( ! is_array( $trans ) || array() === $trans ) {
+			return '';
+		}
+		$whens  = array();
+		$offset = (int) $trans[0]['offset'];
+		foreach ( array_slice( $trans, 1 ) as $t ) {
+			// The local wall time at which this offset stopped, as rows were written then.
+			$until   = gmdate( 'Y-m-d H:i:s', (int) $t['ts'] + $offset );
+			$whens[] = sprintf( "WHEN %s < '%s' THEN DATE_SUB( %s, INTERVAL %d SECOND )", $column, $until, $column, $offset );
+			$offset  = (int) $t['offset'];
+		}
+		if ( array() === $whens && 0 === $offset ) {
+			return '';
+		}
+		return sprintf( 'CASE %s ELSE DATE_SUB( %s, INTERVAL %d SECOND ) END', implode( ' ', $whens ), $column, $offset );
 	}
 
 	/**
