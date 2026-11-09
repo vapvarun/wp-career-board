@@ -323,7 +323,7 @@ final class Time {
 		}
 		$oldest = (string) $wpdb->get_var( "SELECT MIN( {$column} ) FROM {$table}" );
 		$sql    = '' === $oldest ? '' : self::local_to_utc_case( $column, $oldest );
-		$ok = '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" );
+		$ok     = '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" );
 		// phpcs:enable
 		if ( $ok ) {
 			update_option( 'wcb_utc_converted', array_merge( $done, array( $key ) ), false );
