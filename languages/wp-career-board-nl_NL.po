@@ -16,14 +16,14 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: wp-career-board.php
-#: admin/class-admin-settings.php:610
+#: admin/class-admin-settings.php:616
 #: admin/class-admin.php:191
-#: admin/class-admin.php:504
-#: admin/class-admin.php:510
+#: admin/class-admin.php:507
+#: admin/class-admin.php:513
 #: admin/views/setup-wizard-complete.php:21
 #: admin/views/setup-wizard.php:24
 #: core/class-abilities.php:178
-#: core/class-plugin.php:694
+#: core/class-plugin.php:713
 #: core/class-template-version-check.php:188
 #: modules/gdpr/class-gdpr-module.php:96
 #: modules/gdpr/class-gdpr-module.php:111
@@ -62,10 +62,10 @@ msgstr "sollicitaties"
 #: admin/class-admin-applications.php:97
 #: admin/class-admin-candidates.php:115
 #: admin/class-admin-settings.php:302
-#: admin/class-admin-settings.php:863
+#: admin/class-admin-settings.php:869
 #: admin/class-admin.php:215
 #: admin/class-admin.php:216
-#: admin/class-admin.php:591
+#: admin/class-admin.php:594
 #: blocks/candidate-dashboard/render.php:612
 #: blocks/employer-dashboard/render.php:415
 #: blocks/employer-dashboard/render.php:566
@@ -94,9 +94,9 @@ msgstr "Alle sollicitaties selecteren"
 #: admin/class-admin-applications.php:158
 #: admin/class-email-settings.php:162
 #: blocks/job-stats/render.php:60
-#: core/class-roles.php:123
-#: core/class-roles.php:246
-#: integrations/buddypress/class-bp-integration.php:88
+#: core/class-roles.php:128
+#: core/class-roles.php:400
+#: integrations/buddypress/class-bp-integration.php:98
 msgid "Candidate"
 msgid_plural "Candidates"
 msgstr[0] "Kandidaat"
@@ -107,7 +107,7 @@ msgstr[1] "Kandidaten"
 #: blocks/job-stats/render.php:42
 #: modules/applications/widgets/class-applicant-card.php:117
 #: modules/gdpr/class-gdpr-module.php:331
-#: modules/jobs/class-jobs-module.php:264
+#: modules/jobs/class-jobs-module.php:276
 msgid "Job"
 msgid_plural "Jobs"
 msgstr[0] "Functie"
@@ -133,7 +133,7 @@ msgstr "Status"
 #: admin/class-admin-applications.php:162
 #: admin/class-admin-companies.php:129
 #: admin/class-admin-jobs.php:126
-#: admin/class-admin-settings.php:1589
+#: admin/class-admin-settings.php:1595
 msgid "Date"
 msgstr "Datum"
 
@@ -182,34 +182,34 @@ msgstr "Sollicitatie selecteren"
 msgid "View"
 msgstr "Bekijken"
 
-#: admin/class-admin-applications.php:568
+#: modules/applications/class-applications-meta.php:104
 msgid "(unknown)"
 msgstr "(onbekend)"
 
-#: admin/class-admin-applications.php:569
+#: admin/class-admin-applications.php:566
+#: admin/class-admin.php:688
 #: admin/class-email-settings.php:164
 #: modules/notifications/emails/class-email-app-guest.php:129
 #: modules/notifications/emails/class-email-app-received.php:126
 msgid "Guest"
 msgstr "Gast"
 
-#: admin/class-admin-applications.php:576
+#: admin/class-admin-applications.php:573
 msgid "Email Guest"
 msgstr "Gast e-mailen"
 
-#: admin/class-admin-applications.php:583
-#: admin/class-admin-applications.php:659
-#: admin/class-admin.php:680
+#: admin/class-admin-applications.php:656
 #: admin/class-admin.php:681
+#: modules/applications/class-applications-meta.php:111
 msgid "(deleted)"
 msgstr "(verwijderd)"
 
-#: admin/class-admin-applications.php:608
+#: admin/class-admin-applications.php:605
 msgid "Email Candidate"
 msgstr "Kandidaat e-mailen"
 
 #: admin/class-admin-applications.php:479
-#: admin/class-admin-applications.php:618
+#: admin/class-admin-applications.php:615
 #: admin/class-admin-companies.php:329
 #: admin/class-admin-companies.php:436
 #: admin/class-admin-companies.php:526
@@ -220,7 +220,7 @@ msgid "Trash"
 msgstr "Prullenbak"
 
 #: admin/class-admin-applications.php:187
-#: admin/class-admin-applications.php:629
+#: admin/class-admin-applications.php:626
 #: admin/class-admin-candidates.php:143
 #: admin/class-admin-candidates.php:394
 #: admin/class-admin-companies.php:155
@@ -230,7 +230,7 @@ msgstr "Prullenbak"
 msgid "Restore"
 msgstr "Herstellen"
 
-#: admin/class-admin-applications.php:697
+#: admin/class-admin-applications.php:694
 #: blocks/employer-dashboard/render.php:1024
 msgid "Change application status"
 msgstr "Sollicitatiesstatus wijzigen"
@@ -270,8 +270,8 @@ msgstr "kandidaten"
 #: admin/class-admin-candidates.php:76
 #: admin/class-admin.php:226
 #: admin/class-admin.php:227
-#: admin/class-admin.php:601
-#: integrations/buddypress/class-bp-integration.php:87
+#: admin/class-admin.php:604
+#: integrations/buddypress/class-bp-integration.php:97
 msgid "Candidates"
 msgstr "Kandidaten"
 
@@ -316,7 +316,7 @@ msgstr "Geregistreerd"
 #: admin/class-admin-candidates.php:144
 #: blocks/candidate-dashboard/render.php:1048
 #: blocks/candidate-dashboard/render.php:1132
-#: core/class-plugin.php:1207
+#: core/class-plugin.php:1229
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -358,7 +358,7 @@ msgstr "bedrijven"
 #: blocks/employer-dashboard/render.php:419
 #: blocks/employer-dashboard/render.php:575
 #: blocks/employer-dashboard/render.php:1124
-#: modules/employers/class-employers-module.php:624
+#: modules/employers/class-employers-module.php:634
 msgid "Companies"
 msgstr "Bedrijven"
 
@@ -381,9 +381,9 @@ msgstr "Selecteer alle bedrijven"
 
 #: admin/class-admin-companies.php:124
 #: admin/class-email-settings.php:163
-#: core/class-roles.php:122
-#: core/class-roles.php:240
-#: integrations/buddypress/class-bp-integration.php:78
+#: core/class-roles.php:127
+#: core/class-roles.php:394
+#: integrations/buddypress/class-bp-integration.php:88
 msgid "Employer"
 msgstr "Werkgever"
 
@@ -397,7 +397,7 @@ msgstr "Website"
 
 #: admin/class-admin-companies.php:126
 #: admin/class-admin-employers.php:131
-#: admin/class-admin.php:586
+#: admin/class-admin.php:589
 #: blocks/employer-dashboard/render.php:777
 msgid "Active Jobs"
 msgstr "Actieve vacatures"
@@ -411,7 +411,7 @@ msgstr "Vertrouwensniveau"
 #: admin/class-admin-companies.php:524
 #: admin/class-admin-jobs.php:297
 #: admin/class-admin-jobs.php:604
-#: api/endpoints/class-employers-endpoint.php:1561
+#: api/endpoints/class-employers-endpoint.php:1564
 #: blocks/employer-dashboard/render.php:466
 msgid "Published"
 msgstr "Gepubliceerd"
@@ -420,7 +420,7 @@ msgstr "Gepubliceerd"
 #: admin/class-admin-companies.php:525
 #: admin/class-admin-jobs.php:299
 #: admin/class-admin-jobs.php:606
-#: api/endpoints/class-employers-endpoint.php:1562
+#: api/endpoints/class-employers-endpoint.php:1565
 #: blocks/employer-dashboard/render.php:467
 #: blocks/employer-dashboard/render.php:823
 msgid "Draft"
@@ -457,8 +457,8 @@ msgstr " -  Geen  - "
 #: blocks/company-archive/render.php:375
 #: blocks/company-profile/render.php:70
 #: blocks/job-listings/render.php:161
-#: blocks/job-listings/render.php:850
-#: blocks/job-single/render.php:129
+#: blocks/job-listings/render.php:849
+#: blocks/job-single/render.php:128
 #: core/class-company-meta-shape.php:94
 msgid "Verified"
 msgstr "Geverifieerd"
@@ -468,7 +468,7 @@ msgstr "Geverifieerd"
 #: blocks/company-archive/render.php:71
 #: blocks/company-profile/render.php:74
 #: blocks/job-listings/render.php:162
-#: blocks/job-single/render.php:133
+#: blocks/job-single/render.php:132
 #: core/class-company-meta-shape.php:98
 msgid "Trusted"
 msgstr "Vertrouwd"
@@ -478,7 +478,7 @@ msgstr "Vertrouwd"
 #: blocks/company-archive/render.php:72
 #: blocks/company-profile/render.php:78
 #: blocks/job-listings/render.php:163
-#: blocks/job-single/render.php:137
+#: blocks/job-single/render.php:136
 #: core/class-company-meta-shape.php:102
 msgid "Premium"
 msgstr "Premium"
@@ -499,8 +499,8 @@ msgstr "werkgevers"
 #: admin/class-admin-employers.php:92
 #: admin/class-admin.php:248
 #: admin/class-admin.php:249
-#: admin/class-admin.php:596
-#: integrations/buddypress/class-bp-integration.php:77
+#: admin/class-admin.php:599
+#: integrations/buddypress/class-bp-integration.php:87
 msgid "Employers"
 msgstr "Werkgevers"
 
@@ -524,11 +524,11 @@ msgstr "Alle werkgevers selecteren"
 #: admin/class-admin-jobs.php:124
 #: admin/class-admin-meta-boxes.php:346
 #: blocks/employer-dashboard/render.php:573
-#: blocks/job-form-simple/render.php:379
-#: blocks/job-form/render.php:600
+#: blocks/job-form-simple/render.php:390
+#: blocks/job-form/render.php:612
 #: blocks/job-stats/render.php:51
-#: modules/employers/class-employers-module.php:625
-#: modules/jobs/class-jobs-module.php:178
+#: modules/employers/class-employers-module.php:635
+#: modules/jobs/class-jobs-module.php:184
 msgid "Company"
 msgid_plural "Companies"
 msgstr[0] "Bedrijf"
@@ -536,7 +536,7 @@ msgstr[1] "Bedrijven"
 
 #: admin/class-admin-employers.php:158
 #: admin/class-admin-employers.php:573
-#: admin/class-admin.php:877
+#: admin/class-admin.php:881
 msgid "Ban"
 msgstr "Blokkeren"
 
@@ -609,14 +609,14 @@ msgstr "Titel & beschrijving"
 #: admin/class-admin-import.php:323
 #: blocks/candidate-dashboard/render.php:1183
 #: blocks/job-filters/render.php:90
-#: blocks/job-form-simple/render.php:469
-#: blocks/job-form/render.php:913
-#: blocks/job-listings/render.php:687
+#: blocks/job-form-simple/render.php:480
+#: blocks/job-form/render.php:925
+#: blocks/job-listings/render.php:686
 #: blocks/job-search-hero/render.php:85
-#: blocks/job-single/render.php:730
+#: blocks/job-single/render.php:729
 #: modules/gdpr/class-gdpr-module.php:446
-#: modules/jobs/class-jobs-module.php:183
-#: modules/jobs/class-jobs-module.php:346
+#: modules/jobs/class-jobs-module.php:189
+#: modules/jobs/class-jobs-module.php:358
 #: blocks/job-listings/index.js:22
 msgid "Location"
 msgstr "Locatie"
@@ -746,10 +746,10 @@ msgid "No resumes found in WP Job Manager Resumes."
 msgstr "Geen resumes gevonden in WP Job Manager Resumes."
 
 #: admin/class-admin-import.php:306
-#: admin/class-admin-settings.php:643
-#: admin/class-admin-settings.php:656
-#: admin/class-admin-settings.php:657
-#: admin/class-admin.php:513
+#: admin/class-admin-settings.php:649
+#: admin/class-admin-settings.php:662
+#: admin/class-admin-settings.php:663
+#: admin/class-admin.php:516
 msgid "Pro"
 msgstr "Pro"
 
@@ -763,17 +763,17 @@ msgid "Resume import requires WP Career Board Pro."
 msgstr "Resume-import vereist WP Career Board Pro."
 
 #: admin/class-admin-job-editor.php:101
-#: blocks/job-form-simple/render.php:430
-#: blocks/job-form/render.php:654
+#: blocks/job-form-simple/render.php:441
+#: blocks/job-form/render.php:666
 msgid "Describe the role, responsibilities and requirements…"
 msgstr "Beschrijf de rol, verantwoordelijkheden en vereisten…"
 
 #: admin/class-admin-job-editor.php:77
 #: admin/class-admin-job-editor.php:109
-#: blocks/job-form-simple/render.php:417
-#: blocks/job-form-simple/render.php:438
-#: blocks/job-form/render.php:641
-#: blocks/job-form/render.php:662
+#: blocks/job-form-simple/render.php:428
+#: blocks/job-form-simple/render.php:449
+#: blocks/job-form/render.php:653
+#: blocks/job-form/render.php:674
 msgid "Job description"
 msgstr "Functieomschrijving"
 
@@ -792,12 +792,13 @@ msgstr "functies"
 #: admin/class-admin-jobs.php:65
 #: admin/class-admin-jobs.php:70
 #: admin/class-admin-settings.php:301
-#: admin/class-admin-settings.php:702
+#: admin/class-admin-settings.php:708
 #: admin/class-admin.php:203
 #: admin/class-admin.php:204
-#: admin/class-setup-wizard.php:191
+#: admin/class-setup-wizard.php:225
+#: admin/class-setup-wizard.php:823
 #: blocks/employer-dashboard/render.php:557
-#: modules/jobs/class-jobs-module.php:263
+#: modules/jobs/class-jobs-module.php:275
 msgid "Jobs"
 msgstr "Functies"
 
@@ -806,12 +807,12 @@ msgid "Manage job listings, approve pending submissions, and track active postin
 msgstr "Beheer functieaanbiedingen, keur openstaande inzendingen goed en houd actieve plaatsingen bij."
 
 #: admin/class-admin-jobs.php:101
-#: blocks/job-listings/render.php:538
+#: blocks/job-listings/render.php:537
 #: blocks/job-search-hero/render.php:57
 #: blocks/job-search-hero/render.php:64
 #: blocks/job-search/render.php:41
 #: blocks/job-search/render.php:48
-#: modules/jobs/class-jobs-module.php:268
+#: modules/jobs/class-jobs-module.php:280
 msgid "Search jobs"
 msgstr "Zoeken naar functies"
 
@@ -835,8 +836,8 @@ msgstr "Auteur"
 
 #: admin/class-admin-jobs.php:161
 #: admin/class-admin-jobs.php:462
-#: admin/class-admin.php:641
-#: admin/class-admin.php:855
+#: admin/class-admin.php:644
+#: admin/class-admin.php:859
 msgid "Approve"
 msgstr "Goedkeuren"
 
@@ -845,21 +846,21 @@ msgid "Dismiss flags"
 msgstr "Vlaggen negeren"
 
 #: admin/class-admin-jobs.php:298
-#: admin/class-admin.php:606
-#: admin/class-admin.php:616
+#: admin/class-admin.php:609
+#: admin/class-admin.php:619
 msgid "Pending Review"
 msgstr "In behandeling"
 
 #: admin/class-admin-jobs.php:300
 #: admin/class-admin-jobs.php:607
-#: api/endpoints/class-employers-endpoint.php:1566
+#: api/endpoints/class-employers-endpoint.php:1569
 #: blocks/employer-dashboard/render.php:468
 msgid "Expired"
 msgstr "Verlopen"
 
 #: admin/class-admin-jobs.php:301
 #: admin/class-admin-jobs.php:608
-#: api/endpoints/class-employers-endpoint.php:1565
+#: api/endpoints/class-employers-endpoint.php:1568
 #: blocks/employer-dashboard/render.php:464
 #: blocks/employer-dashboard/render.php:825
 #: modules/applications/class-application-status.php:186
@@ -871,7 +872,7 @@ msgid "Flagged"
 msgstr "Gemarkeerd"
 
 #: admin/class-admin-jobs.php:390
-#: modules/jobs/class-jobs-module.php:265
+#: modules/jobs/class-jobs-module.php:277
 msgid "Add New Job"
 msgstr "Nieuwe vacature toevoegen"
 
@@ -880,8 +881,8 @@ msgid "Select job"
 msgstr "Selecteer vacature"
 
 #: admin/class-admin-jobs.php:467
-#: admin/class-admin.php:642
-#: admin/class-admin.php:858
+#: admin/class-admin.php:645
+#: admin/class-admin.php:862
 #: modules/applications/widgets/class-quick-actions.php:110
 msgid "Reject"
 msgstr "Afwijzen"
@@ -895,7 +896,7 @@ msgid "Unpublish"
 msgstr "Depubliceren"
 
 #: admin/class-admin-jobs.php:605
-#: api/endpoints/class-employers-endpoint.php:1563
+#: api/endpoints/class-employers-endpoint.php:1566
 #: blocks/employer-dashboard/render.php:465
 #: blocks/employer-dashboard/render.php:824
 msgid "Pending"
@@ -911,8 +912,8 @@ msgstr[0] "%d melding"
 msgstr[1] "%d meldingen"
 
 #: admin/class-admin-meta-boxes.php:82
-#: blocks/job-form/render.php:697
-#: blocks/job-single/render.php:711
+#: blocks/job-form/render.php:709
+#: blocks/job-single/render.php:710
 msgid "Job Details"
 msgstr "Vacaturedetails"
 
@@ -939,8 +940,8 @@ msgid "No rejection reason recorded."
 msgstr "Geen afwijzingsreden opgenomen."
 
 #: admin/class-admin-meta-boxes.php:275
-#: blocks/job-form-simple/render.php:523
-#: blocks/job-form/render.php:708
+#: blocks/job-form-simple/render.php:534
+#: blocks/job-form/render.php:720
 msgid "Currency"
 msgstr "Valuta"
 
@@ -951,25 +952,25 @@ msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
 #: admin/class-admin-meta-boxes.php:292
-#: blocks/job-form/render.php:766
+#: blocks/job-form/render.php:778
 msgid "Per"
 msgstr "Per"
 
 #: admin/class-admin-meta-boxes.php:294
-#: blocks/job-form-simple/render.php:541
-#: blocks/job-form/render.php:775
+#: blocks/job-form-simple/render.php:552
+#: blocks/job-form/render.php:787
 msgid "Year"
 msgstr "Jaar"
 
 #: admin/class-admin-meta-boxes.php:295
-#: blocks/job-form-simple/render.php:542
-#: blocks/job-form/render.php:776
+#: blocks/job-form-simple/render.php:553
+#: blocks/job-form/render.php:788
 msgid "Month"
 msgstr "Maand"
 
 #: admin/class-admin-meta-boxes.php:296
-#: blocks/job-form-simple/render.php:543
-#: blocks/job-form/render.php:777
+#: blocks/job-form-simple/render.php:554
+#: blocks/job-form/render.php:789
 msgid "Hour"
 msgstr "Uur"
 
@@ -982,8 +983,8 @@ msgid "Salary Max"
 msgstr "Maximaal salaris"
 
 #: admin/class-admin-meta-boxes.php:324
-#: blocks/job-form-simple/render.php:556
-#: blocks/job-form/render.php:801
+#: blocks/job-form-simple/render.php:567
+#: blocks/job-form/render.php:813
 msgid "Application Deadline"
 msgstr "Sollicitatiesluitingsdatum"
 
@@ -1014,8 +1015,8 @@ msgid "Company name (displayed on listing)"
 msgstr "Bedrijfsnaam (weergegeven in de vacature)"
 
 #: admin/class-admin-meta-boxes.php:377
-#: blocks/job-form-simple/render.php:552
-#: blocks/job-form/render.php:795
+#: blocks/job-form-simple/render.php:563
+#: blocks/job-form/render.php:807
 msgid "Remote-friendly position"
 msgstr "Op afstand werkbaar"
 
@@ -1123,7 +1124,7 @@ msgstr "Website URL"
 #: blocks/company-profile/render.php:271
 #: blocks/employer-dashboard/render.php:1237
 #: blocks/employer-registration/render.php:333
-#: blocks/job-single/render.php:930
+#: blocks/job-single/render.php:929
 msgid "Industry"
 msgstr "Branche"
 
@@ -1174,24 +1175,24 @@ msgid "\"Verified\" shows the checkmark badge on job listings."
 msgstr "\"Geverifieerd\" toont de verificatie-badge op vacatureposten."
 
 #: admin/class-admin-settings.php:273
-#: admin/class-setup-wizard.php:100
+#: admin/class-setup-wizard.php:134
 msgid "You do not have permission to do this."
 msgstr "Je hebt geen toestemming om dit te doen."
 
 #: admin/class-pages.php:50
 #: admin/class-pages.php:53
-#: core/class-plugin.php:712
+#: core/class-plugin.php:731
 msgid "Find Jobs"
 msgstr "Vacatures zoeken"
 
 #: admin/class-pages.php:65
-#: core/class-plugin.php:730
+#: core/class-plugin.php:749
 msgid "Candidate Dashboard"
 msgstr "Kandidaat dashboard"
 
 #: admin/class-admin-settings.php:310
-#: admin/class-admin-settings.php:1062
-#: admin/class-setup-wizard.php:181
+#: admin/class-admin-settings.php:1068
+#: admin/class-setup-wizard.php:215
 msgid "Pages"
 msgstr "Pagina's"
 
@@ -1205,13 +1206,13 @@ msgid "Notifications"
 msgstr "Meldingen"
 
 #: admin/class-admin-settings.php:308
-#: admin/class-admin.php:808
-#: admin/class-setup-wizard.php:196
+#: admin/class-admin.php:812
+#: admin/class-setup-wizard.php:230
 msgid "Emails"
 msgstr "E-mails"
 
 #: admin/class-admin-settings.php:304
-#: admin/class-admin.php:864
+#: admin/class-admin.php:868
 msgid "Import"
 msgstr "Importeren"
 
@@ -1249,186 +1250,183 @@ msgstr "Borden"
 msgid "Sample data installed."
 msgstr "Voorbeeldgegevens geïnstalleerd."
 
-#: admin/class-admin-settings.php:477
-msgid "Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time."
-msgstr "Installeer demo-vacatures, bedrijven en kandidaten zodat je alle functies kunt verkennen. Je kunt dit altijd weer verwijderen."
-
-#: admin/class-admin-settings.php:481
+#: admin/class-admin-settings.php:486
 msgid "Install Sample Data"
 msgstr "Voorbeeldgegevens installeren"
 
-#: admin/class-admin-settings.php:495
+#: admin/class-admin-settings.php:501
 msgid "Remove demo jobs, companies, candidates, and unused taxonomy terms created by the setup wizard or marked as sample."
 msgstr "Verwijder demo-vacatures, bedrijven, kandidaten en ongebruikte taxonomie-termen die zijn gemaakt door de installatiewizard of gemarkeerd als voorbeeld."
 
-#: admin/class-admin-settings.php:497
-#: admin/class-admin.php:929
+#: admin/class-admin-settings.php:503
+#: admin/class-admin.php:933
 msgid "Remove Sample Data"
 msgstr "Voorbeeldgegevens verwijderen"
 
-#: admin/class-admin.php:928
+#: admin/class-admin.php:932
 msgid "Removing…"
 msgstr "Verwijderen…"
 
-#: admin/class-admin.php:930
+#: admin/class-admin.php:934
 msgid "Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone."
 msgstr "Alle demo-vacatures, bedrijven, kandidaten en ongebruikte taxonomie-termen permanent verwijderen? Dit kan niet ongedaan worden gemaakt."
 
-#: admin/class-admin.php:931
+#: admin/class-admin.php:935
 msgid "Delete Sample Data"
 msgstr "Voorbeeldgegevens verwijderen"
 
-#: admin/class-admin.php:861
-#: admin/class-admin.php:932
+#: admin/class-admin.php:865
+#: admin/class-admin.php:936
 #: blocks/candidate-dashboard/render.php:985
 #: blocks/candidate-dashboard/render.php:1063
 #: blocks/job-form/editor-toolbar.php:30
-#: blocks/job-single/render.php:1018
-#: core/class-plugin.php:1312
+#: blocks/job-single/render.php:1017
+#: core/class-plugin.php:1334
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: admin/class-admin.php:933
+#: admin/class-admin.php:937
 msgid "Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms."
 msgstr "Verwijderd %JOBS% voorbeeldvacatures, %COMPANIES% voorbeeldbedrijven, %CANDIDATES% voorbeeldkandidaten, %TERMS% taxonomie-termen."
 
-#: admin/class-admin.php:934
+#: admin/class-admin.php:938
 msgid "Nothing to remove - no sample data was found."
 msgstr "Niets om te verwijderen - geen voorbeeldgegevens gevonden."
 
-#: admin/class-admin.php:935
+#: admin/class-admin.php:939
 msgid "Could not remove sample data. Please try again."
 msgstr "Voorbeeldgegevens konden niet worden verwijderd. Probeer het opnieuw."
 
-#: admin/class-admin-settings.php:549
+#: admin/class-admin-settings.php:555
 msgid "Career Board Settings"
 msgstr "Career Board-instellingen"
 
-#: admin/class-admin-settings.php:553
+#: admin/class-admin-settings.php:559
 msgid "Settings saved."
 msgstr "Instellingen opgeslagen."
 
-#: admin/class-admin-settings.php:572
+#: admin/class-admin-settings.php:578
 msgid "Missing pages created and assigned successfully."
 msgstr "Ontbrekende pagina's zijn met succes aangemaakt en toegewezen."
 
-#: admin/class-admin-settings.php:579
+#: admin/class-admin-settings.php:585
 msgid "Test email sent. Please check your inbox."
 msgstr "Test-e-mail verzonden. Controleer je inbox."
 
-#: admin/class-admin-settings.php:583
+#: admin/class-admin-settings.php:589
 msgid "Test email failed. Check your server mail configuration."
 msgstr "Test-e-mail mislukt. Controleer de e-mailconfiguratie van je server."
 
-#: admin/class-admin-settings.php:595
+#: admin/class-admin-settings.php:601
 msgid "Missing pages:"
 msgstr "Ontbrekende pagina's:"
 
-#: admin/class-admin-settings.php:601
+#: admin/class-admin-settings.php:607
 msgid "Create Missing Pages"
 msgstr "Ontbrekende pagina's aanmaken"
 
-#: admin/class-admin-settings.php:613
+#: admin/class-admin-settings.php:619
 msgid "Career Board settings and configuration"
 msgstr "Career Board-instellingen en configuratie"
 
-#: admin/class-admin-settings.php:618
+#: admin/class-admin-settings.php:624
 msgid "Run Setup Wizard"
 msgstr "Installatiewizard uitvoeren"
 
-#: admin/class-admin-settings.php:631
+#: admin/class-admin-settings.php:637
 #: admin/class-admin.php:192
+#: core/class-roles.php:266
 msgid "Career Board"
 msgstr "Career Board"
 
-#: admin/class-admin-settings.php:663
+#: admin/class-admin-settings.php:669
 msgid "Requires Pro"
 msgstr "Vereist Pro"
 
-#: admin/class-admin-settings.php:707
+#: admin/class-admin-settings.php:713
 msgid "Auto-Publish Jobs"
 msgstr "Vacatures automatisch publiceren"
 
-#: admin/class-admin-settings.php:714
+#: admin/class-admin-settings.php:720
 msgid "Publish jobs immediately without admin review"
 msgstr "Publiceer vacatures onmiddellijk zonder beheerdersbeoordeling"
 
-#: admin/class-admin-settings.php:716
+#: admin/class-admin-settings.php:722
 msgid "When unchecked, new jobs are held as \"Pending\" until approved under Career Board > Jobs."
 msgstr "Wanneer dit niet is aangevinkt, worden nieuwe vacatures als \"In afwachting\" gehouden totdat ze zijn goedgekeurd onder Career Board > Vacatures."
 
-#: admin/class-admin-settings.php:739
+#: admin/class-admin-settings.php:745
 msgid "Jobs Per Page"
 msgstr "Vacatures per pagina"
 
-#: admin/class-admin-settings.php:896
+#: admin/class-admin-settings.php:902
 msgid "Allow Withdraw"
 msgstr "Aanmeldingen intrekken toestaan"
 
-#: admin/class-admin-settings.php:903
+#: admin/class-admin-settings.php:909
 msgid "Let candidates withdraw their own applications"
 msgstr "Laat kandidaten hun eigen aanmeldingen intrekken"
 
-#: admin/class-admin-settings.php:759
+#: admin/class-admin-settings.php:765
 msgid "Default Salary Currency"
 msgstr "Standaard valuta voor salaris"
 
 #. translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($).
-#: admin/class-admin-settings.php:767
+#: admin/class-admin-settings.php:773
 #: admin/views/wizard-steps/jobs.php:41
-#: blocks/job-form-simple/render.php:529
-#: blocks/job-form/render.php:722
+#: blocks/job-form-simple/render.php:540
+#: blocks/job-form/render.php:734
 #, php-format
 msgid "%1$s  -  %2$s (%3$s)"
 msgstr "%1$s  -  %2$s (%3$s)"
 
-#: admin/class-admin-settings.php:776
+#: admin/class-admin-settings.php:782
 msgid "Site-wide default for new job postings. Employers can override it per job."
 msgstr "Standaard voor de hele site voor nieuwe vacatures. Werkgevers kunnen dit per vacature overschrijven."
 
-#: admin/class-admin-settings.php:868
+#: admin/class-admin-settings.php:874
 msgid "Resume Required"
 msgstr "CV vereist"
 
-#: admin/class-admin-settings.php:875
+#: admin/class-admin-settings.php:881
 msgid "Require applicants to attach a resume"
 msgstr "Vereis dat aanmelders een CV bijvoegen"
 
-#: admin/class-admin-settings.php:877
+#: admin/class-admin-settings.php:883
 msgid "On by default. Turn off only for boards where applicants can apply with a cover letter alone (e.g. internal job boards, walk-in roles)."
 msgstr "Standaard ingeschakeld. Schakel alleen uit voor jobboards waarbij kandidaten zich kunnen aanmelden met alleen een motivatiebrief (bijv. interne jobboards, opendeurbanen)."
 
-#: admin/class-admin-settings.php:960
+#: admin/class-admin-settings.php:966
 msgid "Require Candidate Role"
 msgstr "Kandidaatrol vereisen"
 
-#: admin/class-admin-settings.php:967
+#: admin/class-admin-settings.php:973
 msgid "Only the Candidate role can apply, bookmark, and use the candidate dashboard"
 msgstr "Alleen gebruikers met de Kandidaatrol kunnen zich aanmelden, vacatures opslaan en het kandidaatdashboard gebruiken"
 
-#: admin/class-admin-settings.php:969
+#: admin/class-admin-settings.php:975
 msgid "Off by default: any logged-in member can apply and manage a resume (ideal when the job board is part of a community site). Turn on to reserve the candidate experience for users with the Candidate role."
 msgstr "Standaard uitgeschakeld: elke ingelogde gebruiker kan zich aanmelden en een CV beheren (ideaal wanneer het jobboard deel uitmaakt van een communitysite). Schakel in om de kandidaatervaring te reserveren voor gebruikers met de Kandidaatrol."
 
-#: admin/class-admin-settings.php:881
+#: admin/class-admin-settings.php:887
 msgid "Application Resume File Size (MB)"
 msgstr "Bestandsgrootte van CV voor aanmelding (MB)"
 
-#: admin/class-admin-settings.php:892
+#: admin/class-admin-settings.php:898
 msgid "Maximum size of a resume file a candidate uploads when applying to a job (1-20 MB). Accepted formats: PDF, DOC, DOCX. The resume profile builder lives under Settings > Resumes."
 msgstr "Maximale grootte van een CV-bestand dat een kandidaat uploadt bij aanmelding voor een baan (1-20 MB). Ondersteunde formaten: PDF, DOC, DOCX. De profielbouwer voor CV's bevindt zich onder Instellingen > CV's."
 
-#: admin/class-admin-settings.php:780
+#: admin/class-admin-settings.php:786
 msgid "Featured Duration (days)"
 msgstr "Uitgelichte duur (dagen)"
 
-#: admin/class-admin-settings.php:791
+#: admin/class-admin-settings.php:797
 msgid "How many days a job stays in the Featured spotlight before reverting automatically. Daily cron clears expired flags."
 msgstr "Hoeveel dagen een vacature in het uitgelichte spotlicht staat voordat het automatisch terugkeert. Dagelijks cron wist verlopen markeringen."
 
-#: admin/class-admin-settings.php:1063
+#: admin/class-admin-settings.php:1069
 msgid "Assign the WordPress pages that contain each WP Career Board block."
 msgstr "Wijs de WordPress-pagina's toe die elk WP Career Board-blok bevatten."
 
@@ -1480,55 +1478,55 @@ msgstr "Werkgevers registratiepagina"
 msgid "Contains the wcb/employer-registration block. New employers sign up and gain posting access here."
 msgstr "Bevat het wcb/employer-registration-blok. Nieuwe werkgevers registreren zich hier en krijgen toegang tot het plaatsen van vacatures."
 
-#: admin/class-admin-settings.php:1082
+#: admin/class-admin-settings.php:1088
 msgid " -  Select a page  - "
 msgstr " -  Selecteer een pagina  - "
 
-#: admin/class-admin-settings.php:1088
+#: admin/class-admin-settings.php:1094
 msgid "View Page →"
 msgstr "Pagina bekijken →"
 
-#: admin/class-admin-settings.php:1154
+#: admin/class-admin-settings.php:1160
 msgid "Configure sender details and admin notification address."
 msgstr "Configureer verzendergegevens en het adres voor beheerdermeldingen."
 
-#: admin/class-admin-settings.php:1158
+#: admin/class-admin-settings.php:1164
 msgid "From Name"
 msgstr "Afzendernaam"
 
-#: admin/class-admin-settings.php:1161
+#: admin/class-admin-settings.php:1167
 msgid "Sender name shown on all WCB notification emails. Defaults to your site name."
 msgstr "Afzendernaam weergegeven in alle WCB-meldingen-e-mails. Standaard de naam van je site."
 
-#: admin/class-admin-settings.php:1165
+#: admin/class-admin-settings.php:1171
 msgid "From Email"
 msgstr "Afzender e-mailadres"
 
-#: admin/class-admin-settings.php:1168
+#: admin/class-admin-settings.php:1174
 msgid "Sender address for all WCB emails. Defaults to the site admin email."
 msgstr "Afzenderadres voor alle WCB-e-mails. Standaard het e-mailadres van de beheerder van je site."
 
-#: admin/class-admin-settings.php:1172
+#: admin/class-admin-settings.php:1178
 msgid "Admin Notification Email"
 msgstr "E-mailadres voor beheerdermeldingen"
 
-#: admin/class-admin-settings.php:1175
+#: admin/class-admin-settings.php:1181
 msgid "Where admin alerts (new jobs, flagged content) are sent. Defaults to the site admin email."
 msgstr "Waar beheerdermeldingen (nieuwe jobs, gemarkeerde inhoud) heen worden gestuurd. Standaard het e-mailadres van de beheerder van je site."
 
-#: admin/class-admin-settings.php:1223
+#: admin/class-admin-settings.php:1229
 #: admin/views/setup-wizard-complete.php:42
 msgid "Re-run Setup Wizard"
 msgstr "Setup Wizard opnieuw uitvoeren"
 
-#: admin/class-admin-settings.php:1227
+#: admin/class-admin-settings.php:1233
 #: admin/views/setup-wizard-complete.php:39
 msgid "Back to Dashboard"
 msgstr "Terug naar dashboard"
 
 #: admin/class-admin.php:264
-#: modules/jobs/class-jobs-module.php:319
-#: modules/jobs/class-jobs-module.php:320
+#: modules/jobs/class-jobs-module.php:331
+#: modules/jobs/class-jobs-module.php:332
 msgid "Job Types"
 msgstr "Jobtypen"
 
@@ -1537,21 +1535,21 @@ msgid "Job Locations"
 msgstr "Joblocaties"
 
 #: admin/class-admin.php:266
-#: modules/jobs/class-jobs-module.php:359
-#: modules/jobs/class-jobs-module.php:360
+#: modules/jobs/class-jobs-module.php:371
+#: modules/jobs/class-jobs-module.php:372
 msgid "Experience Levels"
 msgstr "Ervaringsniveaus"
 
 #: admin/class-admin.php:267
-#: modules/jobs/class-jobs-module.php:333
-#: modules/jobs/class-jobs-module.php:334
+#: modules/jobs/class-jobs-module.php:345
+#: modules/jobs/class-jobs-module.php:346
 msgid "Job Tags"
 msgstr "Jobtags"
 
-#: admin/class-admin.php:379
-#: admin/class-admin.php:380
-#: admin/class-admin.php:525
-#: admin/class-admin.php:726
+#: admin/class-admin.php:382
+#: admin/class-admin.php:383
+#: admin/class-admin.php:528
+#: admin/class-admin.php:730
 #: blocks/candidate-dashboard/render.php:208
 #: blocks/candidate-dashboard/render.php:537
 #: blocks/employer-dashboard/render.php:423
@@ -1562,47 +1560,47 @@ msgstr "Jobtags"
 msgid "Settings"
 msgstr "Instellingen"
 
-#: admin/class-admin.php:516
+#: admin/class-admin.php:519
 msgid "Manage your job board, applications, and hiring pipeline."
 msgstr "Beheer je jobboard, sollicitaties en wervingspijplijn."
 
-#: admin/class-admin.php:520
+#: admin/class-admin.php:523
 msgid "Visit Site"
 msgstr "Website bezoeken"
 
-#: admin/class-admin.php:539
+#: admin/class-admin.php:542
 msgid "Plugin activated"
 msgstr "Plugin geactiveerd"
 
 #. translators: 1: pages created count, 2: total pages count
-#: admin/class-admin.php:548
+#: admin/class-admin.php:551
 #, php-format
 msgid "Pages created (%1$d/%2$d)"
 msgstr "Pagina's gemaakt (%1$d/%2$d)"
 
-#: admin/class-admin.php:555
+#: admin/class-admin.php:558
 msgid "Run Wizard"
 msgstr "Wizard uitvoeren"
 
-#: admin/class-admin.php:562
+#: admin/class-admin.php:565
 msgid "Add your first job"
 msgstr "Voeg je eerste job toe"
 
-#: admin/class-admin.php:564
+#: admin/class-admin.php:567
 msgid "+ Add Job"
 msgstr "+ Job toevoegen"
 
-#: admin/class-admin.php:571
+#: admin/class-admin.php:574
 msgid "Invite an employer"
 msgstr "Nodig een werkgever uit"
 
-#: admin/class-admin.php:573
+#: admin/class-admin.php:576
 msgid "+ Add User"
 msgstr "+ Gebruiker toevoegen"
 
 #. translators: link to the full jobs archive. The trailing arrow is part of the string so RTL locales can flip its glyph in translation.
-#: admin/class-admin.php:619
-#: admin/class-admin.php:660
+#: admin/class-admin.php:622
+#: admin/class-admin.php:663
 #: blocks/candidate-dashboard/render.php:641
 #: blocks/candidate-dashboard/render.php:665
 #: blocks/employer-dashboard/render.php:758
@@ -1610,87 +1608,87 @@ msgstr "+ Gebruiker toevoegen"
 msgid "View all →"
 msgstr "Alles weergeven →"
 
-#: admin/class-admin.php:621
-#: admin/class-admin.php:662
+#: admin/class-admin.php:624
+#: admin/class-admin.php:665
 msgid "Toggle panel"
 msgstr "Paneel in-/uitschakelen"
 
-#: admin/class-admin.php:628
+#: admin/class-admin.php:631
 msgid "No jobs pending review."
 msgstr "Geen jobs wachten op beoordeling."
 
-#: admin/class-admin.php:657
+#: admin/class-admin.php:660
 #: blocks/candidate-dashboard/render.php:640
 #: blocks/employer-dashboard/render.php:757
 msgid "Recent Applications"
 msgstr "Recente sollicitaties"
 
-#: admin/class-admin.php:722
+#: admin/class-admin.php:726
 msgid "Add User"
 msgstr "Gebruiker toevoegen"
 
-#: admin/class-admin.php:747
+#: admin/class-admin.php:751
 #: blocks/employer-dashboard/render.php:697
 msgid "Dismiss"
 msgstr "Sluiten"
 
-#: admin/class-admin.php:755
+#: admin/class-admin.php:759
 msgid "Application Pipeline  -  Drag-and-drop Kanban hiring stages"
 msgstr "Sollicitatiepijplijn  -  Drag-and-drop Kanban-wervingsfasen"
 
-#: admin/class-admin.php:759
+#: admin/class-admin.php:763
 msgid "Resume Builder  -  Candidate resume profiles with rich fields"
 msgstr "CV-builder  -  Kandidaat-CV-profielen met rijke velden"
 
-#: admin/class-admin.php:763
+#: admin/class-admin.php:767
 msgid "AI Job Descriptions  -  Auto-generate job posts with AI"
 msgstr "AI-jobomschrijvingen  -  Jobberichten automatisch genereren met AI"
 
-#: admin/class-admin.php:767
+#: admin/class-admin.php:771
 msgid "Credits System  -  Sell job post credits via Stripe"
 msgstr "Creditssysteem  -  Jobberichtcredits verkopen via Stripe"
 
-#: admin/class-admin.php:774
+#: admin/class-admin.php:778
 msgid "Upgrade to Pro"
 msgstr "Upgrade naar Pro"
 
-#: admin/class-admin.php:853
+#: admin/class-admin.php:857
 msgid "Approve Job"
 msgstr "Job goedkeuren"
 
-#: admin/class-admin.php:854
+#: admin/class-admin.php:858
 msgid "This job will be published and the employer will be notified."
 msgstr "Deze vacature wordt gepubliceerd en de werkgever wordt ervan op de hoogte gesteld."
 
-#: admin/class-admin.php:856
+#: admin/class-admin.php:860
 msgid "Reject Job"
 msgstr "Job afwijzen"
 
-#: admin/class-admin.php:857
+#: admin/class-admin.php:861
 msgid "This job will be moved to Draft and the employer will be notified."
 msgstr "Deze vacature wordt verplaatst naar Concept en de werkgever wordt ervan op de hoogte gesteld."
 
-#: admin/class-admin.php:859
+#: admin/class-admin.php:863
 msgid "Reason (optional):"
 msgstr "Reden (optioneel):"
 
-#: admin/class-admin.php:860
+#: admin/class-admin.php:864
 #: blocks/candidate-dashboard/render.php:1058
-#: core/class-plugin.php:1311
+#: core/class-plugin.php:1333
 msgid "Confirm"
 msgstr "Bevestigen"
 
-#: admin/class-admin.php:862
+#: admin/class-admin.php:866
 msgid "Could not update. Please try again."
 msgstr "Kon niet bijwerken. Probeer het opnieuw."
 
-#: admin/class-admin.php:863
+#: admin/class-admin.php:867
 msgid "Importing…"
 msgstr "Importeren…"
 
-#: admin/class-admin.php:961
+#: admin/class-admin.php:965
 #: blocks/company-profile/render.php:122
-#: blocks/job-single/render.php:378
+#: blocks/job-single/render.php:377
 #: core/widgets/class-widget-shortcode.php:119
 msgid "Could not save."
 msgstr "Kon niet opslaan."
@@ -1718,16 +1716,16 @@ msgstr "Geen e-mails geregistreerd voor de huidige filters."
 msgid "Failed to load activity log."
 msgstr "Kan activiteitenlogboek niet laden."
 
-#: admin/class-admin-settings.php:1127
+#: admin/class-admin-settings.php:1133
 msgid "Logo"
 msgstr "Logo"
 
-#: admin/class-admin-settings.php:1132
+#: admin/class-admin-settings.php:1138
 msgid "Choose Image"
 msgstr "Afbeelding selecteren"
 
-#: admin/class-admin-settings.php:1133
-#: admin/class-admin.php:902
+#: admin/class-admin-settings.php:1139
+#: admin/class-admin.php:906
 #: blocks/candidate-dashboard/render.php:754
 #: blocks/candidate-dashboard/render.php:815
 #: blocks/candidate-dashboard/render.php:872
@@ -1821,7 +1819,7 @@ msgstr "Laat leeg om de standaard versie te gebruiken. De koptekst en voettekst 
 msgid "Test sends are dispatched to your admin email (%s) and recorded in the activity log below."
 msgstr "Testverzendingen worden naar je admin e-mail (%s) verzonden en geregistreerd in het activiteitenlogboek hieronder."
 
-#: admin/class-admin.php:887
+#: admin/class-admin.php:891
 msgid "Select Logo"
 msgstr "Logo selecteren"
 
@@ -1882,13 +1880,13 @@ msgstr "Volgende"
 msgid "Email Notifications"
 msgstr "E-mailmeldingen"
 
-#: admin/class-setup-wizard.php:183
+#: admin/class-setup-wizard.php:217
 #: admin/views/wizard-steps/create-pages.php:30
 msgid "Create Pages & Continue"
 msgstr "Pagina's maken & doorgaan"
 
-#: admin/class-setup-wizard.php:208
-#: admin/views/wizard-steps/sample-data.php:32
+#: admin/class-setup-wizard.php:242
+#: admin/views/wizard-steps/sample-data.php:55
 msgid "Finish Setup"
 msgstr "Setup voltooien"
 
@@ -1946,9 +1944,9 @@ msgstr "Elk product hierboven is een zelfstandige Wbcom plugin. WP Career Board 
 msgid "WP Career Board Setup"
 msgstr "WP Career Board Setup"
 
-#: admin/class-admin.php:731
-#: admin/class-setup-wizard.php:151
-#: admin/class-setup-wizard.php:152
+#: admin/class-admin.php:735
+#: admin/class-setup-wizard.php:185
+#: admin/class-setup-wizard.php:186
 #: admin/views/setup-wizard-complete.php:23
 msgid "Setup wizard"
 msgstr "Setup-wizard"
@@ -1957,13 +1955,9 @@ msgstr "Setup-wizard"
 msgid "The initial setup wizard has already been completed. Running it again will re-create any missing pages."
 msgstr "De initiële setup-wizard is al voltooid. Als je deze opnieuw uitvoert, worden alle ontbrekende pagina's opnieuw gemaakt."
 
-#: admin/views/wizard-steps/sample-data.php:18
+#: admin/views/wizard-steps/sample-data.php:20
 msgid "Demo Content"
 msgstr "Demo-inhoud"
-
-#: admin/views/wizard-steps/sample-data.php:27
-msgid "Helps you see how everything looks before adding real data."
-msgstr "Helpt je zien hoe alles eruit ziet voordat je echte gegevens toevoegt."
 
 #: api/class-rest-controller.php:95
 msgid "Authentication is required to perform this action."
@@ -2021,78 +2015,78 @@ msgid "A valid email address is required."
 msgstr "Een geldig e-mailadres is vereist."
 
 #. translators: 1: guest name, 2: job post ID
-#: api/endpoints/class-applications-endpoint.php:352
+#: api/endpoints/class-applications-endpoint.php:357
 #, php-format
 msgid "Application: %1$s → Job %2$d"
 msgstr "Sollicitatie: %1$s → Vacature %2$d"
 
-#: api/endpoints/class-applications-endpoint.php:386
+#: api/endpoints/class-applications-endpoint.php:391
 msgid "You have already applied to this job."
 msgstr "Je hebt je al voor deze vacature ingeschreven."
 
 #. translators: 1: candidate user ID, 2: job post ID
-#: api/endpoints/class-applications-endpoint.php:392
+#: api/endpoints/class-applications-endpoint.php:397
 #, php-format
 msgid "Application: User %1$d → Job %2$d"
 msgstr "Sollicitatie: Gebruiker %1$d → Vacature %2$d"
 
-#: api/endpoints/class-applications-endpoint.php:468
+#: api/endpoints/class-applications-endpoint.php:473
 msgid "Invalid resume."
 msgstr "Ongeldig cv."
 
-#: api/endpoints/class-applications-endpoint.php:499
+#: api/endpoints/class-applications-endpoint.php:504
 msgid "We couldn't attach this resume. Open it in the resume builder and use 'Download as PDF', or upload a file below, before applying."
 msgstr "We konden dit cv niet bijvoegen. Open het in de cv-bouwer en selecteer 'Downloaden als PDF', of upload hieronder een bestand voordat je je inschrijft."
 
-#: api/endpoints/class-applications-endpoint.php:507
+#: api/endpoints/class-applications-endpoint.php:512
 msgid "A resume is required to apply for this job."
 msgstr "Een cv is vereist om je voor deze vacature in te schrijven."
 
-#: api/endpoints/class-applications-endpoint.php:558
-#: api/endpoints/class-applications-endpoint.php:578
-#: api/endpoints/class-applications-endpoint.php:748
+#: api/endpoints/class-applications-endpoint.php:563
+#: api/endpoints/class-applications-endpoint.php:583
+#: api/endpoints/class-applications-endpoint.php:752
 msgid "Application not found."
 msgstr "Sollicitatie niet gevonden."
 
-#: api/endpoints/class-applications-endpoint.php:590
+#: api/endpoints/class-applications-endpoint.php:595
 msgid "Invalid status."
 msgstr "Ongeldige status."
 
-#: api/endpoints/class-applications-endpoint.php:695
+#: api/endpoints/class-applications-endpoint.php:700
 msgid "Job no longer available"
 msgstr "Vacature niet langer beschikbaar"
 
-#: api/endpoints/class-applications-endpoint.php:820
-#: api/endpoints/class-applications-endpoint.php:918
+#: api/endpoints/class-applications-endpoint.php:824
+#: api/endpoints/class-applications-endpoint.php:922
 msgid "No file provided."
 msgstr "Geen bestand opgegeven."
 
-#: api/endpoints/class-applications-endpoint.php:855
-#: api/endpoints/class-applications-endpoint.php:863
-#: api/endpoints/class-applications-endpoint.php:870
+#: api/endpoints/class-applications-endpoint.php:859
+#: api/endpoints/class-applications-endpoint.php:867
+#: api/endpoints/class-applications-endpoint.php:874
 msgid "Invalid resume attachment."
 msgstr "Ongeldige cv-bijlage."
 
-#: api/endpoints/class-applications-endpoint.php:910
+#: api/endpoints/class-applications-endpoint.php:914
 msgid "Only PDF, DOC, and DOCX files are allowed."
 msgstr "Alleen PDF-, DOC- en DOCX-bestanden zijn toegestaan."
 
 #. translators: %d: max file size in MB
-#: api/endpoints/class-applications-endpoint.php:927
+#: api/endpoints/class-applications-endpoint.php:931
 #, php-format
 msgid "File must be under %d MB."
 msgstr "Het bestand moet kleiner zijn dan %d MB."
 
-#: api/endpoints/class-applications-endpoint.php:1017
+#: api/endpoints/class-applications-endpoint.php:1021
 msgid "You do not have permission to apply for jobs."
 msgstr "Je hebt geen toestemming om je in te schrijven voor vacatures."
 
-#: api/endpoints/class-applications-endpoint.php:1101
-#: api/endpoints/class-applications-endpoint.php:1109
+#: api/endpoints/class-applications-endpoint.php:1105
+#: api/endpoints/class-applications-endpoint.php:1113
 msgid "Application withdrawal is not enabled on this site."
 msgstr "Het intrekken van sollicitaties is op deze site niet ingeschakeld."
 
-#: api/endpoints/class-applications-endpoint.php:1319
+#: api/endpoints/class-applications-endpoint.php:1323
 msgid "Hiring team"
 msgstr "Wervingsteam"
 
@@ -2126,25 +2120,25 @@ msgstr "Er bestaat al een account met dit e-mailadres."
 msgid "Password must be at least 8 characters."
 msgstr "Het wachtwoord moet minstens 8 tekens bevatten."
 
-#: api/endpoints/class-candidates-endpoint.php:316
-#: api/endpoints/class-candidates-endpoint.php:331
-#: api/endpoints/class-candidates-endpoint.php:340
-#: api/endpoints/class-candidates-endpoint.php:350
-#: api/endpoints/class-candidates-endpoint.php:384
+#: api/endpoints/class-candidates-endpoint.php:317
+#: api/endpoints/class-candidates-endpoint.php:332
+#: api/endpoints/class-candidates-endpoint.php:341
+#: api/endpoints/class-candidates-endpoint.php:351
+#: api/endpoints/class-candidates-endpoint.php:385
 msgid "Candidate not found."
 msgstr "Kandidaat niet gevonden."
 
 #: api/endpoints/class-companies-endpoint.php:115
-#: api/endpoints/class-employers-endpoint.php:511
-#: api/endpoints/class-employers-endpoint.php:531
-#: api/endpoints/class-employers-endpoint.php:855
-#: api/endpoints/class-employers-endpoint.php:972
-#: api/endpoints/class-employers-endpoint.php:1329
+#: api/endpoints/class-employers-endpoint.php:512
+#: api/endpoints/class-employers-endpoint.php:532
+#: api/endpoints/class-employers-endpoint.php:857
+#: api/endpoints/class-employers-endpoint.php:975
+#: api/endpoints/class-employers-endpoint.php:1332
 msgid "Company not found."
 msgstr "Bedrijf niet gevonden."
 
 #. translators: %s: number of companies found, already localised.
-#: api/endpoints/class-companies-endpoint.php:392
+#: api/endpoints/class-companies-endpoint.php:395
 #: blocks/company-archive/render.php:173
 #, php-format
 msgid "%s company found"
@@ -2153,7 +2147,7 @@ msgstr[0] "%s bedrijf gevonden"
 msgstr[1] "%s bedrijven gevonden"
 
 #. translators: %s: number of open positions, already localised.
-#: api/endpoints/class-companies-endpoint.php:479
+#: api/endpoints/class-companies-endpoint.php:482
 #: blocks/company-archive/render.php:94
 #, php-format
 msgid "%s open position"
@@ -2170,19 +2164,19 @@ msgid "Your account is already registered as a candidate. Use a different accoun
 msgstr "Je account is al geregistreerd als kandidaat. Gebruik een ander account om vacatures in te plaatsen."
 
 #: api/endpoints/class-employers-endpoint.php:229
-#: api/endpoints/class-employers-endpoint.php:435
-#: api/endpoints/class-employers-endpoint.php:541
+#: api/endpoints/class-employers-endpoint.php:436
+#: api/endpoints/class-employers-endpoint.php:542
 #: blocks/employer-dashboard/render.php:381
 msgid "Company name is required."
 msgstr "Bedrijfsnaam is verplicht."
 
 #: admin/class-admin-candidates.php:433
-#: api/endpoints/class-employers-endpoint.php:1564
+#: api/endpoints/class-employers-endpoint.php:1567
 msgid "Private"
 msgstr "Privé"
 
-#: api/endpoints/class-employers-endpoint.php:815
-#: api/endpoints/class-employers-endpoint.php:927
+#: api/endpoints/class-employers-endpoint.php:816
+#: api/endpoints/class-employers-endpoint.php:929
 #: blocks/employer-dashboard/render.php:461
 #: blocks/employer-dashboard/render.php:469
 #: blocks/employer-dashboard/render.php:826
@@ -2191,21 +2185,21 @@ msgstr "Privé"
 msgid "Rejected"
 msgstr "Afgewezen"
 
-#: api/endpoints/class-employers-endpoint.php:830
-#: api/endpoints/class-employers-endpoint.php:942
+#: api/endpoints/class-employers-endpoint.php:831
+#: api/endpoints/class-employers-endpoint.php:944
 msgid "No applicants"
 msgstr "Geen sollicitanten"
 
 #. translators: %s: number of applicants, already localised.
-#: api/endpoints/class-employers-endpoint.php:827
-#: api/endpoints/class-employers-endpoint.php:939
+#: api/endpoints/class-employers-endpoint.php:828
+#: api/endpoints/class-employers-endpoint.php:941
 #, php-format
 msgid "%s applicant"
 msgid_plural "%s applicants"
 msgstr[0] "%s sollicitant"
 msgstr[1] "%s sollicitanten"
 
-#: api/endpoints/class-employers-endpoint.php:1338
+#: api/endpoints/class-employers-endpoint.php:1341
 msgid "No file uploaded."
 msgstr "Geen bestand geüpload."
 
@@ -2219,7 +2213,7 @@ msgstr "WP Job Manager Resumes is niet actief."
 
 #. translators: %s: number of jobs found, already localised.
 #: api/endpoints/class-jobs-endpoint.php:322
-#: blocks/job-listings/render.php:368
+#: blocks/job-listings/render.php:367
 #, php-format
 msgid "%s job found"
 msgid_plural "%s jobs found"
@@ -2246,13 +2240,13 @@ msgstr "Spam gedetecteerd."
 
 #: api/endpoints/class-jobs-endpoint.php:560
 #: api/endpoints/class-jobs-endpoint.php:777
-#: blocks/job-form-simple/render.php:277
+#: blocks/job-form-simple/render.php:280
 msgid "Job title is required."
 msgstr "Vacaturetitel is verplicht."
 
 #. translators: %s: human-readable time difference, e.g. "3 days".
 #: api/endpoints/class-jobs-endpoint.php:1869
-#: blocks/job-listings/render.php:231
+#: blocks/job-listings/render.php:230
 #: blocks/recent-jobs/render.php:129
 #, php-format
 msgid "%s ago"
@@ -2282,7 +2276,6 @@ msgstr "Overzicht"
 #: blocks/candidate-dashboard/render.php:199
 #: blocks/candidate-dashboard/render.php:438
 #: blocks/candidate-dashboard/render.php:705
-#: integrations/reign/class-reign-integration.php:113
 msgid "My Applications"
 msgstr "Mijn sollicitaties"
 
@@ -2322,12 +2315,12 @@ msgstr "%1$s%"
 
 #. translators: location dropdown label for jobs with no fixed place.
 #: blocks/candidate-dashboard/render.php:214
-#: blocks/job-form/render.php:1031
-#: blocks/job-listings/render.php:870
-#: blocks/job-single/render.php:437
-#: blocks/job-single/render.php:738
+#: blocks/job-form/render.php:1043
+#: blocks/job-listings/render.php:869
+#: blocks/job-single/render.php:436
+#: blocks/job-single/render.php:737
 #: core/class-locations.php:145
-#: modules/seo/class-rss-feed-enrichment.php:179
+#: modules/seo/class-rss-feed-enrichment.php:182
 msgid "Remote"
 msgstr "Op afstand"
 
@@ -2436,10 +2429,10 @@ msgstr "Het uploaden van cv-bestand is mislukt. Probeer het opnieuw."
 #: blocks/candidate-dashboard/render.php:238
 #: blocks/employer-dashboard/render.php:384
 #: blocks/employer-registration/render.php:152
-#: blocks/job-form-simple/render.php:282
-#: blocks/job-form/render.php:417
-#: blocks/job-listings/render.php:508
-#: blocks/job-single/render.php:384
+#: blocks/job-form-simple/render.php:286
+#: blocks/job-form/render.php:422
+#: blocks/job-listings/render.php:507
+#: blocks/job-single/render.php:383
 #: templates/parts/privacy-settings.php:47
 msgid "Connection error. Please check your network and try again."
 msgstr "Verbindingsfout. Controleer je internetverbinding en probeer opnieuw."
@@ -2480,8 +2473,8 @@ msgstr "Dit verwijdert permanent al je meldingen. Dit kan niet ongedaan gemaakt 
 #: blocks/candidate-dashboard/render.php:252
 #: blocks/company-archive/render.php:270
 #: blocks/employer-dashboard/render.php:394
-#: blocks/job-listings/render.php:581
-#: blocks/job-listings/render.php:803
+#: blocks/job-listings/render.php:580
+#: blocks/job-listings/render.php:802
 msgid "Clear all"
 msgstr "Alles wissen"
 
@@ -2518,7 +2511,6 @@ msgstr "Zo kun je aan de slag gaan:"
 #: blocks/candidate-dashboard/render.php:828
 #: blocks/candidate-dashboard/render.php:1144
 #: blocks/employer-dashboard/render.php:1393
-#: integrations/reign/class-reign-integration.php:96
 msgid "Browse jobs"
 msgstr "Verken vacatures"
 
@@ -2552,8 +2544,8 @@ msgstr "Aanbevolen voor jou"
 
 #: blocks/company-profile/render.php:395
 #: blocks/featured-jobs/render.php:96
-#: blocks/job-listings/render.php:891
-#: modules/jobs/class-jobs-module.php:267
+#: blocks/job-listings/render.php:890
+#: modules/jobs/class-jobs-module.php:279
 #: modules/notifications/emails/class-email-app-guest.php:76
 #: modules/notifications/emails/class-email-job-approved.php:74
 msgid "View Job"
@@ -2651,23 +2643,23 @@ msgstr "Bio / Over mij"
 msgid "Save Profile"
 msgstr "Profiel opslaan"
 
-#: admin/class-admin.php:911
+#: admin/class-admin.php:915
 #: blocks/candidate-dashboard/render.php:1225
 #: blocks/employer-dashboard/render.php:1323
 #: blocks/employer-registration/render.php:391
 msgid "Saving…"
 msgstr "Opslaan…"
 
-#: admin/class-admin.php:960
+#: admin/class-admin.php:964
 #: blocks/candidate-dashboard/render.php:498
 #: blocks/candidate-dashboard/render.php:1227
 #: blocks/company-profile/render.php:103
 #: blocks/company-profile/render.php:124
 #: blocks/employer-dashboard/render.php:617
-#: blocks/job-listings/render.php:496
-#: blocks/job-single/render.php:379
-#: blocks/job-single/render.php:555
-#: blocks/job-single/render.php:559
+#: blocks/job-listings/render.php:495
+#: blocks/job-single/render.php:378
+#: blocks/job-single/render.php:554
+#: blocks/job-single/render.php:558
 #: core/widgets/class-widget-shortcode.php:118
 #: templates/parts/email-preferences.php:32
 msgid "Saved"
@@ -2683,14 +2675,14 @@ msgstr "Accountinstellingen"
 msgid "Display Name"
 msgstr "Weergavenaam"
 
-#: admin/class-admin-settings.php:851
-#: admin/class-admin-settings.php:911
-#: admin/class-admin-settings.php:988
-#: admin/class-admin-settings.php:1050
-#: admin/class-admin-settings.php:1099
-#: admin/class-admin-settings.php:1141
-#: admin/class-admin-settings.php:1191
-#: admin/class-admin-settings.php:1409
+#: admin/class-admin-settings.php:857
+#: admin/class-admin-settings.php:917
+#: admin/class-admin-settings.php:994
+#: admin/class-admin-settings.php:1056
+#: admin/class-admin-settings.php:1105
+#: admin/class-admin-settings.php:1147
+#: admin/class-admin-settings.php:1197
+#: admin/class-admin-settings.php:1415
 #: blocks/candidate-dashboard/render.php:1256
 #: blocks/employer-dashboard/render.php:1515
 msgid "Save changes"
@@ -2741,34 +2733,34 @@ msgstr "Bedrijven zoeken…"
 msgid "Sort companies"
 msgstr "Bedrijven sorteren"
 
-#: admin/class-admin-settings.php:750
+#: admin/class-admin-settings.php:756
 #: blocks/company-archive/render.php:238
-#: blocks/job-listings/render.php:544
+#: blocks/job-listings/render.php:543
 #: templates/parts/archive-toolbar.php:76
 msgid "Newest first"
 msgstr "Nieuwste eerst"
 
-#: admin/class-admin-settings.php:753
+#: admin/class-admin-settings.php:759
 #: blocks/company-archive/render.php:239
-#: blocks/job-listings/render.php:547
+#: blocks/job-listings/render.php:546
 #: templates/parts/archive-toolbar.php:77
 msgid "Oldest first"
 msgstr "Oudste eerst"
 
 #: blocks/company-archive/render.php:242
-#: blocks/job-listings/render.php:554
+#: blocks/job-listings/render.php:553
 #: templates/parts/archive-toolbar.php:83
 msgid "View layout"
 msgstr "Weergave-indeling"
 
 #: blocks/company-archive/render.php:243
-#: blocks/job-listings/render.php:555
+#: blocks/job-listings/render.php:554
 #: templates/parts/archive-toolbar.php:84
 msgid "List view"
 msgstr "Lijstweergave"
 
 #: blocks/company-archive/render.php:244
-#: blocks/job-listings/render.php:556
+#: blocks/job-listings/render.php:555
 #: templates/parts/archive-toolbar.php:85
 msgid "Grid view"
 msgstr "Rasterweergave"
@@ -2779,7 +2771,7 @@ msgstr "Bedrijven filteren"
 
 #: blocks/company-archive/render.php:266
 #: blocks/job-filters/render.php:68
-#: blocks/job-listings/render.php:577
+#: blocks/job-listings/render.php:576
 #: blocks/job-search-hero/index.js:41
 msgid "Filters"
 msgstr "Filters"
@@ -2789,7 +2781,7 @@ msgstr "Filters"
 #: blocks/company-profile/render.php:277
 #: blocks/employer-dashboard/render.php:1247
 #: blocks/employer-registration/render.php:344
-#: blocks/job-single/render.php:936
+#: blocks/job-single/render.php:935
 msgid "Company size"
 msgstr "Bedrijfsgrootte"
 
@@ -2803,14 +2795,14 @@ msgid "No companies match your filters"
 msgstr "Geen bedrijven komen overeen met je filters"
 
 #: blocks/company-archive/render.php:422
-#: blocks/job-listings/render.php:913
+#: blocks/job-listings/render.php:912
 msgid "Try removing a filter or clearing them all to see more results."
 msgstr "Probeer een filter te verwijderen of deze allemaal te wissen om meer resultaten te zien."
 
 #: admin/class-list-empty-state.php:109
 #: blocks/company-archive/render.php:425
 #: blocks/employer-dashboard/render.php:860
-#: blocks/job-listings/render.php:916
+#: blocks/job-listings/render.php:915
 #: templates/parts/archive-empty-state.php:53
 msgid "Clear filters"
 msgstr "Filters wissen"
@@ -2849,7 +2841,7 @@ msgid "About"
 msgstr "Over"
 
 #: blocks/company-profile/render.php:283
-#: modules/jobs/class-jobs-module.php:188
+#: modules/jobs/class-jobs-module.php:194
 msgid "Type"
 msgstr "Type"
 
@@ -2859,7 +2851,7 @@ msgstr "Opgericht"
 
 #: blocks/company-profile/render.php:295
 #: blocks/employer-registration/render.php:357
-#: blocks/job-single/render.php:949
+#: blocks/job-single/render.php:948
 msgid "Headquarters"
 msgstr "Hoofdkantoor"
 
@@ -2872,12 +2864,12 @@ msgid "No open positions at the moment. Check back soon."
 msgstr "Op dit moment geen openstaande functies. Kom binnenkort terug."
 
 #: blocks/company-profile/render.php:385
-#: blocks/job-listings/render.php:836
+#: blocks/job-listings/render.php:835
 msgid "Job listing"
 msgstr "Vacature"
 
 #: blocks/company-profile/render.php:407
-#: blocks/job-listings/render.php:928
+#: blocks/job-listings/render.php:927
 msgid "Load more jobs"
 msgstr "Meer vacatures laden"
 
@@ -3082,7 +3074,7 @@ msgstr "Doorzoek je vacatures"
 
 #: blocks/employer-dashboard/render.php:829
 #: blocks/employer-dashboard/render.php:917
-#: blocks/job-listings/render.php:539
+#: blocks/job-listings/render.php:538
 #: blocks/job-search-hero/render.php:21
 #: blocks/job-search/render.php:49
 msgid "Search jobs…"
@@ -3130,7 +3122,7 @@ msgid "No jobs match your search."
 msgstr "Geen vacatures voldoen aan je zoekopdracht."
 
 #: blocks/employer-dashboard/render.php:938
-#: core/class-plugin.php:1184
+#: core/class-plugin.php:1206
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
@@ -3145,7 +3137,7 @@ msgid "AI fit"
 msgstr "AI geschiktheid"
 
 #: blocks/employer-dashboard/render.php:1074
-#: blocks/job-single/render.php:1144
+#: blocks/job-single/render.php:1143
 #: modules/applications/widgets/class-resume-preview.php:85
 #: modules/candidates/class-candidates-module.php:231
 msgid "Resume"
@@ -3181,7 +3173,7 @@ msgstr "Wat doet je bedrijf? Missie, producten, cultuur…"
 
 #: blocks/employer-dashboard/render.php:1220
 #: blocks/employer-dashboard/render.php:1228
-#: blocks/job-single/render.php:897
+#: blocks/job-single/render.php:896
 msgid "About the company"
 msgstr "Over het bedrijf"
 
@@ -3318,9 +3310,9 @@ msgid "Back"
 msgstr "Terug"
 
 #: blocks/employer-registration/render.php:243
-#: blocks/job-form-simple/render.php:310
-#: blocks/job-form/render.php:1135
-#: blocks/job-single/render.php:1287
+#: blocks/job-form-simple/render.php:321
+#: blocks/job-form/render.php:1147
+#: blocks/job-single/render.php:1286
 msgid "Leave this field blank"
 msgstr "Laat dit veld leeg"
 
@@ -3393,7 +3385,7 @@ msgstr "Mis geen nieuwe vacatures. Abonneer je op e-mailwaarschuwingen voor func
 msgid "Set Up Alerts"
 msgstr "Waarschuwingen instellen"
 
-#: blocks/job-listings/render.php:639
+#: blocks/job-listings/render.php:638
 #: templates/parts/job-category-field.php:64
 #: blocks/job-listings/index.js:20
 msgid "Category"
@@ -3414,9 +3406,9 @@ msgid "All Locations"
 msgstr "Alle locaties"
 
 #: blocks/job-filters/render.php:99
-#: blocks/job-form-simple/render.php:491
-#: blocks/job-listings/render.php:618
-#: blocks/job-single/render.php:723
+#: blocks/job-form-simple/render.php:502
+#: blocks/job-listings/render.php:617
+#: blocks/job-single/render.php:722
 #: blocks/job-listings/index.js:19
 msgid "Experience"
 msgstr "Ervaring"
@@ -3426,7 +3418,7 @@ msgid "All Experience Levels"
 msgstr "Alle ervaringsniveaus"
 
 #: blocks/job-filters/render.php:109
-#: blocks/job-form-simple/render.php:538
+#: blocks/job-form-simple/render.php:549
 msgid "Minimum salary"
 msgstr "Minimumsalaris"
 
@@ -3435,7 +3427,7 @@ msgid "Min salary"
 msgstr "Min. salaris"
 
 #: blocks/job-filters/render.php:110
-#: blocks/job-form-simple/render.php:539
+#: blocks/job-form-simple/render.php:550
 msgid "Maximum salary"
 msgstr "Maximumsalaris"
 
@@ -3444,8 +3436,8 @@ msgid "Max salary"
 msgstr "Max. salaris"
 
 #: blocks/job-filters/render.php:122
-#: blocks/job-listings/render.php:503
-#: blocks/job-listings/render.php:692
+#: blocks/job-listings/render.php:502
+#: blocks/job-listings/render.php:691
 msgid "Remote only"
 msgstr "Alleen op afstand"
 
@@ -3487,78 +3479,78 @@ msgstr[0] "%s credit"
 msgstr[1] "%s credits"
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance.
-#: blocks/job-form-simple/render.php:260
+#: blocks/job-form-simple/render.php:263
 #: blocks/job-form/render.php:232
 #, php-format
 msgid "This board requires %1$s. Your balance: %2$s. Please purchase more credits."
 msgstr "Dit bord vereist %1$s. Je saldo: %2$s. Koop alstublieft meer credits."
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: balance after deduction, 3: current balance.
-#: blocks/job-form-simple/render.php:264
+#: blocks/job-form-simple/render.php:267
 #: blocks/job-form/render.php:254
 #, php-format
 msgid "Posting deducts %1$s. Balance after: %2$s (currently %3$s)."
 msgstr "Plaatsen trekt %1$s af. Saldo erna: %2$s (momenteel %3$s)."
 
-#: blocks/job-form-simple/render.php:273
-#: blocks/job-form/render.php:423
+#: blocks/job-form-simple/render.php:276
+#: blocks/job-form/render.php:428
 msgid "Enter a job title first so AI can generate a description."
 msgstr "Voer eerst een vacaturetitel in zodat AI een beschrijving kan genereren."
 
-#: blocks/job-form-simple/render.php:274
-#: blocks/job-form/render.php:424
+#: blocks/job-form-simple/render.php:277
+#: blocks/job-form/render.php:429
 msgid "Failed to generate description. Please try again."
 msgstr "Beschrijving genereren mislukt. Probeer het opnieuw."
 
-#: blocks/job-form-simple/render.php:279
+#: blocks/job-form-simple/render.php:282
 msgid "Job description is required."
 msgstr "Vacaturebeschrijving is verplicht."
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance.
-#: blocks/job-form-simple/render.php:281
+#: blocks/job-form-simple/render.php:285
 #: blocks/job-form/render.php:263
 #, php-format
 msgid "Insufficient credits. This board requires %1$s but your balance is %2$s."
 msgstr "Onvoldoende credits. Dit bord vereist %1$s maar je saldo is %2$s."
 
-#: blocks/job-form-simple/render.php:283
-#: blocks/job-form/render.php:418
+#: blocks/job-form-simple/render.php:287
+#: blocks/job-form/render.php:423
 msgid "Job could not be posted. Please try again."
 msgstr "De vacature kon niet worden geplaatst. Probeer het opnieuw."
 
-#: blocks/job-form-simple/render.php:316
+#: blocks/job-form-simple/render.php:327
 msgid "Job posted"
 msgstr "Vacature geplaatst"
 
-#: blocks/job-form-simple/render.php:325
+#: blocks/job-form-simple/render.php:336
 msgid "View your job"
 msgstr "Bekijk je vacature"
 
-#: blocks/job-form-simple/render.php:353
+#: blocks/job-form-simple/render.php:364
 msgid "About the role"
 msgstr "Over de rol"
 
-#: blocks/job-form-simple/render.php:358
-#: blocks/job-form/render.php:580
+#: blocks/job-form-simple/render.php:369
+#: blocks/job-form/render.php:592
 msgid "Post to Board"
 msgstr "Plaatsen op bord"
 
-#: blocks/job-form-simple/render.php:406
-#: blocks/job-form/render.php:625
+#: blocks/job-form-simple/render.php:417
+#: blocks/job-form/render.php:637
 msgid "e.g. Senior PHP Developer"
 msgstr "bijv. Senior PHP Developer"
 
-#: blocks/job-form-simple/render.php:425
-#: blocks/job-form/render.php:649
+#: blocks/job-form-simple/render.php:436
+#: blocks/job-form/render.php:661
 msgid "Generate with AI"
 msgstr "Genereer met AI"
 
-#: blocks/job-form-simple/render.php:426
-#: blocks/job-form/render.php:650
+#: blocks/job-form-simple/render.php:437
+#: blocks/job-form/render.php:662
 msgid "Generating…"
 msgstr "Genereren…"
 
-#: blocks/job-form-simple/render.php:450
+#: blocks/job-form-simple/render.php:461
 msgid "Classification"
 msgstr "Classificatie"
 
@@ -3566,117 +3558,117 @@ msgstr "Classificatie"
 msgid "Select a category"
 msgstr "Selecteer een categorie"
 
-#: blocks/job-form-simple/render.php:462
-#: blocks/job-form/render.php:902
+#: blocks/job-form-simple/render.php:473
+#: blocks/job-form/render.php:914
 msgid "Select a job type"
 msgstr "Selecteer een soort functie"
 
-#: blocks/job-form-simple/render.php:471
-#: blocks/job-form/render.php:927
+#: blocks/job-form-simple/render.php:482
+#: blocks/job-form/render.php:939
 msgid "Select a location"
 msgstr "Selecteer een locatie"
 
-#: blocks/job-form-simple/render.php:475
-#: blocks/job-form/render.php:933
+#: blocks/job-form-simple/render.php:486
+#: blocks/job-form/render.php:945
 msgid "Other (enter manually)…"
 msgstr "Overig (handmatig invoeren)…"
 
-#: blocks/job-form-simple/render.php:485
-#: blocks/job-form/render.php:943
+#: blocks/job-form-simple/render.php:496
+#: blocks/job-form/render.php:955
 msgid "Custom location"
 msgstr "Aangepaste locatie"
 
-#: blocks/job-form-simple/render.php:486
-#: blocks/job-form/render.php:944
+#: blocks/job-form-simple/render.php:497
+#: blocks/job-form/render.php:956
 msgid "e.g. Berlin, DE or Remote - Europe"
 msgstr "bijv. Berlijn, DE of Extern - Europa"
 
-#: blocks/job-form-simple/render.php:493
-#: blocks/job-form/render.php:961
+#: blocks/job-form-simple/render.php:504
+#: blocks/job-form/render.php:973
 msgid "Select experience level"
 msgstr "Selecteer ervaringsniveau"
 
-#: blocks/job-form-simple/render.php:502
-#: blocks/job-form/render.php:974
+#: blocks/job-form-simple/render.php:513
+#: blocks/job-form/render.php:986
 msgid "Skills / Tags"
 msgstr "Vaardigheden / Tags"
 
-#: blocks/job-form-simple/render.php:507
-#: blocks/job-form/render.php:980
+#: blocks/job-form-simple/render.php:518
+#: blocks/job-form/render.php:992
 msgid "e.g. React, TypeScript, Node.js"
 msgstr "bijv. React, TypeScript, Node.js"
 
-#: blocks/job-form-simple/render.php:512
+#: blocks/job-form-simple/render.php:523
 msgid "Comma-separated."
 msgstr "Door komma's gescheiden."
 
-#: blocks/job-form-simple/render.php:518
+#: blocks/job-form-simple/render.php:529
 msgid "Compensation & schedule"
 msgstr "Vergoeding & schema"
 
-#: blocks/job-form-simple/render.php:521
-#: blocks/job-form/render.php:703
+#: blocks/job-form-simple/render.php:532
+#: blocks/job-form/render.php:715
 msgid "Salary Range"
 msgstr "Salariswaaier"
 
-#: blocks/job-form-simple/render.php:538
-#: blocks/job-form/render.php:734
+#: blocks/job-form-simple/render.php:549
+#: blocks/job-form/render.php:746
 #: core/class-form-custom-fields.php:518
 msgid "Min"
 msgstr "Min"
 
-#: blocks/job-form-simple/render.php:539
-#: blocks/job-form/render.php:749
+#: blocks/job-form-simple/render.php:550
+#: blocks/job-form/render.php:761
 #: core/class-form-custom-fields.php:519
 msgid "Max"
 msgstr "Max"
 
-#: blocks/job-form-simple/render.php:540
+#: blocks/job-form-simple/render.php:551
 msgid "Period"
 msgstr "Periode"
 
-#: blocks/job-form-simple/render.php:546
-#: blocks/job-form/render.php:782
+#: blocks/job-form-simple/render.php:557
+#: blocks/job-form/render.php:794
 msgid "Leave blank to hide salary from candidates."
 msgstr "Laat leeg om het salaris voor kandidaten te verbergen."
 
-#: blocks/job-form-simple/render.php:566
+#: blocks/job-form-simple/render.php:577
 msgid "How candidates apply"
 msgstr "Hoe kandidaten solliciteren"
 
 #: admin/class-admin-meta-boxes.php:338
-#: blocks/job-form-simple/render.php:570
-#: blocks/job-form/render.php:821
+#: blocks/job-form-simple/render.php:581
+#: blocks/job-form/render.php:833
 msgid "Apply URL"
 msgstr "URL voor sollicitatie"
 
-#: blocks/job-form-simple/render.php:571
+#: blocks/job-form-simple/render.php:582
 msgid "https://yourcompany.com/careers/apply"
 msgstr "https://yourcompany.com/careers/apply"
 
 #: admin/class-admin-meta-boxes.php:342
-#: blocks/job-form-simple/render.php:574
-#: blocks/job-form/render.php:840
-#: blocks/job-single/render.php:758
+#: blocks/job-form-simple/render.php:585
+#: blocks/job-form/render.php:852
+#: blocks/job-single/render.php:757
 msgid "Apply Email"
 msgstr "E-mailadres voor sollicitatie"
 
-#: blocks/job-form-simple/render.php:575
+#: blocks/job-form-simple/render.php:586
 msgid "jobs@yourcompany.com"
 msgstr "jobs@yourcompany.com"
 
-#: blocks/job-form-simple/render.php:606
+#: blocks/job-form-simple/render.php:617
 msgid "Additional details"
 msgstr "Aanvullende details"
 
-#: blocks/job-form-simple/render.php:637
-#: blocks/job-form/render.php:430
-#: blocks/job-form/render.php:1124
+#: blocks/job-form-simple/render.php:648
+#: blocks/job-form/render.php:435
+#: blocks/job-form/render.php:1136
 msgid "Post Job"
 msgstr "Functie plaatsen"
 
-#: blocks/job-form-simple/render.php:638
-#: blocks/job-form/render.php:1127
+#: blocks/job-form-simple/render.php:649
+#: blocks/job-form/render.php:1139
 msgid "Posting…"
 msgstr "Plaatsen…"
 
@@ -3688,159 +3680,159 @@ msgstr "Een functie plaatsen is voor werkgevers. Registreer je als werkgever om 
 msgid "You are not authorized to edit this job."
 msgstr "Je bent niet gemachtigd om deze functie te bewerken."
 
-#: blocks/job-form/render.php:419
+#: blocks/job-form/render.php:424
 msgid "Job title is required before you can continue."
 msgstr "Vacaturetitel is verplicht voordat je verder kunt gaan."
 
-#: blocks/job-form/render.php:420
+#: blocks/job-form/render.php:425
 msgid "Job description is required before you can continue."
 msgstr "Jobomschrijving is vereist voordat je verder kunt gaan."
 
-#: blocks/job-form/render.php:427
+#: blocks/job-form/render.php:432
 msgid "Insufficient credits to post on this board."
 msgstr "Onvoldoende credits om op dit bord te plaatsen."
 
-#: blocks/job-form/render.php:431
-#: blocks/job-form/render.php:1124
+#: blocks/job-form/render.php:436
+#: blocks/job-form/render.php:1136
 msgid "Update Job"
 msgstr "Vacature bijwerken"
 
 #. translators: %s: localized application deadline date.
-#: blocks/job-form/render.php:441
-#: blocks/job-single/render.php:541
+#: blocks/job-form/render.php:446
+#: blocks/job-single/render.php:540
 #, php-format
 msgid "Apply by %s"
 msgstr "Solliciteer vóór %s"
 
-#: blocks/job-form/render.php:460
+#: blocks/job-form/render.php:465
 msgid "Basics"
 msgstr "Basis"
 
-#: blocks/job-form/render.php:461
+#: blocks/job-form/render.php:466
 msgid "Details"
 msgstr "Details"
 
-#: blocks/job-form/render.php:462
+#: blocks/job-form/render.php:467
 #: templates/parts/job-category-field.php:82
 msgid "Categories"
 msgstr "Categorieën"
 
 #: admin/class-email-settings.php:220
-#: blocks/job-form/render.php:463
+#: blocks/job-form/render.php:468
 msgid "Preview"
 msgstr "Voorbeeld"
 
-#: blocks/job-form/render.php:482
+#: blocks/job-form/render.php:494
 msgid "Form progress"
 msgstr "Formuliervoortgang"
 
-#: blocks/job-form/render.php:530
+#: blocks/job-form/render.php:542
 msgid "Buy Credits →"
 msgstr "Kredieten kopen →"
 
-#: blocks/job-form/render.php:540
+#: blocks/job-form/render.php:552
 msgid "Job posted successfully!"
 msgstr "Functie succesvol geplaatst!"
 
-#: blocks/job-form/render.php:544
+#: blocks/job-form/render.php:556
 msgid "Job submitted for review. You'll be notified once it's approved."
 msgstr "Functie ingediend voor beoordeling. Je wordt op de hoogte gesteld wanneer deze is goedgekeurd."
 
-#: blocks/job-form/render.php:554
+#: blocks/job-form/render.php:566
 msgid "View your job listing →"
 msgstr "Bekijk je functieplaatsing →"
 
-#: blocks/job-form/render.php:562
+#: blocks/job-form/render.php:574
 msgid "Post another job"
 msgstr "Plaats nog een functie"
 
-#: blocks/job-form/render.php:574
+#: blocks/job-form/render.php:586
 msgid "Job Basics"
 msgstr "Functiebasis"
 
-#: blocks/job-form/render.php:688
+#: blocks/job-form/render.php:700
 msgid "Next: Details"
 msgstr "Volgende: Details"
 
-#: blocks/job-form/render.php:833
+#: blocks/job-form/render.php:845
 msgid "Link to your external ATS or application form."
 msgstr "Link naar je externe ATS of sollicitatieformulier."
 
-#: blocks/job-form/render.php:852
+#: blocks/job-form/render.php:864
 msgid "Candidates can apply directly by email."
 msgstr "Kandidaten kunnen zich rechtstreeks per e-mail aanmelden."
 
-#: blocks/job-form/render.php:868
-#: blocks/job-form/render.php:1006
-#: blocks/job-form/render.php:1115
+#: blocks/job-form/render.php:880
+#: blocks/job-form/render.php:1018
+#: blocks/job-form/render.php:1127
 msgid "← Back"
 msgstr "← Terug"
 
-#: blocks/job-form/render.php:871
+#: blocks/job-form/render.php:883
 msgid "Next: Categories"
 msgstr "Volgende: Categorieën"
 
-#: blocks/job-form/render.php:880
+#: blocks/job-form/render.php:892
 msgid "Classify Your Job"
 msgstr "Classificeer je vacature"
 
-#: blocks/job-form/render.php:952
-#: modules/jobs/class-jobs-module.php:360
+#: blocks/job-form/render.php:964
+#: modules/jobs/class-jobs-module.php:372
 msgid "Experience Level"
 msgstr "Ervaringsniveau"
 
-#: blocks/job-form/render.php:986
+#: blocks/job-form/render.php:998
 msgid "Comma-separated. Helps candidates find your job via keyword search."
 msgstr "Door komma's gescheiden. Helpt kandidaten je vacature via zoeken op trefwoorden te vinden."
 
-#: blocks/job-form/render.php:1009
+#: blocks/job-form/render.php:1021
 msgid "Preview Job"
 msgstr "Vacature bekijken"
 
-#: blocks/job-form/render.php:1018
+#: blocks/job-form/render.php:1030
 msgid "Preview & Submit"
 msgstr "Bekijken en indienen"
 
-#: blocks/job-form/render.php:1086
+#: blocks/job-form/render.php:1098
 msgid "Review the details above. Go back to make changes before submitting."
 msgstr "Controleer de details hierboven. Ga terug om wijzigingen aan te brengen voordat je indient."
 
-#: blocks/job-listings/render.php:497
-#: blocks/job-listings/render.php:859
-#: blocks/job-single/render.php:380
-#: blocks/job-single/render.php:555
-#: blocks/job-single/render.php:559
+#: blocks/job-listings/render.php:496
+#: blocks/job-listings/render.php:858
+#: blocks/job-single/render.php:379
+#: blocks/job-single/render.php:554
+#: blocks/job-single/render.php:558
 msgid "Save job"
 msgstr "Vacature opslaan"
 
-#: blocks/job-listings/render.php:500
+#: blocks/job-listings/render.php:499
 msgid "Any"
 msgstr "Alle"
 
-#: blocks/job-listings/render.php:540
+#: blocks/job-listings/render.php:539
 msgid "Sort jobs"
 msgstr "Vacatures sorteren"
 
-#: blocks/job-listings/render.php:572
+#: blocks/job-listings/render.php:571
 msgid "Filter jobs"
 msgstr "Vacatures filteren"
 
 #: blocks/job-filters/render.php:81
-#: blocks/job-form-simple/render.php:460
-#: blocks/job-form/render.php:893
-#: blocks/job-listings/render.php:597
+#: blocks/job-form-simple/render.php:471
+#: blocks/job-form/render.php:905
+#: blocks/job-listings/render.php:596
 #: blocks/job-search-hero/render.php:101
-#: blocks/job-single/render.php:716
+#: blocks/job-single/render.php:715
 #: blocks/job-listings/index.js:18
 msgid "Job type"
 msgstr "Type vacature"
 
-#: blocks/job-listings/render.php:667
+#: blocks/job-listings/render.php:666
 #: blocks/job-listings/index.js:21
 msgid "Tags"
 msgstr "Tags"
 
-#: blocks/job-listings/render.php:704
+#: blocks/job-listings/render.php:703
 #: modules/boards/class-boards-module.php:68
 #: blocks/job-listings/index.js:23
 #: blocks/job-listings/index.js:136
@@ -3848,37 +3840,37 @@ msgid "Job board"
 msgstr "Vacaturebord"
 
 #: admin/class-admin-import.php:80
-#: blocks/job-listings/render.php:735
-#: blocks/job-single/render.php:744
-#: modules/jobs/class-jobs-module.php:195
+#: blocks/job-listings/render.php:734
+#: blocks/job-single/render.php:743
+#: modules/jobs/class-jobs-module.php:201
 #: blocks/job-listings/index.js:24
 msgid "Salary"
 msgstr "Salaris"
 
-#: blocks/job-listings/render.php:738
+#: blocks/job-listings/render.php:737
 msgid "Minimum"
 msgstr "Minimaal"
 
-#: blocks/job-listings/render.php:753
+#: blocks/job-listings/render.php:752
 msgid "Maximum"
 msgstr "Maximaal"
 
-#: blocks/job-listings/render.php:770
+#: blocks/job-listings/render.php:769
 msgid "Reset"
 msgstr "Opnieuw instellen"
 
-#: blocks/job-listings/render.php:797
+#: blocks/job-listings/render.php:796
 msgid "Remove filter"
 msgstr "Filter verwijderen"
 
 #: blocks/employer-dashboard/render.php:874
-#: blocks/job-listings/render.php:868
-#: blocks/job-single/render.php:433
+#: blocks/job-listings/render.php:867
+#: blocks/job-single/render.php:432
 msgid "Featured"
 msgstr "Uitgelicht"
 
 #: admin/class-admin-jobs.php:381
-#: blocks/job-listings/render.php:912
+#: blocks/job-listings/render.php:911
 msgid "No jobs match your filters"
 msgstr "Geen vacatures die aan je filters voldoen"
 
@@ -3887,205 +3879,205 @@ msgstr "Geen vacatures die aan je filters voldoen"
 msgid "Search"
 msgstr "Zoeken"
 
-#: blocks/job-single/render.php:381
+#: blocks/job-single/render.php:380
 msgid "Please enter your name and email to apply."
 msgstr "Voer je naam en e-mailadres in om te solliciteren."
 
-#: blocks/job-single/render.php:382
+#: blocks/job-single/render.php:381
 msgid "Please attach your resume to apply."
 msgstr "Voeg je cv toe om te solliciteren."
 
-#: blocks/job-single/render.php:383
+#: blocks/job-single/render.php:382
 msgid "Application could not be submitted. Please try again."
 msgstr "De sollicitatie kon niet worden ingediend. Probeer het opnieuw."
 
-#: blocks/job-single/render.php:385
+#: blocks/job-single/render.php:384
 msgid "Please choose a reason for reporting."
 msgstr "Kies een reden voor het rapporteren."
 
-#: blocks/job-single/render.php:386
+#: blocks/job-single/render.php:385
 msgid "Could not submit your report. Please try again."
 msgstr "Je rapport kon niet worden ingediend. Probeer het opnieuw."
 
-#: blocks/job-single/render.php:387
+#: blocks/job-single/render.php:386
 msgid "Write with AI"
 msgstr "Schrijven met AI"
 
-#: blocks/job-single/render.php:388
+#: blocks/job-single/render.php:387
 msgid "Writing…"
 msgstr "Schrijven…"
 
-#: blocks/job-single/render.php:466
+#: blocks/job-single/render.php:465
 msgid "Posted today"
 msgstr "Vandaag geplaatst"
 
-#: blocks/job-single/render.php:468
+#: blocks/job-single/render.php:467
 msgid "Posted yesterday"
 msgstr "Gisteren geplaatst"
 
 #. translators: %s: number of days since the job was posted, already localised.
-#: blocks/job-single/render.php:475
+#: blocks/job-single/render.php:474
 #, php-format
 msgid "Posted %s day ago"
 msgid_plural "Posted %s days ago"
 msgstr[0] "Geplaatst %s dag geleden"
 msgstr[1] "Geplaatst %s dagen geleden"
 
-#: blocks/job-single/render.php:489
-#: blocks/job-single/render.php:809
+#: blocks/job-single/render.php:488
+#: blocks/job-single/render.php:808
 #: core/class-abilities.php:240
 msgid "View Applications"
 msgstr "Bekijk sollicitaties"
 
-#: blocks/job-single/render.php:508
-#: blocks/job-single/render.php:820
+#: blocks/job-single/render.php:507
+#: blocks/job-single/render.php:819
 msgid "Apply on Company Site ↗"
 msgstr "Solliciteer op de bedrijfswebsite ↗"
 
-#: blocks/job-single/render.php:531
+#: blocks/job-single/render.php:530
 msgid "Get notified about similar jobs"
 msgstr "Ontvang meldingen over vergelijkbare banen"
 
-#: blocks/job-single/render.php:533
+#: blocks/job-single/render.php:532
 msgid "You will be notified about similar jobs"
 msgstr "Je ontvangt meldingen over vergelijkbare banen"
 
-#: blocks/job-single/render.php:556
+#: blocks/job-single/render.php:555
 msgid "Save this job"
 msgstr "Sla deze baan op"
 
-#: blocks/job-single/render.php:583
+#: blocks/job-single/render.php:582
 msgid "About This Role"
 msgstr "Over deze rol"
 
-#: blocks/job-single/render.php:675
+#: blocks/job-single/render.php:674
 msgid "Skills & Tags"
 msgstr "Vaardigheden & tags"
 
-#: blocks/job-single/render.php:736
+#: blocks/job-single/render.php:735
 msgid "Work Mode"
 msgstr "Werkmodel"
 
-#: blocks/job-single/render.php:738
+#: blocks/job-single/render.php:737
 msgid "On-site"
 msgstr "Op kantoor"
 
 #. translators: %s: job title
-#: blocks/job-single/render.php:763
+#: blocks/job-single/render.php:762
 #, php-format
 msgid "Application for %s"
 msgstr "Sollicitatie voor %s"
 
-#: blocks/job-single/render.php:771
+#: blocks/job-single/render.php:770
 msgid "Apply Via"
 msgstr "Solliciteer via"
 
 #. translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales.
-#: blocks/job-single/render.php:785
-#: blocks/job-single/render.php:975
+#: blocks/job-single/render.php:784
+#: blocks/job-single/render.php:974
 #, php-format
 msgid "%s ↗"
 msgstr "%s ↗"
 
-#: blocks/job-single/render.php:786
+#: blocks/job-single/render.php:785
 msgid "External site"
 msgstr "Externe website"
 
-#: blocks/job-single/render.php:854
+#: blocks/job-single/render.php:853
 msgid "Share"
 msgstr "Delen"
 
-#: blocks/job-single/render.php:862
+#: blocks/job-single/render.php:861
 msgid "Share on X"
 msgstr "Delen op X"
 
-#: blocks/job-single/render.php:871
+#: blocks/job-single/render.php:870
 msgid "Share on LinkedIn"
 msgstr "Delen op LinkedIn"
 
-#: blocks/job-single/render.php:879
+#: blocks/job-single/render.php:878
 msgid "Copy link"
 msgstr "Link kopiëren"
 
 #. translators: The → is a "go to" affordance. Flip it to ← (or drop it) for RTL locales.
-#: blocks/job-single/render.php:960
+#: blocks/job-single/render.php:959
 msgid "View Company Profile →"
 msgstr "Bekijk bedrijfsprofiel →"
 
-#: blocks/job-single/render.php:998
+#: blocks/job-single/render.php:997
 msgid "Report this job"
 msgstr "Rapporteer deze baan"
 
-#: blocks/job-single/render.php:1003
+#: blocks/job-single/render.php:1002
 msgid "Why are you reporting this job?"
 msgstr "Waarom rapporteer je deze baan?"
 
-#: blocks/job-single/render.php:1010
+#: blocks/job-single/render.php:1009
 msgid "- Select a reason -"
 msgstr "- Kies een reden -"
 
-#: blocks/job-single/render.php:1026
+#: blocks/job-single/render.php:1025
 msgid "Submit report"
 msgstr "Rapport indienen"
 
-#: blocks/job-single/render.php:1033
+#: blocks/job-single/render.php:1032
 msgid "Thanks - this job has been reported for review."
 msgstr "Bedankt - deze baan is ingediend voor beoordeling."
 
-#: blocks/job-single/render.php:1058
+#: blocks/job-single/render.php:1057
 msgid "Close application panel"
 msgstr "Sluit het sollicitatiepaneel"
 
-#: blocks/job-single/render.php:1062
+#: blocks/job-single/render.php:1061
 msgid "Apply for this job"
 msgstr "Solliciteer op deze baan"
 
-#: blocks/job-single/render.php:1076
+#: blocks/job-single/render.php:1075
 msgid "Your Name"
 msgstr "Jouw naam"
 
-#: blocks/job-single/render.php:1088
+#: blocks/job-single/render.php:1087
 msgid "Your Email"
 msgstr "Jouw e-mailadres"
 
-#: blocks/job-single/render.php:1107
+#: blocks/job-single/render.php:1106
 msgid "Select Resume"
 msgstr "Selecteer CV"
 
-#: blocks/job-single/render.php:1126
+#: blocks/job-single/render.php:1125
 msgid "Upload a different file instead"
 msgstr "Upload in plaats daarvan een ander bestand"
 
-#: blocks/job-single/render.php:1131
+#: blocks/job-single/render.php:1130
 msgid "No saved resume yet."
 msgstr "Nog geen CV opgeslagen."
 
-#: blocks/job-single/render.php:1135
+#: blocks/job-single/render.php:1134
 msgid "Build a resume →"
 msgstr "Bouw een CV →"
 
-#: blocks/job-single/render.php:1148
-#: blocks/job-single/render.php:1177
+#: blocks/job-single/render.php:1147
+#: blocks/job-single/render.php:1176
 msgid "(optional)"
 msgstr "(optioneel)"
 
-#: blocks/job-single/render.php:1155
+#: blocks/job-single/render.php:1154
 msgid "Click to upload resume"
 msgstr "Klik om CV te uploaden"
 
 #. translators: %s: max upload size in MB, already localised.
-#: blocks/job-single/render.php:1159
+#: blocks/job-single/render.php:1158
 #, php-format
 msgid "PDF, DOC or DOCX  -  max %s MB"
 msgstr "PDF, DOC of DOCX  -  max %s MB"
 
-#: blocks/job-single/render.php:1188
+#: blocks/job-single/render.php:1187
 msgid "Tell the employer why you are a great fit for this role…"
 msgstr "Vertel de werkgever waarom jij perfect voor deze rol bent…"
 
 #: blocks/employer-dashboard/render.php:1060
-#: blocks/job-single/render.php:1176
-#: blocks/job-single/render.php:1195
+#: blocks/job-single/render.php:1175
+#: blocks/job-single/render.php:1194
 #: core/class-applications-csv.php:63
 #: modules/applications/widgets/class-cover-letter.php:43
 #: modules/applications/widgets/class-cover-letter.php:77
@@ -4093,11 +4085,11 @@ msgstr "Vertel de werkgever waarom jij perfect voor deze rol bent…"
 msgid "Cover letter"
 msgstr "Motivatiebrief"
 
-#: blocks/job-single/render.php:1278
+#: blocks/job-single/render.php:1277
 msgid "Submit Application"
 msgstr "Sollicitatie indienen"
 
-#: blocks/job-single/render.php:1279
+#: blocks/job-single/render.php:1278
 msgid "Submitting…"
 msgstr "Bezig met indienen…"
 
@@ -4307,35 +4299,35 @@ msgstr "WP Career Board vereist PHP 8.1+ en WordPress 6.9+."
 msgid "Plugin Activation Error"
 msgstr "Fout bij pluginactivering"
 
-#: core/class-plugin.php:700
+#: core/class-plugin.php:719
 msgid "Full Job Board"
 msgstr "Volledig jobboard"
 
-#: core/class-plugin.php:701
+#: core/class-plugin.php:720
 msgid "Search bar, filters, and job listings grid  -  the complete job board page."
 msgstr "Zoekbalk, filters en joblijstingsraster  -  de volledige jobboard-pagina."
 
-#: core/class-plugin.php:716
+#: core/class-plugin.php:735
 msgid "Post a Job Form"
 msgstr "Formulier voor het plaatsen van een vacature"
 
-#: core/class-plugin.php:717
+#: core/class-plugin.php:736
 msgid "Multi-step job posting form for employers."
 msgstr "Meertraps-formulier voor het plaatsen van vacatures voor werkgevers."
 
-#: core/class-plugin.php:724
+#: core/class-plugin.php:743
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr "Dashboard met tabbladen voor werkgevers om vacatures en sollicitaties te beheren."
 
-#: core/class-plugin.php:731
+#: core/class-plugin.php:750
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr "Dashboard met tabbladen voor kandidaten om sollicitaties en opgeslagen vacatures bij te houden."
 
-#: core/class-plugin.php:737
+#: core/class-plugin.php:756
 msgid "Company Directory"
 msgstr "Bedrijfsadressenboek"
 
-#: core/class-plugin.php:738
+#: core/class-plugin.php:757
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr "Interactief raster van bedrijfsprofielen van werkgevers met filters op branche en grootte."
 
@@ -4347,12 +4339,12 @@ msgid "Up to %s"
 msgstr "Tot %s"
 
 #. translators: 1: linked author name, 2: linked job title
-#: integrations/buddypress/class-bp-integration.php:131
+#: integrations/buddypress/class-bp-integration.php:166
 #, php-format
 msgid "%1$s posted a new job: %2$s"
 msgstr "%1$s heeft een nieuwe vacature geplaatst: %2$s"
 
-#: integrations/buddyxpro/class-buddyx-pro-integration.php:110
+#: integrations/buddyxpro/class-buddyx-pro-integration.php:116
 msgid "#OpenToWork"
 msgstr "#OpenToWork"
 
@@ -4581,7 +4573,7 @@ msgstr "Sollicitatie ingediend"
 msgid "No cover letter submitted."
 msgstr "Geen motivatiebrief ingediend."
 
-#: admin/class-admin.php:713
+#: admin/class-admin.php:717
 #: modules/applications/widgets/class-quick-actions.php:43
 #: modules/applications/widgets/class-quick-actions.php:101
 msgid "Quick actions"
@@ -4670,24 +4662,24 @@ msgstr "Geen CV's gevonden."
 msgid "No resumes found in Trash."
 msgstr "Geen CV's gevonden in Prullenbak."
 
-#: modules/employers/class-employers-module.php:626
+#: modules/employers/class-employers-module.php:636
 msgid "Add New Company"
 msgstr "Nieuw bedrijf toevoegen"
 
-#: modules/employers/class-employers-module.php:627
+#: modules/employers/class-employers-module.php:637
 msgid "Edit Company"
 msgstr "Bedrijf bewerken"
 
-#: modules/employers/class-employers-module.php:629
+#: modules/employers/class-employers-module.php:639
 msgid "No companies found."
 msgstr "Geen bedrijven gevonden."
 
-#: modules/employers/class-employers-module.php:630
+#: modules/employers/class-employers-module.php:640
 msgid "No companies found in Trash."
 msgstr "Geen bedrijven gevonden in Prullenbak."
 
 #. translators: %s: number of expired jobs
-#: modules/jobs/class-jobs-expiry.php:153
+#: modules/jobs/class-jobs-expiry.php:156
 #, php-format
 msgid "Expired <span class=\"count\">(%s)</span>"
 msgid_plural "Expired <span class=\"count\">(%s)</span>"
@@ -4695,34 +4687,34 @@ msgstr[0] "Verlopen <span class=\"count\">(%s)</span>"
 msgstr[1] "Verlopen <span class=\"count\">(%s)</span>"
 
 #. translators: %s: number of closed jobs
-#: modules/jobs/class-jobs-expiry.php:179
+#: modules/jobs/class-jobs-expiry.php:182
 #, php-format
 msgid "Closed <span class=\"count\">(%s)</span>"
 msgid_plural "Closed <span class=\"count\">(%s)</span>"
 msgstr[0] "Gesloten <span class=\"count\">(%s)</span>"
 msgstr[1] "Gesloten <span class=\"count\">(%s)</span>"
 
-#: blocks/job-listings/render.php:888
-#: blocks/job-single/render.php:751
-#: modules/jobs/class-jobs-module.php:200
+#: blocks/job-listings/render.php:887
+#: blocks/job-single/render.php:750
+#: modules/jobs/class-jobs-module.php:206
 msgid "Apply by"
 msgstr "Solliciteer via"
 
-#: blocks/job-form/render.php:477
-#: modules/jobs/class-jobs-module.php:266
+#: blocks/job-form/render.php:484
+#: modules/jobs/class-jobs-module.php:278
 msgid "Edit Job"
 msgstr "Vacature bewerken"
 
-#: modules/jobs/class-jobs-module.php:269
+#: modules/jobs/class-jobs-module.php:281
 msgid "No jobs found."
 msgstr "Geen vacatures gevonden."
 
-#: modules/jobs/class-jobs-module.php:270
+#: modules/jobs/class-jobs-module.php:282
 msgid "No jobs found in Trash."
 msgstr "Geen vacatures gevonden in Prullenbak."
 
-#: modules/jobs/class-jobs-module.php:345
-#: modules/jobs/class-jobs-module.php:346
+#: modules/jobs/class-jobs-module.php:357
+#: modules/jobs/class-jobs-module.php:358
 msgid "Locations"
 msgstr "Locaties"
 
@@ -4773,8 +4765,8 @@ msgstr "Bevestiging sollicitatie (Kandidaat)"
 msgid "Application submitted successfully"
 msgstr "Sollicitatie succesvol ingediend"
 
-#: blocks/job-single/render.php:520
-#: blocks/job-single/render.php:832
+#: blocks/job-single/render.php:519
+#: blocks/job-single/render.php:831
 #: modules/notifications/emails/class-email-app-confirmation.php:68
 msgid "Application submitted"
 msgstr "Sollicitatie ingediend"
@@ -4802,8 +4794,8 @@ msgstr "Mijn sollicitaties bekijken"
 msgid "Candidate name"
 msgstr "Naam kandidaat"
 
-#: blocks/job-form-simple/render.php:399
-#: blocks/job-form/render.php:618
+#: blocks/job-form-simple/render.php:410
+#: blocks/job-form/render.php:630
 #: core/class-applications-csv.php:58
 #: modules/notifications/emails/class-email-app-confirmation.php:87
 #: modules/notifications/emails/class-email-app-guest.php:87
@@ -4922,8 +4914,8 @@ msgstr "Sollicitatietermijn nadert voor {job_title}"
 msgid "Your saved job is closing soon"
 msgstr "Je opgeslagen vacature sluit binnenkort"
 
-#: blocks/job-single/render.php:517
-#: blocks/job-single/render.php:829
+#: blocks/job-single/render.php:516
+#: blocks/job-single/render.php:828
 #: modules/notifications/emails/class-email-deadline-reminder.php:80
 msgid "Apply now"
 msgstr "Solliciteer nu"
@@ -5155,12 +5147,12 @@ msgstr "Filterzijbalk"
 msgid "Reorder filters with the arrows, or hide ones you do not need."
 msgstr "Sorteer filters met de pijlen, of verberg de filters die je niet nodig hebt."
 
-#: core/class-plugin.php:1211
+#: core/class-plugin.php:1233
 #: blocks/job-listings/index.js:191
 msgid "Move up"
 msgstr "Omhoog verplaatsen"
 
-#: core/class-plugin.php:1214
+#: core/class-plugin.php:1236
 #: blocks/job-listings/index.js:192
 msgid "Move down"
 msgstr "Omlaag verplaatsen"
@@ -5335,12 +5327,12 @@ msgctxt "salary figure then period"
 msgid "%1$s%2$s"
 msgstr "%1$s%2$s"
 
-#: modules/jobs/class-jobs-expiry.php:147
+#: modules/jobs/class-jobs-expiry.php:150
 msgctxt "job post status"
 msgid "Expired"
 msgstr "Verlopen"
 
-#: modules/jobs/class-jobs-expiry.php:173
+#: modules/jobs/class-jobs-expiry.php:176
 msgctxt "job post status"
 msgid "Closed"
 msgstr "Gesloten"
@@ -5562,7 +5554,7 @@ msgstr "Alle functies tonen"
 msgid "Export all matching to CSV"
 msgstr "Alle overeenkomsten naar CSV exporteren"
 
-#: admin/class-admin-applications.php:600
+#: admin/class-admin-applications.php:597
 #: admin/class-admin-candidates.php:383
 #: blocks/employer-dashboard/render.php:1076
 #: modules/applications/widgets/class-applicant-card.php:128
@@ -5570,7 +5562,7 @@ msgstr "Alle overeenkomsten naar CSV exporteren"
 msgid "View resume"
 msgstr "CV bekijken"
 
-#: admin/class-admin-applications.php:654
+#: admin/class-admin-applications.php:651
 msgid "Show only this job's applications"
 msgstr "Alleen sollicitaties van deze functie tonen"
 
@@ -5589,7 +5581,7 @@ msgid "Public"
 msgstr "Openbaar"
 
 #: admin/class-admin-employers.php:560
-#: modules/employers/class-employers-module.php:628
+#: modules/employers/class-employers-module.php:638
 msgid "View company"
 msgstr "Bedrijf bekijken"
 
@@ -5666,13 +5658,13 @@ msgid "No expiry (stays open until closed)"
 msgstr "Geen vervaldatum (blijft open tot sluiting)"
 
 #: admin/class-admin-settings.php:303
-#: admin/class-admin-settings.php:1253
+#: admin/class-admin-settings.php:1259
 msgid "Industries"
 msgstr "Sectoren"
 
 #: admin/class-admin-settings.php:305
-#: admin/class-admin-settings.php:923
-#: admin/class-setup-wizard.php:186
+#: admin/class-admin-settings.php:929
+#: admin/class-setup-wizard.php:220
 msgid "Sign-ups"
 msgstr "Aanmeldingen"
 
@@ -5681,8 +5673,8 @@ msgid "Privacy"
 msgstr "Privacy"
 
 #: admin/class-admin-settings.php:307
-#: admin/class-admin-settings.php:1115
-#: admin/class-admin-settings.php:1335
+#: admin/class-admin-settings.php:1121
+#: admin/class-admin-settings.php:1341
 #: admin/class-email-settings.php:126
 msgid "Brand"
 msgstr "Merk"
@@ -5692,7 +5684,7 @@ msgid "Mobile App"
 msgstr "Mobiele app"
 
 #: admin/class-admin-settings.php:312
-#: admin/class-admin-settings.php:1000
+#: admin/class-admin-settings.php:1006
 msgid "Advanced"
 msgstr "Geavanceerd"
 
@@ -5713,415 +5705,415 @@ msgid "Site"
 msgstr "Site"
 
 #: admin/class-admin-settings.php:474
-#: admin/class-admin-settings.php:492
-#: admin/class-setup-wizard.php:206
+#: admin/class-admin-settings.php:498
+#: admin/class-setup-wizard.php:240
 msgid "Sample data"
 msgstr "Voorbeeldgegevens"
 
-#: admin/class-admin-settings.php:703
+#: admin/class-admin-settings.php:709
 msgid "How jobs are reviewed, how long they run and how they are listed."
 msgstr "Hoe functies worden beoordeeld, hoe lang ze lopen en hoe ze worden weergegeven."
 
-#: admin/class-admin-settings.php:720
+#: admin/class-admin-settings.php:726
 msgid "Hide a job after this many reports"
 msgstr "Verberg een functie na zoveel meldingen"
 
-#: admin/class-admin-settings.php:727
+#: admin/class-admin-settings.php:733
 #: admin/views/wizard-steps/jobs.php:26
 msgid "Default listing length (days)"
 msgstr "Standaard plaatsingsduur (dagen)"
 
-#: admin/class-admin-settings.php:730
+#: admin/class-admin-settings.php:736
 msgid "How long a job stays open when the employer sets no deadline. Default 30. A board can set its own length, which wins over this one."
 msgstr "Hoe lang een functie open blijft als de werkgever geen deadline zet. Standaard 30. Een bord kan een eigen duur instellen; die gaat voor."
 
-#: admin/class-admin-settings.php:731
+#: admin/class-admin-settings.php:737
 msgid "At its deadline a job stops taking applications and leaves the listings, feeds and sitemap within the hour. Its page stays up as an expired page with similar open jobs, so shared links keep working. Employers can reopen it from their dashboard with a new deadline."
 msgstr "Op de deadline stopt een functie met sollicitaties en verdwijnt binnen een uur uit de lijsten, feeds en sitemap. De pagina blijft staan als verlopen pagina met vergelijkbare open functies, zodat gedeelde links blijven werken. Werkgevers kunnen die vanuit hun dashboard heropenen met een nieuwe deadline."
 
-#: admin/class-admin-settings.php:734
+#: admin/class-admin-settings.php:740
 msgid "End jobs at their deadline"
 msgstr "Beëindig functies op hun deadline"
 
-#: admin/class-admin-settings.php:742
+#: admin/class-admin-settings.php:748
 msgid "Number of job listings shown per page in the job board block. Maximum 100. A multiple of 12 fills the 2, 3 and 4 column grids evenly."
 msgstr "Aantal functies per pagina in het jobbord-blok. Maximaal 100. Een veelvoud van 12 vult de rasters met 2, 3 en 4 kolommen gelijkmatig."
 
-#: admin/class-admin-settings.php:746
+#: admin/class-admin-settings.php:752
 msgid "Default order"
 msgstr "Standaardvolgorde"
 
-#: admin/class-admin-settings.php:751
-#: blocks/job-listings/render.php:545
+#: admin/class-admin-settings.php:757
+#: blocks/job-listings/render.php:544
 msgid "Closing soonest"
 msgstr "Eerst sluitend"
 
-#: admin/class-admin-settings.php:752
-#: blocks/job-listings/render.php:546
+#: admin/class-admin-settings.php:758
+#: blocks/job-listings/render.php:545
 msgid "Highest salary"
 msgstr "Hoogste salaris"
 
-#: admin/class-admin-settings.php:798
+#: admin/class-admin-settings.php:804
 msgid "Search engines and sharing"
 msgstr "Zoekmachines en delen"
 
-#: admin/class-admin-settings.php:799
+#: admin/class-admin-settings.php:805
 msgid "How jobs and company pages appear in Google for Jobs and when shared on social media."
 msgstr "Hoe functies en bedrijfspagina's verschijnen in Google for Jobs en bij delen op social media."
 
-#: admin/class-admin-settings.php:803
+#: admin/class-admin-settings.php:809
 msgid "Google for Jobs"
 msgstr "Google for Jobs"
 
-#: admin/class-admin-settings.php:810
+#: admin/class-admin-settings.php:816
 msgid "Add job and company details for search engines"
 msgstr "Voeg functie- en bedrijfsgegevens toe voor zoekmachines"
 
-#: admin/class-admin-settings.php:812
+#: admin/class-admin-settings.php:818
 msgid "Adds JobPosting markup to open jobs and Organization markup to company pages, so jobs can appear in Google for Jobs. Stays on alongside Yoast SEO and Rank Math, which do not add job markup. Turn off only if another plugin already adds it."
 msgstr "Voegt JobPosting-opmaak toe aan open functies en Organization-opmaak aan bedrijfspagina's, zodat functies in Google for Jobs kunnen verschijnen. Blijft aan naast Yoast SEO en Rank Math, die geen functie-opmaak toevoegen. Zet alleen uit als een andere plugin dat al doet."
 
-#: admin/class-admin-settings.php:816
+#: admin/class-admin-settings.php:822
 msgid "Require a location"
 msgstr "Locatie verplichten"
 
-#: admin/class-admin-settings.php:823
+#: admin/class-admin-settings.php:829
 msgid "Ask for a location on every job that is not remote"
 msgstr "Vraag een locatie bij elke functie die niet op afstand is"
 
-#: admin/class-admin-settings.php:829
+#: admin/class-admin-settings.php:835
 msgid "Default country"
 msgstr "Standaardland"
 
-#: admin/class-admin-settings.php:832
+#: admin/class-admin-settings.php:838
 msgid "Country name or 2-letter code for job addresses, and where remote applicants may live. Empty uses the country of your site language. For boards in several countries, set a country on each location under Career Board > Job Locations."
 msgstr "Landnaam of 2-lettercode voor functieadressen, en waar sollicitanten op afstand mogen wonen. Leeg gebruikt het land van je sitetaal. Voor borden in meerdere landen zet je een land op elke locatie onder Career Board > Functielocaties."
 
-#: admin/class-admin-settings.php:836
+#: admin/class-admin-settings.php:842
 msgid "Social sharing tags"
 msgstr "Tags voor delen op social media"
 
-#: admin/class-admin-settings.php:843
+#: admin/class-admin-settings.php:849
 msgid "Add title, description and image when a job or company is shared"
 msgstr "Voeg titel, beschrijving en afbeelding toe wanneer een functie of bedrijf wordt gedeeld"
 
-#: admin/class-admin-settings.php:845
+#: admin/class-admin-settings.php:851
 msgid "Uses the job image or the company logo. Skipped automatically when Yoast SEO or Rank Math is active, since they add their own."
 msgstr "Gebruikt de functieafbeelding of het bedrijfslogo. Wordt automatisch overgeslagen als Yoast SEO of Rank Math actief is, omdat die hun eigen tags toevoegen."
 
-#: admin/class-admin-settings.php:864
+#: admin/class-admin-settings.php:870
 msgid "What candidates need to apply, and what they can do afterwards."
 msgstr "Wat kandidaten nodig hebben om te solliciteren, en wat ze daarna kunnen doen."
 
-#: admin/class-admin-settings.php:905
+#: admin/class-admin-settings.php:911
 msgid "On by default. A withdrawn application stays on the employer's applicant list with the status Withdrawn, and the employer can no longer change it. Turn off for boards that want apply-once-final flows (compliance, regulated hiring)."
 msgstr "Standaard aan. Een ingetrokken sollicitatie blijft op de sollicitantenlijst van de werkgever met de status Ingetrokken, en de werkgever kan die niet meer wijzigen. Zet uit voor borden die een eenmalige, definitieve sollicitatie willen (compliance, gereguleerde werving)."
 
-#: admin/class-admin-settings.php:924
+#: admin/class-admin-settings.php:930
 msgid "Who can create an account, and how new accounts are checked."
 msgstr "Wie een account kan aanmaken, en hoe nieuwe accounts worden gecontroleerd."
 
-#: admin/class-admin-settings.php:928
+#: admin/class-admin-settings.php:934
 msgid "Open Sign-Up"
 msgstr "Open aanmelding"
 
-#: admin/class-admin-settings.php:931
+#: admin/class-admin-settings.php:937
 msgid "On: candidates and employers can create their own accounts."
 msgstr "Aan: kandidaten en werkgevers kunnen zelf een account aanmaken."
 
-#: admin/class-admin-settings.php:933
+#: admin/class-admin-settings.php:939
 msgid "Off: the sign-up forms show a \"registration closed\" notice."
 msgstr "Uit: de aanmeldformulieren tonen de melding \"registratie gesloten\"."
 
 #. translators: %s: link to Settings > General.
-#: admin/class-admin-settings.php:939
+#: admin/class-admin-settings.php:945
 #, php-format
 msgid "This is WordPress's \"Anyone can register\" setting under %s."
 msgstr "Dit is de WordPress-instelling \"Iedereen kan zich registreren\" onder %s."
 
-#: admin/class-admin-settings.php:940
+#: admin/class-admin-settings.php:946
 msgid "Settings > General"
 msgstr "Instellingen > Algemeen"
 
-#: admin/class-admin-settings.php:947
+#: admin/class-admin-settings.php:953
 msgid "Email Verification"
 msgstr "E-mailverificatie"
 
-#: admin/class-admin-settings.php:954
+#: admin/class-admin-settings.php:960
 msgid "New candidates and employers confirm their email before they can sign in"
 msgstr "Nieuwe kandidaten en werkgevers bevestigen hun e-mail voordat ze kunnen inloggen"
 
-#: admin/class-admin-settings.php:973
+#: admin/class-admin-settings.php:979
 msgid "Require login to apply"
 msgstr "Inloggen verplicht om te solliciteren"
 
-#: admin/class-admin-settings.php:980
+#: admin/class-admin-settings.php:986
 msgid "Only signed-in members can apply"
 msgstr "Alleen ingelogde leden kunnen solliciteren"
 
-#: admin/class-admin-settings.php:982
+#: admin/class-admin-settings.php:988
 msgid "Off by default: visitors can apply with their name and email. Guest applications are limited to 10 an hour from one connection."
 msgstr "Standaard uit: bezoekers kunnen solliciteren met naam en e-mail. Gastsollicitaties zijn beperkt tot 10 per uur vanaf één verbinding."
 
-#: admin/class-admin-settings.php:1001
+#: admin/class-admin-settings.php:1007
 msgid "Layout and data handling. Most sites never need to change these."
 msgstr "Lay-out en gegevensverwerking. De meeste sites hoeven dit nooit te wijzigen."
 
-#: admin/class-admin-settings.php:1005
+#: admin/class-admin-settings.php:1011
 msgid "Content Width (px)"
 msgstr "Inhoudsbreedte (px)"
 
-#: admin/class-admin-settings.php:1017
+#: admin/class-admin-settings.php:1023
 msgid "How wide Career Board pages run. Leave at 0 to follow your theme, which most sites should. Set a value between 720 and 1920 only if the plugin pages need to differ from the rest of the site."
 msgstr "Hoe breed Career Board-pagina's lopen. Laat op 0 om je thema te volgen, wat de meeste sites moeten doen. Zet alleen een waarde tussen 720 en 1920 als de pluginpagina's moeten afwijken van de rest van de site."
 
-#: admin/class-admin-settings.php:1021
+#: admin/class-admin-settings.php:1027
 msgid "Keep Email History (days)"
 msgstr "E-mailgeschiedenis bewaren (dagen)"
 
-#: admin/class-admin-settings.php:1031
+#: admin/class-admin-settings.php:1037
 msgid "How long the email log and notification history are kept before they are deleted automatically. 0 keeps them forever."
 msgstr "Hoe lang het e-maillogboek en de meldingsgeschiedenis worden bewaard voordat ze automatisch worden verwijderd. 0 bewaart ze voor altijd."
 
-#: admin/class-admin-settings.php:1035
+#: admin/class-admin-settings.php:1041
 msgid "Remove Data on Delete"
 msgstr "Gegevens wissen bij verwijderen"
 
-#: admin/class-admin-settings.php:1042
+#: admin/class-admin-settings.php:1048
 msgid "Delete all Career Board data when the plugin is deleted"
 msgstr "Verwijder alle Career Board-gegevens wanneer de plugin wordt verwijderd"
 
-#: admin/class-admin-settings.php:1044
+#: admin/class-admin-settings.php:1050
 msgid "Off by default, so deleting and reinstalling the plugin keeps your jobs, applications, companies, resumes and credit balances. Turn on only when you are removing Career Board for good: deleting the plugin then erases all of it, including uploaded resumes, and cannot be undone. Deactivating never deletes anything."
 msgstr "Standaard uit, zodat verwijderen en opnieuw installeren je functies, sollicitaties, bedrijven, CV's en creditsaldi bewaart. Zet alleen aan als je Career Board voorgoed weghaalt: verwijderen wist dan alles, inclusief geüploade CV's, en dat kan niet ongedaan. Deactiveren verwijdert nooit iets."
 
-#: admin/class-admin-settings.php:1116
+#: admin/class-admin-settings.php:1122
 msgid "One colour and one logo for your Career Board emails, the mobile app and the installable app. Your website follows your theme."
 msgstr "Eén kleur en één logo voor je Career Board-e-mails, de mobiele app en de installeerbare app. Je website volgt je thema."
 
-#: admin/class-admin-settings.php:1120
+#: admin/class-admin-settings.php:1126
 msgid "Brand Colour"
 msgstr "Merkkleur"
 
-#: admin/class-admin-settings.php:1123
+#: admin/class-admin-settings.php:1129
 msgid "Email header, app buttons and the browser bar of the installable app. Pick a colour white text reads well on."
 msgstr "E-mailkop, appknoppen en de browserbalk van de installeerbare app. Kies een kleur waarop witte tekst goed leest."
 
-#: admin/class-admin-settings.php:1130
+#: admin/class-admin-settings.php:1136
 msgid "Logo preview"
 msgstr "Logo-voorbeeld"
 
-#: admin/class-admin-settings.php:1135
+#: admin/class-admin-settings.php:1141
 msgid "Shown at the top of every email and in the app. A wide image around 400 x 120 px works best."
 msgstr "Getoond bovenaan elke e-mail en in de app. Een breed beeld van ongeveer 400 × 120 px werkt het best."
 
-#: admin/class-admin-settings.php:1153
+#: admin/class-admin-settings.php:1159
 msgid "Sender"
 msgstr "Afzender"
 
-#: admin/class-admin-settings.php:1257
+#: admin/class-admin-settings.php:1263
 msgid "Industries offered on company profiles, the employer registration form, and the company directory filter. Rename a label any time - renaming never touches stored data. Removing an industry asks what should happen to the companies still using it."
 msgstr "Sectoren op bedrijfsprofielen, het registratieformulier voor werkgevers en het filter van de bedrijvengids. Hernoem een label wanneer je wilt - hernoemen raakt opgeslagen gegevens niet. Bij het verwijderen van een sector vragen we wat er moet gebeuren met bedrijven die die nog gebruiken."
 
-#: admin/class-admin-settings.php:1261
+#: admin/class-admin-settings.php:1267
 msgid "Loading industries…"
 msgstr "Sectoren laden…"
 
-#: admin/class-admin-settings.php:1265
+#: admin/class-admin-settings.php:1271
 msgid "Not in your list"
 msgstr "Niet in je lijst"
 
-#: admin/class-admin-settings.php:1267
+#: admin/class-admin-settings.php:1273
 msgid "These values are stored on companies but are not industries you offer - usually left behind by an import. Add one to your list to keep it, or settle it like any other removal."
 msgstr "Deze waarden staan op bedrijven maar zijn geen sectoren die je aanbiedt - meestal achtergelaten door een import. Voeg er een toe aan je lijst om die te houden, of regel het zoals bij elke andere verwijdering."
 
-#: admin/class-admin-settings.php:1274
+#: admin/class-admin-settings.php:1280
 msgid "New industry"
 msgstr "Nieuwe sector"
 
-#: admin/class-admin-settings.php:1275
+#: admin/class-admin-settings.php:1281
 msgid "Aerospace & Defence"
 msgstr "Lucht- en ruimtevaart & defensie"
 
-#: admin/class-admin-settings.php:1278
+#: admin/class-admin-settings.php:1284
 msgid "Add industry"
 msgstr "Sector toevoegen"
 
-#: admin/class-admin-settings.php:1284
+#: admin/class-admin-settings.php:1290
 msgid "Save Industries"
 msgstr "Sectoren opslaan"
 
-#: admin/class-admin-settings.php:1322
+#: admin/class-admin-settings.php:1328
 msgid "App branding"
 msgstr "App-huisstijl"
 
-#: admin/class-admin-settings.php:1324
+#: admin/class-admin-settings.php:1330
 msgid "How your companion app looks. These are served to the app and ignored by the website, which follows your theme."
 msgstr "Hoe je bijbehorende app eruitziet. Dit gaat naar de app en wordt genegeerd door de website, die je thema volgt."
 
-#: admin/class-admin-settings.php:1328
+#: admin/class-admin-settings.php:1334
 #: admin/class-email-settings.php:119
 msgid "Colour and Logo"
 msgstr "Kleur en logo"
 
 #. translators: %s: link to the Brand tab.
-#: admin/class-admin-settings.php:1334
+#: admin/class-admin-settings.php:1340
 #, php-format
 msgid "The app uses your Brand colour and logo, shared with your emails. Change them under %s."
 msgstr "De app gebruikt je merkkleur en logo, gedeeld met je e-mails. Wijzig die onder %s."
 
-#: admin/class-admin-settings.php:1343
+#: admin/class-admin-settings.php:1349
 msgid "Sign-in background URL"
 msgstr "Achtergrond-URL bij inloggen"
 
-#: admin/class-admin-settings.php:1350
+#: admin/class-admin-settings.php:1356
 msgid "Dark mode"
 msgstr "Donkere modus"
 
-#: admin/class-admin-settings.php:1354
+#: admin/class-admin-settings.php:1360
 msgid "Open the app in dark mode by default"
 msgstr "Open de app standaard in donkere modus"
 
-#: admin/class-admin-settings.php:1359
+#: admin/class-admin-settings.php:1365
 msgid "Legal links"
 msgstr "Juridische links"
 
-#: admin/class-admin-settings.php:1361
+#: admin/class-admin-settings.php:1367
 msgid "App stores require a published terms link and a way to report abuse. Anything left blank is sent as empty rather than a placeholder link, except the abuse contact, where the app shows your privacy page instead. Your privacy policy comes from Settings > Privacy in WordPress."
 msgstr "App stores eisen een gepubliceerde link naar de voorwaarden en een manier om misbruik te melden. Wat je leeg laat, gaat leeg mee in plaats van een reservelink, behalve het contact voor misbruik: daar toont de app je privacypagina. Je privacybeleid komt uit Instellingen > Privacy in WordPress."
 
-#: admin/class-admin-settings.php:1365
+#: admin/class-admin-settings.php:1371
 msgid "Terms of service URL"
 msgstr "URL gebruiksvoorwaarden"
 
-#: admin/class-admin-settings.php:1372
+#: admin/class-admin-settings.php:1378
 msgid "EULA URL"
 msgstr "EULA-URL"
 
-#: admin/class-admin-settings.php:1379
+#: admin/class-admin-settings.php:1385
 msgid "Community guidelines URL"
 msgstr "URL communityrichtlijnen"
 
-#: admin/class-admin-settings.php:1386
+#: admin/class-admin-settings.php:1392
 msgid "Abuse contact email"
 msgstr "E-mailadres voor misbruik"
 
-#: admin/class-admin-settings.php:1389
+#: admin/class-admin-settings.php:1395
 msgid "Shown in the app so members can email you about abuse. It is public, so use a support address. Leave blank to show your privacy page instead."
 msgstr "Getoond in de app zodat leden je over misbruik kunnen e-mailen. Het is openbaar, dus gebruik een supportadres. Laat leeg om je privacypagina te tonen."
 
-#: admin/class-admin-settings.php:1393
+#: admin/class-admin-settings.php:1399
 msgid "Sign-in"
 msgstr "Inloggen"
 
-#: admin/class-admin-settings.php:1395
+#: admin/class-admin-settings.php:1401
 msgid "App Password Sign-In"
 msgstr "Inloggen met appwachtwoord"
 
-#: admin/class-admin-settings.php:1402
+#: admin/class-admin-settings.php:1408
 msgid "Let members sign in to the mobile app by typing their website password"
 msgstr "Laat leden inloggen in de mobiele app door hun websitewachtwoord te typen"
 
-#: admin/class-admin-settings.php:1404
+#: admin/class-admin-settings.php:1410
 msgid "Off by default. The app can already sign members in without this: its \"Connect with WordPress\" option sends them to your normal login page, where two-factor and your security plugins apply, and no password ever reaches the app. Turn this on only if you want the extra convenience of typing a password directly in the app - it opens a route that accepts real account passwords, so leave it off if you run two-factor authentication or do not use the app at all."
 msgstr "Standaard uit. De app kan leden al inloggen zonder dit: de optie \"Verbinden met WordPress\" stuurt ze naar je gewone inlogpagina, waar tweestapsverificatie en je beveiligingsplugins gelden, en er nooit een wachtwoord bij de app komt. Zet dit alleen aan als je het extra gemak wilt van een wachtwoord direct in de app - het opent een route die echte accountwachtwoorden accepteert, dus laat het uit als je tweestapsverificatie gebruikt of de app helemaal niet gebruikt."
 
-#: admin/class-admin-settings.php:1507
+#: admin/class-admin-settings.php:1513
 msgid "Pending account deletions"
 msgstr "Openstaande accountverwijderingen"
 
-#: admin/class-admin-settings.php:1511
+#: admin/class-admin-settings.php:1517
 msgid "Members who asked to delete their account. They stay signed out during the wait and can stop it themselves by signing back in. Cancel on their behalf if they contact you instead."
 msgstr "Leden die vroegen hun account te verwijderen. Ze blijven uitgelogd tijdens het wachten en kunnen het zelf stoppen door weer in te loggen. Annuleer namens hen als ze jou in plaats daarvan mailen."
 
-#: admin/class-admin-settings.php:1515
+#: admin/class-admin-settings.php:1521
 msgid "No account deletions are pending."
 msgstr "Er staan geen accountverwijderingen open."
 
-#: admin/class-admin-settings.php:1520
-#: admin/class-admin-settings.php:1591
+#: admin/class-admin-settings.php:1526
+#: admin/class-admin-settings.php:1597
 #: admin/class-email-settings.php:165
 msgid "Member"
 msgstr "Lid"
 
-#: admin/class-admin-settings.php:1521
+#: admin/class-admin-settings.php:1527
 msgid "Deletes on"
 msgstr "Verwijdert op"
 
-#: admin/class-admin-settings.php:1522
+#: admin/class-admin-settings.php:1528
 msgid "Time left"
 msgstr "Resterende tijd"
 
-#: admin/class-admin-settings.php:1523
+#: admin/class-admin-settings.php:1529
 msgid "Action"
 msgstr "Actie"
 
 #. translators: %s: human-readable duration.
-#: admin/class-admin-settings.php:1549
+#: admin/class-admin-settings.php:1555
 #, php-format
 msgid "%s left"
 msgstr "nog %s"
 
 #. translators: %s: human-readable duration.
-#: admin/class-admin-settings.php:1550
+#: admin/class-admin-settings.php:1556
 msgid "Due - runs on the next scheduled task"
 msgstr "Aan de beurt - draait bij de volgende geplande taak"
 
-#: admin/class-admin-settings.php:1553
+#: admin/class-admin-settings.php:1559
 msgid "Keep account"
 msgstr "Account behouden"
 
-#: admin/class-admin-settings.php:1565
+#: admin/class-admin-settings.php:1571
 msgid "Privacy request log"
 msgstr "Logboek privacyverzoeken"
 
-#: admin/class-admin-settings.php:1569
+#: admin/class-admin-settings.php:1575
 msgid "Every personal-data export and erase request this plugin has processed. Keep it as evidence that a request was honoured. Visitor IP addresses are stored only as a one-way hash, never in plain text."
 msgstr "Elk verzoek tot export of wissen van persoonsgegevens dat deze plugin heeft verwerkt. Bewaar het als bewijs dat een verzoek is uitgevoerd. IP-adressen van bezoekers worden alleen als eenrichtingshash bewaard, nooit in platte tekst."
 
-#: admin/class-admin-settings.php:1573
+#: admin/class-admin-settings.php:1579
 msgid "The request log table is not present. It is created on activation."
 msgstr "De logboektabel voor verzoeken ontbreekt. Die wordt bij activering aangemaakt."
 
-#: admin/class-admin-settings.php:1575
+#: admin/class-admin-settings.php:1581
 msgid "No personal-data requests have been processed yet."
 msgstr "Er zijn nog geen verzoeken over persoonsgegevens verwerkt."
 
 #. translators: %s: number of logged requests.
-#: admin/class-admin-settings.php:1581
+#: admin/class-admin-settings.php:1587
 #, php-format
 msgid "%s request logged."
 msgid_plural "%s requests logged."
 msgstr[0] "%s verzoek gelogd."
 msgstr[1] "%s verzoeken gelogd."
 
-#: admin/class-admin-settings.php:1590
+#: admin/class-admin-settings.php:1596
 msgid "Request"
 msgstr "Verzoek"
 
-#: admin/class-admin-settings.php:1592
+#: admin/class-admin-settings.php:1598
 msgid "Origin (hashed)"
 msgstr "Herkomst (gehasht)"
 
-#: admin/class-admin-settings.php:1600
+#: admin/class-admin-settings.php:1606
 msgid "Erase personal data"
 msgstr "Persoonsgegevens wissen"
 
-#: admin/class-admin-settings.php:1602
+#: admin/class-admin-settings.php:1608
 msgid "Export personal data"
 msgstr "Persoonsgegevens exporteren"
 
 #. translators: %d: user ID of a member who no longer exists.
-#: admin/class-admin-settings.php:1616
+#: admin/class-admin-settings.php:1622
 #, php-format
 msgid "Deleted member (#%d)"
 msgstr "Verwijderd lid (#%d)"
 
-#: admin/class-admin-settings.php:1638
+#: admin/class-admin-settings.php:1644
 msgid "&laquo; Previous"
 msgstr "&laquo; Vorige"
 
-#: admin/class-admin-settings.php:1639
+#: admin/class-admin-settings.php:1645
 msgid "Next &raquo;"
 msgstr "Volgende &raquo;"
 
@@ -6157,100 +6149,100 @@ msgstr "Instelling openen"
 msgid "Got it"
 msgstr "Begrepen"
 
-#: admin/class-admin.php:534
+#: admin/class-admin.php:537
 msgid "Getting started"
 msgstr "Aan de slag"
 
-#: admin/class-admin.php:746
+#: admin/class-admin.php:750
 msgid "Unlock Pro features"
 msgstr "Pro-functies ontgrendelen"
 
 #. translators: 1: percent complete, 2: rows imported so far, 3: rows skipped so far. %% is a literal percent sign.
-#: admin/class-admin.php:866
+#: admin/class-admin.php:870
 #, php-format
 msgid "%1$s%% - imported: %2$s, skipped: %3$s"
 msgstr "%1$s%% - geïmporteerd: %2$s, overgeslagen: %3$s"
 
 #. translators: 1: rows imported, 2: rows skipped, 3: rows that failed.
-#: admin/class-admin.php:868
+#: admin/class-admin.php:872
 #, php-format
 msgid "Done. Imported: %1$s, skipped: %2$s, errors: %3$s"
 msgstr "Klaar. Geïmporteerd: %1$s, overgeslagen: %2$s, fouten: %3$s"
 
-#: admin/class-admin.php:869
+#: admin/class-admin.php:873
 msgid "Import complete."
 msgstr "Import voltooid."
 
 #. translators: %1$s: error message.
-#: admin/class-admin.php:871
+#: admin/class-admin.php:875
 #, php-format
 msgid "Error: %1$s"
 msgstr "Fout: %1$s"
 
-#: admin/class-admin.php:872
+#: admin/class-admin.php:876
 msgid "Request failed."
 msgstr "Verzoek mislukt."
 
 #. translators: %d: number of companies using this industry. Label form, so one string fits every count.
-#: admin/class-admin.php:900
+#: admin/class-admin.php:904
 #, php-format
 msgid "Companies: %d"
 msgstr "Bedrijven: %d"
 
-#: admin/class-admin.php:901
+#: admin/class-admin.php:905
 msgid "not in use"
 msgstr "niet in gebruik"
 
 #. translators: %s: name of the item being removed (an industry or a category).
-#: admin/class-admin.php:904
+#: admin/class-admin.php:908
 #: templates/parts/job-category-field.php:47
 #, php-format
 msgid "Remove %s"
 msgstr "%s verwijderen"
 
-#: admin/class-admin.php:905
+#: admin/class-admin.php:909
 msgid "Keep"
 msgstr "Behouden"
 
-#: admin/class-admin.php:906
+#: admin/class-admin.php:910
 msgid "Move those companies to:"
 msgstr "Verplaats die bedrijven naar:"
 
-#: admin/class-admin.php:907
+#: admin/class-admin.php:911
 msgid "Clear the industry"
 msgstr "Sector wissen"
 
-#: admin/class-admin.php:908
+#: admin/class-admin.php:912
 msgid "Will be removed on save."
 msgstr "Wordt bij opslaan verwijderd."
 
-#: admin/class-admin.php:909
+#: admin/class-admin.php:913
 msgid "Enter a name first."
 msgstr "Vul eerst een naam in."
 
-#: admin/class-admin.php:910
+#: admin/class-admin.php:914
 msgid "That industry already exists."
 msgstr "Die sector bestaat al."
 
-#: admin/class-admin.php:912
+#: admin/class-admin.php:916
 msgid "Industries saved."
 msgstr "Sectoren opgeslagen."
 
 #. translators: %d: number of companies moved to another industry.
-#: admin/class-admin.php:914
+#: admin/class-admin.php:918
 #, php-format
 msgid "Industries saved. %d companies updated."
 msgstr "Sectoren opgeslagen. %d bedrijven bijgewerkt."
 
-#: admin/class-admin.php:915
+#: admin/class-admin.php:919
 msgid "Could not save industries. Please try again."
 msgstr "Kon sectoren niet opslaan. Probeer het opnieuw."
 
-#: admin/class-admin.php:916
+#: admin/class-admin.php:920
 msgid "Could not load industries."
 msgstr "Kon sectoren niet laden."
 
-#: admin/class-admin.php:917
+#: admin/class-admin.php:921
 msgid "Keep at least one industry."
 msgstr "Houd minstens één sector."
 
@@ -6303,19 +6295,19 @@ msgstr "Openstaande meldingen"
 msgid "Dismiss reports"
 msgstr "Meldingen wegwuiven"
 
-#: admin/class-setup-wizard.php:188
-#: admin/class-setup-wizard.php:193
-#: admin/class-setup-wizard.php:198
-#: admin/class-setup-wizard.php:203
+#: admin/class-setup-wizard.php:222
+#: admin/class-setup-wizard.php:227
+#: admin/class-setup-wizard.php:232
+#: admin/class-setup-wizard.php:237
 #: admin/views/wizard-steps/_footer.php:12
 msgid "Save & Continue"
 msgstr "Opslaan en doorgaan"
 
-#: admin/class-setup-wizard.php:201
+#: admin/class-setup-wizard.php:235
 msgid "Spam Protection"
 msgstr "Spambescherming"
 
-#: admin/class-setup-wizard.php:245
+#: admin/class-setup-wizard.php:279
 msgid "Could not save. Check your connection and try again."
 msgstr "Kon niet opslaan. Controleer je verbinding en probeer het opnieuw."
 
@@ -6451,10 +6443,6 @@ msgstr "E-mailadressen bevestigen"
 msgid "New accounts click a link in their inbox before they can post or apply. Stops fake and mistyped sign-ups."
 msgstr "Nieuwe accounts klikken op een link in hun inbox voordat ze kunnen plaatsen of solliciteren. Voorkomt nep- en foutgetypte aanmeldingen."
 
-#: admin/views/wizard-steps/sample-data.php:25
-msgid "Install sample categories, job types, companies, and demo jobs"
-msgstr "Voorbeeldcategorieën, functietypen, bedrijven en demofuncties installeren"
-
 #: admin/views/wizard-steps/_footer.php:13
 msgid "Skip for now"
 msgstr "Nu overslaan"
@@ -6480,17 +6468,17 @@ msgstr "Geordende slug/label-paren om als register te bewaren."
 msgid "What to do with companies still storing a removed slug."
 msgstr "Wat te doen met bedrijven die nog een verwijderde slug bewaren."
 
-#: api/endpoints/class-admin-endpoint.php:443
+#: api/endpoints/class-admin-endpoint.php:446
 msgid "Keep at least one industry - company forms need something to offer."
 msgstr "Houd minstens één sector - bedrijfsformulieren moeten iets kunnen bieden."
 
 #. translators: %s: industry slug.
-#: api/endpoints/class-admin-endpoint.php:498
+#: api/endpoints/class-admin-endpoint.php:501
 #, php-format
 msgid "Cannot move companies to \"%s\" - it is not in the saved list."
 msgstr "Kan bedrijven niet naar \"%s\" verplaatsen - die staat niet in de opgeslagen lijst."
 
-#: api/endpoints/class-admin-endpoint.php:507
+#: api/endpoints/class-admin-endpoint.php:510
 msgid "Some industries are still in use. Choose what happens to those companies before saving."
 msgstr "Sommige sectoren zijn nog in gebruik. Kies wat er met die bedrijven gebeurt voordat je opslaat."
 
@@ -6528,15 +6516,15 @@ msgstr "Dit e-mailadres heeft al een account. Log in om te solliciteren."
 msgid "Your application is still being submitted. Please wait a moment and check your applications."
 msgstr "Je sollicitatie wordt nog verstuurd. Wacht even en controleer je sollicitaties."
 
-#: api/endpoints/class-applications-endpoint.php:601
+#: api/endpoints/class-applications-endpoint.php:606
 msgid "This application is closed (withdrawn, position closed or job removed), so its status can no longer change."
 msgstr "Deze sollicitatie is gesloten (ingetrokken, functie gesloten of verwijderd), dus de status kan niet meer wijzigen."
 
-#: api/endpoints/class-applications-endpoint.php:772
+#: api/endpoints/class-applications-endpoint.php:776
 msgid "This application already has an outcome and can no longer be withdrawn."
 msgstr "Deze sollicitatie heeft al een uitkomst en kan niet meer worden ingetrokken."
 
-#: api/endpoints/class-applications-endpoint.php:1003
+#: api/endpoints/class-applications-endpoint.php:1007
 msgid "Please sign in to apply for this job."
 msgstr "Log in om op deze functie te solliciteren."
 
@@ -6577,27 +6565,27 @@ msgstr "Career Board-app"
 msgid "Only applications received in the last N days (0 = any time)."
 msgstr "Alleen sollicitaties van de laatste N dagen (0 = altijd)."
 
-#: api/endpoints/class-employers-endpoint.php:653
+#: api/endpoints/class-employers-endpoint.php:654
 msgid "Closed because its company was removed. Edit it to choose another company, then reopen it."
 msgstr "Gesloten omdat het bedrijf is verwijderd. Bewerk de functie, kies een ander bedrijf en heropen die."
 
-#: api/endpoints/class-employers-endpoint.php:654
+#: api/endpoints/class-employers-endpoint.php:655
 msgid "Back to draft because its company was removed. Edit it to choose another company, then submit it for review."
 msgstr "Terug naar concept omdat het bedrijf is verwijderd. Bewerk de functie, kies een ander bedrijf en dien die opnieuw in ter beoordeling."
 
-#: api/endpoints/class-employers-endpoint.php:1238
+#: api/endpoints/class-employers-endpoint.php:1241
 msgid "You do not manage this company."
 msgstr "Je beheert dit bedrijf niet."
 
-#: api/endpoints/class-employers-endpoint.php:1435
+#: api/endpoints/class-employers-endpoint.php:1438
 msgid "You can only choose a company you run."
 msgstr "Je kunt alleen een bedrijf kiezen dat je zelf runt."
 
-#: api/endpoints/class-employers-endpoint.php:1438
+#: api/endpoints/class-employers-endpoint.php:1441
 msgid "This company is not published, so it can't be your main company."
 msgstr "Dit bedrijf is niet gepubliceerd, dus het kan niet je hoofdbedrijf zijn."
 
-#: api/endpoints/class-employers-endpoint.php:1458
+#: api/endpoints/class-employers-endpoint.php:1461
 msgid "The company could not be removed. Please try again."
 msgstr "Het bedrijf kon niet worden verwijderd. Probeer het opnieuw."
 
@@ -6620,7 +6608,7 @@ msgid "You can have %1$d active jobs at a time and currently have %2$d. Close or
 msgstr "Je mag %1$d actieve functies tegelijk hebben en hebt er nu %2$d. Sluit of laat een plaatsing verlopen om een nieuwe te plaatsen."
 
 #: api/endpoints/class-jobs-endpoint.php:1645
-#: blocks/job-form/render.php:421
+#: blocks/job-form/render.php:426
 msgid "Add a location, or mark the job as remote."
 msgstr "Voeg een locatie toe, of markeer de functie als op afstand."
 
@@ -6888,8 +6876,7 @@ msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
-#: core/class-plugin.php:723
-#: integrations/reign/class-reign-integration.php:104
+#: core/class-plugin.php:742
 msgid "Employer dashboard"
 msgstr "Werkgeversdashboard"
 
@@ -7175,28 +7162,28 @@ msgid "Resend the link"
 msgstr "Link opnieuw sturen"
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance.
-#: blocks/job-form-simple/render.php:262
+#: blocks/job-form-simple/render.php:265
 #: blocks/job-form/render.php:234
 #, php-format
 msgid "This board requires %1$s. Your balance: %2$s. Contact the site owner to add credits."
 msgstr "Dit bord vereist %1$s. Je saldo: %2$s. Neem contact op met de site-eigenaar om credits toe te voegen."
 
 #. translators: %s: latest allowed deadline date.
-#: blocks/job-form-simple/render.php:270
-#: blocks/job-form/render.php:437
+#: blocks/job-form-simple/render.php:273
+#: blocks/job-form/render.php:442
 #, php-format
 msgid "Pick any date up to %s, the longest this board allows."
 msgstr "Kies een datum tot %s, de langste die dit bord toestaat."
 
 #: blocks/employer-dashboard/render.php:847
-#: blocks/job-form-simple/render.php:341
-#: blocks/job-form/render.php:1106
+#: blocks/job-form-simple/render.php:352
+#: blocks/job-form/render.php:1118
 msgid "Buy credits"
 msgstr "Credits kopen"
 
 #. translators: 1: number of days, 2: number of credits
-#: blocks/job-form-simple/render.php:620
-#: blocks/job-form/render.php:1096
+#: blocks/job-form-simple/render.php:631
+#: blocks/job-form/render.php:1108
 #, php-format
 msgid "Feature this job: it lists first for %1$d days (%2$s credit)."
 msgid_plural "Feature this job: it lists first for %1$d days (%2$s credits)."
@@ -7208,7 +7195,7 @@ msgid "Text formatting"
 msgstr "Tekstopmaak"
 
 #: blocks/job-form/editor-toolbar.php:19
-#: core/class-plugin.php:1190
+#: core/class-plugin.php:1212
 msgid "Bold"
 msgstr "Vet"
 
@@ -7218,7 +7205,7 @@ msgid "B"
 msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
-#: core/class-plugin.php:1191
+#: core/class-plugin.php:1213
 msgid "Italic"
 msgstr "Cursief"
 
@@ -7232,7 +7219,7 @@ msgid "Bulleted list"
 msgstr "Opsommingslijst"
 
 #: blocks/job-form/editor-toolbar.php:22
-#: core/class-plugin.php:1189
+#: core/class-plugin.php:1211
 msgid "Link"
 msgstr "Link"
 
@@ -7244,94 +7231,94 @@ msgstr "Linkadres"
 msgid "Add link"
 msgstr "Link toevoegen"
 
-#: blocks/job-form/render.php:442
+#: blocks/job-form/render.php:447
 #: templates/parts/job-category-field.php:50
 msgctxt "separator between category names"
 msgid ", "
 msgstr ", "
 
-#: blocks/job-form/render.php:541
+#: blocks/job-form/render.php:553
 msgid "Job updated."
 msgstr "Functie bijgewerkt."
 
-#: blocks/job-form/render.php:672
+#: blocks/job-form/render.php:684
 msgid "Format with the toolbar above. For headings and quotes, use the + beside a line."
 msgstr "Maak op met de werkbalk hierboven. Voor koppen en citaten gebruik je de + naast een regel."
 
-#: blocks/job-form/render.php:915
+#: blocks/job-form/render.php:927
 msgid "(required unless the job is remote)"
 msgstr "(verplicht tenzij de functie op afstand is)"
 
 #. translators: %d: number of hidden filter options.
-#: blocks/job-listings/render.php:312
+#: blocks/job-listings/render.php:311
 #, php-format
 msgid "Show %d more"
 msgid_plural "Show %d more"
 msgstr[0] "Toon %d meer"
 msgstr[1] "Toon %d meer"
 
-#: blocks/job-listings/render.php:313
+#: blocks/job-listings/render.php:312
 msgid "Show less"
 msgstr "Minder tonen"
 
 #. translators: %s: the filter's label, e.g. "Full-time".
-#: blocks/job-listings/render.php:505
+#: blocks/job-listings/render.php:504
 #, php-format
 msgid "Remove filter: %s"
 msgstr "Filter verwijderen: %s"
 
-#: blocks/job-listings/render.php:543
+#: blocks/job-listings/render.php:542
 msgid "Recommended"
 msgstr "Aanbevolen"
 
-#: blocks/job-listings/render.php:641
+#: blocks/job-listings/render.php:640
 #: templates/parts/category-picker.php:99
 #: templates/parts/job-category-field.php:95
 #: templates/parts/job-category-field.php:100
 msgid "Search categories"
 msgstr "Categorieën zoeken"
 
-#: blocks/job-single/render.php:187
+#: blocks/job-single/render.php:186
 msgid "This job is no longer taking applications"
 msgstr "Deze functie neemt geen sollicitaties meer aan"
 
 #. translators: %s: the date applications closed.
-#: blocks/job-single/render.php:189
+#: blocks/job-single/render.php:188
 #, php-format
 msgid "Applications closed on %s"
 msgstr "Sollicitaties gesloten op %s"
 
-#: blocks/job-single/render.php:498
-#: blocks/job-single/render.php:1070
+#: blocks/job-single/render.php:497
+#: blocks/job-single/render.php:1069
 msgid "Sign in to apply"
 msgstr "Log in om te solliciteren"
 
-#: blocks/job-single/render.php:576
+#: blocks/job-single/render.php:575
 msgid "This job is closed and no longer taking applications."
 msgstr "Deze functie is gesloten en neemt geen sollicitaties meer aan."
 
-#: blocks/job-single/render.php:577
+#: blocks/job-single/render.php:576
 msgid "This job has expired and is no longer taking applications."
 msgstr "Deze functie is verlopen en neemt geen sollicitaties meer aan."
 
-#: blocks/job-single/render.php:630
+#: blocks/job-single/render.php:629
 msgid "No description has been provided for this role yet."
 msgstr "Er is nog geen beschrijving voor deze rol gegeven."
 
-#: blocks/job-single/render.php:688
+#: blocks/job-single/render.php:687
 msgid "Open roles you might like"
 msgstr "Open rollen die je misschien aanspreken"
 
-#: blocks/job-single/render.php:888
+#: blocks/job-single/render.php:887
 msgid "Copy this link"
 msgstr "Kopieer deze link"
 
-#: blocks/job-single/render.php:1141
+#: blocks/job-single/render.php:1140
 msgid "or upload a file"
 msgstr "of upload een bestand"
 
 #. translators: %d: number of jobs moved to the expired status.
-#: cli/class-job-commands.php:363
+#: cli/class-job-commands.php:362
 #, php-format
 msgid "Job expiry check complete. %d job expired."
 msgid_plural "Job expiry check complete. %d jobs expired."
@@ -7352,104 +7339,104 @@ msgstr "%1$s - %2$s"
 msgid "Please upload a JPEG, PNG, WebP or GIF image."
 msgstr "Upload een JPEG-, PNG-, WebP- of GIF-afbeelding."
 
-#: core/class-job-deadline.php:176
+#: core/class-job-deadline.php:200
 msgid "Applications closed"
 msgstr "Sollicitaties gesloten"
 
-#: core/class-plugin.php:507
+#: core/class-plugin.php:549
 msgid "Job Archive"
 msgstr "Functiearchief"
 
-#: core/class-plugin.php:508
+#: core/class-plugin.php:550
 msgid "Company Archive"
 msgstr "Bedrijfsarchief"
 
-#: core/class-plugin.php:514
+#: core/class-plugin.php:556
 msgid "Job Category Archive"
 msgstr "Functiecategoriearchief"
 
-#: core/class-plugin.php:515
+#: core/class-plugin.php:557
 msgid "Job Type Archive"
 msgstr "Functietypearchief"
 
-#: core/class-plugin.php:516
+#: core/class-plugin.php:558
 msgid "Job Tag Archive"
 msgstr "Functietagarchief"
 
-#: core/class-plugin.php:517
+#: core/class-plugin.php:559
 msgid "Job Location Archive"
 msgstr "Functielocatiearchief"
 
-#: core/class-plugin.php:518
+#: core/class-plugin.php:560
 msgid "Experience Level Archive"
 msgstr "Ervaringsniveauarchief"
 
-#: core/class-plugin.php:1161
+#: core/class-plugin.php:1183
 msgid "Click to tune"
 msgstr "Klik om af te stellen"
 
-#: core/class-plugin.php:1162
+#: core/class-plugin.php:1184
 msgid "or drag to move"
 msgstr "of sleep om te verplaatsen"
 
-#: core/class-plugin.php:1167
-#: core/class-plugin.php:1178
+#: core/class-plugin.php:1189
+#: core/class-plugin.php:1200
 msgid "Convert to"
 msgstr "Omzetten naar"
 
-#: core/class-plugin.php:1172
+#: core/class-plugin.php:1194
 msgid "Add"
 msgstr "Toevoegen"
 
-#: core/class-plugin.php:1176
+#: core/class-plugin.php:1198
 msgid "Filter"
 msgstr "Filter"
 
-#: core/class-plugin.php:1177
+#: core/class-plugin.php:1199
 msgid "Nothing found"
 msgstr "Niets gevonden"
 
-#: core/class-plugin.php:1182
+#: core/class-plugin.php:1204
 msgid "Text"
 msgstr "Tekst"
 
-#: core/class-plugin.php:1183
+#: core/class-plugin.php:1205
 msgid "Heading"
 msgstr "Kop"
 
-#: core/class-plugin.php:1185
+#: core/class-plugin.php:1207
 msgid "Quote"
 msgstr "Citaat"
 
-#: core/class-plugin.php:1186
+#: core/class-plugin.php:1208
 msgid "Delimiter"
 msgstr "Scheidingsteken"
 
-#: core/class-plugin.php:1187
+#: core/class-plugin.php:1209
 msgid "Marker"
 msgstr "Markering"
 
-#: core/class-plugin.php:1188
+#: core/class-plugin.php:1210
 msgid "Inline code"
 msgstr "Code in regel"
 
-#: core/class-plugin.php:1195
+#: core/class-plugin.php:1217
 msgid "Add a link"
 msgstr "Een link toevoegen"
 
-#: core/class-plugin.php:1198
+#: core/class-plugin.php:1220
 msgid "Numbered"
 msgstr "Genummerd"
 
-#: core/class-plugin.php:1199
+#: core/class-plugin.php:1221
 msgid "Bulleted"
 msgstr "Opsomming"
 
-#: core/class-plugin.php:1202
+#: core/class-plugin.php:1224
 msgid "This block cannot be displayed correctly."
 msgstr "Dit blok kan niet goed worden weergegeven."
 
-#: core/class-plugin.php:1208
+#: core/class-plugin.php:1230
 msgid "Click to delete"
 msgstr "Klik om te verwijderen"
 
@@ -7494,44 +7481,44 @@ msgstr "Je webserver leest geen .htaccess-bestanden (gebruikelijk op nginx), dus
 msgid "File not found."
 msgstr "Bestand niet gevonden."
 
-#: core/class-roles.php:237
+#: core/class-roles.php:391
 msgid "Site admin"
 msgstr "Sitebeheerder"
 
-#: core/class-roles.php:124
-#: core/class-roles.php:243
+#: core/class-roles.php:129
+#: core/class-roles.php:397
 msgid "Job moderator"
 msgstr "Functiemoderator"
 
 #. translators: %s: number of jobs waiting for review.
-#: core/class-roles.php:282
+#: core/class-roles.php:436
 #, php-format
 msgid "Jobs to review (%s)"
 msgstr "Functies ter beoordeling (%s)"
 
-#: core/class-roles.php:283
+#: core/class-roles.php:437
 msgid "Jobs to review"
 msgstr "Functies ter beoordeling"
 
 #. translators: %s: parent category name, e.g. "in Hospitality & Tourism".
-#: core/class-taxonomy.php:318
+#: core/class-taxonomy.php:349
 #, php-format
 msgid "in %s"
 msgstr "in %s"
 
-#: core/class-taxonomy.php:329
+#: core/class-taxonomy.php:360
 msgid "No categories match."
 msgstr "Geen categorieën komen overeen."
 
 #: core/class-taxonomy.php:102
 #: core/class-taxonomy.php:151
-#: core/class-taxonomy.php:340
-#: core/class-taxonomy.php:356
+#: core/class-taxonomy.php:371
+#: core/class-taxonomy.php:387
 msgid "Order"
 msgstr "Volgorde"
 
-#: core/class-taxonomy.php:342
-#: core/class-taxonomy.php:359
+#: core/class-taxonomy.php:373
+#: core/class-taxonomy.php:390
 msgid "Lower numbers show first in dropdowns and filters. Leave empty to sort by name."
 msgstr "Lagere nummers verschijnen eerst in keuzelijsten en filters. Laat leeg om op naam te sorteren."
 
@@ -7556,7 +7543,7 @@ msgid "Learn how template overrides work"
 msgstr "Lees hoe sjabloonoverrides werken"
 
 #. translators: Hidden accessibility text.
-#: admin/class-admin-settings.php:686
+#: admin/class-admin-settings.php:692
 #: core/class-template-version-check.php:200
 msgid "(opens in a new tab)"
 msgstr "(opent in een nieuw tabblad)"
@@ -7638,36 +7625,36 @@ msgstr "Nodig om je e-mail of wachtwoord te wijzigen."
 msgid "Enter your current password to change your email or password."
 msgstr "Voer je huidige wachtwoord in om je e-mail of wachtwoord te wijzigen."
 
-#: modules/account/class-email-verification.php:197
+#: modules/account/class-email-verification.php:200
 msgid "Please confirm your email address first. We sent you a link when you signed up."
 msgstr "Bevestig eerst je e-mailadres. We stuurden je een link toen je je aanmeldde."
 
-#: modules/account/class-email-verification.php:234
+#: modules/account/class-email-verification.php:237
 msgid "This confirmation link is invalid or has expired."
 msgstr "Deze bevestigingslink is ongeldig of verlopen."
 
-#: modules/account/class-email-verification.php:235
+#: modules/account/class-email-verification.php:238
 msgid "Link expired"
 msgstr "Link verlopen"
 
-#: modules/account/class-email-verification.php:299
+#: modules/account/class-email-verification.php:302
 msgid "Send me a new link"
 msgstr "Stuur me een nieuwe link"
 
-#: modules/account/class-email-verification.php:352
+#: modules/account/class-email-verification.php:355
 msgid "We sent you a new confirmation link. It can take a minute to arrive."
 msgstr "We stuurden je een nieuwe bevestigingslink. Het kan een minuut duren."
 
-#: modules/account/class-email-verification.php:352
-#: modules/account/class-email-verification.php:353
+#: modules/account/class-email-verification.php:355
+#: modules/account/class-email-verification.php:356
 msgid "Back to sign in"
 msgstr "Terug naar inloggen"
 
-#: modules/account/class-email-verification.php:353
+#: modules/account/class-email-verification.php:356
 msgid "A link was sent a moment ago, or this request is no longer valid. Check your inbox, or sign in to ask again."
 msgstr "Er is zojuist een link verstuurd, of dit verzoek is niet meer geldig. Check je inbox, of log in om opnieuw te vragen."
 
-#: modules/account/class-email-verification.php:354
+#: modules/account/class-email-verification.php:357
 #: modules/notifications/emails/class-email-verify-account.php:93
 msgid "Confirmation link"
 msgstr "Bevestigingslink"
@@ -7749,23 +7736,23 @@ msgstr "Nieuw CV"
 msgid "A candidate"
 msgstr "Een kandidaat"
 
-#: modules/employers/class-employers-module.php:731
+#: modules/employers/class-employers-module.php:741
 msgid "Waiting for review"
 msgstr "Wacht op beoordeling"
 
-#: modules/employers/class-employers-module.php:732
+#: modules/employers/class-employers-module.php:742
 msgid "Draft, not public"
 msgstr "Concept, niet openbaar"
 
 #. translators: 1: the open jobs count, 2: the applications count (each already a phrase).
-#: modules/employers/class-employers-module.php:751
+#: modules/employers/class-employers-module.php:761
 #, php-format
 msgctxt "company card stats"
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
 
 #. translators: %s: number of open jobs, already localised.
-#: modules/employers/class-employers-module.php:753
+#: modules/employers/class-employers-module.php:763
 #, php-format
 msgid "%s open job"
 msgid_plural "%s open jobs"
@@ -7773,7 +7760,7 @@ msgstr[0] "%s open functie"
 msgstr[1] "%s open functies"
 
 #. translators: %s: number of applications, already localised.
-#: modules/employers/class-employers-module.php:755
+#: modules/employers/class-employers-module.php:765
 #, php-format
 msgid "%s application"
 msgid_plural "%s applications"
@@ -7794,6 +7781,7 @@ msgstr "Profiel, opgeslagen items en bestanden"
 msgid "Email history"
 msgstr "E-mailgeschiedenis"
 
+#: modules/applications/class-applications-meta.php:95
 #: modules/gdpr/class-gdpr-module.php:416
 msgid "Deleted candidate"
 msgstr "Verwijderde kandidaat"
@@ -7855,118 +7843,118 @@ msgstr "Het record dat dit privacyverzoek is afgehandeld blijft bewaard voor com
 msgid "Credits needed for this job: %1$d. Your balance: %2$d."
 msgstr "Credits nodig voor deze functie: %1$d. Je saldo: %2$d."
 
-#: modules/jobs/class-jobs-module.php:306
+#: modules/jobs/class-jobs-module.php:318
 msgid "Job Category"
 msgstr "Functiecategorie"
 
-#: modules/jobs/class-jobs-module.php:334
+#: modules/jobs/class-jobs-module.php:346
 msgid "Job Tag"
 msgstr "Functietag"
 
 #. translators: %s: plural name, e.g. "Job Types".
-#: modules/jobs/class-jobs-module.php:386
+#: modules/jobs/class-jobs-module.php:398
 #, php-format
 msgid "Search %s"
 msgstr "%s zoeken"
 
 #. translators: %s: plural name, e.g. "Job Types".
-#: modules/jobs/class-jobs-module.php:388
+#: modules/jobs/class-jobs-module.php:400
 #, php-format
 msgid "All %s"
 msgstr "Alle %s"
 
 #. translators: %s: singular name, e.g. "Job Type".
-#: modules/jobs/class-jobs-module.php:390
+#: modules/jobs/class-jobs-module.php:402
 #, php-format
 msgid "Edit %s"
 msgstr "%s bewerken"
 
 #. translators: %s: singular name, e.g. "Job Type".
-#: modules/jobs/class-jobs-module.php:392
+#: modules/jobs/class-jobs-module.php:404
 #, php-format
 msgid "View %s"
 msgstr "%s bekijken"
 
 #. translators: %s: singular name, e.g. "Job Type".
-#: modules/jobs/class-jobs-module.php:394
+#: modules/jobs/class-jobs-module.php:406
 #, php-format
 msgid "Update %s"
 msgstr "%s bijwerken"
 
 #. translators: %s: singular name, e.g. "Job Type".
-#: modules/jobs/class-jobs-module.php:396
+#: modules/jobs/class-jobs-module.php:408
 #, php-format
 msgid "Add New %s"
 msgstr "Nieuwe %s toevoegen"
 
 #. translators: %s: singular name, e.g. "Job Type".
-#: modules/jobs/class-jobs-module.php:398
+#: modules/jobs/class-jobs-module.php:410
 #, php-format
 msgid "New %s Name"
 msgstr "Nieuwe naam %s"
 
 #. translators: %s: plural name, lower case, e.g. "job types".
-#: modules/jobs/class-jobs-module.php:400
+#: modules/jobs/class-jobs-module.php:412
 #, php-format
 msgid "No %s found."
 msgstr "Geen %s gevonden."
 
 #. translators: %s: plural name, lower case, e.g. "job types".
-#: modules/jobs/class-jobs-module.php:402
+#: modules/jobs/class-jobs-module.php:414
 #, php-format
 msgid "No %s"
 msgstr "Geen %s"
 
 #. translators: %s: plural name, e.g. "Job Types".
-#: modules/jobs/class-jobs-module.php:404
+#: modules/jobs/class-jobs-module.php:416
 #, php-format
 msgid "&larr; Go to %s"
 msgstr "&larr; Ga naar %s"
 
 #. translators: %s: plural name, e.g. "Job Types".
-#: modules/jobs/class-jobs-module.php:406
+#: modules/jobs/class-jobs-module.php:418
 #, php-format
 msgid "%s list"
 msgstr "%s-lijst"
 
 #. translators: %s: plural name, e.g. "Job Types".
-#: modules/jobs/class-jobs-module.php:408
+#: modules/jobs/class-jobs-module.php:420
 #, php-format
 msgid "%s list navigation"
 msgstr "%s-lijstnavigatie"
 
 #. translators: %s: singular name, e.g. "Job Category".
-#: modules/jobs/class-jobs-module.php:412
+#: modules/jobs/class-jobs-module.php:424
 #, php-format
 msgid "Parent %s"
 msgstr "Bovenliggende %s"
 
 #. translators: %s: singular name, e.g. "Job Category".
-#: modules/jobs/class-jobs-module.php:414
+#: modules/jobs/class-jobs-module.php:426
 #, php-format
 msgid "Parent %s:"
 msgstr "Bovenliggende %s:"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
-#: modules/jobs/class-jobs-module.php:417
+#: modules/jobs/class-jobs-module.php:429
 #, php-format
 msgid "Popular %s"
 msgstr "Populaire %s"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
-#: modules/jobs/class-jobs-module.php:419
+#: modules/jobs/class-jobs-module.php:431
 #, php-format
 msgid "Separate %s with commas"
 msgstr "Scheid %s met komma's"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
-#: modules/jobs/class-jobs-module.php:421
+#: modules/jobs/class-jobs-module.php:433
 #, php-format
 msgid "Add or remove %s"
 msgstr "%s toevoegen of verwijderen"
 
 #. translators: %s: plural name, lower case, e.g. "job tags".
-#: modules/jobs/class-jobs-module.php:423
+#: modules/jobs/class-jobs-module.php:435
 #, php-format
 msgid "Choose from the most used %s"
 msgstr "Kies uit de meest gebruikte %s"
@@ -8301,13 +8289,13 @@ msgstr "Hoi {user_name}, je account is klaar. Log wanneer je wilt in om je profi
 msgid "You are receiving this email because you gave us your email address on %s."
 msgstr "Je ontvangt deze e-mail omdat je ons je e-mailadres gaf op %s."
 
-#: modules/seo/class-seo-module.php:450
-#: modules/seo/class-seo-module.php:468
+#: modules/seo/class-seo-module.php:446
+#: modules/seo/class-seo-module.php:464
 msgid "Country"
 msgstr "Land"
 
-#: modules/seo/class-seo-module.php:452
-#: modules/seo/class-seo-module.php:471
+#: modules/seo/class-seo-module.php:448
+#: modules/seo/class-seo-module.php:467
 msgid "Country name or 2-letter code, used for Google for Jobs. Leave empty to use the default country from Settings > Jobs."
 msgstr "Landnaam of 2-lettercode, gebruikt voor Google for Jobs. Laat leeg om het standaardland uit Instellingen > Functies te gebruiken."
 
@@ -8327,7 +8315,7 @@ msgstr[1] "%s categorieën"
 msgid "Job category:"
 msgstr "Functiecategorie:"
 
-#: blocks/job-single/render.php:663
+#: blocks/job-single/render.php:662
 #: templates/parts/category-picker.php:102
 msgid "Job categories"
 msgstr "Functiecategorieën"
@@ -8380,7 +8368,7 @@ msgstr "Deze functie staat onder %s. Een categorie hier kiezen vervangt die."
 msgid "Chosen categories"
 msgstr "Gekozen categorieën"
 
-#: admin/class-admin.php:718
+#: admin/class-admin.php:722
 #: blocks/employer-dashboard/render.php:417
 #: blocks/employer-dashboard/render.php:563
 #: blocks/employer-dashboard/render.php:658
@@ -8467,8 +8455,8 @@ msgid "Employer Dashboard"
 msgstr "Werkgeversdashboard"
 
 #: admin/class-pages.php:80
-#: blocks/job-form-simple/render.php:304
-#: blocks/job-form/render.php:477
+#: blocks/job-form-simple/render.php:310
+#: blocks/job-form/render.php:484
 msgctxt "page title"
 msgid "Post a Job"
 msgstr "Functie plaatsen"
@@ -8505,7 +8493,7 @@ msgid "Show all candidates"
 msgstr "Alle kandidaten tonen"
 
 #: admin/class-admin-applications.php:518
-#: admin/class-admin.php:669
+#: admin/class-admin.php:672
 #: blocks/candidate-dashboard/render.php:656
 #: blocks/candidate-dashboard/render.php:769
 #: blocks/employer-dashboard/render.php:772
@@ -8531,40 +8519,40 @@ msgstr "Alle werkgevers tonen"
 msgid "Post your first job listing to get started."
 msgstr "Plaats je eerste vacature om te beginnen."
 
-#: admin/class-admin-settings.php:681
-#: admin/class-admin-settings.php:682
+#: admin/class-admin-settings.php:687
+#: admin/class-admin-settings.php:688
 msgid "Help"
 msgstr "Hulp"
 
-#: admin/class-admin-settings.php:685
+#: admin/class-admin-settings.php:691
 msgid "Documentation"
 msgstr "Documentatie"
 
-#: admin/class-admin-settings.php:723
+#: admin/class-admin-settings.php:729
 msgid "When this many different members report a job, it is taken off the site as \"Pending\" until you review it under Career Board > Jobs > Flagged. Only members with standing count toward this: an account at least a week old, or one that has applied to or published a job. The Flags column shows every report. Dismissing the reports puts it back. 0 never hides a job automatically. You are emailed on the first report and when a job is hidden."
 msgstr "Als zoveel verschillende leden een functie melden, wordt deze van de site gehaald en op \"In behandeling\" gezet tot je hem bekijkt onder Career Board > Functies > Gemarkeerd. Alleen leden met een gevestigde positie tellen mee: een account van minstens een week oud, of een account dat op een functie heeft gesolliciteerd of er een heeft geplaatst. De kolom Vlaggen toont elke melding. Als je de meldingen negeert, komt de functie terug. Bij 0 wordt een functie nooit automatisch verborgen. Je krijgt een e-mail bij de eerste melding en wanneer een functie wordt verborgen."
 
-#: admin/class-admin-settings.php:733
+#: admin/class-admin-settings.php:739
 msgid "This site still lists jobs past their deadline. New sites end every job at its deadline; sites set up earlier keep their previous behaviour until you switch."
 msgstr "Deze site toont nog steeds functies na hun deadline. Nieuwe sites beëindigen elke functie op de deadline; eerder ingestelde sites behouden hun vorige gedrag totdat je overschakelt."
 
-#: admin/class-admin-settings.php:755
+#: admin/class-admin-settings.php:761
 msgid "How job lists are ordered before a visitor picks a sort. Newest first lists featured jobs at the top. A keyword search always shows the best matches first."
 msgstr "Hoe functielijsten worden gesorteerd voordat een bezoeker een sortering kiest. Nieuwste eerst zet uitgelichte functies bovenaan. Een zoekopdracht op trefwoord toont altijd eerst de beste resultaten."
 
-#: admin/class-admin-settings.php:825
+#: admin/class-admin-settings.php:831
 msgid "Google for Jobs leaves out jobs with no location unless they are remote. When on, a job cannot be posted without a location or the Remote option. New sites start with this on; sites set up earlier keep their previous setting."
 msgstr "Google for Jobs laat functies zonder locatie weg, tenzij ze op afstand zijn. Als dit aan staat, kan een functie niet worden geplaatst zonder locatie of de optie Op afstand. Nieuwe sites starten met dit aan; eerder ingestelde sites behouden hun vorige instelling."
 
-#: admin/class-admin-settings.php:956
+#: admin/class-admin-settings.php:962
 msgid "Stops fake sign-ups using addresses the person does not own. Uses the \"Confirm Your Email\" message under Emails; if that message is turned off, sign-ups are not held. New sites start with this on; sites set up earlier keep their previous setting."
 msgstr "Voorkomt nepaanmeldingen met e-mailadressen die niet van de persoon zijn. Gebruikt het bericht \"Bevestig je e-mail\" onder E-mails; als dat bericht is uitgeschakeld, worden aanmeldingen niet vastgehouden. Nieuwe sites starten met dit aan; eerder ingestelde sites behouden hun vorige instelling."
 
-#: admin/class-admin-settings.php:1601
+#: admin/class-admin-settings.php:1607
 msgid "Account deleted, personal data erased"
 msgstr "Account verwijderd, persoonlijke gegevens gewist"
 
-#: admin/class-admin-settings.php:1611
+#: admin/class-admin-settings.php:1617
 msgid "Guest (no account)"
 msgstr "Gast (geen account)"
 
@@ -8725,55 +8713,55 @@ msgid "By continuing you agree to our %1$sPrivacy Policy%2$s."
 msgstr "Door door te gaan ga je akkoord met ons %1$sprivacybeleid%2$s."
 
 #. translators: %1$s: localised expiry date, e.g. "June 12, 2026".
-#: blocks/job-form-simple/render.php:268
-#: blocks/job-form/render.php:435
+#: blocks/job-form-simple/render.php:271
+#: blocks/job-form/render.php:440
 #, php-format
 msgid "Your listing stays live until %1$s. You can renew it from your dashboard."
 msgstr "Je vacature blijft online tot %1$s. Je kunt hem verlengen via je dashboard."
 
-#: blocks/job-form-simple/render.php:278
-#: blocks/job-form/render.php:422
+#: blocks/job-form-simple/render.php:281
+#: blocks/job-form/render.php:427
 msgid "The minimum salary is more than the maximum."
 msgstr "Het minimumsalaris is hoger dan het maximum."
 
-#: blocks/job-form-simple/render.php:331
-#: blocks/job-form/render.php:559
+#: blocks/job-form-simple/render.php:342
+#: blocks/job-form/render.php:571
 msgid "View my jobs"
 msgstr "Mijn functies bekijken"
 
 #. translators: 1: current step number, 2: number of steps, 3: step name.
-#: blocks/job-form/render.php:509
+#: blocks/job-form/render.php:521
 #, php-format
 msgid "Step %1$s of %2$s: %3$s"
 msgstr "Stap %1$s van %2$s: %3$s"
 
-#: blocks/job-form/render.php:1070
+#: blocks/job-form/render.php:1082
 msgid "Description"
 msgstr "Beschrijving"
 
 #. translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies when a salary range is set.
-#: blocks/job-listings/render.php:257
+#: blocks/job-listings/render.php:256
 #, php-format
 msgid "Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs."
 msgstr "Betaald in andere valuta. Je salarisbereik is in %s, dus het geldt niet voor deze functies."
 
 #. translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort.
-#: blocks/job-listings/render.php:262
+#: blocks/job-listings/render.php:261
 #, php-format
 msgid "Paid in other currencies. These follow the %s jobs, highest first within each currency."
 msgstr "Betaald in andere valuta. Deze volgen op de %s-functies, binnen elke valuta met het hoogste salaris eerst."
 
 #. translators: %s: the search keyword, shown as a removable pill.
-#: blocks/job-listings/render.php:507
+#: blocks/job-listings/render.php:506
 #, php-format
 msgid "\"%s\""
 msgstr "“%s”"
 
-#: blocks/job-listings/render.php:917
+#: blocks/job-listings/render.php:916
 msgid "No jobs posted yet"
 msgstr "Nog geen functies geplaatst"
 
-#: blocks/job-listings/render.php:918
+#: blocks/job-listings/render.php:917
 msgid "New openings appear here as soon as employers post them."
 msgstr "Nieuwe vacatures verschijnen hier zodra werkgevers ze plaatsen."
 
@@ -8781,7 +8769,7 @@ msgstr "Nieuwe vacatures verschijnen hier zodra werkgevers ze plaatsen."
 msgid "Add a title before publishing."
 msgstr "Voeg een titel toe voordat je publiceert."
 
-#: core/class-required-title.php:141
+#: core/class-required-title.php:144
 msgid "Add a title before publishing. It was saved as a draft."
 msgstr "Voeg een titel toe voordat je publiceert. Het is opgeslagen als concept."
 
@@ -8809,7 +8797,7 @@ msgstr "Cursussen op dezelfde site, met dezelfde ledenaccounts."
 msgid "Media galleries and messaging on the same site, using the same member accounts."
 msgstr "Mediagalerijen en berichten op dezelfde site, met dezelfde ledenaccounts."
 
-#: modules/account/class-email-verification.php:106
+#: modules/account/class-email-verification.php:109
 msgid "Your email address is confirmed. Sign in to continue."
 msgstr "Je e-mailadres is bevestigd. Log in om door te gaan."
 
@@ -8821,30 +8809,30 @@ msgstr "Achter twee lagen, zoals een CDN voor een load balancer, kies je de eige
 msgid "Please confirm you are human to continue."
 msgstr "Bevestig dat je een mens bent om door te gaan."
 
-#: modules/jobs/class-jobs-module.php:273
+#: modules/jobs/class-jobs-module.php:285
 msgid "Share image"
 msgstr "Afbeelding om te delen"
 
-#: modules/jobs/class-jobs-module.php:274
+#: modules/jobs/class-jobs-module.php:286
 msgid "Set share image"
 msgstr "Afbeelding om te delen instellen"
 
-#: modules/jobs/class-jobs-module.php:275
+#: modules/jobs/class-jobs-module.php:287
 msgid "Remove share image"
 msgstr "Afbeelding om te delen verwijderen"
 
-#: modules/jobs/class-jobs-module.php:276
+#: modules/jobs/class-jobs-module.php:288
 msgid "Use as share image"
 msgstr "Gebruiken als afbeelding om te delen"
 
 #: admin/class-admin.php:263
-#: modules/jobs/class-jobs-module.php:305
-#: modules/jobs/class-jobs-module.php:306
+#: modules/jobs/class-jobs-module.php:317
+#: modules/jobs/class-jobs-module.php:318
 msgctxt "taxonomy general name"
 msgid "Job Categories"
 msgstr "Functiecategorieën"
 
-#: modules/jobs/class-jobs-module.php:320
+#: modules/jobs/class-jobs-module.php:332
 msgctxt "taxonomy singular name"
 msgid "Job Type"
 msgstr "Type vacature"
@@ -8871,17 +8859,17 @@ msgctxt "page title"
 msgid "Employer Registration"
 msgstr "Werkgeverregistratie"
 
-#: admin/class-admin.php:873
+#: admin/class-admin.php:877
 msgid "Ban employer"
 msgstr "Werkgever blokkeren"
 
 #. translators: %s: employer name.
-#: admin/class-admin.php:875
+#: admin/class-admin.php:879
 #, php-format
 msgid "Ban %s? Their jobs and company page are hidden and they can no longer post jobs or use their dashboard. You can unban them later."
 msgstr "%s blokkeren? Hun vacatures en bedrijfspagina worden verborgen en ze kunnen geen vacatures meer plaatsen of hun dashboard gebruiken. Je kunt de blokkering later opheffen."
 
-#: admin/class-admin.php:876
+#: admin/class-admin.php:880
 msgid "Ban the selected employers? Their jobs and company pages are hidden and they can no longer post jobs or use their dashboard. You can unban them later."
 msgstr "De geselecteerde werkgevers blokkeren? Hun vacatures en bedrijfspagina’s worden verborgen en ze kunnen geen vacatures meer plaatsen of hun dashboard gebruiken. Je kunt de blokkering later opheffen."
 
@@ -8897,6 +8885,60 @@ msgstr "Plaats vacatures, beoordeel sollicitanten en beheer werving"
 msgid "Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake."
 msgstr "Je account is door de sitebeheerder opgeschort, dus deze pagina is niet beschikbaar. Neem contact op met de sitebeheerder als je denkt dat dit een vergissing is."
 
-#: blocks/job-form/render.php:416
+#: blocks/job-form-simple/render.php:283
+#: blocks/job-form/render.php:421
 msgid "You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page."
 msgstr "Je bent afgemeld. Meld je opnieuw aan in een nieuw tabblad en verstuur het daarna hier opnieuw. Je vacaturegegevens staan nog op deze pagina."
+
+#: admin/class-admin-settings.php:479
+#: admin/views/wizard-steps/sample-data.php:24
+msgid "Wbcom Demo Installer is active. It builds the full demo for every Wbcom plugin on this site, with sample people, applications and company logos, and removes it all in one click."
+msgstr "Wbcom Demo Installer is actief. Hij bouwt de volledige demo voor elke Wbcom-plugin op deze site, met voorbeeldpersonen, sollicitaties en bedrijfslogo's, en verwijdert alles met één klik."
+
+#: admin/class-admin-settings.php:480
+#: admin/views/wizard-steps/sample-data.php:25
+msgid "Open Demo Installer"
+msgstr "Demo Installer openen"
+
+#: admin/class-admin-settings.php:482
+msgid "Add sample companies and jobs so you can explore every feature. No user accounts are created, and you can remove it again any time."
+msgstr "Voeg voorbeeldbedrijven en -vacatures toe om elke functie te verkennen. Er worden geen gebruikersaccounts aangemaakt en je kunt alles altijd weer verwijderen."
+
+#: admin/views/wizard-steps/sample-data.php:32
+msgid "Add sample companies and jobs"
+msgstr "Voorbeeldbedrijven en -vacatures toevoegen"
+
+#: admin/views/wizard-steps/sample-data.php:34
+msgid "Helps you see how everything looks before adding real data. No user accounts are created, and you can remove it all later from Settings."
+msgstr "Helpt je te zien hoe alles eruitziet voordat je echte gegevens toevoegt. Er worden geen gebruikersaccounts aangemaakt en je kunt later alles verwijderen via Instellingen."
+
+#: admin/views/wizard-steps/sample-data.php:40
+msgid "Menu"
+msgstr "Menu"
+
+#: admin/views/wizard-steps/sample-data.php:47
+msgid "Create a Jobs menu with Find Jobs, Companies and Post a Job"
+msgstr "Een Vacatures-menu maken met Vacatures zoeken, Bedrijven en Vacature plaatsen"
+
+#: admin/views/wizard-steps/sample-data.php:49
+msgid "It is placed in your main menu location only if that location is empty. Otherwise assign it in Appearance > Menus."
+msgstr "Het wordt alleen in je hoofdmenulocatie geplaatst als die leeg is. Wijs het anders toe via Weergave > Menu's."
+
+#: blocks/job-form-simple/render.php:315
+#: blocks/job-form/render.php:489
+msgid "We kept the job you were writing on this device."
+msgstr "We hebben de vacature die je aan het schrijven was op dit apparaat bewaard."
+
+#: blocks/job-form-simple/render.php:316
+#: blocks/job-form/render.php:490
+msgid "Start over"
+msgstr "Opnieuw beginnen"
+
+#: core/class-roles.php:269
+#: core/class-roles.php:272
+msgid "Career Board roles"
+msgstr "Career Board-rollen"
+
+#: core/class-roles.php:280
+msgid "Added on top of the Role above, so the member keeps it."
+msgstr "Komt bovenop de rol hierboven, zodat het lid die houdt."
