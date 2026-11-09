@@ -320,7 +320,12 @@ final class ApplicationsEndpoint extends RestController {
 						'post_type'      => 'wcb_application',
 						'post_status'    => 'any',
 						'posts_per_page' => 1,
-						'date_query'     => array( array( 'after' => $cutoff ) ),
+						'date_query'     => array(
+							array(
+								'after'  => $cutoff,
+								'column' => 'post_date_gmt',
+							),
+						),
 						'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 								'relation' => 'AND',
 								array(
@@ -698,11 +703,10 @@ final class ApplicationsEndpoint extends RestController {
 				'jobRemoved'   => $job_removed || ! $job_exists,
 				// Withdraw is offered until the application has an outcome.
 				'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
-				'created_at'   => mysql_to_rfc3339( $app->post_date_gmt ),
-				'updated_at'   => mysql_to_rfc3339( $app->post_modified_gmt ),
+				'created_at'   => $app->post_date_gmt,
+				'updated_at'   => $app->post_modified_gmt,
 				// Legacy `date` key, still rendered by the candidate dashboard.
-				// Use the site's configured date format, not a hardcoded ISO string.
-				'date'         => get_the_date( (string) get_option( 'date_format' ), $app ),
+				'date'         => \WCB\Core\Time::date_label( $app->post_date_gmt ),
 			) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
 
 			/** This filter is documented in api/endpoints/class-applications-endpoint.php */
@@ -1251,7 +1255,7 @@ final class ApplicationsEndpoint extends RestController {
 			'resume_url'       => $resume_attachment_id ? \WCB\Core\PrivateFiles::url( (int) $resume_attachment_id ) : '',
 			'resume_permalink' => $resume_permalink,
 			'status'           => '' !== $status ? $status : 'submitted',
-			'submitted_at'     => $post->post_date,
+			'submitted_at'     => $post->post_date_gmt,
 			// status_history intentionally omitted — internal employer audit
 			// trail. F-3 in plan/role-data-baseline-2026-05-07.md.
 		);

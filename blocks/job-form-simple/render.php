@@ -166,7 +166,7 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_bcost ) {
 // ── Deadline ───────────────────────────────────────────────────────────────
 // Default from the board's listing length; the employer may pick any date up to
 // it (owner decision, 1.8.1) and REST caps it at the same maximum.
-$wcb_deadline = \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id );
+$wcb_deadline = \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id ) );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -190,7 +190,7 @@ $wcb_state = apply_filters(
 		'remote'            => false,
 		'deadline'          => $wcb_deadline,
 		'deadlineMax'       => $wcb_deadline,
-		'deadlineMin'       => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
+		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
 		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
 		// it is a locale tag, not a translatable string. view.js hands it to
 		// Intl.NumberFormat so numbers group per the SITE locale.

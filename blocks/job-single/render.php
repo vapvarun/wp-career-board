@@ -65,8 +65,7 @@ $wcb_salary_min         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min'
 $wcb_salary_max         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
 $wcb_salary_type_raw    = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
 $wcb_salary_type        = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
-$wcb_deadline           = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
-$wcb_deadline_formatted = $wcb_deadline ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline ) ) : '';
+$wcb_deadline_formatted = \WCB\Core\JobDeadline::label( $wcb_job_id );
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
 // External apply routing — URL wins (ATS redirect), email is a passive contact channel.

@@ -421,7 +421,7 @@ final class JobSearch {
 		} elseif ( 'closing' === $sort ) {
 			// Soonest first among jobs still open; jobs without a deadline next; jobs already past it last.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_dl ON ( wcb_dl.post_id = {$posts}.ID AND wcb_dl.meta_key = '_wcb_deadline' AND wcb_dl.meta_value <> '' )";
-			$clauses['orderby'] = $wpdb->prepare( "CASE WHEN wcb_dl.meta_value IS NULL THEN 1 WHEN wcb_dl.meta_value < %s THEN 2 ELSE 0 END, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC", current_time( 'Y-m-d' ) );
+			$clauses['orderby'] = $wpdb->prepare( "CASE WHEN wcb_dl.meta_value IS NULL THEN 1 WHEN wcb_dl.meta_value < %s THEN 2 ELSE 0 END, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC", current_time( 'mysql', true ) );
 		}
 		if ( $by_pay ) {
 			// No exchange rates: pay in the site currency comes first, and pay in

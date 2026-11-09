@@ -616,9 +616,8 @@ class GdprModule {
 			return;
 		}
 		global $wpdb;
-		// Same clock the rows are written with (current_time( 'mysql' ), site
-		// time), so a site west of UTC does not lose history hours early.
-		$cutoff = ( new \DateTimeImmutable( 'now', wp_timezone() ) )->modify( "-{$days} days" )->format( 'Y-m-d H:i:s' );
+		// Rows are stored in UTC (Time Standard, 1.8.3), so the cutoff is UTC too.
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- bounded retention delete.
 		$deleted = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}wcb_notifications_log WHERE sent_at < %s LIMIT 5000", $cutoff ) );
 
@@ -627,7 +626,7 @@ class GdprModule {
 		 *
 		 * @since 1.8.0
 		 *
-		 * @param string $cutoff Rows older than this (site time, Y-m-d H:i:s) are removed.
+		 * @param string $cutoff Rows older than this (UTC since 1.8.3, Y-m-d H:i:s) are removed.
 		 */
 		do_action( 'wcb_logs_pruned', $cutoff );
 
@@ -658,7 +657,7 @@ class GdprModule {
 				'user_id'    => $user_id,
 				'action'     => $action,
 				'ip_hash'    => hash( 'sha256', $ip ),
-				'created_at' => current_time( 'mysql' ),
+				'created_at' => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%s' )
 		);

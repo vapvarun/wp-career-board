@@ -108,7 +108,7 @@ class EmailDeletionRequested extends AbstractEmail {
 			$user->user_email,
 			static fn(): array => array(
 				'user_name'   => $user->display_name,
-				'delete_date' => wp_date( (string) get_option( 'date_format' ), $when ?: time() ),
+				'delete_date' => \WCB\Core\Time::date_label( $when ?: time(), '', null, (int) $user->ID ),
 				'login_url'   => wp_login_url(),
 			),
 			$user_id

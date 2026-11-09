@@ -361,14 +361,10 @@ class SeoModule {
 	 * @return string
 	 */
 	private static function valid_through( string $date ): string {
-		if ( '' === $date ) {
-			return '';
-		}
-		try {
-			return ( new \DateTimeImmutable( $date . ' 23:59:59', wp_timezone() ) )->format( 'c' );
-		} catch ( \Exception $e ) {
-			return '';
-		}
+		// The deadline is stored as the UTC instant applications close (1.8.3);
+		// a legacy Y-m-d reads as that day's end.
+		$timestamp = \WCB\Core\Time::utc_timestamp( \WCB\Core\Time::end_of_day_utc( $date ) );
+		return null === $timestamp ? '' : gmdate( 'c', $timestamp );
 	}
 
 	/**

@@ -73,12 +73,27 @@ WP_CLI::log( '' );
 
 $admin_id = 1;
 
-$candidate_users = get_users( array( 'role' => 'wcb_candidate', 'number' => 2 ) );
-$candidate_id    = ! empty( $candidate_users ) ? (int) $candidate_users[0]->ID : 0;
-$candidate_id_2  = count( $candidate_users ) >= 2 ? (int) $candidate_users[1]->ID : 0;
+// A site without seed members still runs every check: missing members are
+// created for this run and removed at the end.
+$wcb_fixture_users = array();
+$wcb_member        = static function ( string $role, int $skip = 0 ) use ( &$wcb_fixture_users ): int {
+	$found = get_users( array( 'role' => $role, 'number' => 1, 'offset' => $skip, 'fields' => 'ID' ) );
+	if ( $found ) {
+		return (int) $found[0];
+	}
+	$login = 'wcb-rest-' . $role . '-' . wp_rand();
+	$id    = wp_create_user( $login, wp_generate_password(), $login . '@example.test' );
+	if ( is_wp_error( $id ) ) {
+		return 0;
+	}
+	( new WP_User( $id ) )->add_role( $role );
+	$wcb_fixture_users[] = $id;
+	return (int) $id;
+};
+$candidate_id   = $wcb_member( 'wcb_candidate' );
+$candidate_id_2 = $wcb_member( 'wcb_candidate', 1 );
 
-$employer_users = get_users( array( 'role' => 'wcb_employer', 'number' => 1 ) );
-$employer_id    = ! empty( $employer_users ) ? (int) $employer_users[0]->ID : 0;
+$employer_id = $wcb_member( 'wcb_employer' );
 
 $company_posts = get_posts( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'numberposts' => 1, 'fields' => 'ids' ) );
 $company_id    = ! empty( $company_posts ) ? (int) $company_posts[0] : 0;
@@ -172,6 +187,9 @@ wcb_assert( in_array( $r->get_status(), array( 401, 403 ), true ), 'POST /jobs a
 // active the site's default board may charge credits (Pro's job-charge suite
 // covers that), so this suite declares its posts free.
 add_filter( 'wcb_job_payment_exempt', '__return_true', 99 );
+// Registration checks test the route, not the per-network sign-up limit,
+// which repeated runs on one machine would otherwise trip (429).
+add_filter( 'wcb_registration_rate_limit', static fn (): int => PHP_INT_MAX );
 
 WP_CLI::log( '--- Jobs: POST /wcb/v1/jobs (employer) ---' );
 $r = wcb_rest( 'POST', '/wcb/v1/jobs', array( 'remote' => true, 'title' => '__wcb_test_job__', 'description' => 'Test job for REST suite' ), $employer_id );
@@ -1084,6 +1102,11 @@ if ( $wcb_own_job ) {
 WP_CLI::log( '' );
 WP_CLI::log( '========================================' );
 WP_CLI::log( '  Free REST API Test Summary' );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+foreach ( $wcb_fixture_users as $wcb_fixture_user ) {
+	wp_delete_user( $wcb_fixture_user );
+}
+
 WP_CLI::log( '========================================' );
 WP_CLI::log( "  Total: " . ( $GLOBALS['wcb_test_pass'] + $GLOBALS['wcb_test_fail'] ) );
 WP_CLI::log( "  Pass:  " . $GLOBALS['wcb_test_pass'] );

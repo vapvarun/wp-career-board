@@ -95,13 +95,26 @@ $published_jobs = get_posts(
 );
 $published_job_id = ! empty( $published_jobs ) ? (int) $published_jobs[0] : 0;
 
-// Find an application for status update test.
+// Find an application for status update test: one still open, since a
+// closed one (hired, withdrawn, position closed) rightly refuses any change.
 $applications = get_posts(
 	array(
 		'post_type'      => 'wcb_application',
 		'post_status'    => 'any',
 		'posts_per_page' => 1,
 		'fields'         => 'ids',
+		'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			'relation' => 'OR',
+			array(
+				'key'     => '_wcb_status',
+				'value'   => \WCB\Modules\Applications\ApplicationStatus::terminal(),
+				'compare' => 'NOT IN',
+			),
+			array(
+				'key'     => '_wcb_status',
+				'compare' => 'NOT EXISTS',
+			),
+		),
 	)
 );
 $app_id = ! empty( $applications ) ? (int) $applications[0] : 0;

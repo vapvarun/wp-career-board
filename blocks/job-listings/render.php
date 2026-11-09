@@ -179,7 +179,6 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	$wcb_salary_currency  = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_currency', true );
 	$wcb_salary_type_raw  = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_type', true );
 	$wcb_salary_type      = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
-	$wcb_deadline_val     = (string) get_post_meta( $wcb_job_post->ID, '_wcb_deadline', true );
 	$wcb_company_name_val = (string) get_post_meta( $wcb_job_post->ID, '_wcb_company_name', true );
 	$wcb_author_id        = (int) $wcb_job_post->post_author;
 	// Prefer the job's own link — the author's user meta shows the poster's
@@ -216,20 +215,20 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 		// Mirrors REST: the job's currency, or the site's when it has none.
 		'salary_currency' => $wcb_salary_currency ? strtoupper( $wcb_salary_currency ) : $wcb_site_currency,
 		'salary_label'    => $wcb_format_salary( $wcb_salary_min, $wcb_salary_max, $wcb_salary_currency ? $wcb_salary_currency : $wcb_site_currency, $wcb_salary_type ),
-		// `deadline` stays the raw stored date to match REST /wcb/v1/jobs
+		// `deadline` is the UTC instant in the REST form /wcb/v1/jobs sends
 		// (fetchJobs() replaces this state with the REST payload); the card binds
 		// the localised `deadline_label`. Seeding both keeps the SSR first paint
 		// identical to the post-hydration REST payload so the date never flips to
 		// a bare ISO string after fetch.
-		'deadline'        => $wcb_deadline_val,
-		'deadline_label'  => $wcb_deadline_val ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline_val ) ) : '',
+		'deadline'        => \WCB\Core\Time::rest_datetime( \WCB\Core\JobDeadline::get( $wcb_job_post->ID ) ),
+		'deadline_label'  => \WCB\Core\JobDeadline::label( $wcb_job_post->ID ),
 		// Mirrors the REST field of the same name so the closed badge survives
 		// hydration instead of vanishing when fetchJobs() swaps in the payload.
 		'deadline_passed' => \WCB\Core\JobDeadline::has_passed( $wcb_job_post->ID ),
 		'days_ago'        => sprintf(
 			/* translators: %s: human-readable time difference, e.g. "3 days". */
 			__( '%s ago', 'wp-career-board' ),
-			human_time_diff( (int) strtotime( $wcb_job_post->post_date ), time() )
+			human_time_diff( (int) get_post_time( 'U', true, $wcb_job_post ), time() )
 		),
 		'bookmarked'      => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 		'excerpt'         => \WCB\Core\Text::excerpt( $wcb_job_post->post_content, 25, '…' ),

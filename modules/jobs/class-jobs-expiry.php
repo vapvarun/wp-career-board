@@ -219,7 +219,7 @@ final class JobsExpiry {
 		// Only a job that ended in the last week is announced. Turning expiry on
 		// for an older site moves its whole backlog at once, and emailing every
 		// employer about listings that ended months ago helps no one.
-		$announce_from = gmdate( 'Y-m-d', (int) strtotime( current_time( 'Y-m-d' ) . ' -7 days' ) );
+		$announce_from = gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS );
 
 		foreach ( $jobs as $job_id ) {
 			wp_update_post(

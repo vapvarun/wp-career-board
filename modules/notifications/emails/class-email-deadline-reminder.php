@@ -131,21 +131,19 @@ class EmailDeadlineReminder extends AbstractEmail {
 			return;
 		}
 
-		$deadline_raw = (string) get_post_meta( $job_id, '_wcb_deadline', true );
+		$deadline_raw = \WCB\Core\JobDeadline::get( $job_id );
 
 		$this->send(
 			$user->user_email,
-			// A closure: mysql2date() translates month names using whichever
-			// locale is active when it runs, so it must run after send()
-			// switches to the recipient's own locale, not the site's.
+			// A closure: the date's month names follow whichever locale is
+			// active when it runs, so it must run after send() switches to the
+			// recipient's own locale; the day is in the recipient's timezone.
 			static fn(): array => array(
 				'job_title'     => $job->post_title,
 				'job_url'       => (string) get_permalink( $job_id ),
 				'days_left'     => $days_left,
-				'deadline_iso'  => $deadline_raw,
-				'deadline_date' => '' !== $deadline_raw
-					? (string) mysql2date( (string) get_option( 'date_format', 'F j, Y' ), $deadline_raw )
-					: '',
+				'deadline_iso'  => \WCB\Core\Time::date_input( $deadline_raw ),
+				'deadline_date' => \WCB\Core\Time::date_label( $deadline_raw, '', null, $user_id ),
 				'company_name'  => (string) get_post_meta( $job_id, '_wcb_company_name', true ),
 			),
 			$user->ID,

@@ -27,7 +27,8 @@ Use these actions and filters to change how WP Career Board behaves, react to ev
 | `wcb_featured_expired` | Action | Fires right after `wcb_job_featured_expired`, for the same event. Args: `$job_id`. The daily cron event behind both is `wcb_expire_featured_jobs`. |
 | `wcb_job_default_status` | Filter | The status a new job gets. Return `publish`, `pending` or `draft`; anything else is ignored. Args: `$status, $request`. |
 | `wcb_job_default_expiry_days` | Filter | The listing length in days when the request has no deadline. Args: `$days, $request`. |
-| `wcb_job_deadline_passed` | Filter | Keep applications open past the stored deadline, or close them early. Args: `$passed, $job_id, $deadline`. |
+| `wcb_job_deadline_passed` | Filter | Keep applications open past the stored deadline, or close them early. Args: `$passed, $job_id, $deadline` (UTC `Y-m-d H:i:s` since 1.8.3). |
+| `wcb_display_timezone` | Filter | The timezone every time is shown in: admin screens, member pages, emails, edit fields and scripts. Default: the site's timezone (Settings > General). Return a member's own timezone to show each member their local time. Args: `DateTimeZone $timezone, int $user_id`. |
 | `wcb_job_board_id` | Filter | Resolve which board a job belongs to. Args: `$board_id, $job_id`. |
 | `wcb_job_allow_new_terms` | Filter | Whether a submission may create new category, type, location or experience terms. Default: moderators only. Tags are always free-form. Args: `$allow, $request`. |
 | `wcb_job_payment` | Filter | Return `true` when the job is paid or free, or a `WP_Error` (402) when it is not. `$event` is `create`, `resubmit`, `republish`, `board_change` or `feature`. Pro's credits answer it. Args: `$paid, $job_id, $event`. |
@@ -364,7 +365,7 @@ document.addEventListener( 'wcb:results', ( event ) => {
 
 | Hook or helper | Args | Purpose |
 |---|---|---|
-| `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
+| `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The deadline (UTC, the last second of the day in the site's timezone) a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
 | `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
 | `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
 

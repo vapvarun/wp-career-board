@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.4';
+	const DB_VERSION = '1.4.5';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -573,6 +573,20 @@ final class Install {
 				add_action( 'init', array( Locations::class, 'remove_orphan_hq_links' ), 25 );
 			}
 
+			// 1.4.5 - Time Standard: history rows written in site time move to
+			// UTC, and job deadlines become the UTC instant their day ends.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.5', '<' ) ) {
+				global $wpdb;
+				foreach ( array(
+					'wcb_notifications_log' => 'sent_at',
+					'wcb_job_views'         => 'viewed_at',
+					'wcb_gdpr_log'          => 'created_at',
+				) as $wcb_table => $wcb_column ) {
+					Time::local_column_to_utc( $wpdb->prefix . $wcb_table, $wcb_column );
+				}
+				self::migrate_deadlines_to_utc();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -584,6 +598,43 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Store every date-only job deadline as the UTC instant its day ends.
+	 *
+	 * One UPDATE per distinct date (a site has at most a few hundred), each
+	 * converted in PHP with the site's timezone so daylight saving is exact.
+	 * The employer-warning flag holds a copy of the deadline and moves too.
+	 * Idempotent: only `Y-m-d` values match.
+	 *
+	 * @since 1.8.3
+	 * @return void
+	 */
+	private static function migrate_deadlines_to_utc(): void {
+		global $wpdb;
+		$utc = new \DateTimeZone( 'UTC' );
+		foreach ( array( '_wcb_deadline', '_wcb_expiring_warned' ) as $key ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade read.
+			$days = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'", $key ) );
+			foreach ( $days as $day ) {
+				$end = date_create( $day . ' 23:59:59', wp_timezone() );
+				if ( false === $end ) {
+					continue;
+				}
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade write; meta cache retired below.
+				$wpdb->update(
+					$wpdb->postmeta,
+					array( 'meta_value' => $end->setTimezone( $utc )->format( 'Y-m-d H:i:s' ) ),
+					array(
+						'meta_key'   => $key,
+						'meta_value' => $day,
+					)
+				); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			}
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- ids of the jobs just changed.
+		\WCB\Modules\Boards\BoardsModule::forget_job_meta( array_map( 'intval', $wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_deadline'" ) ) );
 	}
 
 	/**

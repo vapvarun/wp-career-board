@@ -377,7 +377,7 @@ abstract class AbstractEmail {
 					)
 				),
 				'status'     => $status,
-				'sent_at'    => current_time( 'mysql' ),
+				'sent_at'    => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s' )
 		);

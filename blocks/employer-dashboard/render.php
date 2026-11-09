@@ -233,8 +233,8 @@ wp_interactivity_state(
 			_n( '%s application waiting for review', '%s applications waiting for review', $wcb_counts['awaiting_apps'], 'wp-career-board' ),
 			number_format_i18n( $wcb_counts['awaiting_apps'] )
 		),
-		'siteToday'             => current_time( 'Y-m-d' ),
-		'siteSoon'              => gmdate( 'Y-m-d', (int) strtotime( current_time( 'Y-m-d' ) . ' +7 days' ) ),
+		'siteToday'             => \WCB\Core\Time::today(),
+		'siteSoon'              => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+7 days' )->format( 'Y-m-d' ),
 		// Company filter for My Jobs + Applications (0 = all companies). The
 		// select only renders when the employer runs more than one company.
 		'companyFilter'         => 0,

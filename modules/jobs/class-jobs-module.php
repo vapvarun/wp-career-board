@@ -201,7 +201,7 @@ final class JobsModule {
 			$meta[] = esc_html__( 'Salary', 'wp-career-board' ) . ': ' . esc_html( $currency . ' ' . number_format( (int) $sal_min ) . ' – ' . number_format( (int) $sal_max ) );
 		}
 
-		$deadline = (string) get_post_meta( $id, '_wcb_deadline', true );
+		$deadline = \WCB\Core\JobDeadline::label( $id );
 		if ( $deadline ) {
 			$meta[] = esc_html__( 'Apply by', 'wp-career-board' ) . ': ' . esc_html( $deadline );
 		}

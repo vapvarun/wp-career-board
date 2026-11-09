@@ -1548,7 +1548,7 @@ class AdminSettings {
 					?>
 					<tr>
 						<td><a href="<?php echo esc_url( get_edit_user_link( $wcb_member->ID ) ); ?>"><?php echo esc_html( $wcb_member->user_login ); ?></a></td>
-						<td><?php echo esc_html( $wcb_when ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $wcb_when ) : '—' ); ?></td>
+						<td><?php echo esc_html( \WCB\Core\Time::datetime_label( (int) $wcb_when ) ); ?></td>
 						<td>
 							<?php
 							echo $wcb_left > 0
@@ -1608,7 +1608,7 @@ class AdminSettings {
 						)[ $row->action ] ?? __( 'Export personal data', 'wp-career-board' );
 						?>
 						<tr>
-							<td><?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row->created_at ) ); ?></td>
+							<td><?php echo esc_html( \WCB\Core\Time::datetime_label( (string) $row->created_at ) ); ?></td>
 							<td><?php echo esc_html( $label ); ?></td>
 							<td>
 								<?php if ( $user ) : ?>

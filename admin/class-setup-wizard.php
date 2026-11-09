@@ -620,7 +620,6 @@ class SetupWizard extends \WCB\Api\RestController {
 					'post_name'     => $co['slug'],
 					'post_status'   => 'publish',
 					'post_author'   => $author_id,
-					'post_date'     => get_date_from_gmt( $joined_gmt ),
 					'post_date_gmt' => $joined_gmt,
 				)
 			);
@@ -691,7 +690,6 @@ class SetupWizard extends \WCB\Api\RestController {
 					'post_content'  => self::sample_content_to_html( $job['content'] ),
 					'post_status'   => 'publish',
 					'post_author'   => $author_id,
-					'post_date'     => get_date_from_gmt( $posted_gmt ),
 					'post_date_gmt' => $posted_gmt,
 				)
 			);

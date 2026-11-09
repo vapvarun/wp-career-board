@@ -213,9 +213,9 @@ wp_set_current_user( 1 );
 wp_update_post( array( 'ID' => $wcb_adm, 'post_status' => 'publish' ) );
 wcb_jl_assert( JobDeadline::get( $wcb_adm ) > $wcb_today && JobDeadline::accepts_applications( $wcb_adm ), 'admin Approve on an expired job gives it a fresh deadline, so it accepts applications (' . JobDeadline::get( $wcb_adm ) . ')' );
 wp_update_post( array( 'ID' => $wcb_own, 'post_status' => 'publish', 'meta_input' => array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ) ) ) );
-wcb_jl_assert( JobDeadline::get( $wcb_own ) === gmdate( 'Y-m-d', strtotime( '+90 days' ) ), 'control: a deadline given with the republish is kept' );
+wcb_jl_assert( JobDeadline::day( $wcb_own ) === gmdate( 'Y-m-d', strtotime( '+90 days' ) ), 'control: a deadline given with the republish is kept' );
 wp_update_post( array( 'ID' => $wcb_live, 'post_title' => 'JL edited' ) );
-wcb_jl_assert( JobDeadline::get( $wcb_live ) === $wcb_past, 'control: editing a job that never ended does not touch its deadline' );
+wcb_jl_assert( JobDeadline::day( $wcb_live ) === $wcb_past, 'control: editing a job that never ended does not touch its deadline' );
 foreach ( array( $wcb_adm, $wcb_own, $wcb_live ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }

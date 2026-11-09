@@ -256,7 +256,7 @@ final class AdminEndpoint extends RestController {
 			'new_status'     => __( 'Shortlisted', 'wp-career-board' ),
 			'days_left'      => 3,
 			'deadline_iso'   => gmdate( 'Y-m-d', time() + 3 * DAY_IN_SECONDS ),
-			'deadline_date'  => date_i18n( (string) get_option( 'date_format', 'F j, Y' ), time() + 3 * DAY_IN_SECONDS ),
+			'deadline_date'  => \WCB\Core\Time::date_label( time() + 3 * DAY_IN_SECONDS ),
 			'job_url'        => home_url( '/' ),
 			'dashboard_url'  => home_url( '/' ),
 			'repost_url'     => home_url( '/' ),
@@ -271,7 +271,7 @@ final class AdminEndpoint extends RestController {
 			'user_name'      => $user->display_name,
 			'site_name'      => (string) get_bloginfo( 'name' ),
 			'login_url'      => wp_login_url(),
-			'delete_date'    => date_i18n( (string) get_option( 'date_format', 'F j, Y' ), time() + 7 * DAY_IN_SECONDS ),
+			'delete_date'    => \WCB\Core\Time::date_label( time() + 7 * DAY_IN_SECONDS ),
 			'credits'        => 5,
 			'refund_message' => $mark( __( '5 credits held for a job listing have been returned to your account.', 'wp-career-board' ) ),
 			'is_test'        => true,
@@ -366,7 +366,7 @@ final class AdminEndpoint extends RestController {
 					'sent_at'    => (string) $row['sent_at'],
 					// Site date and time format, formatted here so every admin sees one string
 					// (the browser's locale gave en-IN and en-US admins different dates).
-					'sent_label' => mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row['sent_at'] ),
+					'sent_label' => \WCB\Core\Time::datetime_label( (string) $row['sent_at'] ),
 				);
 			},
 			$rows

@@ -80,7 +80,7 @@ final class RssFeedEnrichment {
 		$currency    = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
 		$type        = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
 		$remote      = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
-		$deadline    = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
+		$deadline    = \WCB\Core\JobDeadline::get( $post->ID );
 		$loc_terms   = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
 		$type_terms  = wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 		$cat_terms   = wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'names' ) );
@@ -89,7 +89,7 @@ final class RssFeedEnrichment {
 
 		// Stable per-job reference for dedup on the aggregator side.
 		echo "\t<wcb:reference>" . esc_html( (string) $post->ID ) . "</wcb:reference>\n";
-		echo "\t<wcb:posted>" . esc_html( mysql_to_rfc3339( $post->post_date_gmt ) ) . "</wcb:posted>\n";
+		echo "\t<wcb:posted>" . esc_html( \WCB\Core\Time::rest_datetime( $post->post_date_gmt ) ) . "</wcb:posted>\n";
 
 		if ( '' !== $company ) {
 			echo "\t<wcb:company>" . esc_html( $company ) . "</wcb:company>\n";
@@ -144,7 +144,7 @@ final class RssFeedEnrichment {
 		}
 		echo "\t<wcb:remote>" . ( $remote ? 'true' : 'false' ) . "</wcb:remote>\n";
 		if ( '' !== $deadline ) {
-			echo "\t<wcb:deadline>" . esc_html( $deadline ) . "</wcb:deadline>\n";
+			echo "\t<wcb:deadline>" . esc_html( \WCB\Core\Time::rest_datetime( $deadline ) ) . "</wcb:deadline>\n";
 		}
 	}
 

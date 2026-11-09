@@ -793,7 +793,7 @@ final class EmployersEndpoint extends RestController {
 			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts ): array {
 				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
-				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
+				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 				$status_labels  = self::job_status_labels();
 				// Mirror the public-facing 'closed' / 'expired' status used by
 				// the dashboard JS; matches the inverse mapping in
@@ -832,6 +832,7 @@ final class EmployersEndpoint extends RestController {
 					'location'         => implode( ', ', $location_terms ),
 					'type'             => implode( ', ', $type_terms ),
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
+					'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
 				);
 			},
 			$posts
@@ -905,7 +906,7 @@ final class EmployersEndpoint extends RestController {
 				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
-				$deadline_raw   = (string) get_post_meta( $p->ID, '_wcb_deadline', true );
+				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 
 				$status_labels = self::job_status_labels();
 
@@ -944,6 +945,7 @@ final class EmployersEndpoint extends RestController {
 					'location'         => implode( ', ', $location_terms ),
 					'type'             => implode( ', ', $type_terms ),
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
+					'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
 				);
 			},
 			$query->posts
@@ -1042,7 +1044,7 @@ final class EmployersEndpoint extends RestController {
 		$since = (int) $request->get_param( 'since_days' );
 		if ( $since > 0 ) {
 			// Same cut-off as dashboard_counts()' new_apps, so the list matches the figure.
-			$from .= $wpdb->prepare( ' AND app.post_date >= %s', gmdate( 'Y-m-d H:i:s', time() - $since * DAY_IN_SECONDS ) );
+			$from .= $wpdb->prepare( ' AND app.post_date_gmt >= %s', gmdate( 'Y-m-d H:i:s', time() - $since * DAY_IN_SECONDS ) );
 		}
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- $from is prepared; the page query adds only LIMIT/OFFSET.
 		// Per-status totals over every job in scope (the Applications chips), before the status filter.

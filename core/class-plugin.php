@@ -153,6 +153,8 @@ final class Plugin {
 		$this->boot_modules();
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		// Every stored UTC time in a wcb/v1 response goes out as ISO 8601 with offset (Time Standard rule 7).
+		add_filter( 'rest_request_after_callbacks', array( Time::class, 'iso_response_dates' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
 		add_action( 'init', array( $this, 'register_block_templates' ) );
@@ -340,6 +342,11 @@ final class Plugin {
 				array(),
 				WCB_VERSION
 			);
+			// Scripts show stored UTC times in the display timezone, never the browser's.
+			add_filter(
+				'script_module_data_@wcb/ui',
+				static fn ( array $data ): array => $data + array( 'timeZone' => \WCB\Core\Time::js_timezone() )
+			);
 			wp_register_script_module(
 				'@wcb/category-picker',
 				WCB_URL . 'assets/js/modules/wcb-category-picker.js',
@@ -364,6 +371,7 @@ final class Plugin {
 				array(
 					array( 'id' => '@wordpress/interactivity' ),
 					array( 'id' => '@wcb/fetch' ),
+					array( 'id' => '@wcb/ui' ),
 				),
 				WCB_VERSION
 			);

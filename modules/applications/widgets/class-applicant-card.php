@@ -92,7 +92,7 @@ final class ApplicantCard extends AbstractWidget {
 			$resume_url  = '';
 		}
 
-		$applied_at = mysql2date( get_option( 'date_format', 'F j, Y' ) . ' ' . get_option( 'time_format', 'g:i a' ), $post->post_date );
+		$applied_at = \WCB\Core\Time::datetime_label( $post->post_date_gmt );
 		$job_title  = $job_id ? get_the_title( $job_id ) : '';
 		$job_link   = $job_id ? get_edit_post_link( $job_id ) : '';
 

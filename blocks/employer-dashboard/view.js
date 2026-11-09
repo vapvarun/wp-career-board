@@ -765,12 +765,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// jobs (50); a job past that page is not listed until it is loaded.
 		get closingSoonJobs() {
 			return state.jobs
-				.filter( ( j ) => 'publish' === j.status && j.deadline && j.deadline >= state.siteToday && j.deadline <= state.siteSoon )
-				.sort( ( a, b ) => ( a.deadline < b.deadline ? -1 : 1 ) )
+				.filter( ( j ) => 'publish' === j.status && j.deadline_day && j.deadline_day >= state.siteToday && j.deadline_day <= state.siteSoon )
+				.sort( ( a, b ) => ( a.deadline_day < b.deadline_day ? -1 : 1 ) )
 				.slice( 0, 5 )
 				.map( ( j ) => ( {
 					...j,
-					closesLabel: t( 'closesOn', 'Closes %s' ).replace( '%s', formatSiteDate( j.deadline, state.locale ) ),
+					closesLabel: t( 'closesOn', 'Closes %s' ).replace( '%s', formatSiteDate( j.deadline_day, state.locale ) ),
 				} ) );
 		},
 		get nothingNeedsAttention() {

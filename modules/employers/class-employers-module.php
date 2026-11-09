@@ -882,7 +882,7 @@ final class EmployersModule {
 		$apps = $wpdb->get_row(
 			$wpdb->prepare(
 				// awaiting: not reviewed yet (no status counts as submitted, as on the Applications chips).
-				"SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date >= %s ), 0 ) AS recent,
+				"SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date_gmt >= %s ), 0 ) AS recent,
 				        COALESCE( SUM( COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = 'submitted' ), 0 ) AS awaiting " . self::applications_scope_sql( $user_id ),
 				gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS )
 			)

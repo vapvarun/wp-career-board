@@ -302,9 +302,11 @@ $wcb_initial_state = apply_filters(
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// The employer may pick any deadline up to the board's listing length
 		// (owner decision, 1.8.1); REST clamps to the same maximum on save.
-		'deadline'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ),
-		'deadlineMax'       => max( $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : '', \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
-		'deadlineMin'       => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
+		// Picker values are days in the site's timezone; the save stores the
+		// end of that day in UTC (JobsMeta::sanitize_deadline).
+		'deadline'          => $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
+		'deadlineMax'       => max( $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : '', \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ) ),
+		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
 		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',

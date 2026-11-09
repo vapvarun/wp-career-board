@@ -44,7 +44,7 @@ final class JobsMeta {
 		// A raw value from any writer once reached the JobPosting JSON-LD as a
 		// stored XSS (salary_currency).
 		$meta_fields = array(
-			'_wcb_deadline'        => array( 'string', array( self::class, 'sanitize_date' ) ),
+			'_wcb_deadline'        => array( 'string', array( self::class, 'sanitize_deadline' ) ),
 			'_wcb_salary_min'      => array( 'number', array( self::class, 'sanitize_amount' ) ),
 			'_wcb_salary_max'      => array( 'number', array( self::class, 'sanitize_amount' ) ),
 			'_wcb_salary_currency' => array( 'string', array( self::class, 'sanitize_currency' ) ),
@@ -94,6 +94,28 @@ final class JobsMeta {
 		$value = trim( (string) $value );
 		$date  = \DateTimeImmutable::createFromFormat( '!Y-m-d', $value );
 		return ( $date && $date->format( 'Y-m-d' ) === $value ) ? $value : '';
+	}
+
+	/**
+	 * Store a deadline as the UTC instant it ends.
+	 *
+	 * The one write path for `_wcb_deadline` (every update_post_meta passes
+	 * here): a picked `Y-m-d` day becomes 23:59:59 that day in the display
+	 * timezone, in UTC (Time Standard rule 2); a UTC or ISO datetime is kept
+	 * as UTC; anything else, or "No expiry", is ''.
+	 *
+	 * @since  1.8.3
+	 * @param  mixed $value Raw value.
+	 * @return string UTC `Y-m-d H:i:s`, or ''.
+	 */
+	public static function sanitize_deadline( mixed $value ): string {
+		$value = trim( (string) $value );
+		if ( '' === $value ) {
+			return '';
+		}
+		return '' !== self::sanitize_date( $value ) || preg_match( '/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/', $value )
+			? \WCB\Core\Time::end_of_day_utc( $value )
+			: '';
 	}
 
 	/**

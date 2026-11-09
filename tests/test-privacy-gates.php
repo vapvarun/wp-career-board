@@ -105,7 +105,7 @@ $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		'user_id'    => 0,
 		'action'     => 'erase',
 		'ip_hash'    => $wcb_ip,
-		'created_at' => current_time( 'mysql' ),
+		'created_at' => current_time( 'mysql', true ),
 	)
 );
 wp_set_current_user( 1 );
@@ -119,12 +119,12 @@ wcb_pg_assert( str_contains( $wcb_html, 'Account deleted, personal data erased' 
 $wpdb->delete( $wcb_log, array( 'ip_hash' => $wcb_ip ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 $wpdb->delete( $wcb_log, array( 'user_id' => $wcb_user ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
-// Retention: a row 4 hours inside the window survives on a UTC-8 site.
+// Retention: a row 4 hours inside the window survives on a UTC-8 site (rows are UTC since 1.8.3).
 $wcb_tz = static fn (): string => 'America/Los_Angeles';
 add_filter( 'pre_option_timezone_string', $wcb_tz );
 $wcb_days = \WCB\Admin\Settings::int( 'log_retention_days', 180 );
 if ( $wcb_days > 0 ) {
-	$wcb_inside = ( new DateTimeImmutable( current_time( 'mysql' ), wp_timezone() ) )->modify( "-{$wcb_days} days +4 hours" )->format( 'Y-m-d H:i:s' );
+	$wcb_inside = gmdate( 'Y-m-d H:i:s', time() - $wcb_days * DAY_IN_SECONDS + 4 * HOUR_IN_SECONDS );
 	$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->prefix . 'wcb_notifications_log',
 		array(

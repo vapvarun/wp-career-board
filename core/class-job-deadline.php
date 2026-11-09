@@ -36,20 +36,44 @@ class JobDeadline {
 	 * Read the stored deadline for a job.
 	 *
 	 * @since  1.7.1
+	 * @since  1.8.3 A UTC datetime: the end of the deadline day in the display timezone.
 	 * @param  int $job_id Job post ID.
-	 * @return string `Y-m-d` date, or '' when the job carries no deadline.
+	 * @return string UTC `Y-m-d H:i:s`, or '' when the job carries no deadline.
 	 */
 	public static function get( int $job_id ): string {
-		return (string) get_post_meta( $job_id, '_wcb_deadline', true );
+		// A date-only value from before 1.8.3 (or written around the meta API) reads as that day's end.
+		return Time::end_of_day_utc( (string) get_post_meta( $job_id, '_wcb_deadline', true ) );
+	}
+
+	/**
+	 * A job's deadline as people read it: its day in the display timezone.
+	 *
+	 * @since  1.8.3
+	 * @param  int $job_id  Job post ID.
+	 * @param  int $user_id Who reads it (an email's recipient); 0 = current user.
+	 * @return string Formatted date, or '' when there is no deadline.
+	 */
+	public static function label( int $job_id, int $user_id = 0 ): string {
+		return Time::date_label( self::get( $job_id ), '', null, $user_id );
+	}
+
+	/**
+	 * A job's deadline for a date picker or a day comparison: `Y-m-d` in the
+	 * display timezone.
+	 *
+	 * @since  1.8.3
+	 * @param  int $job_id Job post ID.
+	 * @return string `Y-m-d`, or ''.
+	 */
+	public static function day( int $job_id ): string {
+		return Time::date_input( self::get( $job_id ) );
 	}
 
 	/**
 	 * Whether the job's application deadline is in the past.
 	 *
-	 * Compares dates, not timestamps: `_wcb_deadline` stores a `Y-m-d` date, so
-	 * the deadline day itself is still open and only the day after it closes.
-	 * Uses `current_time()` so the comparison happens in the site's timezone
-	 * rather than the server's.
+	 * The deadline is the UTC instant its day ends in the display timezone,
+	 * so the deadline day itself is open to its last minute.
 	 *
 	 * @since  1.7.1
 	 * @param  int $job_id Job post ID.
@@ -63,7 +87,7 @@ class JobDeadline {
 			return false;
 		}
 
-		$passed = $deadline < current_time( 'Y-m-d' );
+		$passed = $deadline < current_time( 'mysql', true );
 
 		/**
 		 * Filter whether a job's application deadline counts as passed.
@@ -75,7 +99,7 @@ class JobDeadline {
 		 *
 		 * @param bool   $passed   Whether the deadline has passed.
 		 * @param int    $job_id   Job post ID.
-		 * @param string $deadline Stored `Y-m-d` deadline.
+		 * @param string $deadline Stored UTC deadline (`Y-m-d H:i:s`; `Y-m-d` before 1.8.3).
 		 */
 		return (bool) apply_filters( 'wcb_job_deadline_passed', $passed, $job_id, $deadline );
 	}
@@ -126,7 +150,7 @@ class JobDeadline {
 			'relation' => 'OR',
 			array(
 				'key'     => '_wcb_deadline',
-				'value'   => current_time( 'Y-m-d' ),
+				'value'   => current_time( 'mysql', true ),
 				'compare' => '>=',
 			),
 			array(
@@ -143,7 +167,7 @@ class JobDeadline {
 	/**
 	 * Meta query clause that keeps only jobs whose deadline has passed.
 	 *
-	 * Compares the stored `Y-m-d` strings instead of casting to DATE: MariaDB
+	 * Compares the stored UTC strings instead of casting to DATETIME: MariaDB
 	 * casts an empty deadline ("No expiry") to a date before today, so a DATE
 	 * compare expired every open-ended job there.
 	 *
@@ -160,7 +184,7 @@ class JobDeadline {
 			),
 			array(
 				'key'     => '_wcb_deadline',
-				'value'   => current_time( 'Y-m-d' ),
+				'value'   => current_time( 'mysql', true ),
 				'compare' => '<',
 			),
 		);
@@ -187,7 +211,7 @@ class JobDeadline {
 	 * @since 1.8.0
 	 *
 	 * @param \WP_REST_Request $request The originating request (board resolution).
-	 * @return string Y-m-d date.
+	 * @return string UTC deadline.
 	 */
 	public static function default_end( \WP_REST_Request $request ): string {
 		$expire_days = \WCB\Admin\Settings::int( 'jobs_expire_days', 30 );
@@ -209,7 +233,8 @@ class JobDeadline {
 		 */
 		$expire_days = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
 		$expire_days = $expire_days > 0 ? $expire_days : 30;
-		return gmdate( 'Y-m-d', strtotime( '+' . $expire_days . ' days' ) );
+		// Counted from today in the display timezone, ending that day's last minute.
+		return Time::end_of_day_utc( ( new \DateTimeImmutable( Time::today(), Time::display_timezone() ) )->modify( '+' . $expire_days . ' days' )->format( 'Y-m-d' ) );
 	}
 
 	/**
@@ -219,7 +244,7 @@ class JobDeadline {
 	 * @since 1.8.1
 	 *
 	 * @param int $board_id Board the job is on (0 = none).
-	 * @return string Y-m-d date.
+	 * @return string UTC deadline.
 	 */
 	public static function default_end_for_board( int $board_id ): string {
 		$request = new \WP_REST_Request( 'POST', '/wcb/v1/jobs' );
@@ -236,15 +261,16 @@ class JobDeadline {
 	 *
 	 * @since 1.8.1
 	 *
-	 * @param string $date     Requested Y-m-d deadline.
+	 * @param string $date     Requested deadline (`Y-m-d` from a picker, or UTC).
 	 * @param int    $board_id Board the job is on.
 	 * @param string $existing The job's current deadline, if any.
-	 * @return string Y-m-d date.
+	 * @return string UTC deadline.
 	 */
 	public static function cap( string $date, int $board_id, string $existing = '' ): string {
+		$date = Time::end_of_day_utc( $date );
 		if ( wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return $date;
 		}
-		return min( $date, max( $existing, self::default_end_for_board( $board_id ) ) );
+		return min( $date, max( Time::end_of_day_utc( $existing ), self::default_end_for_board( $board_id ) ) );
 	}
 }
