@@ -104,6 +104,32 @@ if ( is_readable( __DIR__ . '/libs/edd-sl-sdk/src/Registry.php' ) ) {
 	);
 }
 
+// Package Signatures (libs/package-signatures, vapvarun/package-signatures): checks that each WP Career Board and
+// WP Career Board Pro update package carries the release signature before WordPress installs it. Warn mode: the
+// result is logged (option package_signatures_log) and the update installs either way. Free registers Pro as well,
+// because WordPress loads wp-career-board-pro/ before wp-career-board/ and Pro could not call this itself.
+// Product names are the store slugs (edge_products.slug), which the edge checks every signature against.
+if ( file_exists( WCB_DIR . 'libs/package-signatures/package-signatures.php' ) ) {
+	require_once WCB_DIR . 'libs/package-signatures/package-signatures.php';
+	$wcb_signed_products = array(
+		'wp-career-board'     => plugin_basename( WCB_FILE ),
+		'wp-career-board-pro' => 'wp-career-board-pro/wp-career-board-pro.php',
+	);
+	foreach ( $wcb_signed_products as $wcb_signed_product => $wcb_signed_plugin ) {
+		package_signatures_register(
+			array(
+				'product'  => $wcb_signed_product,
+				'plugin'   => $wcb_signed_plugin,
+				'hosts'    => array( 'wbcomdesigns.com', 'updates.wbcomdesigns.com' ),
+				'keys'     => array( 'wbcom-2026-1' => 'kr+2P1WqRbENpZw0BXZmwFnA2tMLi6MlHbBa6jB13U4=' ),
+				'mode'     => 'warn',
+				'fallback' => 'https://wbcomdesigns.com/package-signatures/{product}/{version}/',
+			)
+		);
+	}
+	unset( $wcb_signed_products, $wcb_signed_product, $wcb_signed_plugin );
+}
+
 /*
  * Auto-activate the preset community license so Free updates work — Free is
  * keyless (no per-user license UI). Fires on plugin activation (immediate) and

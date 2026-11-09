@@ -88,6 +88,9 @@ if [ "$SLUG" = "wp-career-board-pro" ]; then
 else
 	REQUIRED+=(
 		"$SLUG/libs/edd-sl-sdk/edd-sl-sdk.php"
+		"$SLUG/libs/package-signatures/package-signatures.php"
+		"$SLUG/libs/package-signatures/src/class-verifier.php"
+		"$SLUG/libs/package-signatures/src/class-guard.php"
 		"$SLUG/blocks/candidate-dashboard/block.json"
 		"$SLUG/theme.json"
 	)

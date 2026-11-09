@@ -29,6 +29,7 @@ parameters:
         - phpstan-buddypress-stubs.php
     scanDirectories:
         - libs/edd-sl-sdk/src/
+        - libs/package-signatures/
     # BuddyPress objects carry dynamic properties.
     universalObjectCratesClasses:
         - BP_Groups_Group
