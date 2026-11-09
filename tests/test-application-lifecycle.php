@@ -134,7 +134,14 @@ $wcb_who        = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $
 wcb_assert( ! $wcb_who['guest'] && get_userdata( $wcb_candidate )->display_name === $wcb_who['name'], 'a member applicant is named by display name' );
 $wcb_gone_app = wcb_lc_app( 0, 999999999 );
 wcb_assert( '(deleted)' === \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_gone_app )['name'], 'a removed member account reads "(deleted)"' );
-foreach ( array( $wcb_guest_app, $wcb_member_app, $wcb_gone_app ) as $wcb_id ) {
+// A member who applied, then had their account deleted: anonymised, not a guest.
+$wcb_leaver     = wp_create_user( 'wcb-lc-leaver-' . wp_rand(), wp_generate_password(), 'wcb-lc-leaver-' . wp_rand() . '@example.test' );
+$wcb_leaver_app = wcb_lc_app( 0, $wcb_leaver );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( $wcb_leaver );
+$wcb_who = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_leaver_app );
+wcb_assert( ! $wcb_who['guest'] && 'Deleted candidate' === $wcb_who['name'] && '' === $wcb_who['email'], 'a deleted member reads "Deleted candidate" with no Guest badge or email' );
+foreach ( array( $wcb_guest_app, $wcb_member_app, $wcb_gone_app, $wcb_leaver_app ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }
 $wcb_payload = ApplicationStatus::payload( 'hired', 'candidate' );

@@ -68,8 +68,9 @@ final class ApplicationsMeta {
 	 *
 	 * One answer for the Applications list and the dashboard's Recent
 	 * Applications: a member by display name, a guest by the name they gave
-	 * (flagged so the screen can badge it), and "(deleted)" only when the
-	 * member account is gone. The dashboard called every guest "(deleted)".
+	 * (flagged so the screen can badge it), "Deleted candidate" for a member
+	 * whose account deletion anonymised the application, and "(deleted)" when
+	 * an account vanished without that. The dashboard called every guest "(deleted)".
 	 *
 	 * @since 1.8.3
 	 *
@@ -85,6 +86,16 @@ final class ApplicationsMeta {
 				'guest' => false,
 				'email' => $user->user_email,
 				'user'  => $user,
+			);
+		}
+		// A deleted member's application is anonymised to candidate 0 too, but
+		// they were a member, not a guest: no Guest badge, no Email Guest.
+		if ( get_post_meta( $app_id, '_wcb_anonymised_at', true ) ) {
+			return array(
+				'name'  => __( 'Deleted candidate', 'wp-career-board' ),
+				'guest' => false,
+				'email' => '',
+				'user'  => null,
 			);
 		}
 		if ( 0 === $user_id ) {
