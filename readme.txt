@@ -94,6 +94,7 @@ A fix release for 1.8.2.
 * Dev      - Removed the Reign left-panel links, which hooked a filter Reign never had; add Career Board pages to Reign's Left Panel menu in Appearance > Menus.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.
 * Dev      - Every time in the wcb/v1 REST API is sent as ISO 8601 with its offset; jobs add deadline_day for date pickers.
+* Dev      - The wcb/v1 job field viewer_can_apply is false once the job's deadline has passed.
 * Dev      - The email log table has one definition; a re-created table keeps its status and date indexes.
 * Dev      - New wcb_title_owning_blocks filter lists blocks that print the page's own heading.
 * Dev      - New wcb_display_timezone filter sets the timezone times are shown in, for example each member's own.
