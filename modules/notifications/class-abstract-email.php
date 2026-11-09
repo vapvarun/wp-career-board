@@ -466,22 +466,8 @@ abstract class AbstractEmail {
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			return;
 		}
-		$charset = $wpdb->get_charset_collate();
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta(
-			"CREATE TABLE {$table} (
-				id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-				user_id      BIGINT UNSIGNED NOT NULL,
-				event_type   VARCHAR(80)     NOT NULL,
-				channel      VARCHAR(20)     NOT NULL DEFAULT 'email',
-				payload      LONGTEXT,
-				status       VARCHAR(20)     NOT NULL DEFAULT 'sent',
-				sent_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY  (id),
-				KEY user_id  (user_id),
-				KEY event_type  (event_type)
-			) ENGINE=InnoDB {$charset};"
-		);
+		// One schema: the installer's definition, indexes included.
+		\WCB\Core\Install::create_tables();
 	}
 
 	/**

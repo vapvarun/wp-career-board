@@ -189,7 +189,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	private static function create_tables(): void {
+	public static function create_tables(): void {
 		global $wpdb;
 
 		$charset = $wpdb->get_charset_collate();
