@@ -577,14 +577,20 @@ final class Install {
 			// UTC, and job deadlines become the UTC instant their day ends.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.5', '<' ) ) {
 				global $wpdb;
+				$wcb_converted = true;
 				foreach ( array(
 					'wcb_notifications_log' => 'sent_at',
 					'wcb_job_views'         => 'viewed_at',
 					'wcb_gdpr_log'          => 'created_at',
 				) as $wcb_table => $wcb_column ) {
-					Time::local_column_to_utc( $wpdb->prefix . $wcb_table, $wcb_column );
+					$wcb_converted = Time::local_column_to_utc( $wpdb->prefix . $wcb_table, $wcb_column ) && $wcb_converted;
 				}
 				self::migrate_deadlines_to_utc();
+				// A failed conversion keeps 1.4.5 pending so the next load retries;
+				// tables already converted are skipped (wcb_utc_converted).
+				if ( ! $wcb_converted ) {
+					return;
+				}
 			}
 
 			// Only bump the stored DB version if every expected table now

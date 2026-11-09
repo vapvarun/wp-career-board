@@ -110,6 +110,19 @@ wcb_assert( '2025-07-10 13:00:00' === $wcb_rows[0], 'a July row on a New York si
 wcb_assert( '2025-12-10 14:00:00' === $wcb_rows[1], 'a December row moves +5h (standard time)' );
 Time::local_column_to_utc( $wcb_tt, 'at' );
 wcb_assert( $wcb_rows === $wpdb->get_col( "SELECT at FROM {$wcb_tt} ORDER BY id" ), 'running the conversion again changes nothing' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+// No transition in range: a New York table whose rows all follow the November change.
+$wpdb->query( "TRUNCATE TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->insert( $wcb_tt, array( 'at' => gmdate( 'Y-m-d 09:00:00', time() - DAY_IN_SECONDS ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+update_option( 'wcb_utc_converted', $wcb_conv_was, false );
+$wcb_offset = wp_timezone()->getOffset( new DateTimeImmutable( 'now' ) );
+wcb_assert( Time::local_column_to_utc( $wcb_tt, 'at' ), 'a single-season table converts without an SQL error' );
+wcb_assert( gmdate( 'Y-m-d H:i:s', strtotime( gmdate( 'Y-m-d 09:00:00', time() - DAY_IN_SECONDS ) . ' UTC' ) - $wcb_offset ) === $wpdb->get_var( "SELECT at FROM {$wcb_tt}" ), 'and moves by that season\'s offset' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+// No daylight saving at all: India.
+update_option( 'timezone_string', 'Asia/Kolkata' );
+$wpdb->query( "TRUNCATE TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->insert( $wcb_tt, array( 'at' => '2025-07-10 09:00:00' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+update_option( 'wcb_utc_converted', $wcb_conv_was, false );
+wcb_assert( Time::local_column_to_utc( $wcb_tt, 'at' ) && '2025-07-10 03:30:00' === $wpdb->get_var( "SELECT at FROM {$wcb_tt}" ), 'a zone without daylight saving (India) converts: 09:00 IST -> 03:30 UTC' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 $wpdb->query( "DROP TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 update_option( 'wcb_utc_converted', $wcb_conv_was, false );
 

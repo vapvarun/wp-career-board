@@ -307,25 +307,28 @@ final class Time {
 	 *
 	 * @param string $table  Table name with prefix, from code.
 	 * @param string $column DATETIME column, from code.
-	 * @return void
+	 * @return bool False when the UPDATE failed, so the caller keeps its
+	 *              upgrade step pending and retries; true otherwise.
 	 */
-	public static function local_column_to_utc( string $table, string $column ): void {
+	public static function local_column_to_utc( string $table, string $column ): bool {
 		global $wpdb;
 		$done = (array) get_option( 'wcb_utc_converted', array() );
 		$key  = $table . '.' . $column;
 		if ( in_array( $key, $done, true ) ) {
-			return;
+			return true;
 		}
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off upgrade on a plugin table; names come from code.
 		if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
-			return;
+			return true;
 		}
 		$oldest = (string) $wpdb->get_var( "SELECT MIN( {$column} ) FROM {$table}" );
 		$sql    = '' === $oldest ? '' : self::local_to_utc_case( $column, $oldest );
-		if ( '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" ) ) {
+		$ok = '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" );
+		// phpcs:enable
+		if ( $ok ) {
 			update_option( 'wcb_utc_converted', array_merge( $done, array( $key ) ), false );
 		}
-		// phpcs:enable
+		return $ok;
 	}
 
 	/**
@@ -352,10 +355,12 @@ final class Time {
 			$whens[] = sprintf( "WHEN %s < '%s' THEN DATE_SUB( %s, INTERVAL %d SECOND )", $column, $until, $column, $offset );
 			$offset  = (int) $t['offset'];
 		}
-		if ( array() === $whens && 0 === $offset ) {
-			return '';
+		$last = sprintf( 'DATE_SUB( %s, INTERVAL %d SECOND )', $column, $offset );
+		if ( array() === $whens ) {
+			// One offset for the whole range (no daylight saving, or every row in one season).
+			return 0 === $offset ? '' : $last;
 		}
-		return sprintf( 'CASE %s ELSE DATE_SUB( %s, INTERVAL %d SECOND ) END', implode( ' ', $whens ), $column, $offset );
+		return sprintf( 'CASE %s ELSE %s END', implode( ' ', $whens ), $last );
 	}
 
 	/**
