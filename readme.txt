@@ -73,7 +73,7 @@ A fix release for 1.8.2.
 * Improve  - Wizard sample jobs and companies are dated across recent weeks instead of all today.
 * Fix      - The Users screen in wp-admin no longer stops with a fatal error when another plugin saved a role without a name.
 * Fix      - Category, location and type names with an ampersand or quote read correctly on Find Jobs filter pills, job cards, company pages and in the REST API.
-* Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back as soon as you update, without waiting for WP-Cron.
+* Fix      - Becoming an employer or candidate keeps the site's default role, and members who lost it get it back as soon as you update, unless the default role can write posts (Contributor or higher).
 * Fix      - The job forms keep what an employer typed through a page refresh or an ended login, with a Start over button.
 * Fix      - Saving a member on the Edit User screen no longer drops their Employer or Candidate role; new Career Board roles checkboxes add or remove it.
 * Fix      - A cover letter or candidate bio keeps its paragraphs and bullet lists after saving, and its editor offers only the formatting that is kept.

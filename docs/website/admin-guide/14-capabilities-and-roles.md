@@ -52,7 +52,7 @@ To let Editors act as employers, grant `wcb_post_jobs`, `wcb_view_applications`,
 - On the Employer Registration page, a visitor picks **Find a Job** or the hiring option. Find a Job creates a Candidate account. The hiring option creates an Employer account.
 - The new role is added. The member keeps the site's default role (usually Subscriber) and any other role, so permissions other plugins give that role keep working. New accounts start on the default role and get the Career Board role on top.
 - Applying for a job or creating a resume adds the Candidate role the same way.
-- Members who lost the default role in an earlier version get it back automatically after updating to 1.8.3.
+- Members who lost the default role in an earlier version get it back automatically after updating to 1.8.3. This is skipped when the default role in **Settings > General** can write posts (Contributor or higher), so a staff role is never handed to employers and candidates.
 
 ## Editing a member's roles
 

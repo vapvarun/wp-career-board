@@ -343,7 +343,10 @@ final class Roles {
 	 *
 	 * Only members holding nothing but employer and/or candidate are touched,
 	 * 200 a batch in the background after the upgrade. Skipped when the site
-	 * opted into replacing the default role.
+	 * opted into replacing the default role, and when the default role can
+	 * write posts (edit_posts): an owner who made the default Author or Editor (for
+	 * staff accounts created by hand) must not see every employer and
+	 * candidate gain that role on update.
 	 *
 	 * @since 1.8.3
 	 *
@@ -352,7 +355,13 @@ final class Roles {
 	 */
 	public static function restore_default_role( int $page = 1 ): void {
 		$default = (string) get_option( 'default_role', 'subscriber' );
-		if ( null === get_role( $default ) || in_array( $default, self::MEMBER_ROLES, true ) ) {
+		$object  = get_role( $default );
+		if ( null === $object || in_array( $default, self::MEMBER_ROLES, true ) ) {
+			return;
+		}
+		// Only a member-level role is given back: one that cannot write posts
+		// (Subscriber, or a plugin's member role). Contributor and up can.
+		if ( $object->has_cap( 'edit_posts' ) ) {
 			return;
 		}
 		// The set never shrinks (members keep their plugin roles), so paging by ID is stable.
