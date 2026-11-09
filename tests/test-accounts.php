@@ -95,6 +95,7 @@ Roles::grant_member_role( new WP_User( $wcb_ed2 ), 'wcb_employer' );
 wcb_assert( in_array( 'editor', ( new WP_User( $wcb_ed2 ) )->roles, true ), 'the swap filter never demotes an editor' );
 
 WP_CLI::log( '--- restore_default_role repair ---' );
+wcb_assert( 'wcb_restore_default_role' === Roles::REPAIR_HOOK && false !== has_action( 'wcb_restore_default_role', array( Roles::class, 'restore_default_role' ) ), 'the wcb_restore_default_role batch event runs the repair' );
 $wcb_lost   = $wcb_mk( 'lost', 'wcb_candidate' );
 $wcb_lost2  = $wcb_mk( 'lost2', 'wcb_employer' );
 ( new WP_User( $wcb_lost2 ) )->add_role( 'wcb_candidate' );
