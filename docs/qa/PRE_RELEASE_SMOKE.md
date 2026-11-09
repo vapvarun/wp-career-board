@@ -28,7 +28,7 @@
 - [ ] Front-end job-board route loads as the very first request after activation → HTTP 200 (regression guard against rewrite-flush 404)
 - [ ] `/wp-json/wcb/v1/jobs` returns 200 to anonymous on a fresh install
 - [ ] Deactivate → reactivate → no duplicate tables, no re-run migrations
-- [ ] Activate `wp-career-board-pro` → no fatal, Pro-specific tables created (`wp_wcb_field_groups`, `wp_wcb_field_definitions`, `wp_wcb_field_values`, `wp_wcb_job_alerts`, `wp_wcb_application_stages`, `wp_wcb_ai_vectors`, `wp_wcb_notifications`, `wp_wcb_push_devices`, plus the Credits SDK's `wp_wcb_credit_ledger`, `wp_wcb_credit_gateway_log`, `wp_wcb_credit_processed_events`; `wcb_job_boards` no longer exists), `wcbp_db_version` equals Pro's `DB_VERSION` (currently `1.17`)
+- [ ] Activate `wp-career-board-pro` → no fatal, Pro-specific tables created (`wp_wcb_field_groups`, `wp_wcb_field_definitions`, `wp_wcb_job_alerts`, `wp_wcb_application_stages`, `wp_wcb_ai_vectors`, `wp_wcb_notifications`, `wp_wcb_push_devices`, plus the Credits SDK's `wp_wcb_credit_ledger`, `wp_wcb_credit_gateway_log`, `wp_wcb_credit_processed_events`; `wcb_job_boards` no longer exists), `wcbp_db_version` equals Pro's `DB_VERSION` (currently `1.17`)
 
 ## B — Upgrade from previous release (5 min)
 

@@ -265,7 +265,7 @@ Pro creates 9 tables. It also reads the Free `wcb_job_views` table for analytics
 | `wcb_credit_ledger` | employer_id, entry_type, amount, created_at | Append-only credit ledger (never UPDATE) |
 | `wcb_field_groups` | board_id, entity_type, label, sort_order | Field builder group containers |
 | `wcb_field_definitions` | group_id, field_key, field_type, rules | Individual field definitions |
-| `wcb_field_values` | post_id, field_key, value | Custom field data per post |
+| ~~`wcb_field_values`~~ | - | Removed in 1.8.3: custom field values live in post meta |
 | `wcb_job_boards` | job_id, board_id | Job-to-board many-to-many junction |
 | `wcb_job_alerts` | user_id, board_id, filters, frequency | Saved search alert subscriptions |
 | `wcb_application_stages` | board_id, label, color, is_terminal | Kanban pipeline stage definitions |

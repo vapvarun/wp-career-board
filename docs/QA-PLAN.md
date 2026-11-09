@@ -302,7 +302,7 @@ Run manually before each release using Playwright MCP tools.
 | `WCB\Pro\Credits\CreditsModule` | Pro | P0 | `topup()` inserts ledger row, `deduct()` inserts negative, `hold()` inserts hold, `refund()` inserts refund, `get_balance()` = SUM of amounts, hold-then-deduct sequence, insufficient balance error |
 | `WCB\Pro\Core\License` | Pro | P0 | `is_valid()` with valid transient, `is_valid()` with expired transient triggers remote check, `check_license()` sets transient, invalid key returns false |
 | `WCB\Core\Install` | Free | P1 | All custom tables created via `dbDelta()`, custom roles (`wcb_employer`, `wcb_candidate`) registered, default options seeded, version option updated |
-| `WCB\Pro\Core\ProInstall` | Pro | P1 | Pro tables created (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_field_values`, `wcb_job_boards`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`), version migration from older schema |
+| `WCB\Pro\Core\ProInstall` | Pro | P1 | Pro tables created (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`), version migration from older schema |
 | `WCB\Notifications\AbstractEmail` | Free | P1 | Template file loaded from correct path, placeholder replacement (`{candidate_name}`, `{job_title}`, etc.), `send()` calls `wp_mail()`, disabled email skips send |
 | `WCB\Antispam\AntispamModule` | Free | P1 | reCAPTCHA token verification (mock HTTP), Turnstile token verification (mock HTTP), bypass when provider not configured, invalid token returns WP_Error |
 | `WCB\Search\SearchModule` | Free | P1 | Query builder: keyword search, filter by type, filter by location, combined filters, empty results |
@@ -332,7 +332,7 @@ Run manually before each release using Playwright MCP tools.
 | I05 | WPJM import (mock) | Free | P1 | Create mock WPJM posts -> run import -> verify mapped CPTs/meta/taxonomies |
 | I06 | Bookmark lifecycle | Free | P1 | Candidate bookmarks job -> verify in bookmarks list -> unbookmark -> verify removed |
 | I07 | Moderation with email | Free | P1 | Submit job (pending) -> admin approves -> verify email sent to employer -> admin rejects another -> verify rejection email |
-| I08 | Field builder -> job form | Pro | P1 | Create field group + fields -> post job with custom field values -> verify stored in `wcb_field_values` table |
+| I08 | Field builder -> job form | Pro | P1 | Create field group + fields -> post job with custom field values -> verify stored in post meta (keyed by field_key) |
 | I09 | Multi-board filtering | Pro | P1 | Create 2 boards -> assign jobs to each -> verify `/wcb/v1/jobs?board_id=X` returns only board X jobs |
 | I10 | Alert trigger | Pro | P2 | Create alert (keyword="engineer", frequency="instant") -> publish matching job -> verify notification created |
 | I11 | Resume PDF export | Pro | P2 | Create resume with sections -> request PDF endpoint -> verify 200 response with application/pdf content type |

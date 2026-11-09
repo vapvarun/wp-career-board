@@ -80,6 +80,9 @@ A fix release for 1.8.2.
 * Fix      - A job, application or profile sent from a page left open for hours goes through instead of failing, and an employer signed out mid-post is told so and keeps what they typed.
 * Fix      - The editor's block menu follows the site's dark scheme, and text typed in its search is readable on Reign.
 * Fix      - The dashboard's Recent Applications names a guest applicant instead of showing (deleted), and an application from a deleted member reads Deleted candidate without a Guest badge.
+* Fix      - A visitor applying without an account gets full-width name and email fields in the apply panel.
+* Fix      - Candidate and employer dashboards open only tabs that exist on the site, so a link or remembered tab for a Pro feature without Pro lands on Overview.
+* Fix      - The plugin's stored version updates after an in-place update through WP-CLI or a host's auto-update.
 * Fix      - Posted dates such as "3 hours ago", new-application counts and the guest duplicate check no longer drift by your site's UTC offset.
 * Fix      - The email activity log shows dates in the site's date and time format for every admin, not each browser's own format.
 * Fix      - Turning Usage Data on or off on the License screen shows its success or error message under the toggle.
@@ -90,6 +93,8 @@ A fix release for 1.8.2.
 * Dev      - Removed the Reign left-panel links, which hooked a filter Reign never had; add Career Board pages to Reign's Left Panel menu in Appearance > Menus.
 * Dev      - Callbacks on WordPress filters pass on a non-text value from another plugin instead of stopping the page.
 * Dev      - Every time in the wcb/v1 REST API is sent as ISO 8601 with its offset; jobs add deadline_day for date pickers.
+* Dev      - The email log table has one definition; a re-created table keeps its status and date indexes.
+* Dev      - New wcb_title_owning_blocks filter lists blocks that print the page's own heading.
 * Dev      - New wcb_display_timezone filter sets the timezone times are shown in, for example each member's own.
 * Compat   - Aligned with WP Career Board Pro 1.8.3. Install both updates together.
 
