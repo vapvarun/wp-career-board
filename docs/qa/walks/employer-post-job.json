@@ -1,0 +1,43 @@
+{
+  "journey": "employer-post-job",
+  "free_commit": "93302d1",
+  "pro_commit": "a8c820c",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "mode": "combo",
+    "theme": "buddyx"
+  },
+  "ran_at": "2026-11-09T19:27:11Z",
+  "checks": [
+    {
+      "id": "C.employer.post-job",
+      "result": "pass",
+      "evidence": "Posted Customer Success Manager, Enterprise - Dublin: 201, status pending (moderated); server refusal 'Add a location, or mark the job as remote.' shown inline when location=Other."
+    },
+    {
+      "id": "C.employer.edit-job",
+      "result": "pass",
+      "evidence": "Edit form reopened with values; Update Job saved the custom field and confirmed 'Job updated'. Close/pause not walked."
+    },
+    {
+      "id": "M8.job-form-local-draft",
+      "result": "pass",
+      "evidence": "employer.figma /post-a-job/: typed title and description, step 2 salary and deadline, reloaded: .wcb-draft-notice visible 'We kept the job you were writing on this device.', title, description, salary and deadline restored (and step 2). localStorage key wcb-job-draft-1-68. Submitted (201, job 440): key removed, notice hidden. Shot job-form-draft-restored.png."
+    },
+    {
+      "id": "D.employer-deadline-editable-capped",
+      "result": "pass",
+      "evidence": "Employer POST deadline 2028-01-01 stored 2026-12-10 (board max); 2026-11-20 kept; admin 2028-01-01 kept. Input attributes in the form not inspected."
+    },
+    {
+      "id": "M4.field-values-table-gone-and-values-display",
+      "result": "pass",
+      "evidence": "SHOW TABLES: 13 wcb tables, no wp_wcb_field_values. Created a Job field 'Team size' in Field Builder UI, saved value via employer edit form (/post-a-job/?edit=440) -> post meta wcbf_6af21bbfd7796='14 people across EMEA'; guest job page shows 'Additional details / Team size / 14 people across EMEA'; reopening the edit form shows the value. Limit: the seeded site had no field groups, so the upgrade copy of legacy rows was not exercised with real data. Shot job-custom-field.png."
+    }
+  ],
+  "proposed_checks": [
+    "Job form: choosing the 'Other' location term then Post Job must be refused before submit or explain why (server returns wcb_location_required only after the Preview step).",
+    "On a site whose users_can_register is off, /employer-registration/ shows the closed message (add as state check)."
+  ]
+}

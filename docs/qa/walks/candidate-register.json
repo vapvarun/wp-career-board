@@ -1,0 +1,25 @@
+{
+  "journey": "candidate-register",
+  "free_commit": "93302d1",
+  "pro_commit": "a8c820c",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "mode": "combo",
+    "theme": "buddyx"
+  },
+  "ran_at": "2026-11-09T19:27:11Z",
+  "checks": [
+    {
+      "id": "C.candidate.register",
+      "result": "pass",
+      "evidence": "/employer-registration/ closed message when users_can_register=0; with it on, Find a Job path created account (candidates/register 200, subscriber + wcb_candidate) and 'Check your inbox' confirm email logged. users_can_register restored to 0 and the test user deleted."
+    },
+    {
+      "id": "D.registration-site-name",
+      "result": "pass",
+      "evidence": "Registration heading 'Join Career Board QA'."
+    }
+  ],
+  "proposed_checks": []
+}

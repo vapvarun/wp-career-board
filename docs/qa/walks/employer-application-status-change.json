@@ -1,0 +1,25 @@
+{
+  "journey": "employer-application-status-change",
+  "free_commit": "93302d1",
+  "pro_commit": "a8c820c",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "mode": "combo",
+    "theme": "buddyx"
+  },
+  "ran_at": "2026-11-09T19:27:11Z",
+  "checks": [
+    {
+      "id": "C.employer.applications",
+      "result": "pass",
+      "evidence": "Applications tab lists own applicants with status filters; Pipeline move to Interview persisted after reload and emailed candidate (application-status-changed)."
+    },
+    {
+      "id": "M5.email-log-indexes-and-row",
+      "result": "pass",
+      "evidence": "SHOW INDEX FROM wp_wcb_notifications_log: PRIMARY, user_id, event_type, status, sent_at (status and date indexes present). Guest apply wrote rows application-received (user 12) and application-guest-confirmation, qa-mail.log lines 'New application for your job' and 'Your application has been received'. Later rows: application-confirmation, application-status-changed, job-approved, job-expired x2, all with matching qa-mail.log lines."
+    }
+  ],
+  "proposed_checks": []
+}
