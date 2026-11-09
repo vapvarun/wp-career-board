@@ -1078,7 +1078,7 @@ wp_interactivity_state(
 						<input
 							type="text"
 							id="wcb-guest-name"
-							class="wcb-guest-field"
+							class="wcb-field-input wcb-guest-field"
 							autocomplete="name"
 							required
 							data-wp-on--input="actions.updateGuestName"
@@ -1090,7 +1090,7 @@ wp_interactivity_state(
 						<input
 							type="email"
 							id="wcb-guest-email"
-							class="wcb-guest-field"
+							class="wcb-field-input wcb-guest-field"
 							autocomplete="email"
 							required
 							data-wp-on--input="actions.updateGuestEmail"
