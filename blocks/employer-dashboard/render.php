@@ -498,7 +498,8 @@ $wcb_views        = array_values(
 		array( 'overview', 'jobs', 'post-job', 'applications', 'companies', 'company', 'saved-jobs', 'saved-companies', 'saved-resumes', 'settings', 'notifications', 'credits' ),
 		$wcb_can_bookmark ? array() : array( 'saved-jobs', 'saved-companies' ),
 		$wcb_saved_resumes_enabled ? array() : array( 'saved-resumes' ),
-		$wcb_show_credits ? array() : array( 'credits' )
+		$wcb_show_credits ? array() : array( 'credits' ),
+		$wcb_bell_enabled ? array() : array( 'notifications' )
 	)
 );
 wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views ) );
