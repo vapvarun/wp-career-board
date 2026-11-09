@@ -375,6 +375,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				state.jobUrl    = json && json.permalink ? json.permalink : '';
 				state.featureError = ( json && json.feature_error ) || '';
 				state.submitted = true;
+				// The job is saved: drop the draft and its notice together.
+				state.draftRestored = false;
 				draft().clear();
 
 				if ( window.wcbCaptchaReset ) {

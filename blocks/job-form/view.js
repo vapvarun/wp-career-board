@@ -800,6 +800,8 @@ const { state } = store(
 					state.featureError = data.feature_error || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
+					// The job is saved: drop the draft and its notice together.
+					state.draftRestored = false;
 					draft().clear();
 
 					// Refresh the embedded employer dashboard (if present) right away:
