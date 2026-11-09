@@ -300,6 +300,12 @@ final class Time {
 	 * recorded in the `wcb_utc_converted` option, so a rerun (a failed
 	 * upgrade, a restored option, Pro running its own step) changes nothing.
 	 *
+	 * One conversion runs at a time across the site: the first request after
+	 * an update converts while concurrent requests skip (returning false keeps
+	 * their upgrade step pending). Without this, two PHP workers could both
+	 * read "not converted" and shift every row twice, or overwrite each
+	 * other's `wcb_utc_converted` list.
+	 *
 	 * ponytail: rows written in the repeated hour of a fall-back night cannot
 	 * be told apart and take the earlier offset.
 	 *
@@ -307,28 +313,62 @@ final class Time {
 	 *
 	 * @param string $table  Table name with prefix, from code.
 	 * @param string $column DATETIME column, from code.
-	 * @return bool False when the UPDATE failed, so the caller keeps its
-	 *              upgrade step pending and retries; true otherwise.
+	 * @return bool False when the UPDATE failed or another request is
+	 *              converting, so the caller keeps its upgrade step pending
+	 *              and retries; true otherwise.
 	 */
 	public static function local_column_to_utc( string $table, string $column ): bool {
 		global $wpdb;
+		$key = $table . '.' . $column;
+		if ( in_array( $key, (array) get_option( 'wcb_utc_converted', array() ), true ) ) {
+			return true;
+		}
+		if ( ! self::take_conversion_lock() ) {
+			return false;
+		}
+		// Re-read under the lock: another request may have just finished this table.
+		wp_cache_delete( 'wcb_utc_converted', 'options' );
 		$done = (array) get_option( 'wcb_utc_converted', array() );
-		$key  = $table . '.' . $column;
-		if ( in_array( $key, $done, true ) ) {
-			return true;
+		$ok   = true;
+		if ( ! in_array( $key, $done, true ) ) {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off upgrade on a plugin table; names come from code.
+			if ( $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
+				$oldest = (string) $wpdb->get_var( "SELECT MIN( {$column} ) FROM {$table}" );
+				$sql    = '' === $oldest ? '' : self::local_to_utc_case( $column, $oldest );
+				$ok     = '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" );
+				if ( $ok ) {
+					update_option( 'wcb_utc_converted', array_merge( $done, array( $key ) ), false );
+				}
+			}
+			// phpcs:enable
 		}
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off upgrade on a plugin table; names come from code.
-		if ( $table !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
-			return true;
-		}
-		$oldest = (string) $wpdb->get_var( "SELECT MIN( {$column} ) FROM {$table}" );
-		$sql    = '' === $oldest ? '' : self::local_to_utc_case( $column, $oldest );
-		$ok     = '' === $sql || false !== $wpdb->query( "UPDATE {$table} SET {$column} = {$sql}" );
-		// phpcs:enable
-		if ( $ok ) {
-			update_option( 'wcb_utc_converted', array_merge( $done, array( $key ) ), false );
-		}
+		delete_option( self::CONVERSION_LOCK );
 		return $ok;
+	}
+
+	/**
+	 * Option name of the site-wide conversion lock.
+	 */
+	private const CONVERSION_LOCK = 'wcb_utc_converting';
+
+	/**
+	 * Take the conversion lock. add_option() inserts only when the name is
+	 * free (option_name is unique), so exactly one request wins. A lock older
+	 * than 15 minutes is from a request that died mid-run and is taken over.
+	 *
+	 * @return bool True when this request holds the lock.
+	 */
+	private static function take_conversion_lock(): bool {
+		if ( add_option( self::CONVERSION_LOCK, time(), '', false ) ) {
+			return true;
+		}
+		wp_cache_delete( self::CONVERSION_LOCK, 'options' );
+		$since = (int) get_option( self::CONVERSION_LOCK, 0 );
+		if ( $since > 0 && time() - $since < 15 * MINUTE_IN_SECONDS ) {
+			return false;
+		}
+		delete_option( self::CONVERSION_LOCK );
+		return add_option( self::CONVERSION_LOCK, time(), '', false );
 	}
 
 	/**

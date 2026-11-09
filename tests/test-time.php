@@ -123,8 +123,17 @@ $wpdb->query( "TRUNCATE TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectD
 $wpdb->insert( $wcb_tt, array( 'at' => '2025-07-10 09:00:00' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 update_option( 'wcb_utc_converted', $wcb_conv_was, false );
 wcb_assert( Time::local_column_to_utc( $wcb_tt, 'at' ) && '2025-07-10 03:30:00' === $wpdb->get_var( "SELECT at FROM {$wcb_tt}" ), 'a zone without daylight saving (India) converts: 09:00 IST -> 03:30 UTC' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+// Another request converting: this one must skip and change nothing.
+$wpdb->query( "TRUNCATE TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->insert( $wcb_tt, array( 'at' => '2025-07-10 09:00:00' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+update_option( 'wcb_utc_converted', $wcb_conv_was, false );
+add_option( 'wcb_utc_converting', time(), '', false );
+wcb_assert( false === Time::local_column_to_utc( $wcb_tt, 'at' ) && '2025-07-10 09:00:00' === $wpdb->get_var( "SELECT at FROM {$wcb_tt}" ), 'while another request holds the lock, the step stays pending and no row moves' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+update_option( 'wcb_utc_converting', time() - HOUR_IN_SECONDS, false );
+wcb_assert( Time::local_column_to_utc( $wcb_tt, 'at' ) && '2025-07-10 03:30:00' === $wpdb->get_var( "SELECT at FROM {$wcb_tt}" ) && false === get_option( 'wcb_utc_converting' ), 'a lock left by a dead request is taken over, and released after' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 $wpdb->query( "DROP TABLE {$wcb_tt}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 update_option( 'wcb_utc_converted', $wcb_conv_was, false );
+delete_option( 'wcb_utc_converting' );
 
 wp_delete_post( $wcb_job, true );
 update_option( 'timezone_string', $wcb_tz_was );
