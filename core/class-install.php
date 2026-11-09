@@ -562,9 +562,11 @@ final class Install {
 			}
 
 			// 1.4.4 - members who lost the site's default role when they became
-			// an employer or candidate get it back, in the background.
-			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) && ! wp_next_scheduled( Roles::REPAIR_HOOK, array( 1 ) ) ) {
-				wp_schedule_single_event( time() + 30, Roles::REPAIR_HOOK, array( 1 ) );
+			// an employer or candidate get it back. The first 200 now, so a
+			// typical site is repaired without waiting on WP-Cron; each full
+			// batch schedules the next in the background.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) ) {
+				Roles::restore_default_role( 1 );
 			}
 			// 1.4.4 - HQ location links left by companies deleted before 1.8.3.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) ) {

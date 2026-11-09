@@ -113,6 +113,16 @@ Roles::grant_member_role( new WP_User( $wcb_ed ), 'wcb_candidate' );
 $wcb_roles = ( new WP_User( $wcb_ed ) )->roles;
 wcb_assert( in_array( 'editor', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'an editor keeps editor and gains candidate' );
 
+WP_CLI::log( '--- upgrade from 1.8.2 repairs without waiting on WP-Cron ---' );
+$wcb_up     = $wcb_mk( 'up', 'wcb_candidate' );
+$wcb_db_was = get_option( 'wcb_db_version' );
+update_option( 'wcb_db_version', '1.4.3', false );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( in_array( 'subscriber', ( new WP_User( $wcb_up ) )->roles, true ), 'the 1.4.4 upgrade gives a candidate-only member the default role at once' );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( array( 'wcb_candidate', 'subscriber' ) === array_values( ( new WP_User( $wcb_up ) )->roles ), 'running the upgrade again changes nothing' );
+update_option( 'wcb_db_version', $wcb_db_was, false );
+
 WP_CLI::log( '--- Edit User screen keeps Career Board roles ---' );
 require_once ABSPATH . 'wp-admin/includes/user.php';
 wp_set_current_user( 1 );
