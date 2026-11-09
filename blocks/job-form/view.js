@@ -25,7 +25,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
-import { flushEditors, formatSiteDate } from '@wcb/ui';
+import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 
 /**
  * Translation reader.
@@ -179,6 +179,17 @@ const showDescription = ( value ) => {
 		source.dispatchEvent( new Event( 'wcb:editor:hydrate', { bubbles: true } ) );
 	}
 };
+
+/**
+ * Fields kept in the browser draft of a new job (never an edit).
+ */
+const DRAFT_FIELDS = [
+	'step', 'title', 'description', 'salaryMin', 'salaryMax', 'salaryType', 'currencyCode',
+	'deadline', 'applyUrl', 'applyEmail', 'locationSlug', 'locationCustom', 'typeSlug',
+	'categorySlugs', 'expSlug', 'tags', 'remote', 'featured', 'customFields', 'boardId', 'companyId',
+];
+
+const draft = () => formDraft( state.draftKey );
 
 const { state } = store(
 	'wcb-job-form',
@@ -789,6 +800,7 @@ const { state } = store(
 					state.featureError = data.feature_error || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
+					draft().clear();
 
 					// Refresh the embedded employer dashboard (if present) right away:
 					// badges, Overview and My Jobs. try/catch: the form also runs
@@ -849,6 +861,43 @@ const { state } = store(
 				state.customFields     = {};
 
 				showDescription( '' );
+				state.draftRestored    = false;
+				draft().clear();
+			},
+		},
+
+		callbacks: {
+			// data-wp-init: bring back a job that a refresh or an ended login
+			// interrupted. Never over an edit or a form the server pre-filled.
+			restoreDraft() {
+				const { state } = store( 'wcb-job-form' );
+				const saved     = draft().load();
+				if ( ! saved || state.editJobId > 0 || state.title ) {
+					return;
+				}
+				DRAFT_FIELDS.forEach( ( field ) => {
+					if ( field in saved ) {
+						state[ field ] = saved[ field ];
+					}
+				} );
+				state.companyName   = ( state.companyNames || {} )[ state.companyId ] || '';
+				state.draftRestored = true;
+				showDescription( state.description || '' );
+			},
+
+			// data-wp-watch: re-runs whenever a draft field changes.
+			saveDraft() {
+				const { state } = store( 'wcb-job-form' );
+				const values    = {};
+				DRAFT_FIELDS.forEach( ( field ) => {
+					values[ field ] = state[ field ];
+				} );
+				if ( state.editJobId > 0 || state.submitted ) {
+					return;
+				}
+				if ( values.title || values.description ) {
+					draft().save( values );
+				}
 			},
 		},
 	}

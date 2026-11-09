@@ -347,3 +347,38 @@ export function savedMetaLine( ctx ) {
 	}
 	return '';
 }
+
+/**
+ * A form kept in the browser while it is filled in, so a refresh or an ended
+ * login does not lose it. One key per site and member (seeded by render.php);
+ * blocked storage (private mode) simply means no draft.
+ *
+ * @param {string} key localStorage key.
+ * @return {{load: function(): ?Object, save: function(Object): void, clear: function(): void}} Draft.
+ */
+export function formDraft( key ) {
+	return {
+		load() {
+			try {
+				const value = JSON.parse( window.localStorage.getItem( key ) || 'null' );
+				return value && 'object' === typeof value ? value : null;
+			} catch ( _e ) {
+				return null;
+			}
+		},
+		save( values ) {
+			try {
+				window.localStorage.setItem( key, JSON.stringify( values ) );
+			} catch ( _e ) {
+				// Storage full or blocked: the form still works, just without a draft.
+			}
+		},
+		clear() {
+			try {
+				window.localStorage.removeItem( key );
+			} catch ( _e ) {
+				// Nothing stored.
+			}
+		},
+	};
+}

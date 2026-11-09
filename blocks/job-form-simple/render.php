@@ -220,6 +220,9 @@ $wcb_state = apply_filters(
 		'error'             => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
+		// Browser draft of the job, one per site and member.
+		'draftKey'          => 'wcb-job-draft-simple-' . get_current_blog_id() . '-' . $wcb_user_id,
+		'draftRestored'     => false,
 		'creditCost'        => $wcb_credit_cost,
 		// Pre-resolved pluralised noun for the ACTIVE board's credit cost. PHP
 		// owns the plural form; JS only interpolates it into a sentence.
@@ -277,6 +280,7 @@ $wcb_state = apply_filters(
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
 			'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
+			'errorSessionExpired'      => __( 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
 			'errorInsufficientCredits' => __( 'Insufficient credits. This board requires %1$s but your balance is %2$s.', 'wp-career-board' ),
 			'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
@@ -297,6 +301,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 <div
 	<?php echo get_block_wrapper_attributes( array( 'class' => $wcb_wrapper_class ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-form-simple"
+	data-wp-init="callbacks.restoreDraft"
+	data-wp-watch="callbacks.saveDraft"
 >
 
 	<?php if ( ! \WCB\Core\ArchiveHeading::page_has_h1() ) : ?>
@@ -304,6 +310,11 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<h1 class="wcb-page-title"><?php echo esc_html( _x( 'Post a Job', 'page title', 'wp-career-board' ) ); ?></h1>
 		</div>
 	<?php endif; ?>
+
+	<div class="wcb-draft-notice" role="status" hidden data-wp-bind--hidden="!state.draftRestored">
+		<p class="wcb-draft-notice__text"><?php esc_html_e( 'We kept the job you were writing on this device.', 'wp-career-board' ); ?></p>
+		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.discardDraft"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
+	</div>
 
 	<!-- Honeypot — bots filling all fields trigger a fake success. -->
 	<label class="wcb-hp" aria-hidden="true">

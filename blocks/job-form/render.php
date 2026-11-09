@@ -338,6 +338,9 @@ $wcb_initial_state = apply_filters(
 		'validationField'   => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
+		// Browser draft of a new job, one per site and member.
+		'draftKey'          => 'wcb-job-draft-' . get_current_blog_id() . '-' . $wcb_user_id,
+		'draftRestored'     => false,
 		'creditCost'        => (int) $wcb_board_credit_costs[ $wcb_board_id ],
 		// Per-board cost lookup so view.js can update creditCost
 		// reactively when the employer switches boards. Object keyed by
@@ -466,6 +469,8 @@ $wcb_step_labels = array(
 <div
 	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-job-form-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-form"
+	data-wp-init="callbacks.restoreDraft"
+	data-wp-watch="callbacks.saveDraft"
 >
 
 	<?php
@@ -477,6 +482,11 @@ $wcb_step_labels = array(
 			<h1 class="wcb-page-title"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Edit Job', 'wp-career-board' ) : _x( 'Post a Job', 'page title', 'wp-career-board' ) ); ?></h1>
 		</div>
 	<?php endif; ?>
+
+	<div class="wcb-draft-notice" role="status" hidden data-wp-bind--hidden="!state.draftRestored">
+		<p class="wcb-draft-notice__text"><?php esc_html_e( 'We kept the job you were writing on this device.', 'wp-career-board' ); ?></p>
+		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.resetForm"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
+	</div>
 
 	<!-- ── Step indicator ────────────────────────────────────────────────── -->
 	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>" data-wp-class--wcb-hidden="state.submitted">
