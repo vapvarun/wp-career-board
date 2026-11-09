@@ -119,6 +119,7 @@
 	var createPagesBtn = document.getElementById( 'wcb-create-pages' );
 	var finishBtn      = document.getElementById( 'wcb-finish-wizard' );
 	var installSample  = document.getElementById( 'wcb-install-sample' );
+	var addMenu        = document.getElementById( 'wcb-add-menu' );
 
 	/**
 	 * Dispatch the step-complete event.
@@ -241,7 +242,7 @@
 			wp.apiFetch( {
 				url: wcbWizard.restUrl + '/sample-data',
 				method: 'POST',
-				data: { install_sample: doInstall },
+				data: { install_sample: doInstall, add_menu: addMenu && addMenu.checked ? 1 : 0 },
 			} ).then( function () {
 				dispatchComplete( stepNum );
 			} ).catch( function () {
