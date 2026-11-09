@@ -122,6 +122,9 @@ wcb_assert( in_array( 'subscriber', ( new WP_User( $wcb_up ) )->roles, true ), '
 \WCB\Core\Install::maybe_migrate();
 wcb_assert( array( 'wcb_candidate', 'subscriber' ) === array_values( ( new WP_User( $wcb_up ) )->roles ), 'running the upgrade again changes nothing' );
 update_option( 'wcb_db_version', $wcb_db_was, false );
+update_option( 'wcb_version', '1.8.2' );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( WCB_VERSION === get_option( 'wcb_version' ), 'an in-place update stamps wcb_version with the running version' );
 
 WP_CLI::log( '--- Edit User screen keeps Career Board roles ---' );
 require_once ABSPATH . 'wp-admin/includes/user.php';

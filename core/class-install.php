@@ -68,7 +68,7 @@ final class Install {
 		// bumped, the next activation skipped create_tables, and the missing
 		// tables stayed missing forever. Closes the underlying class behind
 		// the MariaDB 11.7+ `vector` collision.
-		update_option( 'wcb_version', WCB_VERSION, false );
+		update_option( 'wcb_version', WCB_VERSION, true );
 		set_transient( 'wcb_activation_redirect', true, 30 );
 	}
 
@@ -88,6 +88,12 @@ final class Install {
 		$installed = (string) get_option( 'wcb_db_version', '0' );
 		if ( version_compare( $installed, self::DB_VERSION, '<' ) ) {
 			self::maybe_upgrade();
+		}
+		// The version stamp follows an in-place update too (WP-CLI and host
+		// auto-updates skip the activation hook), as Pro's wcbp_version does.
+		// Autoloaded, so this check costs no query.
+		if ( WCB_VERSION !== get_option( 'wcb_version' ) ) {
+			update_option( 'wcb_version', WCB_VERSION, true );
 		}
 	}
 
