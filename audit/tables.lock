@@ -1,0 +1,5 @@
+# Allowed CREATE TABLE statements. Editing this file needs the owner's yes in the commit body.
+# Standard: wbcom-scope-and-schema-standard.md
+wcb_gdpr_log
+wcb_job_views
+wcb_notifications_log

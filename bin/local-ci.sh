@@ -108,6 +108,13 @@ fi
 #      (docs/standards/time.md); show times with \WCB\Core\Time::date_label().
 run_step "time-formatter" 'php -n bin/check-time-formatter.php .' || failed=$((failed+1))
 
+# Table lock (docs/standards/scope-and-schema.md): every CREATE TABLE is in
+# audit/tables.lock; adding one needs the owner's yes in the commit body.
+TL="$HOME/.claude/skills/wp-plugin-development/scripts/table-lock-check.php"
+if [ -f "$TL" ]; then
+	run_step "table-lock" "php -n \"$TL\" ." || failed=$((failed+1))
+fi
+
 # 5c. QA procedures must not pin one machine. A walkthrough carrying an author's
 #     hostname or home directory fails at the first command on any other box, and
 #     fails quietly: a wrong --path drives the wrong site.
