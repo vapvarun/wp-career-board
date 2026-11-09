@@ -2,9 +2,9 @@
   "release_version": "1.8.3",
   "pro_version": "1.8.3",
   "free_version": "1.8.3",
-  "free_commit": "93302d1",
-  "pro_commit": "a8c820c",
-  "ran_at": "2026-11-09T19:27:11Z",
+  "free_commit": "73950bd",
+  "pro_commit": "c8710b0",
+  "ran_at": "2026-11-09T19:41:02Z",
   "env": {
     "url": "http://localhost:8951",
     "php": "8.5",
@@ -397,61 +397,35 @@
       "id": "G.post-release",
       "result": "untested",
       "evidence": "Runs after tagging."
+    },
+    {
+      "id": "delta.D1.viewer_can_apply.deadline",
+      "result": "pass",
+      "evidence": "combo: jobs 457 (_wcb_deadline -3d) and 458 (+10d), tagged _wcb_qa_smoke=1; apply_require_login=false. GET /wcb/v1/jobs/<id> as guest (real HTTP + rest_do_request) and sarah.chen: past deadline_passed=true viewer_can_apply=false; future deadline_passed=false viewer_can_apply=true. GET /jobs?per_page=50 list entries carry identical values for both jobs, guest and sarah."
+    },
+    {
+      "id": "delta.D2.job_page_apply_sanity",
+      "result": "pass",
+      "evidence": "combo: as sarah.chen past-deadline job page shows 'Applications closed on November 6, 2026' with no Apply button; future job page shows Apply now, drawer submits and shows 'Application submitted' (resume chosen from saved resumes). Console warnings/errors: none. Screenshots in ~/work-artifacts/screenshots/2026-11/wcb-183-release/delta/"
+    },
+    {
+      "id": "delta.D3.credits_ledger_iso",
+      "result": "pass",
+      "evidence": "employer.figma GET /wcb/v1/employers/68/credits: ledger[0].created_at = 2026-11-09T18:32:05+00:00 (ISO 8601 with offset; was 'Y-m-d H:i:s' before). Dashboard Credits tab > Transaction History (collapsed toggle) shows 'Top-up | Welcome grant - 5 job credits | +5 cr | Nov 10, 2026' (IST) at 1440 and 390, no horizontal scroll, no error. ~/work-artifacts/screenshots/2026-11/wcb-183-release/delta/delta-combo-credits-*.png"
+    },
+    {
+      "id": "delta.D4.field_builder_token_field",
+      "result": "pass",
+      "evidence": "Settings > Field Builder > Job fields, group 'Role details': token field renders, .components-form-token-field__help count 0, zero __experimentalShowHowTo/FormTokenField console warnings on fresh load and after add/remove (the 20 warnings seen in the older pre-upgrade console log are absent). Added 'Main Board' token, reload: persisted; removed it, reload: gone."
+    },
+    {
+      "id": "delta.D5.debug_log_empty",
+      "result": "pass",
+      "evidence": "combo: debug.log 0 bytes at end."
     }
   ],
   "hard_fails": [],
-  "failures": [
-    {
-      "id": "F1.pro-field-builder-deprecated-prop",
-      "origin": "from",
-      "severity": "low",
-      "expected": "No deprecation warnings in the browser console on Settings > Field Builder.",
-      "actual": "38 console warnings: `__experimentalShowHowTo` prop in wp.components.FormTokenField is deprecated since version 7.1 (WP 7.1.3 here). Source: wp-career-board-pro/assets/field-builder.js line 501 passes __experimentalShowHowTo: false.",
-      "url": "http://localhost:8951/wp-admin/admin.php?page=wcb-settings&tab=field-builder",
-      "steps": "Admin > Career Board > Settings > Field Builder > Add group > Add field; read browser console.",
-      "screenshot": "/Users/vapvarun/work-artifacts/screenshots/2026-11/wcb-183-release/combo/admin-field-builder.png"
-    },
-    {
-      "id": "F2.credits-ledger-date-no-offset",
-      "origin": "from",
-      "severity": "low",
-      "expected": "wcb/v1 REST dates are ISO 8601 with offset.",
-      "actual": "GET /wcb/v1/employers/68/credits returns ledger created_at '2026-11-09 18:32:05' (UTC, no offset); the credits CSV export Date column is the same raw UTC string. Comes from the vendored Credits SDK, so the fix goes upstream.",
-      "url": "http://localhost:8951/wp-json/wcb/v1/employers/68/credits",
-      "steps": "Log in as employer.figma, GET /wp-json/wcb/v1/employers/68/credits with a REST nonce.",
-      "screenshot": "n/a (API)"
-    },
-    {
-      "id": "F3.viewer-can-apply-ignores-deadline",
-      "origin": "from",
-      "severity": "low",
-      "expected": "viewer_can_apply false once deadline_passed is true.",
-      "actual": "GET /wcb/v1/jobs/441 returns deadline_passed:true and viewer_can_apply:true. The page and POST /apply both refuse correctly (wcb_job_deadline_passed), so only the REST field is inconsistent (the mobile app may read it). Source: api/endpoints/class-jobs-endpoint.php lines 366 and 383.",
-      "url": "http://localhost:8951/wp-json/wcb/v1/jobs/441",
-      "steps": "Publish a job with yesterday's deadline (site time), GET /wcb/v1/jobs/<id>.",
-      "screenshot": "n/a (API)"
-    },
-    {
-      "id": "F4.job-page-additional-details-unboxed",
-      "origin": "from",
-      "severity": "low",
-      "expected": "The custom-field 'Additional details' block on a job page sits in a card like About This Role and Job categories.",
-      "actual": "With a Pro custom field set, 'Additional details' renders as a bare heading and rows between two cards with different spacing and no card background (visible in light and dark).",
-      "url": "http://localhost:8951/jobs/customer-success-manager-enterprise-dublin/",
-      "steps": "Create a Job field in Field Builder, set a value on a job, open the job page.",
-      "screenshot": "/Users/vapvarun/work-artifacts/screenshots/2026-11/wcb-183-release/combo/job-custom-field.png"
-    },
-    {
-      "id": "F5.pro-runbook-table-count-stale",
-      "origin": "from",
-      "severity": "low",
-      "expected": "Pro runbook P6 and the free runbook A.db.tables-and-version match the 1.8.3 schema.",
-      "actual": "Runbooks still say 14 tables (3 free + 8/9 pro incl. wcb_field_values + 2/3 SDK) and DB versions 1.4.3 / 1.17 / 1.8.2; real values are 13 tables, 1.4.5, 1.19, 1.8.3. A walker following them would file a false failure.",
-      "url": "docs/qa/AGENT_SMOKE_RUNBOOK.md (both repos)",
-      "steps": "Compare runbook text with SHOW TABLES LIKE '%wcb%'.",
-      "screenshot": "n/a (docs)"
-    }
-  ],
+  "failures": [],
   "untested": [
     {
       "id": "C.anon.company",
@@ -534,11 +508,81 @@
       "Seeded site had none of the six Career Board pages; they were created through Settings > Pages > Create Missing Pages before the walk.",
       "users_can_register toggled on for the registration walk and restored to 0; test user removed.",
       "Test data created: jobs 440,441,445,446 and applications 438,443,451 plus Team size field group; 453-455 deleted."
-    ]
+    ],
+    "branch_mode": "delta walk 93302d1/a8c820c..73950bd/c8710b0: jobs REST viewer_can_apply, ISO rewrite of object rows, Field Builder token field, job page + apply sanity; all other rows carried from the full walk"
   },
   "top3": [
     "All 10 must-confirm items passed with browser or SQL evidence; no debug.log line from either plugin on PHP 8.5 (0 bytes at the end).",
     "Time handling holds at the IST/UTC boundary: a job due today stays open, yesterday's closes, expiry cron agrees.",
     "Five low-severity findings (Pro field builder deprecated prop under WP 7.1, credits ledger date without offset, viewer_can_apply ignores deadline, unboxed Additional details block, stale runbook counts); none blocks."
+  ],
+  "observations": [
+    {
+      "id": "F1.pro-field-builder-deprecated-prop",
+      "origin": "from",
+      "severity": "low",
+      "expected": "No deprecation warnings in the browser console on Settings > Field Builder.",
+      "actual": "38 console warnings: `__experimentalShowHowTo` prop in wp.components.FormTokenField is deprecated since version 7.1 (WP 7.1.3 here). Source: wp-career-board-pro/assets/field-builder.js line 501 passes __experimentalShowHowTo: false.",
+      "url": "http://localhost:8951/wp-admin/admin.php?page=wcb-settings&tab=field-builder",
+      "steps": "Admin > Career Board > Settings > Field Builder > Add group > Add field; read browser console.",
+      "screenshot": "/Users/vapvarun/work-artifacts/screenshots/2026-11/wcb-183-release/combo/admin-field-builder.png",
+      "verdict": "fixed",
+      "fixed_in": "Pro 1dbeabb; delta.D4 pass on WP 7.1.3, verified on 7.1.4"
+    },
+    {
+      "id": "F2.credits-ledger-date-no-offset",
+      "origin": "from",
+      "severity": "low",
+      "expected": "wcb/v1 REST dates are ISO 8601 with offset.",
+      "actual": "GET /wcb/v1/employers/68/credits returns ledger created_at '2026-11-09 18:32:05' (UTC, no offset); the credits CSV export Date column is the same raw UTC string. Comes from the vendored Credits SDK, so the fix goes upstream.",
+      "url": "http://localhost:8951/wp-json/wcb/v1/employers/68/credits",
+      "steps": "Log in as employer.figma, GET /wp-json/wcb/v1/employers/68/credits with a REST nonce.",
+      "screenshot": "n/a (API)",
+      "verdict": "fixed (REST); CSV export date is the vendored Credits SDK, upstream card",
+      "fixed_in": "Free 949d723; delta.D3 pass"
+    },
+    {
+      "id": "F3.viewer-can-apply-ignores-deadline",
+      "origin": "from",
+      "severity": "low",
+      "expected": "viewer_can_apply false once deadline_passed is true.",
+      "actual": "GET /wcb/v1/jobs/441 returns deadline_passed:true and viewer_can_apply:true. The page and POST /apply both refuse correctly (wcb_job_deadline_passed), so only the REST field is inconsistent (the mobile app may read it). Source: api/endpoints/class-jobs-endpoint.php lines 366 and 383.",
+      "url": "http://localhost:8951/wp-json/wcb/v1/jobs/441",
+      "steps": "Publish a job with yesterday's deadline (site time), GET /wcb/v1/jobs/<id>.",
+      "screenshot": "n/a (API)",
+      "verdict": "fixed",
+      "fixed_in": "Free 949d723; delta.D1 pass on both sites"
+    },
+    {
+      "id": "F4.job-page-additional-details-unboxed",
+      "origin": "from",
+      "severity": "low",
+      "expected": "The custom-field 'Additional details' block on a job page sits in a card like About This Role and Job categories.",
+      "actual": "With a Pro custom field set, 'Additional details' renders as a bare heading and rows between two cards with different spacing and no card background (visible in light and dark).",
+      "url": "http://localhost:8951/jobs/customer-success-manager-enterprise-dublin/",
+      "steps": "Create a Job field in Field Builder, set a value on a job, open the job page.",
+      "screenshot": "/Users/vapvarun/work-artifacts/screenshots/2026-11/wcb-183-release/combo/job-custom-field.png",
+      "verdict": "observation: styling suggestion for the owner, unchanged since 1.8.2"
+    },
+    {
+      "id": "F5.pro-runbook-table-count-stale",
+      "origin": "from",
+      "severity": "low",
+      "expected": "Pro runbook P6 and the free runbook A.db.tables-and-version match the 1.8.3 schema.",
+      "actual": "Runbooks still say 14 tables (3 free + 8/9 pro incl. wcb_field_values + 2/3 SDK) and DB versions 1.4.3 / 1.17 / 1.8.2; real values are 13 tables, 1.4.5, 1.19, 1.8.3. A walker following them would file a false failure.",
+      "url": "docs/qa/AGENT_SMOKE_RUNBOOK.md (both repos)",
+      "steps": "Compare runbook text with SHOW TABLES LIKE '%wcb%'.",
+      "screenshot": "n/a (docs)",
+      "verdict": "fixed (docs)",
+      "fixed_in": "Free 8dbc376, Pro 644579b"
+    }
+  ],
+  "layer1_delta": [
+    "Opus re-verify 2026-11-10: F1.pro-field-builder-deprecated-prop -> fixed (Pro 1dbeabb; delta.D4 pass on WP 7.1.3, verified on 7.1.4).",
+    "Opus re-verify 2026-11-10: F2.credits-ledger-date-no-offset -> fixed (REST); CSV export date is the vendored Credits SDK, upstream card (Free 949d723; delta.D3 pass).",
+    "Opus re-verify 2026-11-10: F3.viewer-can-apply-ignores-deadline -> fixed (Free 949d723; delta.D1 pass on both sites).",
+    "Opus re-verify 2026-11-10: F4.job-page-additional-details-unboxed -> observation: styling suggestion for the owner, unchanged since 1.8.2.",
+    "Opus re-verify 2026-11-10: F5.pro-runbook-table-count-stale -> fixed (docs) (Free 8dbc376, Pro 644579b).",
+    "Opus note: guest GET /wcb/v1/jobs/<id> is sent with Cache-Control public, max-age=3600, so any job field (deadline_passed, viewer_can_apply) can be up to an hour stale for guests behind a cache; existing caching behaviour, not a 1.8.3 regression."
   ]
 }
