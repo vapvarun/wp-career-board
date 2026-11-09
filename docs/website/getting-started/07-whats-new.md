@@ -13,6 +13,7 @@ You can use this page to see recent changes that affect how you set up and run y
 * **Applying as a guest.** The name and email fields are full width in the apply panel. An application from a deleted member reads "Deleted candidate".
 * **Dashboards.** Candidate and employer dashboards open only tabs that exist on your site, so a Pro tab link without Pro lands on Overview.
 * **Reign.** On Reign 8.0.9 and later, job, company and dashboard pages show one page heading.
+* **Safer updates.** Each WP Career Board and Pro update package is checked against its release signature before it installs. In this release the result is only recorded, and updates install as before.
 * **For developers.** wcb/v1 sends every time as ISO 8601 with its offset, and jobs add `deadline_day`. New filters: `wcb_display_timezone` and `wcb_title_owning_blocks`. See [REST API](../developer-guide/03-rest-api.md) and [Hooks reference](../developer-guide/02-hooks-reference.md).
 
 ## In 1.8.2
