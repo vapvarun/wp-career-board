@@ -103,15 +103,21 @@ class ReignIntegration {
 		'wp-career-board/candidate-dashboard',
 		'wp-career-board/employer-dashboard',
 		'wp-career-board/employer-registration',
+		// Listing blocks print the page heading through ArchiveHeading::render().
+		'wp-career-board/job-listings',
+		'wp-career-board/job-search',
+		'wp-career-board/company-archive',
 	);
 
 	/**
 	 * Whether this page prints its own h1, so Reign adds no second one.
 	 *
 	 * Reign 8.0.9+ asks through reign_title_plugin_owned, the way it does for
-	 * WooCommerce and WP Job Manager. Our single job and company templates
-	 * and every page holding a dashboard, form or registration block (as a
-	 * block or its shortcode) print the h1 themselves.
+	 * WooCommerce and WP Job Manager. Our single job and company templates,
+	 * the job and company archives, job taxonomy archives, and every page
+	 * holding a listing, dashboard, form or registration block (as a block or
+	 * its shortcode) print the h1 themselves; Pro adds its blocks through
+	 * wcb_title_owning_blocks.
 	 *
 	 * @since 1.8.3
 	 *
@@ -119,18 +125,30 @@ class ReignIntegration {
 	 * @return mixed
 	 */
 	public static function owns_title( $owned ) {
-		if ( $owned || ! is_singular() ) {
+		if ( $owned ) {
 			return $owned;
 		}
-		if ( is_singular( array( 'wcb_job', 'wcb_company' ) ) ) {
+		// Job and company archives and every job taxonomy archive render through
+		// Career Board blocks that print the page heading.
+		if ( is_singular( array( 'wcb_job', 'wcb_company' ) ) || is_post_type_archive( array( 'wcb_job', 'wcb_company' ) ) || is_tax( \WCB\Core\Taxonomy::TAXONOMIES ) ) {
 			return true;
 		}
-		$post = get_queried_object();
+		$post = is_singular() ? get_queried_object() : null;
 		if ( ! $post instanceof \WP_Post ) {
 			return $owned;
 		}
-		foreach ( \WCB\Core\Plugin::SHORTCODES as $tag => $block ) {
-			if ( in_array( $block, self::HEADING_BLOCKS, true ) && ( has_block( $block, $post ) || has_shortcode( $post->post_content, $tag ) ) ) {
+		$tags = array_flip( \WCB\Core\Plugin::SHORTCODES );
+		/**
+		 * Blocks that print the page's own h1, as block name => shortcode tag ('' for none).
+		 * A page holding one tells the theme not to add a second heading.
+		 *
+		 * @since 1.8.3
+		 *
+		 * @param array<string, string> $blocks Block name => shortcode tag.
+		 */
+		$blocks = (array) apply_filters( 'wcb_title_owning_blocks', array_combine( self::HEADING_BLOCKS, array_map( static fn( string $b ): string => (string) ( $tags[ $b ] ?? '' ), self::HEADING_BLOCKS ) ) );
+		foreach ( $blocks as $block => $tag ) {
+			if ( has_block( (string) $block, $post ) || ( '' !== (string) $tag && has_shortcode( $post->post_content, (string) $tag ) ) ) {
 				return true;
 			}
 		}

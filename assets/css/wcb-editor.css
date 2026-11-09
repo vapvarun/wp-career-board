@@ -178,6 +178,12 @@
 	color: var(--color-text-secondary);
 }
 
+/* Editor.js paints "Nothing found" in its own fixed grey (3.6:1 on Reign dark);
+   the secondary text token keeps it at AA on light and dark. */
+.wcb-editor .ce-popover .ce-popover__nothing-found-message {
+	color: var(--color-text-secondary);
+}
+
 /* Always-visible formatting toolbar (blocks/job-form/editor-toolbar.php). */
 .wcb-editor-toolbar {
 	display: flex;

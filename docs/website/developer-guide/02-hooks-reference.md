@@ -28,6 +28,7 @@ Use these actions and filters to change how WP Career Board behaves, react to ev
 | `wcb_job_default_status` | Filter | The status a new job gets. Return `publish`, `pending` or `draft`; anything else is ignored. Args: `$status, $request`. |
 | `wcb_job_default_expiry_days` | Filter | The listing length in days when the request has no deadline. Args: `$days, $request`. |
 | `wcb_job_deadline_passed` | Filter | Keep applications open past the stored deadline, or close them early. Args: `$passed, $job_id, $deadline` (UTC `Y-m-d H:i:s` since 1.8.3). |
+| `wcb_title_owning_blocks` | Filter | Blocks that print the page's own h1, as `block name => shortcode tag`. A page holding one tells the theme (Reign's `reign_title_plugin_owned`) not to add a second heading. Pro adds its resume, map and pipeline blocks here. Args: `array $blocks`. |
 | `wcb_display_timezone` | Filter | The timezone every time is shown in: admin screens, member pages, emails, edit fields and scripts. Default: the site's timezone (Settings > General). Return a member's own timezone to show each member their local time. Args: `DateTimeZone $timezone, int $user_id`. |
 | `wcb_job_board_id` | Filter | Resolve which board a job belongs to. Args: `$board_id, $job_id`. |
 | `wcb_job_allow_new_terms` | Filter | Whether a submission may create new category, type, location or experience terms. Default: moderators only. Tags are always free-form. Args: `$allow, $request`. |
