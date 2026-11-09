@@ -363,7 +363,8 @@ final class JobsEndpoint extends RestController {
 				$job['is_bookmarked']      = false;
 				$job['has_applied']        = false;
 				$job['application_status'] = null;
-				$job['viewer_can_apply']   = $guest_can_apply;
+				// A closed deadline refuses everyone, the same answer POST /apply gives.
+				$job['viewer_can_apply'] = $guest_can_apply && empty( $job['deadline_passed'] );
 			}
 			unset( $job );
 			return $jobs;
@@ -380,7 +381,7 @@ final class JobsEndpoint extends RestController {
 			$job['is_bookmarked']      = isset( $bookmarked[ $id ] );
 			$job['has_applied']        = null !== $status;
 			$job['application_status'] = $status;
-			$job['viewer_can_apply']   = $can_apply && ! $is_owner && null === $status;
+			$job['viewer_can_apply']   = $can_apply && ! $is_owner && null === $status && empty( $job['deadline_passed'] );
 		}
 		unset( $job );
 

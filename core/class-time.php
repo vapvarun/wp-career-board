@@ -261,6 +261,9 @@ final class Time {
 		foreach ( $data as $key => $value ) {
 			if ( is_array( $value ) ) {
 				$data[ $key ] = self::iso_dates( $value );
+			} elseif ( $value instanceof \stdClass ) {
+				// Database rows (e.g. the credits ledger) arrive as plain objects.
+				$data[ $key ] = (object) self::iso_dates( get_object_vars( $value ) );
 			} elseif ( is_string( $value ) && is_string( $key ) && preg_match( '/(_at|^deadline)$/', $key ) ) {
 				$data[ $key ] = self::rest_datetime( $value );
 			}

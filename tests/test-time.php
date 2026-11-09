@@ -79,6 +79,12 @@ $wcb_data = rest_get_server()->response_to_data( rest_do_request( new WP_REST_Re
 wcb_assert( '2026-05-20T18:29:59+00:00' === ( $wcb_data['deadline'] ?? '' ), 'wcb/v1 sends the deadline as ISO 8601 with offset' );
 wcb_assert( '2026-05-20' === ( $wcb_data['deadline_day'] ?? '' ), 'and its local day for pickers' );
 wcb_assert( 1 === preg_match( '/\+00:00$/', (string) ( $wcb_data['created_at'] ?? '' ) ), 'created_at is ISO with offset' );
+update_post_meta( $wcb_job, '_wcb_deadline', gmdate( 'Y-m-d', time() - 3 * DAY_IN_SECONDS ) );
+$wcb_data = rest_get_server()->response_to_data( rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/jobs/' . $wcb_job ) ), false );
+wcb_assert( true === ( $wcb_data['deadline_passed'] ?? null ) && false === ( $wcb_data['viewer_can_apply'] ?? null ), 'after its deadline a job tells the viewer they cannot apply' );
+update_post_meta( $wcb_job, '_wcb_deadline', '2026-05-20' );
+$wcb_rows = Time::iso_response_dates( new WP_REST_Response( array( 'ledger' => array( (object) array( 'id' => 1, 'created_at' => '2026-11-09 18:32:05' ) ) ) ), null, new WP_REST_Request( 'GET', '/wcb/v1/employers/1/credits' ) )->get_data();
+wcb_assert( '2026-11-09T18:32:05+00:00' === ( $wcb_rows['ledger'][0]->created_at ?? '' ), 'database rows nested as objects (credits ledger) get ISO dates too' );
 
 WP_CLI::log( '--- member timezone filter ---' );
 $wcb_member_tz = static fn() => new DateTimeZone( 'America/New_York' );
