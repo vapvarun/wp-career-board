@@ -282,7 +282,11 @@ Both sign-up routes also run `wcb_pre_registration` and core's `registration_err
 
 ## Job lifecycle fields
 
-Every job payload carries `accepting_applications` (true only while the job is published and its deadline has not passed) and `closes_at` (the `Y-m-d` deadline, or empty). Use these instead of comparing status and dates in the client. An expired or closed job still answers `GET /jobs/{id}` and keeps its `/jobs/{slug}/` page; it is simply not accepting applications.
+Every job payload carries `accepting_applications` (true only while the job is published and its deadline has not passed) and `closes_at` (the moment applications close, or empty). Use these instead of comparing status and dates in the client.
+
+### Times
+
+Every time in a `wcb/v1` response is UTC, sent as ISO 8601 with its offset, for example `2026-11-12T18:29:59+00:00`. This covers every `*_at` field, `deadline` and `closes_at`. A job deadline is the last second of the chosen day in the site's timezone, so `deadline_day` (`Y-m-d`, site timezone) is also sent for date pickers, and `deadline_label` is the localised text. Send a deadline as `Y-m-d` (the day the job closes) or as an ISO 8601 time; the server stores it in UTC. Before 1.8.3 some fields were site-local or had no offset. An expired or closed job still answers `GET /jobs/{id}` and keeps its `/jobs/{slug}/` page; it is simply not accepting applications.
 
 ## Application status fields
 

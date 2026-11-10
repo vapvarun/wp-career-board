@@ -1,13 +1,13 @@
 # Reign theme
 
-You can run WP Career Board on the Reign theme with no setup. The job board picks up Reign's colors and dark mode, uses Reign job page templates, and adds job links to Reign's navigation. The integration turns on when Reign is the active theme, including a child theme of Reign.
+You can run WP Career Board on the Reign theme with no setup. The job board picks up Reign's colors and dark mode, and uses Reign job page templates. The integration turns on when Reign is the active theme, including a child theme of Reign.
 
 ## What you get
 
 - A Reign single job template and jobs archive template.
 - Colors that follow Reign. The plugin's primary color reads Reign's own color variable, so it follows the color palette you choose in Reign. The components switch with Reign's dark mode.
 - A compatibility stylesheet, `reign-compat.css`, loaded after Reign's main stylesheet wherever Career Board content shows: on job, company, resume and application pages, on the job archive and job taxonomy archives, and wherever a Career Board block renders.
-- Career Board links in Reign's navigation.
+- One page title. Job, company and resume pages, the dashboards, the job form and the registration page print their own heading, so Reign (8.0.9 and later) does not add a second one.
 
 ## Set up
 
@@ -15,11 +15,7 @@ Activate Reign and WP Career Board. There is nothing to configure.
 
 ## Navigation links
 
-The integration adds these links through Reign's `reign_nav_items` filter:
-
-- **Browse jobs** for everyone. It links to your Find Jobs page.
-- **Employer Dashboard** for users who can post jobs. It links to your Employer Dashboard page.
-- **My Applications** for users who can apply to jobs. It links to your Candidate Dashboard page.
+Reign's left panel shows the menu you build. To add Career Board pages, open **Appearance > Menus**, add your Find Jobs, Employer Dashboard and Candidate Dashboard pages to the menu, and assign it to the **Left Panel - Logged in users** location (and **Left Panel - Logged out users** for visitors).
 
 ## Change the colors
 

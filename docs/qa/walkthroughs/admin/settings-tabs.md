@@ -4,7 +4,7 @@ priority: critical
 personas: varundubey
 requires: mu:autologin
 last_verified: 2026-09-27
-covers: admin/admin-settings-general-tab-save, admin/admin-settings-jobs-tab-save, admin/admin-settings-antispam-tab-save, admin/admin-settings-save-merge, admin/admin-settings-tabs-render
+covers: admin/admin-settings-jobs-tab-save, admin/admin-settings-antispam-tab-save, admin/admin-settings-tabs-render
 ---
 
 # Walkthrough: Settings Tabs - render every grouped tab, save Jobs / Sign-ups / Antispam, and prove the save-merge contract

@@ -1,69 +1,588 @@
 {
+  "release_version": "1.8.3",
+  "pro_version": "1.8.3",
+  "free_version": "1.8.3",
+  "free_commit": "73950bd",
+  "pro_commit": "c8710b0",
+  "ran_at": "2026-11-09T19:41:02Z",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "theme": "buddyx",
+    "upgrade_from": "1.8.2"
+  },
   "mode": "combo",
-  "scope": "1.8.2 post-bump confirmation; full touched-surface re-walk passed earlier the same day (14/14); re-stamped 2026-10-26T08:58:01Z after b04a23c, which only changes the DB 1.4.3 repair query form; that path re-verified on this stack",
+  "sections": {
+    "A_fresh_install": {
+      "pass": 0,
+      "fail": 0,
+      "skipped": 3,
+      "note": "Site was installed on 1.8.2 and upgraded; fresh install not walked here"
+    },
+    "B_upgrade": {
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 0
+    },
+    "C_core_flows": {
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 5
+    },
+    "D_regression_guards": {
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 1
+    },
+    "E_pro_smoke": {
+      "pass": 11,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 3
+    },
+    "E2_environment": {
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 1
+    },
+    "F_cross_browser": {
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 3
+    },
+    "G_post_release": {
+      "pass": 0,
+      "fail": 0,
+      "skipped": 0,
+      "untested": 1
+    }
+  },
   "checks": [
     {
-      "id": "A1",
-      "name": "Versions, module URLs, log",
+      "id": "M1.guest-apply-fields-fill-width",
       "result": "pass",
-      "evidence": "wp plugin list: wp-career-board 1.8.2 and wp-career-board-pro 1.8.2 both active; job page script modules (job-single/view.js, wcb-fetch.js, wcb-fields.js, wcb-ui.js) served ?ver=1.8.2; docker logs cb182-combo-wp-1 --since 30m: zero non-access-log lines (no PHP warnings/notices from wp-career-board*)."
+      "evidence": "Logged out, job 116, Apply now drawer: #wcb-guest-name and #wcb-guest-email 456px wide at 1440 = .wcb-upload-zone 456px (drawer content width); 326px = 326px at 390. No horizontal overflow. Shots guest-apply-1440.png, guest-apply-390.png. A real guest submit returned 200 {id:438,job_id:116,status:submitted}."
     },
     {
-      "id": "A2a",
-      "name": "Candidate apply, instant submit carries cover letter",
+      "id": "M2.upgrade-options",
       "result": "pass",
-      "evidence": "1440 (marcus.williams, job 127, click) and 390 (sarah.chen, job 128, focus+Enter): POST /wcb/v1/jobs/{id}/apply 200, request body contained the typed letter; DB _wcb_cover_letter matched exactly; no page/console errors.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/apply-8921-marcus.williams-1440.png"
+      "evidence": "wp option get: wcb_version=1.8.3, wcb_db_version=1.4.5, wcbp_db_version=1.19; wcb_utc_converting does not exist (wp option get exits 1, option list --search shows only wcb_utc_converted with 4 columns). WCB_VERSION=WCBP_VERSION=1.8.3, PHP 8.5.12."
     },
     {
-      "id": "A2b",
-      "name": "Employer sees application",
+      "id": "M3.pro-csv-import",
       "result": "pass",
-      "evidence": "ahmed.karim dashboard Applications view lists both new applications and shows the cover letter text at 1440 and 390 (after tapping the row); no horizontal overflow, no JS errors.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/emp-apps-1440.png"
+      "evidence": "Settings > Import > CSV: 2-row CSV from container /tmp uploaded; result 'Imported: 2 - Updated: 0 - Skipped: 0 - Warnings: 0'. Job 445 (status publish, deadline stored 2026-12-15 18:29:59 UTC = Dec 15 IST end of day, salary GBP) and 446 (pending, shown by 'Review 1 pending job' link). debug.log 0 bytes after the import on PHP 8.5. Shot admin-csv-import.png."
     },
     {
-      "id": "A2c",
-      "name": "Employer posts job via /post-a-job/",
+      "id": "M4.field-values-table-gone-and-values-display",
       "result": "pass",
-      "evidence": "1440: filled title, description, salary, apply email, category, type, location, experience, Preview, Post Job -> POST /wcb/v1/jobs 201 (id 1055, status pending), 'Job submitted for review' shown; no credit/payment gate hit. 390: step 1 -> Next -> Back, typed text intact, no overflow.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/pj-final.png"
+      "evidence": "SHOW TABLES: 13 wcb tables, no wp_wcb_field_values. Created a Job field 'Team size' in Field Builder UI, saved value via employer edit form (/post-a-job/?edit=440) -> post meta wcbf_6af21bbfd7796='14 people across EMEA'; guest job page shows 'Additional details / Team size / 14 people across EMEA'; reopening the edit form shows the value. Limit: the seeded site had no field groups, so the upgrade copy of legacy rows was not exercised with real data. Shot job-custom-field.png."
     },
     {
-      "id": "A2d",
-      "name": "Admin approves pending job",
+      "id": "M5.email-log-indexes-and-row",
       "result": "pass",
-      "evidence": "Career Board > Jobs, Pending Review: Approve row action + confirm modal -> job 1055 status publish. No errors.",
-      "screenshot": "/Users/varundubey/work-artifacts/scratch/playwright/postbump/adm-approved.png"
+      "evidence": "SHOW INDEX FROM wp_wcb_notifications_log: PRIMARY, user_id, event_type, status, sent_at (status and date indexes present). Guest apply wrote rows application-received (user 12) and application-guest-confirmation, qa-mail.log lines 'New application for your job' and 'Your application has been received'. Later rows: application-confirmation, application-status-changed, job-approved, job-expired x2, all with matching qa-mail.log lines."
     },
     {
-      "id": "A3",
-      "name": "Pro supplement P1-P6",
+      "id": "M6.time-site-timezone",
       "result": "pass",
-      "evidence": "See .last-smoke-pass-pro.json: P1 P2 P3 P4 P6 pass; P5 partial (no licensing server)."
+      "evidence": "Site TZ Asia/Kolkata, clock 2026-11-10 00:07 IST while UTC was Nov 9. Job 440 deadline Nov 10 (today IST) stored 2026-11-10 18:29:59 UTC: page shows Apply now + 'Apply by November 10, 2026', REST deadline_passed=false, apply passes the deadline gate, survives wcb_check_job_expiry run (stays publish). Job 441 deadline Nov 9 (yesterday IST, today UTC): page 'Applications closed on November 9, 2026', REST deadline_passed=true, apply 400 wcb_job_deadline_passed, expiry cron -> wcb_expired. REST job dates are ISO 8601 with offset (2026-11-04T10:28:45+00:00, deadline 2026-11-24T18:29:59+00:00). Exceptions recorded as failures: credits ledger created_at has no offset; resume date and deadline_day are intentional date-only fields."
     },
     {
-      "id": "D.no-expiry-mariadb.restore-after-b04a23c",
-      "status": "pass",
-      "evidence": "combo stack, after b04a23c (repair writes via $wpdb->update): db 1.4.2 -> 1.4.3, blank-deadline expired job -> publish, past-deadline and no-meta jobs stay wcb_expired; no new debug.log lines"
+      "id": "M7.dashboards-every-tab-real-panel",
+      "result": "pass",
+      "evidence": "Candidate dashboard (Pro on) 1440 and 390: Overview, My Applications, My Resumes, Job alerts, Saved Jobs, Saved Companies, Saved Resumes, Profile, Settings, Notifications each opened a real panel with its own heading, no overflow; 390 uses the Toggle navigation menu. Employer dashboard 1440: Overview, My Jobs, Post a job, Applications, Companies, Profile, Credits (balance 5), Saved resumes (empty state), Settings, Notifications, plus Pipeline page /hiring-pipeline/?job=440 (move Sarah to Interview persisted after reload). Dark via BuddyX toggle checked on employer dashboard, job page."
     },
     {
-      "id": "suite.after-b04a23c",
-      "status": "pass",
-      "evidence": "Free + Pro tests/test-*.php 65/65 on wb-listora.local after b04a23c; require_job_location restored to true"
+      "id": "M8.job-form-local-draft",
+      "result": "pass",
+      "evidence": "employer.figma /post-a-job/: typed title and description, step 2 salary and deadline, reloaded: .wcb-draft-notice visible 'We kept the job you were writing on this device.', title, description, salary and deadline restored (and step 2). localStorage key wcb-job-draft-1-68. Submitted (201, job 440): key removed, notice hidden. Shot job-form-draft-restored.png."
+    },
+    {
+      "id": "M9.updates-and-licence",
+      "result": "pass",
+      "evidence": "wp-admin Plugins: only a WordPress core update nag and the BuddyX demo notice, no error notice from either plugin. Package_Signatures_Guard::products(): wp-career-board warn, wp-career-board-pro warn. Pro License screen 1440 and 390 renders 'License status / WP Career Board Pro v1.8.3 / Status Inactive / Activate', no overflow. Licence not activated, no outbound calls. Kanban returns 200 with licence inactive."
+    },
+    {
+      "id": "M10.role-repair",
+      "result": "pass",
+      "evidence": "Every non-admin user holding wcb_employer or wcb_candidate also holds subscriber (0 exceptions across all users); sarah.chen, marcus.williams, employer.figma, employer.stripe = <wcb role>, subscriber; new registration via UI gets subscriber + wcb_candidate; siobhan subscriber only; morgan_moderator wcb_board_moderator."
+    },
+    {
+      "id": "R.logged-out-private-routes",
+      "result": "pass",
+      "evidence": "curl without cookies: /applications/438 401, /candidates/1/resumes 401, /notifications 401, /employers/12/credits 401, /alerts 401, /jobs/116/kanban 401, /jobs/116/applications 401. Public /resumes returns the directory shape only (name, headline, skills, no contact)."
+    },
+    {
+      "id": "R.second-employer-cannot-see-first",
+      "result": "pass",
+      "evidence": "employer.stripe vs figma job 397 / application 402: GET applications/402 403, jobs/397/applications 403, jobs/397/kanban 403, PUT applications/402/stage 403, PATCH jobs/397 403, employers/68/credits 403; UI /hiring-pipeline/?job=397 'You don't have access to this job's pipeline', /post-a-job/?edit=397 'You are not authorized to edit this job.'; stripe dashboard lists only its own applicant. ?wcb_file=439 (figma applicant CV) 404 for stripe."
+    },
+    {
+      "id": "R.second-candidate-cannot-read-first",
+      "result": "pass",
+      "evidence": "marcus.williams: GET applications/402 403 wcb_forbidden, candidates/70/resumes 403 'You may only manage your own resumes', ?wcb_file=439 404. Owner sarah.chen gets 200 for both."
+    },
+    {
+      "id": "R.moderator-scope",
+      "result": "pass",
+      "evidence": "morgan_moderator: Jobs queue loads with Approve | Reject row actions and Approve/Dismiss flags bulk; Settings, Companies, Applications return 403; row Approve opens confirm modal and publishes job 446 (job-approved email logged)."
+    },
+    {
+      "id": "C.anon.home-and-archive",
+      "result": "pass",
+      "evidence": "/find-jobs/ 133 jobs found (132 after expiry run), 12 cards, filters; 390 layout clean (find-jobs-390.png)."
+    },
+    {
+      "id": "C.anon.search",
+      "result": "pass",
+      "evidence": "search=Lisbon returns the Lisbon job; gibberish shows 'No jobs match your filters'."
+    },
+    {
+      "id": "C.anon.single-job",
+      "result": "pass",
+      "evidence": "Job page: title, company, salary, apply-by, custom field block, share; expired job shows closed banner not Apply."
+    },
+    {
+      "id": "C.anon.company",
+      "result": "untested",
+      "evidence": "Company pages load at 1440/390 without overflow; private-field leak check not run."
+    },
+    {
+      "id": "C.candidate.register",
+      "result": "pass",
+      "evidence": "/employer-registration/ closed message when users_can_register=0; with it on, Find a Job path created account (candidates/register 200, subscriber + wcb_candidate) and 'Check your inbox' confirm email logged. users_can_register restored to 0 and the test user deleted."
+    },
+    {
+      "id": "C.candidate.apply",
+      "result": "pass",
+      "evidence": "sarah.chen applied to job 440 with cover letter; application 443 created, employer notified (mail + bell), candidate confirmation; Pro stage assigned (_wcb_stage_id set for guest app 438 too)."
+    },
+    {
+      "id": "C.candidate.profile",
+      "result": "untested",
+      "evidence": "Profile tab opens; edit and save not walked."
+    },
+    {
+      "id": "C.candidate.save-job",
+      "result": "untested",
+      "evidence": "Saved jobs/companies/resumes panels open (empty state shown); bookmark toggle not walked."
+    },
+    {
+      "id": "C.candidate.mobile",
+      "result": "pass",
+      "evidence": "Guest apply, dashboards and archive at 390 without horizontal overflow."
+    },
+    {
+      "id": "C.employer.post-job",
+      "result": "pass",
+      "evidence": "Posted Customer Success Manager, Enterprise - Dublin: 201, status pending (moderated); server refusal 'Add a location, or mark the job as remote.' shown inline when location=Other."
+    },
+    {
+      "id": "C.employer.edit-job",
+      "result": "pass",
+      "evidence": "Edit form reopened with values; Update Job saved the custom field and confirmed 'Job updated'. Close/pause not walked."
+    },
+    {
+      "id": "C.employer.applications",
+      "result": "pass",
+      "evidence": "Applications tab lists own applicants with status filters; Pipeline move to Interview persisted after reload and emailed candidate (application-status-changed)."
+    },
+    {
+      "id": "C.mod.queue-and-actions",
+      "result": "pass",
+      "evidence": "See R.moderator-scope. Bulk approve and Trash-hidden check not walked."
+    },
+    {
+      "id": "C.admin.pages",
+      "result": "pass",
+      "evidence": "All Career Board admin pages and every settings tab (22) returned 200 with no PHP notice text; debug.log 0 bytes at the end of the walk."
+    },
+    {
+      "id": "C.admin.crud",
+      "result": "untested",
+      "evidence": "Only Field Builder group and field create walked."
+    },
+    {
+      "id": "C.admin.user-management",
+      "result": "untested",
+      "evidence": "Not walked."
+    },
+    {
+      "id": "C.notifications",
+      "result": "pass",
+      "evidence": "Events seen in UI and email log: new application, job approved, application status changed, job expired; candidate bell Mark all read via REST 200."
+    },
+    {
+      "id": "C.cron",
+      "result": "pass",
+      "evidence": "wcb_check_job_expiry, prune, deadline reminders, daily/weekly alerts, featured expiry scheduled; ran wcb_check_job_expiry: 401 and 441 expired, 440 (deadline today) stayed open. Note WP-Cron is not self-firing in this container (many overdue events show 'now')."
+    },
+    {
+      "id": "D.guest-apply-account-email",
+      "result": "pass",
+      "evidence": "POST guest with sarah.chen email -> 409 wcb_guest_has_account 'This email already has an account. Sign in to apply.'; Sign-in link in the browser not clicked through."
+    },
+    {
+      "id": "D.guest-apply-repeat-same-reply",
+      "result": "pass",
+      "evidence": "Same guest twice with CV: both 200 {id:451,job_id:84,status:submitted}, 1 row, 1 email."
+    },
+    {
+      "id": "D.apply-email-scraped",
+      "result": "pass",
+      "evidence": "GET /jobs/116 anonymous: no apply_email in body."
+    },
+    {
+      "id": "D.resume-required-default",
+      "result": "pass",
+      "evidence": "Guest and candidate apply without CV: 400 wcb_resume_required."
+    },
+    {
+      "id": "D.private-files-attachment",
+      "result": "pass",
+      "evidence": "?wcb_file=439 as admin: Content-Disposition attachment; X-Content-Type-Options nosniff; direct /wp-content/uploads/wcb-private path 403; guest and other users 404."
+    },
+    {
+      "id": "D.job-view-counted",
+      "result": "pass",
+      "evidence": "POST /jobs/84/view guest 204 and +1 row in wcb_job_views (14->15); non-job id 404; non-live job 404; bot UA 204 with no new row."
+    },
+    {
+      "id": "D.employer-deadline-editable-capped",
+      "result": "pass",
+      "evidence": "Employer POST deadline 2028-01-01 stored 2026-12-10 (board max); 2026-11-20 kept; admin 2028-01-01 kept. Input attributes in the form not inspected."
+    },
+    {
+      "id": "D.csv-import-status-honest",
+      "result": "pass",
+      "evidence": "publish row went live, pending row pending; result links 'Review 1 pending job'."
+    },
+    {
+      "id": "D.guest-job-page-no-resumes",
+      "result": "pass",
+      "evidence": "Guest apply drawer offers upload only, no resume picker preselected."
+    },
+    {
+      "id": "D.registration-site-name",
+      "result": "pass",
+      "evidence": "Registration heading 'Join Career Board QA'."
+    },
+    {
+      "id": "D.remaining-guards",
+      "result": "untested",
+      "evidence": "About 119 of 129 D rows were not walked this pass; they are covered by the dev-side CI and journeys."
+    },
+    {
+      "id": "E.pro.pipeline",
+      "result": "pass",
+      "evidence": "Kanban API 200 for owner / 403 for other employer; hiring-pipeline page moves persist."
+    },
+    {
+      "id": "E.pro.alerts",
+      "result": "pass",
+      "evidence": "GET/POST/DELETE /alerts as candidate OK; dashboard Job alerts tab shows the seeded alert."
+    },
+    {
+      "id": "E.pro.notifications-bell",
+      "result": "pass",
+      "evidence": "Candidate and employer Notifications panels list events; read-all 200."
+    },
+    {
+      "id": "E.pro.credits",
+      "result": "pass",
+      "evidence": "Employer 5 credits with welcome grant ledger; stripe 0 and empty ledger; analytics CSV admin 200, employer 403; posting on moderated board charged 0 (settled)."
+    },
+    {
+      "id": "E.pro.fields",
+      "result": "pass",
+      "evidence": "Field Builder create group/field, value saved, displayed, re-editable."
+    },
+    {
+      "id": "E.pro.resume",
+      "result": "pass",
+      "evidence": "Directory (108 cards, 390 and 1440), single resume gates contact behind sign-in, candidate resumes API owner-only."
+    },
+    {
+      "id": "E.pro.boards",
+      "result": "pass",
+      "evidence": "Boards tab renders; default board stages Screening..Rejected."
+    },
+    {
+      "id": "E.pro.migration",
+      "result": "pass",
+      "evidence": "CSV import card works (M3)."
+    },
+    {
+      "id": "E.pro.analytics",
+      "result": "pass",
+      "evidence": "Analytics tab renders; CSV export permissions as above."
+    },
+    {
+      "id": "E.pro.maps",
+      "result": "untested",
+      "evidence": "Job Map page renders its empty state ('No jobs with locations yet'); geocode cron events are pending and no map provider network here, so pins not verified."
+    },
+    {
+      "id": "E.pro.ai",
+      "result": "untested",
+      "evidence": "AI Settings tab renders; ranked-applications returns [] for owner; no provider key configured."
+    },
+    {
+      "id": "E.pro.push-pwa-feed-privacy",
+      "result": "untested",
+      "evidence": "Job feed, Privacy and Integrations (PWA) tabs render without errors; push fan-out not exercised."
+    },
+    {
+      "id": "P1.version-lockstep",
+      "result": "pass",
+      "evidence": "free=1.8.3 pro=1.8.3, WCBP_FREE_MIN_VERSION=1.8.3."
+    },
+    {
+      "id": "P2.dependency-guard",
+      "result": "pass",
+      "evidence": "Free deactivated: Pro admin notice 'WP Career Board Pro requires WP Career Board (Free) to be active.', front 200, wcb REST 404, debug.log empty; reactivated, pages and permalinks still 200, db versions unchanged."
+    },
+    {
+      "id": "P3.license-not-a-gate",
+      "result": "pass",
+      "evidence": "Licence Inactive; kanban 200 for owner; no 402/403 from licence."
+    },
+    {
+      "id": "P4.module-presence",
+      "result": "pass",
+      "evidence": "16 module dirs present: ai alerts analytics boards credits feed fields maps migration notificationsbell notificationspro pipeline privacy push pwa resume; their admin tabs render."
+    },
+    {
+      "id": "P5.updater-routing",
+      "result": "untested",
+      "evidence": "Needs outbound calls to the store, not allowed in this walk."
+    },
+    {
+      "id": "P6.tables-and-versions",
+      "result": "pass",
+      "evidence": "13 wcb tables: 3 free, 7 pro (ai_vectors, application_stages, field_definitions, field_groups, job_alerts, notifications, push_devices), 3 SDK. ProInstall::expected_tables() lists 8 names including wcb_credit_ledger which lives with the SDK tables; versions match DB_VERSION constants. The Pro runbook text (9 Pro + 2 SDK = 14) is stale."
+    },
+    {
+      "id": "F.chromium",
+      "result": "pass",
+      "evidence": "Chromium via Playwright at 1440 and 390, light and BuddyX dark."
+    },
+    {
+      "id": "F.firefox-desktop",
+      "result": "untested",
+      "evidence": "Only Chromium available in this walk."
+    },
+    {
+      "id": "F.safari-ios",
+      "result": "untested",
+      "evidence": "Only Chromium available in this walk."
+    },
+    {
+      "id": "F.rtl",
+      "result": "untested",
+      "evidence": "No RTL locale installed; not walked."
+    },
+    {
+      "id": "F.a11y",
+      "result": "pass",
+      "evidence": "Labels present on all visible inputs, no unnamed icon buttons on archive, job drawer, post-job, dashboards; one H1 on public pages. Dashboards render several H1 elements in hidden panels (not visible)."
+    },
+    {
+      "id": "G.post-release",
+      "result": "untested",
+      "evidence": "Runs after tagging."
+    },
+    {
+      "id": "delta.D1.viewer_can_apply.deadline",
+      "result": "pass",
+      "evidence": "combo: jobs 457 (_wcb_deadline -3d) and 458 (+10d), tagged _wcb_qa_smoke=1; apply_require_login=false. GET /wcb/v1/jobs/<id> as guest (real HTTP + rest_do_request) and sarah.chen: past deadline_passed=true viewer_can_apply=false; future deadline_passed=false viewer_can_apply=true. GET /jobs?per_page=50 list entries carry identical values for both jobs, guest and sarah."
+    },
+    {
+      "id": "delta.D2.job_page_apply_sanity",
+      "result": "pass",
+      "evidence": "combo: as sarah.chen past-deadline job page shows 'Applications closed on November 6, 2026' with no Apply button; future job page shows Apply now, drawer submits and shows 'Application submitted' (resume chosen from saved resumes). Console warnings/errors: none. Screenshots in ~/work-artifacts/screenshots/2026-11/wcb-183-release/delta/"
+    },
+    {
+      "id": "delta.D3.credits_ledger_iso",
+      "result": "pass",
+      "evidence": "employer.figma GET /wcb/v1/employers/68/credits: ledger[0].created_at = 2026-11-09T18:32:05+00:00 (ISO 8601 with offset; was 'Y-m-d H:i:s' before). Dashboard Credits tab > Transaction History (collapsed toggle) shows 'Top-up | Welcome grant - 5 job credits | +5 cr | Nov 10, 2026' (IST) at 1440 and 390, no horizontal scroll, no error. ~/work-artifacts/screenshots/2026-11/wcb-183-release/delta/delta-combo-credits-*.png"
+    },
+    {
+      "id": "delta.D4.field_builder_token_field",
+      "result": "pass",
+      "evidence": "Settings > Field Builder > Job fields, group 'Role details': token field renders, .components-form-token-field__help count 0, zero __experimentalShowHowTo/FormTokenField console warnings on fresh load and after add/remove (the 20 warnings seen in the older pre-upgrade console log are absent). Added 'Main Board' token, reload: persisted; removed it, reload: gone."
+    },
+    {
+      "id": "delta.D5.debug_log_empty",
+      "result": "pass",
+      "evidence": "combo: debug.log 0 bytes at end."
     }
   ],
-  "release_version": "1.8.2",
-  "pro_version": "1.8.2",
-  "ran_at": "2026-10-26T08:58:01Z",
   "hard_fails": [],
   "failures": [],
   "untested": [
     {
-      "item": "Pro P3 step 4 / P5 step 1: enter a test license key and confirm activation persists; updater 'update available' with valid license",
-      "reason": "no licensing server or valid key in the Docker stacks; activating a real license was prohibited"
+      "id": "C.anon.company",
+      "reason": "Company pages load at 1440/390 without overflow; private-field leak check not run.",
+      "needs": "see reason"
+    },
+    {
+      "id": "C.candidate.profile",
+      "reason": "Profile tab opens; edit and save not walked.",
+      "needs": "see reason"
+    },
+    {
+      "id": "C.candidate.save-job",
+      "reason": "Saved jobs/companies/resumes panels open (empty state shown); bookmark toggle not walked.",
+      "needs": "see reason"
+    },
+    {
+      "id": "C.admin.crud",
+      "reason": "Only Field Builder group and field create walked.",
+      "needs": "see reason"
+    },
+    {
+      "id": "C.admin.user-management",
+      "reason": "Not walked.",
+      "needs": "see reason"
+    },
+    {
+      "id": "D.remaining-guards",
+      "reason": "About 119 of 129 D rows were not walked this pass; they are covered by the dev-side CI and journeys.",
+      "needs": "see reason"
+    },
+    {
+      "id": "E.pro.maps",
+      "reason": "Job Map page renders its empty state ('No jobs with locations yet'); geocode cron events are pending and no map provider network here, so pins not verified.",
+      "needs": "see reason"
+    },
+    {
+      "id": "E.pro.ai",
+      "reason": "AI Settings tab renders; ranked-applications returns [] for owner; no provider key configured.",
+      "needs": "see reason"
+    },
+    {
+      "id": "E.pro.push-pwa-feed-privacy",
+      "reason": "Job feed, Privacy and Integrations (PWA) tabs render without errors; push fan-out not exercised.",
+      "needs": "see reason"
+    },
+    {
+      "id": "P5.updater-routing",
+      "reason": "Needs outbound calls to the store, not allowed in this walk.",
+      "needs": "see reason"
+    },
+    {
+      "id": "F.firefox-desktop",
+      "reason": "Only Chromium available in this walk.",
+      "needs": "see reason"
+    },
+    {
+      "id": "F.safari-ios",
+      "reason": "Only Chromium available in this walk.",
+      "needs": "see reason"
+    },
+    {
+      "id": "F.rtl",
+      "reason": "No RTL locale installed; not walked.",
+      "needs": "see reason"
+    },
+    {
+      "id": "G.post-release",
+      "reason": "Runs after tagging.",
+      "needs": "see reason"
     }
   ],
   "debug_log_issues": [],
-  "verdict": "SHIP"
+  "coverage": {
+    "checks_total": 67,
+    "pass": 53,
+    "fail": 0,
+    "untested": 14,
+    "notes": [
+      "Seeded site had none of the six Career Board pages; they were created through Settings > Pages > Create Missing Pages before the walk.",
+      "users_can_register toggled on for the registration walk and restored to 0; test user removed.",
+      "Test data created: jobs 440,441,445,446 and applications 438,443,451 plus Team size field group; 453-455 deleted."
+    ],
+    "branch_mode": "delta walk 93302d1/a8c820c..73950bd/c8710b0: jobs REST viewer_can_apply, ISO rewrite of object rows, Field Builder token field, job page + apply sanity; all other rows carried from the full walk"
+  },
+  "top3": [
+    "All 10 must-confirm items passed with browser or SQL evidence; no debug.log line from either plugin on PHP 8.5 (0 bytes at the end).",
+    "Time handling holds at the IST/UTC boundary: a job due today stays open, yesterday's closes, expiry cron agrees.",
+    "Five low-severity findings (Pro field builder deprecated prop under WP 7.1, credits ledger date without offset, viewer_can_apply ignores deadline, unboxed Additional details block, stale runbook counts); none blocks."
+  ],
+  "observations": [
+    {
+      "id": "F1.pro-field-builder-deprecated-prop",
+      "origin": "from",
+      "severity": "low",
+      "expected": "No deprecation warnings in the browser console on Settings > Field Builder.",
+      "actual": "38 console warnings: `__experimentalShowHowTo` prop in wp.components.FormTokenField is deprecated since version 7.1 (WP 7.1.3 here). Source: wp-career-board-pro/assets/field-builder.js line 501 passes __experimentalShowHowTo: false.",
+      "url": "http://localhost:8951/wp-admin/admin.php?page=wcb-settings&tab=field-builder",
+      "steps": "Admin > Career Board > Settings > Field Builder > Add group > Add field; read browser console.",
+      "screenshot": "/Users/vapvarun/work-artifacts/screenshots/2026-11/wcb-183-release/combo/admin-field-builder.png",
+      "verdict": "fixed",
+      "fixed_in": "Pro 1dbeabb; delta.D4 pass on WP 7.1.3, verified on 7.1.4"
+    },
+    {
+      "id": "F2.credits-ledger-date-no-offset",
+      "origin": "from",
+      "severity": "low",
+      "expected": "wcb/v1 REST dates are ISO 8601 with offset.",
+      "actual": "GET /wcb/v1/employers/68/credits returns ledger created_at '2026-11-09 18:32:05' (UTC, no offset); the credits CSV export Date column is the same raw UTC string. Comes from the vendored Credits SDK, so the fix goes upstream.",
+      "url": "http://localhost:8951/wp-json/wcb/v1/employers/68/credits",
+      "steps": "Log in as employer.figma, GET /wp-json/wcb/v1/employers/68/credits with a REST nonce.",
+      "screenshot": "n/a (API)",
+      "verdict": "fixed (REST); CSV export date is the vendored Credits SDK, upstream card",
+      "fixed_in": "Free 949d723; delta.D3 pass"
+    },
+    {
+      "id": "F3.viewer-can-apply-ignores-deadline",
+      "origin": "from",
+      "severity": "low",
+      "expected": "viewer_can_apply false once deadline_passed is true.",
+      "actual": "GET /wcb/v1/jobs/441 returns deadline_passed:true and viewer_can_apply:true. The page and POST /apply both refuse correctly (wcb_job_deadline_passed), so only the REST field is inconsistent (the mobile app may read it). Source: api/endpoints/class-jobs-endpoint.php lines 366 and 383.",
+      "url": "http://localhost:8951/wp-json/wcb/v1/jobs/441",
+      "steps": "Publish a job with yesterday's deadline (site time), GET /wcb/v1/jobs/<id>.",
+      "screenshot": "n/a (API)",
+      "verdict": "fixed",
+      "fixed_in": "Free 949d723; delta.D1 pass on both sites"
+    },
+    {
+      "id": "F4.job-page-additional-details-unboxed",
+      "origin": "from",
+      "severity": "low",
+      "expected": "The custom-field 'Additional details' block on a job page sits in a card like About This Role and Job categories.",
+      "actual": "With a Pro custom field set, 'Additional details' renders as a bare heading and rows between two cards with different spacing and no card background (visible in light and dark).",
+      "url": "http://localhost:8951/jobs/customer-success-manager-enterprise-dublin/",
+      "steps": "Create a Job field in Field Builder, set a value on a job, open the job page.",
+      "screenshot": "/Users/vapvarun/work-artifacts/screenshots/2026-11/wcb-183-release/combo/job-custom-field.png",
+      "verdict": "observation: styling suggestion for the owner, unchanged since 1.8.2"
+    },
+    {
+      "id": "F5.pro-runbook-table-count-stale",
+      "origin": "from",
+      "severity": "low",
+      "expected": "Pro runbook P6 and the free runbook A.db.tables-and-version match the 1.8.3 schema.",
+      "actual": "Runbooks still say 14 tables (3 free + 8/9 pro incl. wcb_field_values + 2/3 SDK) and DB versions 1.4.3 / 1.17 / 1.8.2; real values are 13 tables, 1.4.5, 1.19, 1.8.3. A walker following them would file a false failure.",
+      "url": "docs/qa/AGENT_SMOKE_RUNBOOK.md (both repos)",
+      "steps": "Compare runbook text with SHOW TABLES LIKE '%wcb%'.",
+      "screenshot": "n/a (docs)",
+      "verdict": "fixed (docs)",
+      "fixed_in": "Free 8dbc376, Pro 644579b"
+    }
+  ],
+  "layer1_delta": [
+    "Opus re-verify 2026-11-10: F1.pro-field-builder-deprecated-prop -> fixed (Pro 1dbeabb; delta.D4 pass on WP 7.1.3, verified on 7.1.4).",
+    "Opus re-verify 2026-11-10: F2.credits-ledger-date-no-offset -> fixed (REST); CSV export date is the vendored Credits SDK, upstream card (Free 949d723; delta.D3 pass).",
+    "Opus re-verify 2026-11-10: F3.viewer-can-apply-ignores-deadline -> fixed (Free 949d723; delta.D1 pass on both sites).",
+    "Opus re-verify 2026-11-10: F4.job-page-additional-details-unboxed -> observation: styling suggestion for the owner, unchanged since 1.8.2.",
+    "Opus re-verify 2026-11-10: F5.pro-runbook-table-count-stale -> fixed (docs) (Free 8dbc376, Pro 644579b).",
+    "Opus note: guest GET /wcb/v1/jobs/<id> is sent with Cache-Control public, max-age=3600, so any job field (deadline_passed, viewer_can_apply) can be up to an hour stale for guests behind a cache; existing caching behaviour, not a 1.8.3 regression."
+  ]
 }

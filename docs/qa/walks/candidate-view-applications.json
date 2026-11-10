@@ -1,0 +1,25 @@
+{
+  "journey": "candidate-view-applications",
+  "free_commit": "93302d1",
+  "pro_commit": "a8c820c",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "mode": "combo",
+    "theme": "buddyx"
+  },
+  "ran_at": "2026-11-09T19:27:11Z",
+  "checks": [
+    {
+      "id": "M7.dashboards-every-tab-real-panel",
+      "result": "pass",
+      "evidence": "Candidate dashboard (Pro on) 1440 and 390: Overview, My Applications, My Resumes, Job alerts, Saved Jobs, Saved Companies, Saved Resumes, Profile, Settings, Notifications each opened a real panel with its own heading, no overflow; 390 uses the Toggle navigation menu. Employer dashboard 1440: Overview, My Jobs, Post a job, Applications, Companies, Profile, Credits (balance 5), Saved resumes (empty state), Settings, Notifications, plus Pipeline page /hiring-pipeline/?job=440 (move Sarah to Interview persisted after reload). Dark via BuddyX toggle checked on employer dashboard, job page."
+    },
+    {
+      "id": "R.second-candidate-cannot-read-first",
+      "result": "pass",
+      "evidence": "marcus.williams: GET applications/402 403 wcb_forbidden, candidates/70/resumes 403 'You may only manage your own resumes', ?wcb_file=439 404. Owner sarah.chen gets 200 for both."
+    }
+  ],
+  "proposed_checks": []
+}

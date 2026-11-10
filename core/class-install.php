@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.3';
+	const DB_VERSION = '1.4.5';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -68,7 +68,7 @@ final class Install {
 		// bumped, the next activation skipped create_tables, and the missing
 		// tables stayed missing forever. Closes the underlying class behind
 		// the MariaDB 11.7+ `vector` collision.
-		update_option( 'wcb_version', WCB_VERSION, false );
+		update_option( 'wcb_version', WCB_VERSION, true );
 		set_transient( 'wcb_activation_redirect', true, 30 );
 	}
 
@@ -89,6 +89,12 @@ final class Install {
 		if ( version_compare( $installed, self::DB_VERSION, '<' ) ) {
 			self::maybe_upgrade();
 		}
+		// The version stamp follows an in-place update too (WP-CLI and host
+		// auto-updates skip the activation hook), as Pro's wcbp_version does.
+		// Autoloaded, so this check costs no query.
+		if ( WCB_VERSION !== get_option( 'wcb_version' ) ) {
+			update_option( 'wcb_version', WCB_VERSION, true );
+		}
 	}
 
 	/**
@@ -104,7 +110,10 @@ final class Install {
 	 */
 	public static function deactivate(): void {
 		foreach ( CronRegistry::all() as $hook ) {
-			wp_clear_scheduled_hook( $hook );
+			// wp_unschedule_hook(), not wp_clear_scheduled_hook(): the latter only
+			// matches events whose args are empty, so args-carrying single events
+			// such as wcb_backfill_candidate_role survived deactivation.
+			wp_unschedule_hook( $hook );
 		}
 		flush_rewrite_rules();
 	}
@@ -180,7 +189,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	private static function create_tables(): void {
+	public static function create_tables(): void {
 		global $wpdb;
 
 		$charset = $wpdb->get_charset_collate();
@@ -506,6 +515,13 @@ final class Install {
 			$wcb_default_board = (int) get_option( 'wcb_default_board_id', 0 );
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.3.9', '<' ) && $wcb_default_board > 0 ) {
 				global $wpdb;
+				// The jobs about to change, so their cached meta can be dropped after.
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair.
+				$wcb_board_jobs = $wpdb->get_col(
+					"SELECT p.ID FROM {$wpdb->posts} p
+					LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_wcb_board_id'
+					WHERE p.post_type = 'wcb_job' AND ( m.meta_id IS NULL OR m.meta_value IN ( '', '0' ) )"
+				);
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one-off upgrade repair, one statement at any size.
 				$wpdb->query(
 					$wpdb->prepare(
@@ -524,7 +540,7 @@ final class Install {
 						(string) $wcb_default_board
 					)
 				);
-				wp_cache_flush_group( 'post_meta' );
+				\WCB\Modules\Boards\BoardsModule::forget_job_meta( $wcb_board_jobs );
 			}
 
 			// 1.4.0 - saved industry labels that are just a shipped name, in the
@@ -551,6 +567,38 @@ final class Install {
 				self::restore_no_expiry_jobs();
 			}
 
+			// 1.4.4 - members who lost the site's default role when they became
+			// an employer or candidate get it back. The first 200 now, so a
+			// typical site is repaired without waiting on WP-Cron; each full
+			// batch schedules the next in the background.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) ) {
+				Roles::restore_default_role( 1 );
+			}
+			// 1.4.4 - HQ location links left by companies deleted before 1.8.3.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.4', '<' ) ) {
+				add_action( 'init', array( Locations::class, 'remove_orphan_hq_links' ), 25 );
+			}
+
+			// 1.4.5 - Time Standard: history rows written in site time move to
+			// UTC, and job deadlines become the UTC instant their day ends.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.5', '<' ) ) {
+				global $wpdb;
+				$wcb_converted = true;
+				foreach ( array(
+					'wcb_notifications_log' => 'sent_at',
+					'wcb_job_views'         => 'viewed_at',
+					'wcb_gdpr_log'          => 'created_at',
+				) as $wcb_table => $wcb_column ) {
+					$wcb_converted = Time::local_column_to_utc( $wpdb->prefix . $wcb_table, $wcb_column ) && $wcb_converted;
+				}
+				self::migrate_deadlines_to_utc();
+				// A failed conversion keeps 1.4.5 pending so the next load retries;
+				// tables already converted are skipped (wcb_utc_converted).
+				if ( ! $wcb_converted ) {
+					return;
+				}
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -562,6 +610,43 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Store every date-only job deadline as the UTC instant its day ends.
+	 *
+	 * One UPDATE per distinct date (a site has at most a few hundred), each
+	 * converted in PHP with the site's timezone so daylight saving is exact.
+	 * The employer-warning flag holds a copy of the deadline and moves too.
+	 * Idempotent: only `Y-m-d` values match.
+	 *
+	 * @since 1.8.3
+	 * @return void
+	 */
+	private static function migrate_deadlines_to_utc(): void {
+		global $wpdb;
+		$utc = new \DateTimeZone( 'UTC' );
+		foreach ( array( '_wcb_deadline', '_wcb_expiring_warned' ) as $key ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade read.
+			$days = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'", $key ) );
+			foreach ( $days as $day ) {
+				$end = date_create( $day . ' 23:59:59', wp_timezone() );
+				if ( false === $end ) {
+					continue;
+				}
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off upgrade write; meta cache retired below.
+				$wpdb->update(
+					$wpdb->postmeta,
+					array( 'meta_value' => $end->setTimezone( $utc )->format( 'Y-m-d H:i:s' ) ),
+					array(
+						'meta_key'   => $key,
+						'meta_value' => $day,
+					)
+				); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			}
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- ids of the jobs just changed.
+		\WCB\Modules\Boards\BoardsModule::forget_job_meta( array_map( 'intval', $wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_deadline'" ) ) );
 	}
 
 	/**

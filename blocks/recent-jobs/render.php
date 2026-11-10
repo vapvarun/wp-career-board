@@ -99,7 +99,7 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 			$wcb_location   = is_wp_error( $wcb_loc_terms ) ? '' : implode( $wcb_separator, $wcb_loc_terms );
 			$wcb_type_terms = wp_get_object_terms( $wcb_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 			$wcb_job_type   = is_wp_error( $wcb_type_terms ) ? '' : ( $wcb_type_terms[0] ?? '' );
-			$wcb_posted_ago = human_time_diff( (int) get_post_time( 'U', false, $wcb_job ), time() );
+			$wcb_posted_ago = human_time_diff( (int) get_post_time( 'U', true, $wcb_job ), time() );
 			?>
 			<li class="wcb-job-widget-item">
 				<a class="wcb-job-widget-link" href="<?php echo esc_url( get_permalink( $wcb_job->ID ) ); ?>">

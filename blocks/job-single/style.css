@@ -559,6 +559,12 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin-bottom: var(--wcb-space-xs);
 }
 
+/* Guest name and email: full-width shared inputs (.wcb-field-input) under
+ * their labels, a step of space before the next label. */
+.wcb-job-single .wcb-apply-guest-fields .wcb-guest-field {
+	margin-block-end: var(--wcb-space-lg);
+}
+
 /* Scoped: the block heading reset in frontend-components.css (0,1,1)
  * zeroed a bare .wcb-panel-title margin, so the title touched the job name. */
 .wcb-apply-panel .wcb-panel-title {

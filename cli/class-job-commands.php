@@ -107,15 +107,14 @@ class JobCommands extends AbstractCliCommand {
 		foreach ( $jobs as $job ) {
 			$company_id   = (int) get_post_meta( $job->ID, '_wcb_company_id', true );
 			$company_name = $company_id ? get_the_title( $company_id ) : '—';
-			$deadline_raw = (string) get_post_meta( $job->ID, '_wcb_deadline', true );
 
 			$rows[] = array(
 				'ID'       => $job->ID,
 				'Title'    => $job->post_title,
 				'Status'   => $job->post_status,
 				'Company'  => $company_name,
-				'Deadline' => '' !== $deadline_raw ? $deadline_raw : '—',
-				'Date'     => substr( $job->post_date, 0, 10 ),
+				'Deadline' => \WCB\Core\JobDeadline::label( $job->ID ) ?: '—',
+				'Date'     => \WCB\Core\Time::date_label( $job->post_date_gmt, '—', 'Y-m-d' ),
 			);
 		}
 

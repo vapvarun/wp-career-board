@@ -27,6 +27,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class BpIntegration {
 
 	/**
+	 * Career Board role => BuddyPress member type.
+	 *
+	 * @since 1.8.3
+	 */
+	private const MEMBER_TYPES = array(
+		'wcb_employer'  => 'employer',
+		'wcb_candidate' => 'candidate',
+	);
+
+	/**
 	 * Register hooks.
 	 *
 	 * @since 1.0.0
@@ -99,6 +109,31 @@ class BpIntegration {
 				}
 				if ( 'wcb_candidate' === $role ) {
 					bp_set_member_type( $user_id, 'candidate' );
+				}
+			},
+			10,
+			2
+		);
+		// Members now get our roles added (1.8.3), which fires add_user_role,
+		// not set_user_role. Append so an employer who applies keeps both types.
+		add_action(
+			'add_user_role',
+			function ( int $user_id, string $role ): void {
+				$types = self::MEMBER_TYPES;
+				if ( isset( $types[ $role ] ) ) {
+					bp_set_member_type( $user_id, $types[ $role ], true );
+				}
+			},
+			10,
+			2
+		);
+		// An owner unticking Employer or Candidate takes the member type away too.
+		add_action(
+			'remove_user_role',
+			function ( int $user_id, string $role ): void {
+				$types = self::MEMBER_TYPES;
+				if ( isset( $types[ $role ] ) ) {
+					bp_remove_member_type( $user_id, $types[ $role ] );
 				}
 			},
 			10,

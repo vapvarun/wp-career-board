@@ -1119,11 +1119,6 @@
  * so it can't bleed into other blocks.
  */
 
-/* -- Guest fields -- */
-.wcb-apply-guest-fields .wcb-guest-field {
-	margin: 0 0 var(--wcb-space-lg);
-}
-
 /* -- Profile save footer -- */
 .wcb-profile-actions {
 	margin-top: var(--wcb-space-sm);

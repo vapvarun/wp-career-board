@@ -76,7 +76,7 @@ Don't re-audit identical cells across releases — audit the ones that changed o
 | Search results | `/jobs/?s=...&filters=...` | Anonymous, Candidate | Desktop-L, Desktop-D, Mobile-L, Mobile-D |
 | Company profile | `/company/<slug>/` | Anonymous, Candidate | Desktop-L, Desktop-D |
 | Company archive | `/companies/` (or configured archive route) | Anonymous, Candidate | Desktop-L, Desktop-D, Mobile-L, Mobile-D | 1.2.0: card chip row aligns at same y-position across cards with different tagline lengths; chevron icons Lucide-rendered |
-| Setup wizard | `wp-admin/admin.php?page=wcb-setup-wizard` | Admin | Desktop-L, Mobile-L | 1.2.0: centered at 1440px; 12px side-margin at 960px and below |
+| Setup wizard | `wp-admin/admin.php?page=wcb-setup` | Admin | Desktop-L, Mobile-L | 1.2.0: centered at 1440px; 12px side-margin at 960px and below |
 | Saved jobs | Candidate dashboard tab | Candidate | Desktop-L, Mobile-L |
 
 (Delete or expand rows to match the live plugin once URL slugs are confirmed.)

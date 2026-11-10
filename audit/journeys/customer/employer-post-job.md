@@ -17,10 +17,10 @@ bug_ref: 9871740742, 10394970998
 1. As `employer.figma`, navigate to `/?autologin=employer.figma` → expect HTTP 200, employer is logged in
 2. Navigate to the employer's "Post a Job" surface (front-end composer or admin `wp-admin/post-new.php?post_type=wcb_job`) → expect 200, form renders
 3. POST `/wp-json/wcb/v1/jobs` with body `{"title": "Platform Engineer, Billing - Gdansk", "company_id": <figma's company id>, "description": "Join our payments team and help build reliable billing tools.", "deadline": "<+30 days>", "salary_min": 80000, "salary_max": 110000, "salary_currency": "USD", "remote": true, "type": "full-time"}` → expect HTTP 201, response contains job ID
-4. Verify the job persists: `wp post get <job-id> --field=post_status` → expect `publish` (or `pending` if plugin is in moderation mode — record which)
+4. Verify the job persists: `wp post get <job-id> --field=post_status` → expect `publish` when the `auto_publish_jobs` setting is on, `pending` when it is off (the default) - record which
 5. Verify meta keys are in v1.1.0 shape: `wp post meta list <job-id>` → expect `_wcb_company_id`, `_wcb_deadline`, `_wcb_salary_min`, `_wcb_salary_max`, `_wcb_salary_currency`, `_wcb_remote`, `_wcb_company_name` all populated. NO `_wcb_job_company` (the v0.1.0 key) should be present
 6. As anonymous, GET `/jobs/<job-slug>/` → expect HTTP 200, page renders title + description + company name + tagline + industry + size + HQ (all four company-meta fields must be visible per Basecamp 9871740742 contract)
-7. As anonymous, GET `/wp-json/wcb/v1/jobs/<id>` → expect response body contains `company_tagline`, `company_industry`, `company_size_label`, `company_hq` keys with non-empty values (the jobs endpoint prefixes company fields with `company_`). Response MUST NOT contain `apply_email` (per security journey `anonymous-job-no-email-leak`)
+7. As anonymous, GET `/wp-json/wcb/v1/jobs/<id>` → expect response body contains `company_tagline`, `company_industry`, `company_size_label`, `company_hq` keys with non-empty values (the jobs endpoint prefixes company fields with `company_`). Response MUST NOT contain `apply_email` (covered in depth by `security/anonymous-can-apply-cleanly`)
 8. Post the job from the employer dashboard (Post a Job tab) → the My Jobs badge and the Overview "jobs" figure go up by one immediately, without opening My Jobs or reloading; with credits on, the Credits badge shows the balance after any charge.
 9. Click **Post another job** → the title AND the rich description editor are empty (the previous job's text is gone), and the Company Profile description on the same dashboard is unchanged.
 10. On the job page, the hero and the "About the company" card show the company's logo when the company has one (initials otherwise).
@@ -44,5 +44,5 @@ Re-run steps 3-7 after `wp user meta delete <employer-id> _wcb_company_id`, leav
 
 ## Notes
 
-- If Pro `credits` module is active, expect a `wcb_credit_ledger` row debited by 1 (or whatever the package amount is) — this is also covered by `system/credit-decrement.md`.
-- Moderation mode: if `wcb_moderation_enabled` option is true, step 4 expects `pending`. Re-run as admin and approve to continue.
+- If Pro `credits` module is active, expect a `wcb_credit_ledger` row debited by 1 (or whatever the package amount is) — the charge-once contract is covered by `customer/paid-board-job-charged-once.md`.
+- Moderation mode: if the `auto_publish_jobs` setting (`wcb_settings`) is off, step 4 expects `pending`. Re-run as admin and approve to continue.

@@ -292,10 +292,13 @@ class Admin {
 	 *
 	 * @since 1.1.1
 	 *
-	 * @param  string $parent_file The parent menu file currently set.
-	 * @return string
+	 * @param  mixed  $parent_file The parent menu file currently set.
+	 * @return mixed
 	 */
-	public function highlight_parent_for_taxonomies( string $parent_file ): string {
+	public function highlight_parent_for_taxonomies( $parent_file ) {
+		if ( ! is_string( $parent_file ) ) {
+			return $parent_file; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( '' !== self::edit_screen_submenu() ) {
 			return 'wp-career-board';
 		}
@@ -672,18 +675,19 @@ class Admin {
 								<tbody>
 							<?php foreach ( $recent_apps as $wcb_app ) : ?>
 								<?php
-								$wcb_job_id   = (int) get_post_meta( $wcb_app->ID, '_wcb_job_id', true );
-								$wcb_cand_id  = (int) get_post_meta( $wcb_app->ID, '_wcb_candidate_id', true );
-								$wcb_status   = (string) get_post_meta( $wcb_app->ID, '_wcb_status', true );
-								$wcb_job_obj  = $wcb_job_id ? get_post( $wcb_job_id ) : null;
-								$wcb_cand_obj = $wcb_cand_id ? get_userdata( $wcb_cand_id ) : false;
-								$wcb_job_lbl  = $wcb_job_obj instanceof \WP_Post ? $wcb_job_obj->post_title : __( '(deleted)', 'wp-career-board' );
-								$wcb_cand_lbl = $wcb_cand_obj instanceof \WP_User ? $wcb_cand_obj->display_name : __( '(deleted)', 'wp-career-board' );
-								$wcb_status   = $wcb_status ? $wcb_status : 'submitted';
+								$wcb_job_id  = (int) get_post_meta( $wcb_app->ID, '_wcb_job_id', true );
+								$wcb_status  = (string) get_post_meta( $wcb_app->ID, '_wcb_status', true );
+								$wcb_job_obj = $wcb_job_id ? get_post( $wcb_job_id ) : null;
+								$wcb_job_lbl = $wcb_job_obj instanceof \WP_Post ? $wcb_job_obj->post_title : __( '(deleted)', 'wp-career-board' );
+								$wcb_cand    = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_app->ID );
+								$wcb_status  = $wcb_status ? $wcb_status : 'submitted';
 								?>
 										<tr>
 											<td>
-												<strong><?php echo esc_html( $wcb_cand_lbl ); ?></strong><br>
+												<?php if ( $wcb_cand['guest'] ) : ?>
+													<span class="wcb-guest-badge"><?php esc_html_e( 'Guest', 'wp-career-board' ); ?></span>
+												<?php endif; ?>
+												<strong><?php echo esc_html( $wcb_cand['name'] ); ?></strong><br>
 												<small>
 								<?php if ( $wcb_job_obj instanceof \WP_Post ) : ?>
 														<a href="<?php echo esc_url( (string) get_edit_post_link( $wcb_job_id ) ); ?>"><?php echo esc_html( $wcb_job_lbl ); ?></a>

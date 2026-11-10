@@ -435,15 +435,16 @@ final class EmployersModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string             $redirect_to           The redirect destination URL.
-	 * @param string             $requested_redirect_to The requested redirect destination URL passed as a parameter.
-	 * @param \WP_User|\WP_Error $user                 WP_User object if login was successful, WP_Error otherwise.
-	 * @return string
+	 * @param mixed $redirect_to           The redirect destination URL.
+	 * @param mixed $requested_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @param mixed $user                  WP_User object if login was successful, WP_Error otherwise.
+	 * @return mixed
 	 */
-	public function employer_login_redirect( string $redirect_to, string $requested_redirect_to, \WP_User|\WP_Error $user ): string {
-		if ( ! ( $user instanceof \WP_User ) || ! in_array( 'wcb_employer', (array) $user->roles, true ) ) {
+	public function employer_login_redirect( $redirect_to, $requested_redirect_to, $user ) {
+		if ( ! is_string( $redirect_to ) || ! ( $user instanceof \WP_User ) || ! in_array( 'wcb_employer', (array) $user->roles, true ) ) {
 			return $redirect_to;
 		}
+		$requested_redirect_to = is_string( $requested_redirect_to ) ? $requested_redirect_to : '';
 
 		/**
 		 * Filters whether employers are sent to the employer dashboard on login.
@@ -536,10 +537,13 @@ final class EmployersModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $content Original post content.
-	 * @return string Block-rendered output or original content.
+	 * @param mixed  $content Original post content.
+	 * @return mixed Block-rendered output or original content.
 	 */
-	public function inject_company_profile( string $content ): string {
+	public function inject_company_profile( $content ) {
+		if ( ! is_string( $content ) ) {
+			return $content; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_singular( 'wcb_company' ) || ! in_the_loop() || ! is_main_query() ) {
 			return $content;
 		}
@@ -560,10 +564,13 @@ final class EmployersModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $template Path to the template file to include.
-	 * @return string Overridden or original template path.
+	 * @param mixed  $template Path to the template file to include.
+	 * @return mixed Overridden or original template path.
 	 */
-	public function archive_template( string $template ): string {
+	public function archive_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_post_type_archive( 'wcb_company' ) || \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;
 		}
@@ -594,10 +601,13 @@ final class EmployersModule {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param string $template Template path WP would otherwise load.
-	 * @return string
+	 * @param mixed  $template Template path WP would otherwise load.
+	 * @return mixed
 	 */
-	public function single_company_template( string $template ): string {
+	public function single_company_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_singular( 'wcb_company' ) ) {
 			return $template;
 		}
@@ -872,7 +882,7 @@ final class EmployersModule {
 		$apps = $wpdb->get_row(
 			$wpdb->prepare(
 				// awaiting: not reviewed yet (no status counts as submitted, as on the Applications chips).
-				"SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date >= %s ), 0 ) AS recent,
+				"SELECT COUNT(*) AS total, COALESCE( SUM( app.post_date_gmt >= %s ), 0 ) AS recent,
 				        COALESCE( SUM( COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = 'submitted' ), 0 ) AS awaiting " . self::applications_scope_sql( $user_id ),
 				gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS )
 			)

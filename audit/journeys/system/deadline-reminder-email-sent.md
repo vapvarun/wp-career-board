@@ -3,13 +3,13 @@ id: deadline-reminder-email-sent
 priority: medium
 personas: sarah.chen
 requires: mu:autologin, seed:jobs
-last_verified: 2026-05-09
+last_verified: 2026-10-26
 needs: cli
 ---
 
 # Deadline-approaching reminder email is sent when cron fires for a bookmarked job
 
-**Why this journey exists:** deadline reminder emails are a candidate retention feature; a cron that marks reminders "sent" without actually sending, or sends to the wrong address, silently breaks the feature. Verifies the email reaches the configured local mail catcher (Mailpit/MailHog).
+**Why this journey exists:** `DeadlineReminders::sweep()` (`modules/jobs/class-deadline-reminders.php`, cron hook `wcb_send_deadline_reminders`, daily) emails candidates who bookmarked a job but did not apply, 3 days and 1 day before its deadline. Deadline reminder emails are a candidate retention feature; a cron that marks reminders "sent" without actually sending, or sends to the wrong address, silently breaks the feature. Verifies the email reaches the configured local mail catcher (Mailpit/MailHog).
 
 ## Steps
 
@@ -22,22 +22,22 @@ needs: cli
    ```
 2. As `sarah.chen`, bookmark the job: POST `/wp-json/wcb/v1/jobs/$JOB_ID/bookmark` via `?autologin=sarah.chen` → expect HTTP 200, `{"bookmarked": true}`
 3. Record the current Mailpit message count (or baseline the mail queue): note the count at `http://localhost:8025/api/v1/messages` (or equivalent) → capture as `<mail-count-before>`
-4. Trigger the deadline-reminder cron event: `wp cron event run wcb_check_job_expiry` (or the specific reminder hook if different — check the cron manifest) → expect exit code 0
+4. Trigger the deadline-reminder cron event: `wp cron event run wcb_send_deadline_reminders` → expect exit code 0 (it matches jobs whose `_wcb_deadline` is exactly today + 1 day and today + 3 days)
 5. Check Mailpit for a new message to sarah.chen's address: GET `http://localhost:8025/api/v1/messages` → expect count > `<mail-count-before>`, and at least one message with `To` containing `sarah.chen@example.test` (or the registered email for sarah.chen: `wp user get sarah.chen --field=user_email`)
-6. Verify the email subject references the job: inspect the message subject → expect it mentions "Warehouse Operations Lead - Leeds" or "deadline" or "expires soon"
-7. Verify no duplicate email: trigger the same cron event again → confirm Mailpit count does NOT increase a second time for the same job (reminders must be idempotent per job per candidate)
+6. Verify the email subject: the default subject is "Application deadline approaching for {job_title}" → expect "Application deadline approaching for Warehouse Operations Lead - Leeds"
+7. Verify no duplicate email: trigger the same cron event again → confirm Mailpit count does NOT increase a second time for the same job (a per-candidate user-meta flag `_wcb_deadline_reminded_<job>_<days>` makes reminders idempotent per job per bucket; also check `wp user meta get sarah.chen _wcb_deadline_reminded_<job-id>_1` is `1`)
 8. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 
 ```bash
 wp post delete $JOB_ID --force
-# Remove sarah's bookmark for this job (toggle off):
-# POST /wp-json/wcb/v1/jobs/$JOB_ID/bookmark with autologin=sarah.chen (idempotent)
+# The bookmark route is a toggle; remove the saved row directly.
+wp user meta delete sarah.chen _wcb_bookmark $JOB_ID
 ```
 
 ## Notes
 
-- If no deadline-reminder cron hook exists in the Free plugin (it may be a Pro feature), steps 4-7 are `skipped: feature_not_in_free` and the journey priority should be re-evaluated. Record the absence.
+- The reminder is a Free feature: `wcb_send_deadline_reminders` is scheduled by `DeadlineReminders::maybe_schedule()` on `init` and fires the `wcb_deadline_reminder` action, which `EmailDeadlineReminder` turns into the email. A candidate who already applied to the job gets no reminder. At the 3-day bucket the job's employer also gets a one-time `wcb_job_expiring_soon` warning.
 - Mailpit default URL: `http://localhost:8025`. If the local environment uses MailHog, adjust to `http://localhost:8025` (same default port). Confirm with `wp eval 'echo get_option("admin_email");'` for the catch-all address.
 - The idempotency check in step 7 is critical — double-sending reminder emails is a customer-complaint vector.

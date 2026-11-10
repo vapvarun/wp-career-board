@@ -309,9 +309,8 @@ abstract class AbstractEmail {
 	 * @return string[]
 	 */
 	private static function headers(): array {
-		$headers  = array( 'Content-Type: text/html; charset=UTF-8' );
-		$settings = (array) get_option( 'wcb_settings', array() );
-		$email    = sanitize_email( (string) ( $settings['from_email'] ?? '' ) );
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+		$email   = sanitize_email( (string) \WCB\Admin\Settings::get( 'from_email', '' ) );
 
 		if ( '' === $email || ! is_email( $email ) ) {
 			return $headers;
@@ -320,7 +319,7 @@ abstract class AbstractEmail {
 		// Strip anything that could break out of the header or the display-name
 		// quoting. sanitize_text_field() on save already removes newlines; this
 		// guards a value written some other way.
-		$name = trim( str_replace( array( "\r", "\n", '"', '<', '>' ), '', (string) ( $settings['from_name'] ?? '' ) ) );
+		$name = trim( str_replace( array( "\r", "\n", '"', '<', '>' ), '', (string) \WCB\Admin\Settings::get( 'from_name', '' ) ) );
 
 		$headers[] = '' !== $name
 			? sprintf( 'From: "%s" <%s>', $name, $email )
@@ -378,7 +377,7 @@ abstract class AbstractEmail {
 					)
 				),
 				'status'     => $status,
-				'sent_at'    => current_time( 'mysql' ),
+				'sent_at'    => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
@@ -467,22 +466,8 @@ abstract class AbstractEmail {
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			return;
 		}
-		$charset = $wpdb->get_charset_collate();
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta(
-			"CREATE TABLE {$table} (
-				id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-				user_id      BIGINT UNSIGNED NOT NULL,
-				event_type   VARCHAR(80)     NOT NULL,
-				channel      VARCHAR(20)     NOT NULL DEFAULT 'email',
-				payload      LONGTEXT,
-				status       VARCHAR(20)     NOT NULL DEFAULT 'sent',
-				sent_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY  (id),
-				KEY user_id  (user_id),
-				KEY event_type  (event_type)
-			) ENGINE=InnoDB {$charset};"
-		);
+		// One schema: the installer's definition, indexes included.
+		\WCB\Core\Install::create_tables();
 	}
 
 	/**

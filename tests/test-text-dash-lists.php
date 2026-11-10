@@ -1,6 +1,7 @@
 <?php
 /**
  * Text::dash_lists(): dash lists typed in the editor show as bullets (card 10401139250).
+ * Text::from_editor(): cover letter and bio keep their paragraphs and lists (card 10442120272).
  *
  * Run: wp eval-file wp-content/plugins/wp-career-board/tests/test-text-dash-lists.php
  *
@@ -44,10 +45,25 @@ foreach ( $wcb_cases as $wcb_label => list( $wcb_in, $wcb_want ) ) {
 	wcb_assert( $wcb_want === $wcb_got, $wcb_label . ( $wcb_want === $wcb_got ? '' : " (got {$wcb_got})" ) );
 }
 
+// from_editor(): the old save (sanitize_textarea_field on the editor's HTML)
+// returned "PHP 8React" and "QuoteLine oneline two"; each case below fails on it.
+$wcb_editor_cases = array(
+	'paragraphs become blank-line blocks' => array( '<p>First.</p><p>Second.</p>', "First.\n\nSecond." ),
+	'list items become "- " lines'        => array( '<p>Skills:</p><ul><li>PHP <b>8</b></li><li>React</li></ul>', "Skills:\n\n- PHP 8\n- React" ),
+	'line breaks and entities kept'       => array( '<p>Tom &amp; Jerry<br>line two</p>', "Tom & Jerry\nline two" ),
+	'heading and quote stay separate'     => array( '<h3>Why me</h3><blockquote>Quote</blockquote><p>End</p>', "Why me\n\nQuote\n\nEnd" ),
+	'plain text passes through'           => array( "plain\n\n- a\n- b", "plain\n\n- a\n- b" ),
+	'CRLF from a multipart form'          => array( "<p>One</p>\r\n<ul><li>a</li></ul>\r\n<p>Two</p>", "One\n\n- a\n\nTwo" ),
+);
+foreach ( $wcb_editor_cases as $wcb_label => list( $wcb_in, $wcb_want ) ) {
+	$wcb_got = sanitize_textarea_field( \WCB\Core\Text::from_editor( $wcb_in ) );
+	wcb_assert( $wcb_want === $wcb_got, 'from_editor: ' . $wcb_label . ( $wcb_want === $wcb_got ? '' : ' (got ' . wp_json_encode( $wcb_got ) . ')' ) );
+}
+
 WP_CLI::log( '' );
 WP_CLI::log( '  Total: ' . ( $GLOBALS['wcb_test_pass'] + $GLOBALS['wcb_test_fail'] ) . '  Pass: ' . $GLOBALS['wcb_test_pass'] . '  Fail: ' . $GLOBALS['wcb_test_fail'] );
 if ( $GLOBALS['wcb_test_fail'] > 0 ) {
 	WP_CLI::error( $GLOBALS['wcb_test_fail'] . ' test(s) failed.' );
 } else {
-	WP_CLI::success( 'All dash-list tests passed.' );
+	WP_CLI::success( 'All Text helper tests passed.' );
 }

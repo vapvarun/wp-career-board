@@ -17,6 +17,13 @@ set -e
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
+# Table lock (docs/standards/scope-and-schema.md): no new CREATE TABLE
+# without the owner's yes. Fast, so it runs on every commit.
+TL="$HOME/.claude/skills/wp-plugin-development/scripts/table-lock-check.php"
+if [ -f "$TL" ]; then
+    php -n "$TL" . || { echo "pre-commit FAILED: table lock (audit/tables.lock)"; exit 1; }
+fi
+
 # Fast path: syntax only. The full gate (PHPStan, WPCS, coding rules, qa-coverage
 # drift) runs once per release in bin/build-release.sh (step 4), or on demand
 # with FULL_CI=1 git commit.

@@ -20,7 +20,7 @@ needs: cli
 5. Verify title persisted in DB: `wp post get <job-id> --field=post_title` → expect `Revised: <original-title>`
 6. Verify salary meta persisted: `wp post meta get <job-id> _wcb_salary_max` → expect `99999`
 7. As anonymous, GET `/wp-json/wcb/v1/jobs/<job-id>` → expect HTTP 200, response `title` field equals `Revised: <original-title>` and `salary_max` equals `99999` (confirming REST response is not stale)
-8. GET `/wp-json/wcb/v1/search?q=Revised` → expect HTTP 200, response array includes an entry with `id` equal to `<job-id>` (search index reflects the edit)
+8. GET `/wp-json/wcb/v1/search?search=Revised` → expect HTTP 200, response `jobs[]` includes an entry with `id` equal to `<job-id>` (search index reflects the edit)
 9. Restore the original title: PATCH `/wp-json/wcb/v1/jobs/<job-id>` with body `{"title": "<original-title>"}` → expect HTTP 200
 10. tail debug.log diff → expect ZERO new fatal/warning lines
 

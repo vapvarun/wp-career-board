@@ -3,7 +3,7 @@ id: search-jobs-keyword
 priority: high
 personas: anonymous
 requires: seed:jobs
-last_verified: 2026-05-09
+last_verified: 2026-10-26
 needs: cli
 ---
 
@@ -14,11 +14,11 @@ needs: cli
 ## Steps
 
 1. Find a token guaranteed to match at least one published job: `wp post list --post_type=wcb_job --post_status=publish --field=post_title --posts_per_page=1` → extract a single meaningful word from the title (e.g. "Engineer", "Developer") → capture as `<known-token>`
-2. As anonymous, GET `/wp-json/wcb/v1/search?q=<known-token>` → expect HTTP 200, response is a JSON array with at least 1 item, each item has a non-empty `title` field containing or related to `<known-token>`
-3. As anonymous, GET `/wp-json/wcb/v1/search?q=xyzzy_gibberish_smoke_99_no_match` → expect HTTP 200 (NOT 400 or 500), response is an empty array `[]` or a JSON object with `total: 0` (clean empty state)
+2. As anonymous, GET `/wp-json/wcb/v1/search?search=<known-token>` → expect HTTP 200, response is an object with `jobs`, `total`, `pages` with `total` >= 1 and `jobs` non-empty, each job has a non-empty `title` containing or related to `<known-token>`
+3. As anonymous, GET `/wp-json/wcb/v1/search?search=xyzzy_gibberish_smoke_99_no_match` → expect HTTP 200 (NOT 400 or 500), response has `jobs: []` and `total: 0` (clean empty state)
 4. Find a `wcb_location` taxonomy term assigned to at least one job: `wp term list wcb_location --field=name --number=1` → capture as `<location-term>`
-5. GET `/wp-json/wcb/v1/search?q=<known-token>&location=<location-term>` → expect HTTP 200, response array length is ≤ step 2 response length (location filter narrows the result set)
-6. GET `/wp-json/wcb/v1/jobs?post_status=publish` (unfiltered listing) → confirm total published job count is ≥ result from step 2 (search is a subset of all published jobs)
+5. GET `/wp-json/wcb/v1/search?search=<known-token>&location=<location-term>` → expect HTTP 200, `total` is ≤ the step 2 `total` (location filter narrows the result set)
+6. GET `/wp-json/wcb/v1/jobs` (unfiltered listing) → confirm its `total` is ≥ the step 2 `total` (search is a subset of all published jobs)
 7. Navigate to the front-end search page (or any page with `wp-career-board/job-search` block) with `?autologin=1` → expect HTTP 200, search input field renders; type `<known-token>` → expect result list updates (at least 1 result visible)
 8. tail debug.log diff → expect ZERO new fatal/warning lines
 
@@ -28,6 +28,6 @@ None — read-only journey.
 
 ## Notes
 
-- The search endpoint is `GET /wcb/v1/search` per manifest with permission `__return_true` (public).
+- The search endpoint is `GET /wcb/v1/search` (public, `__return_true`). It takes the same params as `GET /wcb/v1/jobs` (`search`, `location`, `category`, `type`, `remote`, `salary_min`, ...; see `docs/api/openapi.json`) and delegates to `JobsEndpoint::get_items()`. The keyword param is `search`, not `q`.
 - Location filter may use the term slug rather than the display name; try both if step 5 returns unexpectedly empty.
 - The job listings endpoint is `GET /wcb/v1/jobs` — distinct from the search endpoint; both are public.

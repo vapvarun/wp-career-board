@@ -390,9 +390,22 @@ wp_interactivity_state(
 		$wcb_resumes_state
 	)
 );
-// Same list and key as VALID_TABS / tabRouter in view.js.
+// Tabs whose panel renders here, so a deep link or a remembered tab never
+// opens an empty panel (Pro-only tabs without Pro). The guard and the view
+// module's router share this list.
+$wcb_tabs = array_values(
+	array_diff(
+		array( 'overview', 'applications', 'bookmarks', 'saved-companies', 'saved-resumes', 'resumes', 'resume-builder', 'alerts', 'profile', 'settings', 'notifications' ),
+		$wcb_resumes_enabled ? array() : array( 'resumes' ),
+		apply_filters( 'wcb_pro_resumes_enabled', false ) ? array() : array( 'saved-resumes' ),
+		$wcb_resume_builder_embedded ? array() : array( 'resume-builder' ),
+		apply_filters( 'wcb_pro_alerts_enabled', false ) ? array() : array( 'alerts' ),
+		$wcb_bell_enabled ? array() : array( 'notifications' )
+	)
+);
+wp_interactivity_config( 'wcb-candidate-dashboard', array( 'tabs' => $wcb_tabs ) );
 \WCB\Core\DashboardTabs::print_guard(
-	array( 'overview', 'applications', 'bookmarks', 'saved-companies', 'saved-resumes', 'resumes', 'resume-builder', 'alerts', 'profile', 'settings', 'notifications' ),
+	$wcb_tabs,
 	'wcb_candidate_tab',
 	$wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview'
 );
@@ -1193,7 +1206,7 @@ wp_interactivity_state(
 
 			<div class="wcb-form-field">
 				<label class="wcb-form-label" for="wcb-profile-bio"><?php esc_html_e( 'Bio / About me', 'wp-career-board' ); ?></label>
-				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>">
+				<div class="wcb-editor" data-wcb-editor-format="text" data-placeholder="<?php esc_attr_e( 'Tell employers about yourself…', 'wp-career-board' ); ?>">
 					<div class="wcb-editor-holder" id="wcb-editor-profile-bio"></div>
 					<textarea
 						id="wcb-profile-bio"

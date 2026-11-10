@@ -192,7 +192,7 @@ If the report is missing or stale, run the `wp-plugin-smoke` skill (lives in `wp
 
 ## 8 — Packaging dry-run
 
-- [ ] `bin/build-release.sh --output /tmp` (or equivalent) succeeds end-to-end (NOTE: this script doesn't exist yet — Section 8 is gated on adding one; see scaffold instructions in `docs/qa/SCAFFOLDING.md` once added)
+- [ ] `bin/build-release.sh --output /tmp` (or equivalent) succeeds end-to-end
 - [ ] Resulting zip has NO: `.git/`, `node_modules/`, `tests/`, `.github/`, `bin/`, `phpunit.xml.dist`, `phpcs.xml.dist`, `composer.json` (unless required), `composer.lock`, `package.json`, `package-lock.json`, `.DS_Store`, `Gruntfile.js`, `phpstan.neon*`
 - [ ] Resulting zip HAS: `wp-career-board.php`, `readme.txt` (when added), `languages/*.pot`, all module directories under `modules/`, `core/`, `api/`, `admin/`, `assets/`, `blocks/`, `vendor/` (if runtime deps)
 - [ ] Zip extracts to a folder named exactly `wp-career-board/` (not `wp-career-board-<version>/`)
@@ -215,7 +215,7 @@ On a **third clean** site with the **previous stable version** installed + real 
 
 - [ ] Upload the new zip via "Replace plugin" or WP admin update flow
 - [ ] Upgrade succeeds — no fatal
-- [ ] DB version option updates (`wp option get wcb_db_version`, `wp option get wcb_pro_db_version`)
+- [ ] DB version option updates (`wp option get wcb_db_version`, `wp option get wcbp_db_version`)
 - [ ] Pre-existing data still renders on every surface (don't just check one page)
 - [ ] Settings preserved (no defaults overwritten)
 - [ ] No new `debug.log` entries during the upgrade request
@@ -268,7 +268,7 @@ If ANY row in sections 0–11 fails:
 
 For a genuinely emergency patch (security CVE, dataloss bug reaching production):
 
-- The `--skip-browser-smoke` flag on `build-release.sh` (once added) is allowed
+- The `--skip-browser-smoke` flag on `build-release.sh` is allowed
 - But sections 0–6 and 8–11 are still non-negotiable
 - Document the skipped browser smoke in the release notes with a reason
 

@@ -189,7 +189,7 @@ aliases — bump app integrators a release in advance via the docs site.
 
 - [ ] Every item above ships behind a feature flag where it could affect
       existing consumers (envelope cleanup, action signatures).
-- [ ] `bin/ci-local.sh` green on every commit.
+- [ ] `bin/local-ci.sh` green on every commit.
 - [ ] Browser-verified at desktop + 390px on every UI change.
 - [ ] `readme.txt` `Stable tag: 1.2.0` and `WCB_VERSION` constant bumped.
 - [ ] `CHANGELOG.md` entry per item (one-line bullet).

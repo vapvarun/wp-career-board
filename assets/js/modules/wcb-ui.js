@@ -8,6 +8,54 @@
  */
 
 /**
+ * The display timezone PHP chose (Time::js_timezone()), for every Intl call
+ * that shows a stored time. Never the browser's own.
+ *
+ * @return {string|undefined} IANA name or offset, undefined if missing.
+ */
+export function siteTimeZone() {
+	try {
+		return JSON.parse( document.getElementById( 'wp-script-module-data-@wcb/ui' )?.textContent || '{}' ).timeZone || undefined;
+	} catch ( _e ) {
+		return undefined;
+	}
+}
+
+/**
+ * A stored UTC time as a Date: ISO 8601 with an offset (what wcb/v1 sends)
+ * or a naive `Y-m-d H:i:s`, read as UTC.
+ *
+ * @param {string} value Time string.
+ * @return {Date} Date (invalid when unparseable).
+ */
+export function parseUtc( value ) {
+	const v = String( value || '' ).trim();
+	return new Date( /[zZ]|[+-]\d{2}:?\d{2}$/.test( v ) ? v : v.replace( ' ', 'T' ) + 'Z' );
+}
+
+/**
+ * A stored UTC time formatted in the display timezone.
+ *
+ * @param {string} value   ISO or naive UTC time.
+ * @param {string} siteTag Site locale tag.
+ * @param {Object} options Intl options (default: medium date).
+ * @return {string} Formatted time, '' when unparseable.
+ */
+export function formatSiteTime( value, siteTag = '', options = { dateStyle: 'medium' } ) {
+	const when = parseUtc( value );
+	if ( ! value || Number.isNaN( when.getTime() ) ) {
+		return '';
+	}
+	const opts = { ...options, timeZone: siteTimeZone() };
+	try {
+		return new Intl.DateTimeFormat( siteTag || undefined, opts ).format( when );
+	} catch ( _e ) {
+		// A numeric offset timeZone or a malformed site tag can throw on older browsers.
+		return new Intl.DateTimeFormat( 'en-US', options ).format( when );
+	}
+}
+
+/**
  * Format an ISO (Y-m-d) date against the SITE locale, never the browser's.
  *
  * @param {string} iso       ISO date string.
@@ -156,14 +204,14 @@ export function showError( message ) {
  * "5 minutes ago" for the last week, then a medium date, in the SITE locale.
  *
  * @param {string} siteTag  BCP 47 tag from PHP (state.locale).
- * @param {string} mysqlUtc UTC datetime as stored (current_time( 'mysql', true )).
+ * @param {string} mysqlUtc Stored UTC time: ISO 8601 with offset (wcb/v1) or naive Y-m-d H:i:s.
  * @return {string} Relative or absolute time, '' when unparsable.
  */
 export function relativeTime( siteTag, mysqlUtc ) {
 	if ( ! mysqlUtc ) {
 		return '';
 	}
-	const then = new Date( mysqlUtc.replace( ' ', 'T' ) + 'Z' );
+	const then = parseUtc( mysqlUtc );
 	if ( Number.isNaN( then.getTime() ) ) {
 		return '';
 	}
@@ -189,11 +237,7 @@ export function relativeTime( siteTag, mysqlUtc ) {
 			return new Intl.RelativeTimeFormat( 'en-US', { numeric: 'auto' } ).format( -Math.round( value ), unit );
 		}
 	}
-	try {
-		return new Intl.DateTimeFormat( locale, { dateStyle: 'medium' } ).format( then );
-	} catch ( _e ) {
-		return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( then );
-	}
+	return formatSiteTime( mysqlUtc, locale );
 }
 
 /**
@@ -346,4 +390,39 @@ export function savedMetaLine( ctx ) {
 		}
 	}
 	return '';
+}
+
+/**
+ * A form kept in the browser while it is filled in, so a refresh or an ended
+ * login does not lose it. One key per site and member (seeded by render.php);
+ * blocked storage (private mode) simply means no draft.
+ *
+ * @param {string} key localStorage key.
+ * @return {{load: function(): ?Object, save: function(Object): void, clear: function(): void}} Draft.
+ */
+export function formDraft( key ) {
+	return {
+		load() {
+			try {
+				const value = JSON.parse( window.localStorage.getItem( key ) || 'null' );
+				return value && 'object' === typeof value ? value : null;
+			} catch ( _e ) {
+				return null;
+			}
+		},
+		save( values ) {
+			try {
+				window.localStorage.setItem( key, JSON.stringify( values ) );
+			} catch ( _e ) {
+				// Storage full or blocked: the form still works, just without a draft.
+			}
+		},
+		clear() {
+			try {
+				window.localStorage.removeItem( key );
+			} catch ( _e ) {
+				// Nothing stored.
+			}
+		},
+	};
 }

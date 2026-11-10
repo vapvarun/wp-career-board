@@ -92,16 +92,37 @@ array(
 	'object_type'     => 'post',               // the plugin's own object kind
 	'object_id'       => 1153,
 	'message'         => 'Aisha replied to "Welcome thread".',     // required, translated plain text
-	'message_grouped' => '{actor} and {others} replied to "Welcome thread".', // optional
+	'message_grouped' => '{actor} and {others} replied to "Welcome thread".', // grouped rows
+	'message_single'  => '{actor} replied to "Welcome thread".',              // grouped rows
 	'url'             => 'https://example.com/...',               // required
 	'group_key'       => 'reply_to_post_1153', // per object + subtype, never per actor
+	'item_type'       => 'reply',              // grouped rows: the thing THIS event is about
+	'item_id'         => 88,
 	'context'         => array( 'type' => 'space', 'id' => 12, 'label' => 'Design Critique' ),
 	'notification_id' => 991,                  // the plugin's own row id
+	'renotify'        => true,                 // false = a running notice (see below)
 )
 ```
 
 `{actor}` = latest actor's name; `{others}` = BuddyNext's translated "1 other" / "3 others".
 Never fire for the actor themself or during an import. Build the payload in ONE helper.
+
+**Grouped rows** ("Aisha and 2 others replied"). One row per object, so the `object_*` is the
+container (the topic) and `group_key` names it. Each event also says what it was: `item_type` +
+`item_id` (the reply). BuddyNext keeps the events as (person, item), newest first, and counts
+PEOPLE, not events, so one person replying twice is one person however the others interleave.
+Send all three sentences: `message` (this event, used when the row is one event),
+`message_single` (`{actor}` placeholder; used when the row is left with one person), and
+`message_grouped` (`{actor}` and `{others}`). A row is grouped only for an event with a named
+person: send `actor_id` 0 and a `group_key` unique to the event for anonymous content, and it
+never merges. The container and the items must describe what the link opens: a row keeps its
+first event's link, so link to the container.
+
+**Running notices** (a personal record that keeps growing through the week, a progress count):
+set `renotify => false` with a `group_key` per period. The first fire creates the row; every
+repeat with the same key refreshes that row's text quietly (keeps read state and date, no push).
+Without it, repeats merge: the row jumps to the top and alerts again, which is right for
+"Aisha and 3 others replied" and wrong for a number that only grows.
 
 ### 4.2 Declare types: the one switch
 
@@ -112,11 +133,16 @@ what makes BuddyNext read the payload. Ship the payload and the declaration toge
 
 `{prefix}_community_notification_visible( array $visible, int $viewer_id, array $targets )`,
 return key => bool. Batched per bell page. Reuse the plugin's existing permission checks.
+A target with `'item' => true` is one event inside a grouped row (`object_type`/`object_id` = the
+item, `actor_id` = the person who did it): answer false when the item is gone, trashed, or by
+someone the viewer should not see (banned, blocked). A missing item is NOT visible, unlike a
+missing container. The row shrinks to the events that remain and disappears when none does.
 
 ### 4.4 Removal
 
 `{prefix}_community_notification_removed( $object_type, $object_id )` on PERMANENT delete only.
-Trash and unpublish are visibility.
+Trash and unpublish are visibility. A permanently deleted grouped-row item needs no call:
+the `item` target answers false.
 
 ## 5. Checklist for any integration PR
 
@@ -129,3 +155,41 @@ Trash and unpublish are visibility.
 - [ ] Existing listeners of a changed hook still receive the arguments they registered for.
 - [ ] Hooks documented in the plugin's hooks reference; `docs/standards/integration.md` synced.
 - [ ] Verified live with both plugins active: one bell row, one email, correct link, per role.
+
+---
+
+## 6. Third-party plugins: support, never dependency
+
+Applies to every plugin and theme that works with a plugin we do not own (BuddyPress, bbPress,
+WooCommerce, page builders, membership plugins, themes). We never know what a customer runs, so
+**supporting** a plugin and **depending** on it are different things, and only the first is allowed
+(owner, 2026-11-08).
+
+| Support (allowed) | Dependency (not allowed) |
+|---|---|
+| Plugin works fully with only WordPress active | A feature breaks or vanishes without the partner |
+| Partner code lives in `integrations/<slug>/`, booted behind one `function_exists` / `class_exists` guard | Partner functions called from core, modules, API or templates |
+| Our data stays in our store (roles, meta, tables); the partner gets a mirror synced from ours | The partner's table or meta is the only copy of our data |
+| Partner deactivated: mirror stops, nothing fatals, nothing is lost | Deactivating the partner fatals, or orphans our data |
+| A partner's UI is cited as a precedent for a pattern | We assume the partner is installed, or copy its code |
+
+### Rules
+
+1. **Core first.** Every flow has a WordPress-core path (core hooks, core screens, core APIs).
+   Partner support only adds to it.
+2. **One door per partner.** All of a partner's calls live in `integrations/<slug>/`, loaded by one
+   guard at boot. Zero partner calls anywhere else in the plugin.
+3. **One-way mirror.** We write our data, then sync it to the partner through our own hooks. The
+   sync can be re-run (idempotent) and never reads the partner back as the truth.
+4. **No forced installs.** No `Requires Plugins` header and no install nag for an optional partner.
+5. **Precedent is not dependency.** Citing bbPress, WooCommerce or any plugin for a UX pattern is
+   fine. The code still uses core hooks only.
+
+### Checklist for any change that touches a partner, or a flow partners mirror
+
+- [ ] The flow works end to end with **no other plugin active** (browser-verified).
+- [ ] Partner function prefixes (`bp_`, `bbp_`, `wc_` ...) appear only under `integrations/` (grep, excluding stubs and tests).
+- [ ] The integration boots behind one guard; boot smoke passes with the partner **on and off**.
+- [ ] Our data stays correct after the partner is deactivated, then reactivated (the mirror catches up).
+- [ ] No `Requires Plugins` entry and no notice for optional partners.
+- [ ] Partner support listed in `audit/manifest.json` with its guard, plus the hooks it listens to.

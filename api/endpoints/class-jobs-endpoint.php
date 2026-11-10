@@ -363,7 +363,8 @@ final class JobsEndpoint extends RestController {
 				$job['is_bookmarked']      = false;
 				$job['has_applied']        = false;
 				$job['application_status'] = null;
-				$job['viewer_can_apply']   = $guest_can_apply;
+				// A closed deadline refuses everyone, the same answer POST /apply gives.
+				$job['viewer_can_apply'] = $guest_can_apply && empty( $job['deadline_passed'] );
 			}
 			unset( $job );
 			return $jobs;
@@ -380,7 +381,7 @@ final class JobsEndpoint extends RestController {
 			$job['is_bookmarked']      = isset( $bookmarked[ $id ] );
 			$job['has_applied']        = null !== $status;
 			$job['application_status'] = $status;
-			$job['viewer_can_apply']   = $can_apply && ! $is_owner && null === $status;
+			$job['viewer_can_apply']   = $can_apply && ! $is_owner && null === $status && empty( $job['deadline_passed'] );
 		}
 		unset( $job );
 
@@ -891,7 +892,7 @@ final class JobsEndpoint extends RestController {
 				&& ( in_array( $post->post_status, array( 'wcb_expired', 'wcb_closed' ), true ) || \WCB\Core\JobDeadline::has_passed( $post->ID ) )
 			) {
 				$wcb_new_deadline = (string) $request->get_param( 'deadline' );
-				if ( '' === $wcb_new_deadline || $wcb_new_deadline < current_time( 'Y-m-d' ) ) {
+				if ( '' === $wcb_new_deadline || \WCB\Core\Time::end_of_day_utc( $wcb_new_deadline ) < current_time( 'mysql', true ) ) {
 					if ( ! $request->has_param( 'board_id' ) ) {
 						$request->set_param( 'board_id', (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
 					}
@@ -1493,8 +1494,8 @@ final class JobsEndpoint extends RestController {
 			'ai_summary'         => (string) get_post_meta( $p->ID, '_wcbp_ai_summary', true ),
 			// Raw ISO 8601 for any client-side date logic; localised sibling
 			// for display. Never hand a translated date string to new Date().
-			'submitted_at'       => get_the_date( 'c', $p ),
-			'submitted_at_label' => get_the_date( (string) get_option( 'date_format' ), $p ),
+			'submitted_at'       => $p->post_date_gmt,
+			'submitted_at_label' => \WCB\Core\Time::date_label( $p->post_date_gmt ),
 			'resume_url'         => ( static function () use ( $p ): ?string {
 				$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 				if ( $att_id <= 0 ) {
@@ -1772,10 +1773,10 @@ final class JobsEndpoint extends RestController {
 		$cat_term_objs  = get_the_terms( $post->ID, 'wcb_category' );
 		$tag_term_objs  = get_the_terms( $post->ID, 'wcb_tag' );
 
-		$loc_names  = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'name' ) : array();
-		$type_names = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
-		$exp_names  = is_array( $exp_term_objs ) ? wp_list_pluck( $exp_term_objs, 'name' ) : array();
-		$cat_names  = is_array( $cat_term_objs ) ? wp_list_pluck( $cat_term_objs, 'name' ) : array();
+		$loc_names  = \WCB\Core\Taxonomy::names( $loc_term_objs );
+		$type_names = \WCB\Core\Taxonomy::names( $type_term_objs );
+		$exp_names  = \WCB\Core\Taxonomy::names( $exp_term_objs );
+		$cat_names  = \WCB\Core\Taxonomy::names( $cat_term_objs );
 		$cat_slugs  = is_array( $cat_term_objs ) ? wp_list_pluck( $cat_term_objs, 'slug' ) : array();
 		$type_slugs = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'slug' ) : array();
 		$loc_slugs  = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'slug' ) : array();
@@ -1790,7 +1791,7 @@ final class JobsEndpoint extends RestController {
 			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
 		}
 
-		$wcb_deadline_raw = get_post_meta( $post->ID, '_wcb_deadline', true );
+		$wcb_created_gmt = '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt;
 
 		$data = array(
 			'id'                     => $post->ID,
@@ -1812,11 +1813,12 @@ final class JobsEndpoint extends RestController {
 			// posts (e.g. pending jobs, the default when auto-publish is off), and
 			// mysql_to_rfc3339() turns that into the invalid "-0001-11-30T00:00:00".
 			// Fall back to the site-local date converted to GMT so REST/mobile
-			// clients always receive a valid ISO 8601 timestamp.
-			'created_at'             => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt ),
-			'updated_at'             => mysql_to_rfc3339( '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt ),
-			// Deprecated alias for the legacy `date` key. Removed in 1.2.0.
-			'date'                   => $post->post_date,
+			// clients always receive a valid time. Stored UTC; the wcb/v1
+			// filter (Time::iso_response_dates) sends ISO 8601 with offset.
+			'created_at'             => $wcb_created_gmt,
+			'updated_at'             => '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt,
+			// Deprecated alias of `created_at` (UTC since 1.8.3; was site-local).
+			'date'                   => \WCB\Core\Time::rest_datetime( $wcb_created_gmt ),
 			'permalink'              => get_permalink( $post->ID ),
 			'rejection_reason'       => $rejection_reason,
 			// Company fields.
@@ -1832,13 +1834,12 @@ final class JobsEndpoint extends RestController {
 			'company_size'           => $company_meta['size'],
 			'company_size_label'     => $company_meta['size_label'],
 			'company_hq'             => $company_meta['hq'],
-			// Job meta. `deadline` stays the raw stored date for any client-side
-			// date math / comparison; `deadline_label` is the localised display
-			// form (additive since 1.5.1) so the card never renders a bare ISO date.
-			'deadline'               => $wcb_deadline_raw,
-			'deadline_label'         => $wcb_deadline_raw
-				? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( (string) $wcb_deadline_raw ) )
-				: '',
+			// Job meta. `deadline` is the instant applications close (UTC, sent
+			// as ISO 8601); `deadline_day` is that day in the site's timezone
+			// for date pickers; `deadline_label` is the localised display form.
+			'deadline'               => \WCB\Core\JobDeadline::get( $post->ID ),
+			'deadline_day'           => \WCB\Core\JobDeadline::day( $post->ID ),
+			'deadline_label'         => \WCB\Core\JobDeadline::label( $post->ID ),
 			// Whether that date has passed, resolved server-side. The card needs
 			// this to badge closed roles, and a client cannot decide it safely:
 			// the browser clock is the visitor's, not the site's timezone.
@@ -1867,7 +1868,7 @@ final class JobsEndpoint extends RestController {
 			'days_ago'               => sprintf(
 				/* translators: %s: human-readable time difference, e.g. "3 days". */
 				__( '%s ago', 'wp-career-board' ),
-				human_time_diff( (int) strtotime( $post->post_date ), time() )
+				human_time_diff( (int) get_post_time( 'U', true, $post ), time() )
 			),
 			// Slug arrays for filter/API consumers.
 			'categories'             => $cat_slugs,
@@ -2026,7 +2027,7 @@ final class JobsEndpoint extends RestController {
 				'enum' => array( 'yearly', 'monthly', 'hourly' ),
 			),
 			'deadline'        => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => \WCB\Modules\Jobs\JobsMeta::sanitize_date( $v ) === $v, __( 'Deadline must be a date in YYYY-MM-DD format.', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => '' === (string) $v || '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_deadline( $v ), __( 'Deadline must be a date in YYYY-MM-DD format.', 'wp-career-board' ) ),
 			),
 			'board_id'        => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => 0 === absint( $v ) || 'wcb_board' === get_post_type( absint( $v ) ), __( 'Unknown job board.', 'wp-career-board' ) ),

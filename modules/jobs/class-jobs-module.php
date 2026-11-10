@@ -118,10 +118,13 @@ final class JobsModule {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param string $content Original post content.
-	 * @return string Block-rendered output or original content.
+	 * @param mixed  $content Original post content.
+	 * @return mixed Block-rendered output or original content.
 	 */
-	public function inject_job_single( string $content ): string {
+	public function inject_job_single( $content ) {
+		if ( ! is_string( $content ) ) {
+			return $content; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_singular( 'wcb_job' ) || ! in_the_loop() || ! is_main_query() ) {
 			return $content;
 		}
@@ -162,10 +165,13 @@ final class JobsModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $content Post content being sent to the feed.
-	 * @return string
+	 * @param mixed  $content Post content being sent to the feed.
+	 * @return mixed
 	 */
-	public function append_job_meta_to_feed( string $content ): string {
+	public function append_job_meta_to_feed( $content ) {
+		if ( ! is_string( $content ) ) {
+			return $content; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_feed() || get_post_type() !== 'wcb_job' ) {
 			return $content;
 		}
@@ -195,7 +201,7 @@ final class JobsModule {
 			$meta[] = esc_html__( 'Salary', 'wp-career-board' ) . ': ' . esc_html( $currency . ' ' . number_format( (int) $sal_min ) . ' – ' . number_format( (int) $sal_max ) );
 		}
 
-		$deadline = (string) get_post_meta( $id, '_wcb_deadline', true );
+		$deadline = \WCB\Core\JobDeadline::label( $id );
 		if ( $deadline ) {
 			$meta[] = esc_html__( 'Apply by', 'wp-career-board' ) . ': ' . esc_html( $deadline );
 		}
@@ -216,10 +222,13 @@ final class JobsModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $template Current template path.
-	 * @return string
+	 * @param mixed  $template Current template path.
+	 * @return mixed
 	 */
-	public function single_job_template( string $template ): string {
+	public function single_job_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_singular( 'wcb_job' ) ) {
 			return $template;
 		}
@@ -238,10 +247,13 @@ final class JobsModule {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $template Current template path.
-	 * @return string
+	 * @param mixed  $template Current template path.
+	 * @return mixed
 	 */
-	public function taxonomy_archive_template( string $template ): string {
+	public function taxonomy_archive_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_tax( array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' ) ) || \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;
 		}

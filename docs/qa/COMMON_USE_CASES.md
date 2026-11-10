@@ -103,10 +103,8 @@ Then re-map any new block/route/admin page to an actor + tier below, and add a
 | ✓ | Use case | Admin page | Journey | Flag |
 |---|---|---|---|---|
 | ☐ | Setup wizard (first run) | Setup Wizard | `admin/admin-setup-wizard-end-to-end`, `admin/walkthrough-admin-setup-and-settings` | 🆕 1.8.1: step bodies render on symlinked and Windows installs |
-| ☐ | Settings → General tab save | Career Board → Settings | `admin/admin-settings-general-tab-save` | — |
-| ☐ | Settings → Jobs tab save | Career Board → Settings | `admin/admin-settings-jobs-tab-save` | 🆕 1.8.1: "When a job ends" text folded into Default listing length; Jobs Per Page default 12 |
+| ☐ | Settings → Jobs tab save (also proves the save merges, no clobber of other tabs) | Career Board → Settings | `admin/admin-settings-jobs-tab-save` | 🆕 1.8.1: "When a job ends" text folded into Default listing length; Jobs Per Page default 12 |
 | ☐ | Settings → Antispam tab save | Career Board → Settings | `admin/admin-settings-antispam-tab-save` | — |
-| ☐ | Settings save merges (no clobber of other tabs) | Career Board → Settings | `admin/admin-settings-save-merge` | — |
 | ☐ | Jobs list + bulk actions | Career Board → Jobs | `admin/admin-jobs-list-bulk-action`, `admin/admin-jobs-page-renders` | 🆕 1.8.1: shared search box with placeholder; status counts refresh after inline approve/reject |
 | ☐ | Moderation queue → approve/dismiss flagged job | Career Board → Jobs (Flagged) | `admin/moderation-approve-flagged-job`, `admin/moderator-redirected-to-queue` | 🆕 1.8.1: flag resolve redirects on `load-{page}` (no headers-already-sent) |
 | ☐ | **Emails: template merge tags + message body** | Career Board → Emails | `admin/admin-emails-template-merge-tags`, `admin/walkthrough-moderation-and-reporting` | 🆕 configurable email message body + defaults |

@@ -302,9 +302,11 @@ $wcb_initial_state = apply_filters(
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// The employer may pick any deadline up to the board's listing length
 		// (owner decision, 1.8.1); REST clamps to the same maximum on save.
-		'deadline'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ),
-		'deadlineMax'       => max( $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_deadline', true ) : '', \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
-		'deadlineMin'       => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
+		// Picker values are days in the site's timezone; the save stores the
+		// end of that day in UTC (JobsMeta::sanitize_deadline).
+		'deadline'          => $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
+		'deadlineMax'       => max( $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : '', \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ) ),
+		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
 		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
@@ -338,6 +340,9 @@ $wcb_initial_state = apply_filters(
 		'validationField'   => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
+		// Browser draft of a new job, one per site and member.
+		'draftKey'          => 'wcb-job-draft-' . get_current_blog_id() . '-' . $wcb_user_id,
+		'draftRestored'     => false,
 		'creditCost'        => (int) $wcb_board_credit_costs[ $wcb_board_id ],
 		// Per-board cost lookup so view.js can update creditCost
 		// reactively when the employer switches boards. Object keyed by
@@ -413,7 +418,7 @@ $wcb_initial_state = apply_filters(
 			\WCB\Core\SalaryFormat::js_strings(),
 			array(
 				// Errors / validation.
-				'errorSessionExpired'      => __( 'Your session has expired. Please refresh the page and try again.', 'wp-career-board' ),
+				'errorSessionExpired'      => __( 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.', 'wp-career-board' ),
 				'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
 				'errorSubmitFailed'        => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
@@ -466,6 +471,8 @@ $wcb_step_labels = array(
 <div
 	<?php echo get_block_wrapper_attributes( array( 'class' => 'wcb-job-form-wrap' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	data-wp-interactive="wcb-job-form"
+	data-wp-init="callbacks.restoreDraft"
+	data-wp-watch="callbacks.saveDraft"
 >
 
 	<?php
@@ -477,6 +484,11 @@ $wcb_step_labels = array(
 			<h1 class="wcb-page-title"><?php echo esc_html( $wcb_edit_id > 0 ? __( 'Edit Job', 'wp-career-board' ) : _x( 'Post a Job', 'page title', 'wp-career-board' ) ); ?></h1>
 		</div>
 	<?php endif; ?>
+
+	<div class="wcb-draft-notice" role="status" hidden data-wp-bind--hidden="!state.draftRestored">
+		<p class="wcb-draft-notice__text"><?php esc_html_e( 'We kept the job you were writing on this device.', 'wp-career-board' ); ?></p>
+		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.resetForm"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
+	</div>
 
 	<!-- ── Step indicator ────────────────────────────────────────────────── -->
 	<nav class="wcb-steps" aria-label="<?php esc_attr_e( 'Form progress', 'wp-career-board' ); ?>" data-wp-class--wcb-hidden="state.submitted">

@@ -350,13 +350,14 @@ third-party anti-spam plugins see these sign-ups too. When the
 **Email Verification** setting is on (default for new installs), the new
 account stays signed out until the link in the "Confirm your email address"
 email is opened; sign-in is refused with `wcb_email_unverified` until then.
-Signing up while logged in adds the member role instead of replacing an
-existing one (administrators and editors keep theirs).
+Becoming an employer or candidate adds the member role and keeps every role
+the member already has, including the site's default role (1.8.3).
 
 | Hook | Type | Args | Purpose |
 |---|---|---|---|
 | `wcb_pre_registration` | filter | `$error, $request` | Return a `WP_Error` to refuse a sign-up before the account exists. |
 | `wcb_registration_rate_limit` | filter | `$limit` | Sign-ups one IP may make per hour. Default 5, 0 disables. |
+| `wcb_member_role_replaces_default` | filter | `$replace, $user, $role` | Return true to swap a plain member's default role for the employer or candidate role, as before 1.8.3. Administrators and editors always keep their roles. |
 | `wcb_email_verification_requested` | action | `$user_id, $verify_url` | A new account needs to confirm its email. The confirmation email listens here. |
 
 ## Job payment (1.8.0)

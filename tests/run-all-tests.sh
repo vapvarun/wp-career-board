@@ -34,6 +34,10 @@ echo "=== WP-CLI Command Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cli-commands.php
 echo ""
 
+echo "=== Text helper tests ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-text-dash-lists.php
+echo ""
+
 echo "=== REST API Tests (Free) ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-rest-api-free.php
 echo ""
@@ -122,3 +126,24 @@ wp eval-file wp-content/plugins/wp-career-board/tests/test-rtl-styles.php
 echo ""
 
 echo "=== ALL SUITES COMPLETE ==="
+
+echo "=== Accounts, companies, privacy, search, time (1.8.x) ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-accounts.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-admin-free-posting.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-brand.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-candidate-visibility.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-company-type.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-default-board.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-employer-companies.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-categories-write.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-company-picker.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-search-multi-category.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-labelled-values.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-privacy-gates.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-private-files.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-stored-language.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-term-names.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-time.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-wizard-settings.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-write-validation.php
+echo ""

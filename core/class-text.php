@@ -84,4 +84,35 @@ final class Text {
 			$html
 		);
 	}
+
+	/**
+	 * Editor output for a plain-text field, with its paragraphs and lists kept.
+	 *
+	 * The cover letter and the candidate bio are plain text: the bio is the
+	 * WordPress user description, which core runs through wp_filter_kses on
+	 * save, and every reader (employer dashboard, CSV, resume page, theme
+	 * author boxes) shows text. Their editors still send HTML, and stripping
+	 * the tags joined every paragraph and list item into one line. Block
+	 * boundaries become blank lines, list items "- " lines, the same shape the
+	 * editor reads back into paragraphs and lists. Text with no block tags
+	 * (older clients, imports) passes through unchanged.
+	 *
+	 * @since 1.8.2
+	 *
+	 * @param string $html Editor output, HTML or plain text.
+	 * @return string Plain text; the caller still sanitizes it.
+	 */
+	public static function from_editor( string $html ): string {
+		if ( ! preg_match( '#<(?:p|h[1-6]|ul|ol|li|br|blockquote|div)\b#i', $html ) ) {
+			return $html;
+		}
+		// A multipart form sends the editor's newlines as CRLF.
+		$html = str_replace( array( "\r\n", "\r" ), "\n", $html );
+		$html = (string) preg_replace( '#<li\b[^>]*>#i', "\n- ", $html );
+		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
+		$html = (string) preg_replace( '#</(?:p|h[1-6]|ul|ol|blockquote|div)>#i', "\n\n", $html );
+		$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$text = (string) preg_replace( '/[ \t]+\n/', "\n", $text );
+		return trim( (string) preg_replace( "/\n{3,}/", "\n\n", $text ) );
+	}
 }

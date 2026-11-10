@@ -295,7 +295,7 @@ add_filter( 'wcb_candidate_resume_url', function ( string $url, int $user_id, in
 Code that creates jobs outside the REST API (an importer, a form plugin) should set the same deadline the plugin would. It applies the board's listing length and the `wcb_job_default_expiry_days` filter.
 
 ```php
-$deadline = \WCB\Core\JobDeadline::default_end_for_board( $board_id ); // Y-m-d; 0 for no board.
+$deadline = \WCB\Core\JobDeadline::default_end_for_board( $board_id ); // UTC Y-m-d H:i:s; 0 for no board.
 update_post_meta( $job_id, '_wcb_deadline', $deadline );
 ```
 

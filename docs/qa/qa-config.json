@@ -47,8 +47,8 @@
     "buddypress"
   ],
   "fixture_cleanup_sql": [
-    "DELETE p FROM {prefix}posts p JOIN {prefix}postmeta m ON m.post_id = p.ID AND m.meta_key = '_wcb_qa_smoke' WHERE p.post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board','wcb_credit_package')",
-    "DELETE FROM {prefix}posts WHERE post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board','wcb_credit_package') AND (post_title LIKE 'Smoke %' OR post_title LIKE 'Smoke-Batch%' OR post_title LIKE 'E2E %')",
+    "DELETE p FROM {prefix}posts p JOIN {prefix}postmeta m ON m.post_id = p.ID AND m.meta_key = '_wcb_qa_smoke' WHERE p.post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board')",
+    "DELETE FROM {prefix}posts WHERE post_type IN ('wcb_job','wcb_application','wcb_resume','wcb_company','wcb_board') AND (post_title LIKE 'Smoke %' OR post_title LIKE 'Smoke-Batch%' OR post_title LIKE 'E2E %')",
     "DELETE FROM {prefix}postmeta WHERE meta_key = '_wcb_qa_smoke'",
     "DELETE FROM {prefix}usermeta WHERE meta_key = '_wcb_qa_smoke'"
   ],

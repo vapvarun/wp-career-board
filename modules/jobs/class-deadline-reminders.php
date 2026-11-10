@@ -83,19 +83,22 @@ final class DeadlineReminders {
 	 */
 	public function sweep(): void {
 		foreach ( self::BUCKETS as $days_left ) {
-			$target_day_iso = gmdate( 'Y-m-d', time() + ( $days_left * DAY_IN_SECONDS ) );
+			// The deadlines that end on the day N days from today, in the site's timezone.
+			$target_day = ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+' . $days_left . ' days' )->format( 'Y-m-d' );
+			$day_range  = array( (string) \WCB\Core\Time::datetime_input_to_utc( $target_day . ' 00:00:00' ), \WCB\Core\Time::end_of_day_utc( $target_day ) );
 
 			$jobs = get_posts(
 				array(
 					'post_type'      => 'wcb_job',
 					'post_status'    => 'publish',
-					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded by posts with this exact deadline date.
+					// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded by posts whose deadline falls on this one day.
 					'posts_per_page' => 500,
 					'fields'         => 'ids',
 					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 						array(
-							'key'   => '_wcb_deadline',
-							'value' => $target_day_iso,
+							'key'     => '_wcb_deadline',
+							'value'   => $day_range,
+							'compare' => 'BETWEEN',
 						),
 					),
 				)

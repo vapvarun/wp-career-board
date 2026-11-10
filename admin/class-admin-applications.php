@@ -550,10 +550,10 @@ class AdminApplications extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_candidate( $item ): string {
-		$candidate_id = (int) get_post_meta( $item->ID, '_wcb_candidate_id', true );
-		$candidate    = $candidate_id ? get_userdata( $candidate_id ) : false;
-		$edit_link    = (string) get_edit_post_link( $item->ID );
-		$row_actions  = array(
+		$applicant   = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $item->ID );
+		$candidate   = $applicant['user'];
+		$edit_link   = (string) get_edit_post_link( $item->ID );
+		$row_actions = array(
 			'view' => sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( $edit_link ),
@@ -561,13 +561,10 @@ class AdminApplications extends \WP_List_Table {
 			),
 		);
 
-		// Guest application — candidate_id is 0, use stored guest meta.
-		if ( 0 === $candidate_id && ! $candidate instanceof \WP_User ) {
-			$guest_name  = (string) get_post_meta( $item->ID, '_wcb_guest_name', true );
-			$guest_email = (string) get_post_meta( $item->ID, '_wcb_guest_email', true );
-			$display     = $guest_name ? $guest_name : __( '(unknown)', 'wp-career-board' );
+		if ( $applicant['guest'] ) {
+			$guest_email = $applicant['email'];
 			$out         = '<span class="wcb-guest-badge">' . esc_html__( 'Guest', 'wp-career-board' ) . '</span> ';
-			$out        .= '<strong>' . esc_html( $display ) . '</strong>';
+			$out        .= '<strong>' . esc_html( $applicant['name'] ) . '</strong>';
 			if ( $guest_email ) {
 				$out                 .= '<br><small>' . esc_html( $guest_email ) . '</small>';
 				$row_actions['email'] = sprintf(
@@ -580,7 +577,7 @@ class AdminApplications extends \WP_List_Table {
 			return $out;
 		}
 
-		$name = $candidate instanceof \WP_User ? $candidate->display_name : __( '(deleted)', 'wp-career-board' );
+		$name = $applicant['name'];
 
 		if ( $candidate instanceof \WP_User ) {
 			$out = sprintf(

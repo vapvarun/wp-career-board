@@ -46,9 +46,9 @@ $wcb_category_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_category' );
 $wcb_tag_terms        = wp_get_object_terms( $wcb_job_id, 'wcb_tag' );
 
 // Plain-text strings used in sidebar detail list.
-$wcb_location   = ! is_wp_error( $wcb_location_terms ) ? implode( ', ', wp_list_pluck( $wcb_location_terms, 'name' ) ) : '';
-$wcb_type       = ! is_wp_error( $wcb_type_terms ) ? implode( ' · ', wp_list_pluck( $wcb_type_terms, 'name' ) ) : '';
-$wcb_experience = ! is_wp_error( $wcb_experience_terms ) ? implode( ', ', wp_list_pluck( $wcb_experience_terms, 'name' ) ) : '';
+$wcb_location   = implode( ', ', \WCB\Core\Taxonomy::names( $wcb_location_terms ) );
+$wcb_type       = implode( ' · ', \WCB\Core\Taxonomy::names( $wcb_type_terms ) );
+$wcb_experience = implode( ', ', \WCB\Core\Taxonomy::names( $wcb_experience_terms ) );
 $wcb_categories = ! is_wp_error( $wcb_category_terms ) ? $wcb_category_terms : array();
 $wcb_tags       = ! is_wp_error( $wcb_tag_terms ) ? $wcb_tag_terms : array();
 
@@ -65,8 +65,7 @@ $wcb_salary_min         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_min'
 $wcb_salary_max         = (string) get_post_meta( $wcb_job_id, '_wcb_salary_max', true );
 $wcb_salary_type_raw    = (string) get_post_meta( $wcb_job_id, '_wcb_salary_type', true );
 $wcb_salary_type        = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
-$wcb_deadline           = (string) get_post_meta( $wcb_job_id, '_wcb_deadline', true );
-$wcb_deadline_formatted = $wcb_deadline ? date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deadline ) ) : '';
+$wcb_deadline_formatted = \WCB\Core\JobDeadline::label( $wcb_job_id );
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
 // External apply routing — URL wins (ATS redirect), email is a passive contact channel.
@@ -1079,7 +1078,7 @@ wp_interactivity_state(
 						<input
 							type="text"
 							id="wcb-guest-name"
-							class="wcb-guest-field"
+							class="wcb-field-input wcb-guest-field"
 							autocomplete="name"
 							required
 							data-wp-on--input="actions.updateGuestName"
@@ -1091,7 +1090,7 @@ wp_interactivity_state(
 						<input
 							type="email"
 							id="wcb-guest-email"
-							class="wcb-guest-field"
+							class="wcb-field-input wcb-guest-field"
 							autocomplete="email"
 							required
 							data-wp-on--input="actions.updateGuestEmail"
@@ -1185,7 +1184,7 @@ wp_interactivity_state(
 						data-wp-text="state.aiCoverBtnLabel"
 					></button>
 				</div>
-				<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
+				<div class="wcb-editor" data-wcb-editor-format="text" data-placeholder="<?php esc_attr_e( 'Tell the employer why you are a great fit for this role…', 'wp-career-board' ); ?>">
 					<div class="wcb-editor-holder" id="wcb-editor-cover-letter"></div>
 					<textarea
 						id="wcb-cover-letter"

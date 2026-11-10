@@ -5,6 +5,7 @@
  */
 import { store } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
+import { formatSiteTime } from '@wcb/ui';
 
 const { state } = store( 'wcb-privacy', {
 	state: {
@@ -88,11 +89,8 @@ const { state } = store( 'wcb-privacy', {
 				state.deletionStatus        = body.status || 'scheduled';
 				state.deletionJustScheduled = true;
 				if ( body.scheduled_for ) {
-					// ISO 8601 from the route: format it in the site locale.
-					const when = new Date( body.scheduled_for );
-					state.deletionScheduledFor = Number.isNaN( when.getTime() )
-						? String( body.scheduled_for )
-						: when.toLocaleDateString( state.locale || undefined, { year: 'numeric', month: 'long', day: 'numeric' } );
+					// ISO 8601 from the route: the site's locale and timezone.
+					state.deletionScheduledFor = formatSiteTime( body.scheduled_for, state.locale, { year: 'numeric', month: 'long', day: 'numeric' } ) || String( body.scheduled_for );
 				}
 				state.deleteFormOpen = false;
 				state.deletePassword = '';

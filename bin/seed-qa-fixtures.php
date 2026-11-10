@@ -87,7 +87,6 @@ if ( $pro_active ) {
 		'wcb_credit_ledger',
 		'wcb_job_alerts',
 		'wcb_application_stages',
-		'wcb_field_values',
 	);
 	foreach ( $pro_tables as $t ) {
 		$full   = $wpdb->prefix . $t;
@@ -96,7 +95,7 @@ if ( $pro_active ) {
 			$wpdb->query( "DELETE FROM {$full} WHERE 1=1 AND (1=1 OR /* smoke filter */ 0)" );
 		}
 	}
-	WP_CLI::log( '  cleaned pro tables (credit_ledger, job_alerts, application_stages, field_values)' );
+	WP_CLI::log( '  cleaned pro tables (credit_ledger, job_alerts, application_stages)' );
 }
 
 // ---------------------------------------------------------------------------

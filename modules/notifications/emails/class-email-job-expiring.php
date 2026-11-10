@@ -132,7 +132,7 @@ class EmailJobExpiring extends AbstractEmail {
 			$employer->user_email,
 			static fn(): array => array(
 				'job_title'     => $job->post_title,
-				'deadline_date' => '' !== $deadline ? date_i18n( (string) get_option( 'date_format' ), (int) strtotime( $deadline ) ) : '',
+				'deadline_date' => \WCB\Core\Time::date_label( $deadline, '', null, (int) $employer->ID ),
 				'days_left'     => $days_left,
 				'edit_url'      => $edit_url,
 				'job_url'       => (string) get_permalink( $job_id ),

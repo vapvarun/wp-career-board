@@ -88,8 +88,8 @@ final class JobViewsRetention {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- bounded prune of a plugin-owned analytics table; the viewed_at index makes the range sargable.
 		$deleted = (int) $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE viewed_at < DATE_SUB( NOW(), INTERVAL %d DAY ) ORDER BY viewed_at ASC LIMIT %d",
-				$days,
+				"DELETE FROM {$table} WHERE viewed_at < %s ORDER BY viewed_at ASC LIMIT %d",
+				gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ),
 				self::BATCH
 			)
 		);

@@ -2488,3 +2488,28 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 .wcb-field-error[hidden] {
 	display: none;
 }
+
+/* A job form brought back from the browser draft (job-form, job-form-simple). */
+.wcb-draft-notice {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-sm);
+	margin-block-end: var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-inline-start: 3px solid var(--wcb-info);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-info-bg-soft);
+	color: var(--wcb-contrast);
+}
+
+.wcb-draft-notice[hidden] {
+	display: none;
+}
+
+.wcb-draft-notice__text {
+	margin: 0;
+	flex: 1 1 16rem;
+}

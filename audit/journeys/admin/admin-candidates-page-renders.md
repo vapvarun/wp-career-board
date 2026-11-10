@@ -49,5 +49,5 @@ wp user delete $UID --yes
 ## Notes
 
 - Two screens: `edit.php?post_type=wcb_resume` is the resume CPT list (steps 1-7); the Candidates list table (users with the `wcb_candidate` role, `AdminCandidates`) is `admin.php?page=wcb-candidates` (steps 8-11).
-- If `resume_archive_enabled` is OFF, the "View" row action may not be present (no public URL). The journey only asserts "Edit" works.
+- The "View resume" row action only appears for a candidate who has a resume link (`AdminCandidates::$resume_links`); the journey only asserts "Edit" works. The `resume_archive_enabled` setting no longer exists.
 - Search uses WordPress core WP_Query `s` param; no custom search endpoint is needed for this journey.

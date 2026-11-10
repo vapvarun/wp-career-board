@@ -502,7 +502,7 @@ class AdminCandidates extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_registered( $item ): string {
-		return esc_html( gmdate( 'Y-m-d', (int) strtotime( $item->user_registered ) ) );
+		return esc_html( \WCB\Core\Time::date_label( $item->user_registered, '—', 'Y-m-d' ) );
 	}
 
 	/**

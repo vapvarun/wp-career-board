@@ -2,6 +2,20 @@
 
 You can use this page to see recent changes that affect how you set up and run your job board. For the full history, see the changelog in `readme.txt`.
 
+## In 1.8.3
+
+* **Times and your timezone.** Every date and time is saved in UTC and shown in the timezone set in **Settings > General**, the same on admin screens, member pages, emails and job pages. Existing dates are converted when you update.
+* **Deadlines.** A job stays open until the end of its deadline day in your site's timezone.
+* **Setup wizard.** Sample data adds companies and jobs but no user accounts. With Wbcom Demo Installer active, the wizard opens it instead. The wizard can also create a Jobs menu with Find Jobs, Companies and Post a Job. See [Setup Wizard](./03-setup-wizard.md).
+* **Job forms.** What an employer types survives a page refresh or an ended login, and **Start over** clears it. See [Post a Job](../for-employers/02-post-a-job.md).
+* **Roles.** Becoming an employer or candidate keeps the site's default role, and saving a member on the Edit User screen keeps their Career Board role. See [Capabilities and roles](../admin-guide/14-capabilities-and-roles.md).
+* **Cover letters and bios.** Paragraphs and bullet lists are kept after saving.
+* **Applying as a guest.** The name and email fields are full width in the apply panel. An application from a deleted member reads "Deleted candidate".
+* **Dashboards.** Candidate and employer dashboards open only tabs that exist on your site, so a Pro tab link without Pro lands on Overview.
+* **Reign.** On Reign 8.0.9 and later, job, company and dashboard pages show one page heading.
+* **Safer updates.** Each WP Career Board and Pro update package is checked against its release signature before it installs. In this release the result is only recorded, and updates install as before.
+* **For developers.** wcb/v1 sends every time as ISO 8601 with its offset, and jobs add `deadline_day`. New filters: `wcb_display_timezone` and `wcb_title_owning_blocks`. See [REST API](../developer-guide/03-rest-api.md) and [Hooks reference](../developer-guide/02-hooks-reference.md).
+
 ## In 1.8.2
 
 * **Post a Job.** The page has a heading, the step bar names the current step on phones, the preview includes the description, and the confirmation offers **View my jobs** and **Post another job**. See [Post a Job](../for-employers/02-post-a-job.md).

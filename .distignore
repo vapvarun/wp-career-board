@@ -67,3 +67,5 @@ phpunit.xml*
 *.md
 !readme.txt
 /phpstan-buddypress-stubs.php
+/.wbcom-i18n.json
+/.gate-check-allow

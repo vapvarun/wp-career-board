@@ -178,4 +178,27 @@ final class BoardsModule {
 		$default = self::get_default_board_id();
 		return $default > 0 ? $default : (int) ( $board_options[0]['id'] ?? 0 );
 	}
+
+	/**
+	 * Forget cached meta for jobs whose board was changed with a direct query.
+	 *
+	 * A bulk UPDATE of _wcb_board_id skips update_post_meta(), so nothing
+	 * clears the object cache. wp_cache_flush_group() is a no-op on drop-ins
+	 * without group flush (several Redis and Memcached ones), which left moved
+	 * jobs on the old board until the cache expired. This drops each job's
+	 * meta entry and retires cached post queries, as core's own meta writes do.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param int[] $job_ids Jobs whose board changed.
+	 * @return void
+	 */
+	public static function forget_job_meta( array $job_ids ): void {
+		$job_ids = array_values( array_unique( array_map( 'intval', $job_ids ) ) );
+		if ( array() === $job_ids ) {
+			return;
+		}
+		wp_cache_delete_multiple( $job_ids, 'post_meta' );
+		wp_cache_set_posts_last_changed();
+	}
 }

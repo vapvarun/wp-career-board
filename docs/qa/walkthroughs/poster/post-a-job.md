@@ -42,11 +42,11 @@ covers: blocks/job-form (wcb/job-form), POST /wcb/v1/jobs, GET /wcb/v1/jobs/{id}
 
 9. Expect HTTP `201` with body `{ id, status:"pending", permalink }` — default `auto_publish_jobs` is OFF (`admin/class-admin-settings.php:8`), so `create_item()` stores `post_status = pending` (`api/endpoints/class-jobs-endpoint.php:544-545`, filterable via `wcb_job_default_status`). The success panel `.wcb-form-success--show` appears and `.wcb-form-success__title` shows "Job submitted for review. You'll be notified once it's approved." (published copy + "View your job listing →" link stay hidden while `state.jobPending` is true, view.js:489-492).
 
-10. Confirm the free-posting credit outcome: with cost 0 the employer's credit balance is UNCHANGED (no hold, no deduction). (Only when a board is monetized — `_wcb_board_settings.credit_cost` set to e.g. 3 — do the gate, the SDK hold, and the ledger all read 3; see `system/credit-decrement`.)
+10. Confirm the free-posting credit outcome: with cost 0 the employer's credit balance is UNCHANGED (no hold, no deduction). (Only when a board is monetized — `_wcb_board_settings.credit_cost` set to e.g. 3 — do the gate, the SDK hold, and the ledger all read 3; see `customer/paid-board-job-charged-once`.)
 
 11. As `varundubey` (admin), navigate to `$WCB_SITE/wp-admin/edit.php?post_type=wcb_job&post_status=pending&autologin=varundubey` → expect HTTP 200 and the new job listed under Pending review. Approve it (Quick Edit → Status: Published, or bulk "Approve") → expect the row to move to Published and the `wcb_job_created`/publish transition to fire.
 
-12. As anonymous, navigate to `$WCB_SITE/find-jobs/` → expect HTTP 200 and the now-published job title visible (the archive queries `post_status = publish` only — pending jobs never appear here). Confirm the D-guard: GET `$WCB_SITE/wp-json/wcb/v1/jobs/<id>` → response body contains non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq`, and MUST NOT contain `apply_email` (Basecamp 9871740742 + `security/anonymous-job-no-email-leak`).
+12. As anonymous, navigate to `$WCB_SITE/find-jobs/` → expect HTTP 200 and the now-published job title visible (the archive queries `post_status = publish` only — pending jobs never appear here). Confirm the D-guard: GET `$WCB_SITE/wp-json/wcb/v1/jobs/<id>` → response body contains non-empty `company_tagline`, `company_industry`, `company_size_label`, `company_hq`, and MUST NOT contain `apply_email` (Basecamp 9871740742; see `security/anonymous-can-apply-cleanly`).
 
 13. tail `wp-content/debug.log` diff over the whole run → expect ZERO new fatal/warning lines.
 

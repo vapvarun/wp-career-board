@@ -122,11 +122,35 @@ wcb_assert( 'Not selected' === ApplicationStatus::label( 'rejected', 'candidate'
 wcb_assert( 'Rejected' === ApplicationStatus::label( 'rejected', 'employer' ), 'employer reads "Rejected"' );
 wcb_assert( 'Submitted' === ApplicationStatus::label( '' ), 'empty status reads as Submitted' );
 wcb_assert( 'danger' === ApplicationStatus::tone( 'rejected' ) && 'success' === ApplicationStatus::tone( 'hired' ), 'tone follows the outcome' );
+
+// ── Who applied, as the admin screens name them ─────────────────────────
+$wcb_guest_app = wcb_lc_app( 0, 0 );
+update_post_meta( $wcb_guest_app, '_wcb_guest_name', 'Jordan Lee' );
+update_post_meta( $wcb_guest_app, '_wcb_guest_email', 'jordan@example.test' );
+$wcb_who = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_guest_app );
+wcb_assert( $wcb_who['guest'] && 'Jordan Lee' === $wcb_who['name'] && 'jordan@example.test' === $wcb_who['email'], 'a guest applicant is named by the name they gave, not "(deleted)"' );
+$wcb_member_app = wcb_lc_app( 0, $wcb_candidate );
+$wcb_who        = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_member_app );
+wcb_assert( ! $wcb_who['guest'] && get_userdata( $wcb_candidate )->display_name === $wcb_who['name'], 'a member applicant is named by display name' );
+$wcb_gone_app = wcb_lc_app( 0, 999999999 );
+wcb_assert( '(deleted)' === \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_gone_app )['name'], 'a removed member account reads "(deleted)"' );
+// A member who applied, then had their account deleted: anonymised, not a guest.
+$wcb_leaver     = wp_create_user( 'wcb-lc-leaver-' . wp_rand(), wp_generate_password(), 'wcb-lc-leaver-' . wp_rand() . '@example.test' );
+$wcb_leaver_app = wcb_lc_app( 0, $wcb_leaver );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( $wcb_leaver );
+$wcb_who = \WCB\Modules\Applications\ApplicationsMeta::admin_applicant( $wcb_leaver_app );
+wcb_assert( ! $wcb_who['guest'] && 'Deleted candidate' === $wcb_who['name'] && '' === $wcb_who['email'], 'a deleted member reads "Deleted candidate" with no Guest badge or email' );
+foreach ( array( $wcb_guest_app, $wcb_member_app, $wcb_gone_app, $wcb_leaver_app ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
 $wcb_payload = ApplicationStatus::payload( 'hired', 'candidate' );
 wcb_assert( array( 'status', 'status_label', 'status_tone', 'statusLabel' ) === array_keys( $wcb_payload ), 'payload carries status, status_label, status_tone (+ legacy statusLabel)' );
 
 // ── One writer, one event per real change ────────────────────────────────
-$wcb_app = wcb_lc_app( $wcb_job, $wcb_candidate );
+// Count from here: other plugins (BuddyNext's welcome email) mail new users too.
+$GLOBALS['wcb_mail_to'] = array();
+$wcb_app                = wcb_lc_app( $wcb_job, $wcb_candidate );
 $r       = wcb_rest( 'PATCH', '/wcb/v1/applications/' . $wcb_app . '/status', array( 'status' => 'reviewing' ), $wcb_employer );
 wcb_assert( 200 === $r->get_status() && true === $r->get_data()['changed'], 'employer moves submitted -> reviewing' );
 wcb_assert( 'Reviewing' === $r->get_data()['status_label'] && 'warning' === $r->get_data()['status_tone'], 'response carries label + tone' );

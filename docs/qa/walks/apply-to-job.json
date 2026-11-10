@@ -1,0 +1,47 @@
+{
+  "journey": "apply-to-job",
+  "free_commit": "93302d1",
+  "pro_commit": "a8c820c",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "mode": "combo",
+    "theme": "buddyx"
+  },
+  "ran_at": "2026-11-09T19:27:11Z",
+  "checks": [
+    {
+      "id": "M1.guest-apply-fields-fill-width",
+      "result": "pass",
+      "evidence": "Logged out, job 116, Apply now drawer: #wcb-guest-name and #wcb-guest-email 456px wide at 1440 = .wcb-upload-zone 456px (drawer content width); 326px = 326px at 390. No horizontal overflow. Shots guest-apply-1440.png, guest-apply-390.png. A real guest submit returned 200 {id:438,job_id:116,status:submitted}."
+    },
+    {
+      "id": "C.candidate.apply",
+      "result": "pass",
+      "evidence": "sarah.chen applied to job 440 with cover letter; application 443 created, employer notified (mail + bell), candidate confirmation; Pro stage assigned (_wcb_stage_id set for guest app 438 too)."
+    },
+    {
+      "id": "D.guest-apply-account-email",
+      "result": "pass",
+      "evidence": "POST guest with sarah.chen email -> 409 wcb_guest_has_account 'This email already has an account. Sign in to apply.'; Sign-in link in the browser not clicked through."
+    },
+    {
+      "id": "D.guest-apply-repeat-same-reply",
+      "result": "pass",
+      "evidence": "Same guest twice with CV: both 200 {id:451,job_id:84,status:submitted}, 1 row, 1 email."
+    },
+    {
+      "id": "D.resume-required-default",
+      "result": "pass",
+      "evidence": "Guest and candidate apply without CV: 400 wcb_resume_required."
+    },
+    {
+      "id": "D.guest-job-page-no-resumes",
+      "result": "pass",
+      "evidence": "Guest apply drawer offers upload only, no resume picker preselected."
+    }
+  ],
+  "proposed_checks": [
+    "REST viewer_can_apply must be false when deadline_passed is true (F3)."
+  ]
+}

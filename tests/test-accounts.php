@@ -80,11 +80,123 @@ $wcb_mk    = static function ( string $slug, string $role ) use ( $wcb_s, $wcb_p
 WP_CLI::log( '--- grant_member_role ---' );
 $wcb_sub = $wcb_mk( 'sub', 'subscriber' );
 Roles::grant_member_role( new WP_User( $wcb_sub ), 'wcb_employer' );
-wcb_assert( array( 'wcb_employer' ) === array_values( ( new WP_User( $wcb_sub ) )->roles ), 'a subscriber becomes an employer only' );
+$wcb_roles = ( new WP_User( $wcb_sub ) )->roles;
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_employer', $wcb_roles, true ), 'a subscriber keeps subscriber and gains employer' );
+Roles::grant_member_role( new WP_User( $wcb_sub ), 'wcb_candidate' );
+wcb_assert( 3 === count( array_intersect( array( 'subscriber', 'wcb_candidate', 'wcb_employer' ), ( new WP_User( $wcb_sub ) )->roles ) ), 'an employer who applies keeps both roles and subscriber' );
+
+$wcb_swap = static fn () => true;
+add_filter( 'wcb_member_role_replaces_default', $wcb_swap );
+$wcb_old = $wcb_mk( 'old', 'subscriber' );
+Roles::grant_member_role( new WP_User( $wcb_old ), 'wcb_employer' );
+wcb_assert( array( 'wcb_employer' ) === array_values( ( new WP_User( $wcb_old ) )->roles ), 'wcb_member_role_replaces_default restores the old swap' );
+$wcb_ed2 = $wcb_mk( 'ed2', 'editor' );
+Roles::grant_member_role( new WP_User( $wcb_ed2 ), 'wcb_employer' );
+wcb_assert( in_array( 'editor', ( new WP_User( $wcb_ed2 ) )->roles, true ), 'the swap filter never demotes an editor' );
+
+WP_CLI::log( '--- restore_default_role repair ---' );
+wcb_assert( 'wcb_restore_default_role' === Roles::REPAIR_HOOK && false !== has_action( 'wcb_restore_default_role', array( Roles::class, 'restore_default_role' ) ), 'the wcb_restore_default_role batch event runs the repair' );
+$wcb_lost   = $wcb_mk( 'lost', 'wcb_candidate' );
+$wcb_lost2  = $wcb_mk( 'lost2', 'wcb_employer' );
+( new WP_User( $wcb_lost2 ) )->add_role( 'wcb_candidate' );
+Roles::restore_default_role( 1 );
+wcb_assert( in_array( 'wcb_candidate', ( new WP_User( $wcb_lost ) )->roles, true ) && ! in_array( 'subscriber', ( new WP_User( $wcb_lost ) )->roles, true ), 'repair respects the swap filter' );
+remove_filter( 'wcb_member_role_replaces_default', $wcb_swap );
+Roles::restore_default_role( 1 );
+$wcb_roles = ( new WP_User( $wcb_lost ) )->roles;
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'repair gives a candidate-only member subscriber back' );
+$wcb_roles = ( new WP_User( $wcb_lost2 ) )->roles;
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_employer', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'repair gives an employer + candidate member subscriber back' );
+$wcb_ed_roles = ( new WP_User( $wcb_ed2 ) )->roles;
+wcb_assert( ! in_array( 'subscriber', $wcb_ed_roles, true ), 'repair leaves a member with another role alone' );
+$wcb_staff = $wcb_mk( 'staff', 'wcb_candidate' );
+$wcb_def_was = get_option( 'default_role' );
+update_option( 'default_role', 'author' );
+Roles::restore_default_role( 1 );
+wcb_assert( array( 'wcb_candidate' ) === array_values( ( new WP_User( $wcb_staff ) )->roles ), 'a staff default role (Author) is never handed to members by the repair' );
+update_option( 'default_role', $wcb_def_was );
+Roles::restore_default_role( 1 );
+wcb_assert( in_array( 'subscriber', ( new WP_User( $wcb_staff ) )->roles, true ), 'with a reading default role the same member is repaired' );
 $wcb_ed = $wcb_mk( 'ed', 'editor' );
 Roles::grant_member_role( new WP_User( $wcb_ed ), 'wcb_candidate' );
 $wcb_roles = ( new WP_User( $wcb_ed ) )->roles;
 wcb_assert( in_array( 'editor', $wcb_roles, true ) && in_array( 'wcb_candidate', $wcb_roles, true ), 'an editor keeps editor and gains candidate' );
+
+WP_CLI::log( '--- upgrade from 1.8.2 repairs without waiting on WP-Cron ---' );
+$wcb_up     = $wcb_mk( 'up', 'wcb_candidate' );
+$wcb_db_was = get_option( 'wcb_db_version' );
+update_option( 'wcb_db_version', '1.4.3', false );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( in_array( 'subscriber', ( new WP_User( $wcb_up ) )->roles, true ), 'the 1.4.4 upgrade gives a candidate-only member the default role at once' );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( array( 'wcb_candidate', 'subscriber' ) === array_values( ( new WP_User( $wcb_up ) )->roles ), 'running the upgrade again changes nothing' );
+update_option( 'wcb_db_version', $wcb_db_was, false );
+update_option( 'wcb_version', '1.8.2' );
+\WCB\Core\Install::maybe_migrate();
+wcb_assert( WCB_VERSION === get_option( 'wcb_version' ), 'an in-place update stamps wcb_version with the running version' );
+
+WP_CLI::log( '--- Edit User screen keeps Career Board roles ---' );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_set_current_user( 1 );
+$wcb_eu = $wcb_mk( 'eu', 'subscriber' );
+( new WP_User( $wcb_eu ) )->add_role( 'wcb_employer' );
+// Saves the core Edit User form the way user-edit.php does: edit_user() reads $_POST.
+$wcb_save  = static function ( int $id, string $role, ?array $boxes ): array {
+	$_POST = array(
+		'role'     => $role,
+		'email'    => get_userdata( $id )->user_email,
+		'nickname' => get_userdata( $id )->nickname,
+	);
+	if ( null !== $boxes ) {
+		$_POST['wcb_member_roles']       = $boxes;
+		$_POST['wcb_member_roles_nonce'] = wp_create_nonce( 'wcb_member_roles_' . $id );
+	}
+	edit_user( $id );
+	$_POST = array();
+	clean_user_cache( $id );
+	return array_values( ( new WP_User( $id ) )->roles );
+};
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', array( 'wcb_employer' ) );
+wcb_assert( in_array( 'subscriber', $wcb_roles, true ) && in_array( 'wcb_employer', $wcb_roles, true ), 'saving Edit User unchanged keeps subscriber and employer' );
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', array( 'wcb_employer', 'wcb_candidate' ) );
+wcb_assert( 3 === count( array_intersect( array( 'subscriber', 'wcb_employer', 'wcb_candidate' ), $wcb_roles ) ), 'ticking Candidate adds it on top' );
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', array() );
+wcb_assert( array( 'subscriber' ) === $wcb_roles, 'unticking both takes them away and keeps subscriber' );
+$wcb_roles = $wcb_save( $wcb_eu, 'wcb_employer', array() );
+wcb_assert( in_array( 'wcb_employer', $wcb_roles, true ), 'Employer picked in the dropdown counts as ticked' );
+( new WP_User( $wcb_eu ) )->set_role( 'subscriber' );
+( new WP_User( $wcb_eu ) )->add_role( 'wcb_candidate' );
+$wcb_roles = $wcb_save( $wcb_eu, 'subscriber', null );
+wcb_assert( array( 'subscriber' ) === $wcb_roles, 'control: without the boxes (no nonce) core behaviour is untouched' );
+wp_set_current_user( 0 );
+
+WP_CLI::log( '--- core filters survive a null from another plugin ---' );
+// A role saved without a name reaches gettext as null; it took wp-admin > Users down in 1.8.2.
+wcb_assert( null === translate_user_role( null ), 'a role with no name translates to null, no fatal' );
+wcb_assert( 'Employer' === translate_user_role( 'Employer' ), 'control: our role names still translate' );
+$wcb_null_safe = array(
+	'gettext_with_context' => array( null, null, 'User role', 'default' ),
+	'login_redirect'       => array( null, null, new WP_User( 1 ) ),
+	'the_content'          => array( null ),
+	'the_content_feed'     => array( null ),
+	'the_excerpt_rss'      => array( null ),
+	'template_include'     => array( null ),
+	'single_template'      => array( null ),
+	'archive_template'     => array( null ),
+	'parent_file'          => array( null ),
+	'admin_body_class'     => array( null ),
+	'login_message'        => array( null ),
+	'redirect_post_location' => array( null ),
+);
+foreach ( $wcb_null_safe as $wcb_hook => $wcb_args ) {
+	$wcb_err = '';
+	try {
+		apply_filters( $wcb_hook, ...$wcb_args );
+	} catch ( \TypeError $e ) {
+		$wcb_err = str_contains( $e->getFile(), 'wp-career-board' ) ? $e->getMessage() : '';
+	}
+	wcb_assert( '' === $wcb_err, "{$wcb_hook} passes a null through ({$wcb_err})" );
+}
 
 WP_CLI::log( '--- deletion request + cancel keeps a ban ---' );
 $wcb_emp = $wcb_mk( 'emp', 'wcb_employer' );

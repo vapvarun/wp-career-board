@@ -104,11 +104,23 @@ else
 	printf "  ${DIM}skip   ${RESET} i18n-literals (bin/check-i18n.sh missing)\n"
 fi
 
+# 5b2. Time Standard: no raw date formatter outside core/class-time.php
+#      (docs/standards/time.md); show times with \WCB\Core\Time::date_label().
+run_step "time-formatter" 'php -n bin/check-time-formatter.php .' || failed=$((failed+1))
+
+# Table lock (docs/standards/scope-and-schema.md): every CREATE TABLE is in
+# audit/tables.lock; adding one needs the owner's yes in the commit body.
+TL="$HOME/.claude/skills/wp-plugin-development/scripts/table-lock-check.php"
+if [ -f "$TL" ]; then
+	run_step "table-lock" "php -n \"$TL\" ." || failed=$((failed+1))
+fi
+
 # 5c. QA procedures must not pin one machine. A walkthrough carrying an author's
 #     hostname or home directory fails at the first command on any other box, and
 #     fails quietly: a wrong --path drives the wrong site.
 if [ -x "./bin/check-qa-portability.sh" ]; then
 	run_step "qa-portability" './bin/check-qa-portability.sh' || failed=$((failed+1))
+	run_step "pro-decoupling" 'bash bin/check-pro-decoupling.sh' || failed=$((failed+1))
 else
 	printf "  ${DIM}skip   ${RESET} qa-portability (bin/check-qa-portability.sh missing)\n"
 fi

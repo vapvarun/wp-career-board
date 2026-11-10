@@ -50,7 +50,18 @@ To let Editors act as employers, grant `wcb_post_jobs`, `wcb_view_applications`,
 ## Registration
 
 - On the Employer Registration page, a visitor picks **Find a Job** or the hiring option. Find a Job creates a Candidate account. The hiring option creates an Employer account.
-- If the person is already logged in with only the default role, the new role replaces it. If they hold another role, the new role is added.
+- The new role is added. The member keeps the site's default role (usually Subscriber) and any other role, so permissions other plugins give that role keep working. New accounts start on the default role and get the Career Board role on top.
+- Applying for a job or creating a resume adds the Candidate role the same way.
+- Members who lost the default role in an earlier version get it back automatically after updating to 1.8.3. This is skipped when the default role in **Settings > General** can write posts (Contributor or higher), so a staff role is never handed to employers and candidates.
+
+## Editing a member's roles
+
+A member can hold the site role and a Career Board role at the same time, for example Subscriber and Employer. The **Role** dropdown on **Users > Edit User** shows one role only, so the screen also has a **Career Board roles** section with an **Employer** and a **Candidate** checkbox.
+
+- Saving the screen keeps every ticked Career Board role, whatever the Role dropdown shows.
+- Untick a box and save to take that role away. The member keeps the Role chosen in the dropdown.
+- Picking Employer or Candidate in the Role dropdown counts as ticking that box.
+- **Change role to...** on the Users list is WordPress's own bulk action and replaces every role, Career Board roles included.
 
 ## Who can apply
 

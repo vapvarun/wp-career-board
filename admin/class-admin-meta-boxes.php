@@ -222,7 +222,7 @@ class AdminMetaBoxes {
 		$wcb_salary_type         = in_array( $wcb_salary_type_raw, array( 'yearly', 'monthly', 'hourly' ), true ) ? $wcb_salary_type_raw : 'yearly';
 		$wcb_remote              = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
 		$wcb_featured            = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
-		$wcb_deadline            = (string) get_post_meta( $post->ID, '_wcb_deadline', true );
+		$wcb_deadline            = \WCB\Core\JobDeadline::day( $post->ID ); // The picker shows the day in the site's timezone.
 		// A saved job without a deadline was made evergreen; a new one starts on the default.
 		$wcb_no_expiry    = '' === $wcb_deadline && 'auto-draft' !== $post->post_status;
 		$wcb_apply_url    = (string) get_post_meta( $post->ID, '_wcb_apply_url', true );

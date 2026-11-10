@@ -1,0 +1,25 @@
+{
+  "journey": "employer-applicants-list",
+  "free_commit": "93302d1",
+  "pro_commit": "a8c820c",
+  "env": {
+    "url": "http://localhost:8951",
+    "php": "8.5",
+    "mode": "combo",
+    "theme": "buddyx"
+  },
+  "ran_at": "2026-11-09T19:27:11Z",
+  "checks": [
+    {
+      "id": "C.employer.applications",
+      "result": "pass",
+      "evidence": "Applications tab lists own applicants with status filters; Pipeline move to Interview persisted after reload and emailed candidate (application-status-changed)."
+    },
+    {
+      "id": "R.second-employer-cannot-see-first",
+      "result": "pass",
+      "evidence": "employer.stripe vs figma job 397 / application 402: GET applications/402 403, jobs/397/applications 403, jobs/397/kanban 403, PUT applications/402/stage 403, PATCH jobs/397 403, employers/68/credits 403; UI /hiring-pipeline/?job=397 'You don't have access to this job's pipeline', /post-a-job/?edit=397 'You are not authorized to edit this job.'; stripe dashboard lists only its own applicant. ?wcb_file=439 (figma applicant CV) 404 for stripe."
+    }
+  ],
+  "proposed_checks": []
+}

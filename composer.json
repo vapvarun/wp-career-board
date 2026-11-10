@@ -44,6 +44,7 @@
             "@manifest-consistency",
             "@qa-coverage",
             "@qa-portability",
+            "@pro-decoupling",
             "@rest-reachability",
             "@openapi-fresh",
             "@i18n-pot-fresh"
@@ -59,10 +60,7 @@
         "journeys:stale": "bin/run-journeys.sh --audit-stale",
         "ci": [
             "@ci:no-journeys",
-            "@journeys",
-            "@ignore-budget",
-            "@manifest-consistency",
-            "@qa-portability"
+            "@journeys"
         ],
         "scale:seed": "wp --path=../../.. --user=1 wcb scale seed",
         "scale:bench": "wp --path=../../.. --user=1 wcb scale benchmark",
@@ -70,6 +68,7 @@
         "arch-checks": "bash bin/architecture-checks.sh",
         "ignore-budget": "php bin/check-ignore-budget.php",
         "manifest-consistency": "php bin/check-manifest-consistency.php",
-        "qa-portability": "bash bin/check-qa-portability.sh"
+        "qa-portability": "bash bin/check-qa-portability.sh",
+        "pro-decoupling": "bash bin/check-pro-decoupling.sh"
     }
 }

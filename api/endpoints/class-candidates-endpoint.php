@@ -258,7 +258,6 @@ final class CandidatesEndpoint extends RestController {
 				'first_name'   => $first_name,
 				'last_name'    => $last_name,
 				'display_name' => trim( $first_name . ' ' . $last_name ),
-				'role'         => 'wcb_candidate',
 			)
 		);
 
@@ -269,6 +268,8 @@ final class CandidatesEndpoint extends RestController {
 				array( 'status' => 500 )
 			);
 		}
+		// Created on the site's default role, then given ours on top of it.
+		\WCB\Core\Roles::grant_member_role( new \WP_User( (int) $user_id ), 'wcb_candidate' );
 
 		// With verification on, the account stays signed out until the
 		// emailed link is opened (EmailVerification handles it).
@@ -399,7 +400,7 @@ final class CandidatesEndpoint extends RestController {
 			wp_update_user(
 				array(
 					'ID'          => $user_id,
-					'description' => sanitize_textarea_field( (string) $bio ),
+					'description' => sanitize_textarea_field( \WCB\Core\Text::from_editor( (string) $bio ) ),
 				)
 			);
 		}
@@ -477,8 +478,8 @@ final class CandidatesEndpoint extends RestController {
 
 			$loc_term_objs  = get_the_terms( $post->ID, 'wcb_location' );
 			$type_term_objs = get_the_terms( $post->ID, 'wcb_job_type' );
-			$loc_names      = is_array( $loc_term_objs ) ? wp_list_pluck( $loc_term_objs, 'name' ) : array();
-			$type_names     = is_array( $type_term_objs ) ? wp_list_pluck( $type_term_objs, 'name' ) : array();
+			$loc_names      = \WCB\Core\Taxonomy::names( $loc_term_objs );
+			$type_names     = \WCB\Core\Taxonomy::names( $type_term_objs );
 
 			$items[] = array(
 				'id'           => $post->ID,

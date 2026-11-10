@@ -474,12 +474,18 @@ class AdminSettings {
 					<h2 class="wcb-settings-card-title"><?php esc_html_e( 'Sample data', 'wp-career-board' ); ?></h2>
 				</div>
 				<div class="wcb-settings-row wcb-settings-row--block">
-					<p class="description wcb-settings-intro"><?php esc_html_e( 'Install demo jobs, companies, and candidates so you can explore every feature. You can remove it again any time.', 'wp-career-board' ); ?></p>
+			<?php $wcb_demo_url = SetupWizard::demo_installer_url(); ?>
+			<?php if ( '' !== $wcb_demo_url ) : ?>
+					<p class="description wcb-settings-intro"><?php esc_html_e( 'Wbcom Demo Installer is active. It builds the full demo for every Wbcom plugin on this site, with sample people, applications and company logos, and removes it all in one click.', 'wp-career-board' ); ?></p>
+					<a class="button button-secondary" href="<?php echo esc_url( $wcb_demo_url ); ?>"><?php esc_html_e( 'Open Demo Installer', 'wp-career-board' ); ?></a>
+			<?php else : ?>
+					<p class="description wcb-settings-intro"><?php esc_html_e( 'Add sample companies and jobs so you can explore every feature. No user accounts are created, and you can remove it again any time.', 'wp-career-board' ); ?></p>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 						<input type="hidden" name="action" value="wcb_install_demo" />
-			<?php wp_nonce_field( 'wcb_install_demo' ); ?>
+				<?php wp_nonce_field( 'wcb_install_demo' ); ?>
 						<button type="submit" class="button button-secondary"><?php esc_html_e( 'Install Sample Data', 'wp-career-board' ); ?></button>
 					</form>
+			<?php endif; ?>
 				</div>
 			</div>
 			<?php
@@ -1542,7 +1548,7 @@ class AdminSettings {
 					?>
 					<tr>
 						<td><a href="<?php echo esc_url( get_edit_user_link( $wcb_member->ID ) ); ?>"><?php echo esc_html( $wcb_member->user_login ); ?></a></td>
-						<td><?php echo esc_html( $wcb_when ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $wcb_when ) : '—' ); ?></td>
+						<td><?php echo esc_html( \WCB\Core\Time::datetime_label( (int) $wcb_when ) ); ?></td>
 						<td>
 							<?php
 							echo $wcb_left > 0
@@ -1602,7 +1608,7 @@ class AdminSettings {
 						)[ $row->action ] ?? __( 'Export personal data', 'wp-career-board' );
 						?>
 						<tr>
-							<td><?php echo esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (string) $row->created_at ) ); ?></td>
+							<td><?php echo esc_html( \WCB\Core\Time::datetime_label( (string) $row->created_at ) ); ?></td>
 							<td><?php echo esc_html( $label ); ?></td>
 							<td>
 								<?php if ( $user ) : ?>

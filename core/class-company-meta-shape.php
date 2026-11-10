@@ -305,7 +305,9 @@ final class CompanyMetaShape {
 			return array();
 		}
 
-		$today     = current_time( 'Y-m-d' );
+		// Deadlines end at a local day's last second, so "still open today" is a
+		// deadline at or after today's local midnight in UTC; one cache key a day.
+		$today     = (string) \WCB\Core\Time::datetime_input_to_utc( \WCB\Core\Time::today() . ' 00:00:00' );
 		$cache_key = 'wcb_open_job_counts_' . md5( implode( ',', $company_ids ) . '|' . $today );
 		$cached    = wp_cache_get( $cache_key, 'wcb_companies' );
 		if ( is_array( $cached ) ) {

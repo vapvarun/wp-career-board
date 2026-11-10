@@ -147,7 +147,7 @@ class ScaleCommand extends AbstractCliCommand {
 			'applications' => (int) \WP_CLI\Utils\get_flag_value( $assoc_args, 'applications', self::TARGETS['applications'] ),
 		);
 
-		// Suspend cache invalidation; we wp_cache_flush() at the end.
+		// Suspend cache additions; the seeded rows' caches are retired at the end.
 		wp_suspend_cache_addition( true );
 		wp_defer_term_counting( true );
 
@@ -161,7 +161,8 @@ class ScaleCommand extends AbstractCliCommand {
 
 		wp_defer_term_counting( false );
 		wp_suspend_cache_addition( false );
-		wp_cache_flush();
+		// Rows went in by bulk SQL: retire the query caches, never the whole site's cache.
+		self::retire_caches();
 
 		// Bump the listing cache version so prior transients are invalidated.
 		update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
@@ -177,7 +178,7 @@ class ScaleCommand extends AbstractCliCommand {
 	/**
 	 * Time the hot-path REST queries against BUDGETS_MS.
 	 *
-	 * Each op runs after wp_cache_flush() so we measure cold-cache cost,
+	 * Each op runs on cold Career Board caches so we measure cold-cache cost,
 	 * which is the realistic contract for a fanned-out site under load.
 	 * Exits 1 if any op exceeds its budget (CI gate).
 	 *
@@ -298,6 +299,7 @@ class ScaleCommand extends AbstractCliCommand {
 		$totals = array();
 
 		// Posts: applications first (FK-soft on jobs), then jobs, then companies.
+		$purged_posts = array();
 		foreach ( array( 'wcb_application', 'wcb_job', 'wcb_company' ) as $cpt ) {
 			$key = match ( $cpt ) {
 				'wcb_application' => 'applications',
@@ -323,6 +325,7 @@ class ScaleCommand extends AbstractCliCommand {
 			}
 
 			$totals[ $key ] = count( $ids );
+			$purged_posts   = array_merge( $purged_posts, $ids );
 			\WP_CLI::log( sprintf( 'Deleting %d %s posts…', count( $ids ), $cpt ) );
 
 			foreach ( array_chunk( $ids, self::CHUNK ) as $chunk ) {
@@ -373,7 +376,8 @@ class ScaleCommand extends AbstractCliCommand {
 			}
 		}
 
-		wp_cache_flush();
+		// Rows went out by bulk SQL: drop their cache entries, never the whole site's cache.
+		self::retire_caches( $purged_posts, $user_ids );
 
 		// Bump the listing cache version so any stale transient is invalidated.
 		update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
@@ -587,7 +591,7 @@ class ScaleCommand extends AbstractCliCommand {
 	/**
 	 * Run a single closure and capture (duration_ms, queries, skipped).
 	 *
-	 * Flushes the object cache before invoking the closure so we measure the
+	 * Empties the caches the timed queries read before invoking the closure so we measure the
 	 * cold path. A closure that early-returns (no sample data) is reported
 	 * as `skipped` rather than a misleading 0 ms.
 	 *
@@ -600,7 +604,7 @@ class ScaleCommand extends AbstractCliCommand {
 	private static function time_op( string $name, callable $op ): array {
 		global $wpdb;
 
-		wp_cache_flush();
+		self::cold_caches();
 
 		$start_time    = microtime( true );
 		$start_queries = (int) $wpdb->num_queries;
@@ -1219,5 +1223,67 @@ class ScaleCommand extends AbstractCliCommand {
 			return '';
 		}
 		return (string) $terms[0];
+	}
+	/**
+	 * Groups the timed and seeded data lives in.
+	 *
+	 * @since 1.8.3
+	 * @return string[]
+	 */
+	private static function data_groups(): array {
+		$groups = array( 'posts', 'post_meta', 'terms', 'term_meta', 'users', 'user_meta', 'post-queries', 'term-queries', 'user-queries', \WCB\Core\Industries::CACHE_GROUP );
+		foreach ( array( 'wcb_category', 'wcb_job_type', 'wcb_location', 'wcb_experience', 'wcb_tag' ) as $tax ) {
+			$groups[] = $tax . '_relationships';
+		}
+		return $groups;
+	}
+
+	/**
+	 * Retire caches after rows were written or deleted by bulk SQL.
+	 *
+	 * Drops the named posts' and users' own entries and moves the last-changed
+	 * keys, so every cached query re-runs. Other plugins' caches are left
+	 * alone; a site-wide wp_cache_flush() made the whole site cold.
+	 *
+	 * @since 1.8.3
+	 *
+	 * @param int[] $post_ids Posts written or deleted.
+	 * @param int[] $user_ids Users written or deleted.
+	 * @return void
+	 */
+	private static function retire_caches( array $post_ids = array(), array $user_ids = array() ): void {
+		if ( array() !== $post_ids ) {
+			foreach ( self::data_groups() as $group ) {
+				if ( in_array( $group, array( 'posts', 'post_meta' ), true ) || str_ends_with( $group, '_relationships' ) ) {
+					wp_cache_delete_multiple( $post_ids, $group );
+				}
+			}
+		}
+		if ( array() !== $user_ids ) {
+			wp_cache_delete_multiple( $user_ids, 'users' );
+			wp_cache_delete_multiple( $user_ids, 'user_meta' );
+		}
+		wp_cache_set_posts_last_changed();
+		wp_cache_set_terms_last_changed();
+		wp_cache_set_users_last_changed();
+		wp_cache_set_last_changed( \WCB\Core\Industries::CACHE_GROUP );
+	}
+
+	/**
+	 * Make the timed queries run cold without emptying the whole site's cache.
+	 *
+	 * @since 1.8.3
+	 * @return void
+	 */
+	private static function cold_caches(): void {
+		if ( ! wp_cache_supports( 'flush_group' ) ) {
+			// ponytail: without group flush only the query caches go cold; single
+			// posts stay warm, so timings read a little fast on such drop-ins.
+			self::retire_caches();
+			return;
+		}
+		foreach ( self::data_groups() as $group ) {
+			wp_cache_flush_group( $group );
+		}
 	}
 }

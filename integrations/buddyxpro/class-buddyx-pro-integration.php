@@ -53,10 +53,13 @@ class BuddyxProIntegration {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $template Default template path.
-	 * @return string
+	 * @param mixed  $template Default template path.
+	 * @return mixed
 	 */
-	public function single_template( string $template ): string {
+	public function single_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_singular( 'wcb_job' ) ) {
 			return $template;
 		}
@@ -77,10 +80,13 @@ class BuddyxProIntegration {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $template Default template path.
-	 * @return string
+	 * @param mixed  $template Default template path.
+	 * @return mixed
 	 */
-	public function archive_template( string $template ): string {
+	public function archive_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		if ( ! is_post_type_archive( 'wcb_job' ) ) {
 			return $template;
 		}

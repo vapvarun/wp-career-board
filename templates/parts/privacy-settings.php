@@ -36,7 +36,7 @@ wp_interactivity_state(
 		'exportRequested'       => false,
 		'error'                 => '',
 		'deletionStatus'        => (string) ( $wcb_deletion_state['status'] ?? 'active' ),
-		'deletionScheduledFor'  => '' === $wcb_deletion_when ? '' : date_i18n( get_option( 'date_format' ), (int) strtotime( $wcb_deletion_when ) ),
+		'deletionScheduledFor'  => \WCB\Core\Time::date_label( $wcb_deletion_when, '' ),
 		'deletionJustScheduled' => false,
 		'deleteFormOpen'        => false,
 		'deletePassword'        => '',

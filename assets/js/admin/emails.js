@@ -136,20 +136,6 @@
 	var page    = 1;
 	var perPage = 20;
 
-	function formatWhen( iso ) {
-		if ( ! iso ) {
-			return '—';
-		}
-		var d = new Date( String( iso ).replace( ' ', 'T' ) + 'Z' );
-		if ( isNaN( d.getTime() ) ) {
-			return String( iso );
-		}
-		// sent_at is written as the site's clock time (current_time( 'mysql' )),
-		// so print it unshifted: read it as UTC and format in UTC. Using the
-		// viewer's timezone here moved every row by the browser's offset.
-		return d.toLocaleString( undefined, { timeZone: 'UTC' } );
-	}
-
 	function makeRow( row ) {
 		var tr     = document.createElement( 'tr' );
 		var status = ( row.status || 'unknown' ).toLowerCase();
@@ -177,7 +163,7 @@
 		}
 
 		var cells = [
-			{ cls: 'wcb-email-log-col-when',      text: formatWhen( row.sent_at ) },
+			{ cls: 'wcb-email-log-col-when',      text: row.sent_label || row.sent_at || '—' },
 			{ cls: 'wcb-email-log-col-template',  text: ( cfg.templates || {} )[ row.event_type ] || row.event_type || '—' },
 			{ cls: 'wcb-email-log-col-recipient', text: row.recipient || '—' },
 			{ cls: 'wcb-email-log-col-subject',   text: row.subject || '—' },

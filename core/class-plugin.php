@@ -22,6 +22,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Plugin {
 
 	/**
+	 * Every frontend block's shortcode tag => block name.
+	 *
+	 * @since 1.8.3 A constant, so integrations can tell which pages hold a block.
+	 */
+	public const SHORTCODES = array(
+		'wcb_job_listings'          => 'wp-career-board/job-listings',
+		'wcb_job_search'            => 'wp-career-board/job-search',
+		'wcb_job_search_hero'       => 'wp-career-board/job-search-hero',
+		'wcb_job_filters'           => 'wp-career-board/job-filters',
+		'wcb_job_form'              => 'wp-career-board/job-form',
+		'wcb_job_form_simple'       => 'wp-career-board/job-form-simple',
+		'wcb_job_single'            => 'wp-career-board/job-single',
+		'wcb_employer_dashboard'    => 'wp-career-board/employer-dashboard',
+		'wcb_candidate_dashboard'   => 'wp-career-board/candidate-dashboard',
+		'wcb_registration'          => 'wp-career-board/employer-registration',
+		'wcb_company_archive'       => 'wp-career-board/company-archive',
+		'wcb_company_profile'       => 'wp-career-board/company-profile',
+		'wcb_job_stats'             => 'wp-career-board/job-stats',
+		'wcb_recent_jobs'           => 'wp-career-board/recent-jobs',
+		'wcb_featured_jobs'         => 'wp-career-board/featured-jobs',
+		'wcb_similar_companies'     => 'wp-career-board/similar-companies-card',
+		'wcb_job_alert_card'        => 'wp-career-board/job-alert-card',
+		// Canonical alias for the existing wcb_registration tag. Matches the
+		// block name (employer-registration) and the docs. wcb_registration
+		// stays registered above as a back-compat tag for sites that already
+		// embedded it.
+		'wcb_employer_registration' => 'wp-career-board/employer-registration',
+	);
+
+	/**
 	 * Singleton instance.
 	 *
 	 * @since 1.0.0
@@ -95,6 +125,9 @@ final class Plugin {
 		if ( class_exists( \WCB\Core\Roles::class ) ) {
 			add_action( 'init', array( new \WCB\Core\Roles(), 'register' ), 5 );
 			add_action( 'admin_bar_menu', array( \WCB\Core\Roles::class, 'moderation_bar_node' ), 80 );
+			add_action( \WCB\Core\Roles::REPAIR_HOOK, array( \WCB\Core\Roles::class, 'restore_default_role' ) );
+			add_action( 'edit_user_profile', array( \WCB\Core\Roles::class, 'render_member_roles' ) );
+			add_action( 'profile_update', array( \WCB\Core\Roles::class, 'save_member_roles' ) );
 		}
 
 		// Reserved location terms ('remote', 'other') — runs after the
@@ -104,6 +137,7 @@ final class Plugin {
 		if ( class_exists( \WCB\Core\Locations::class ) ) {
 			add_action( 'init', array( \WCB\Core\Locations::class, 'seed_reserved_terms' ), 20 );
 			add_action( 'set_object_terms', array( \WCB\Core\Locations::class, 'flag_remote_on_terms' ), 10, 4 );
+			add_action( 'before_delete_post', array( \WCB\Core\Locations::class, 'forget_company_hq' ) );
 			add_filter( 'update_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
 			add_filter( 'add_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );
 		}
@@ -119,6 +153,8 @@ final class Plugin {
 		$this->boot_modules();
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		// Every stored UTC time in a wcb/v1 response goes out as ISO 8601 with offset (Time Standard rule 7).
+		add_filter( 'rest_request_after_callbacks', array( Time::class, 'iso_response_dates' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );
 		add_action( 'init', array( $this, 'register_block_templates' ) );
@@ -288,6 +324,12 @@ final class Plugin {
 				array(),
 				WCB_VERSION
 			);
+			// wcbFetch renews an expired REST nonce through core's rest-nonce
+			// admin-ajax action, so it needs that URL on every page it loads on.
+			add_filter(
+				'script_module_data_@wcb/fetch',
+				static fn ( array $data ): array => $data + array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ) )
+			);
 			wp_register_script_module(
 				'@wcb/fields',
 				WCB_URL . 'assets/js/modules/wcb-fields.js',
@@ -299,6 +341,11 @@ final class Plugin {
 				WCB_URL . 'assets/js/modules/wcb-ui.js',
 				array(),
 				WCB_VERSION
+			);
+			// Scripts show stored UTC times in the display timezone, never the browser's.
+			add_filter(
+				'script_module_data_@wcb/ui',
+				static fn ( array $data ): array => $data + array( 'timeZone' => \WCB\Core\Time::js_timezone() )
 			);
 			wp_register_script_module(
 				'@wcb/category-picker',
@@ -324,6 +371,7 @@ final class Plugin {
 				array(
 					array( 'id' => '@wordpress/interactivity' ),
 					array( 'id' => '@wcb/fetch' ),
+					array( 'id' => '@wcb/ui' ),
 				),
 				WCB_VERSION
 			);
@@ -553,30 +601,7 @@ final class Plugin {
 		 * Example:
 		 *   [wcb_job_listings boardId="42" perPage="20" showFilters="true"]
 		 */
-		$shortcodes = array(
-			'wcb_job_listings'          => 'wp-career-board/job-listings',
-			'wcb_job_search'            => 'wp-career-board/job-search',
-			'wcb_job_search_hero'       => 'wp-career-board/job-search-hero',
-			'wcb_job_filters'           => 'wp-career-board/job-filters',
-			'wcb_job_form'              => 'wp-career-board/job-form',
-			'wcb_job_form_simple'       => 'wp-career-board/job-form-simple',
-			'wcb_job_single'            => 'wp-career-board/job-single',
-			'wcb_employer_dashboard'    => 'wp-career-board/employer-dashboard',
-			'wcb_candidate_dashboard'   => 'wp-career-board/candidate-dashboard',
-			'wcb_registration'          => 'wp-career-board/employer-registration',
-			'wcb_company_archive'       => 'wp-career-board/company-archive',
-			'wcb_company_profile'       => 'wp-career-board/company-profile',
-			'wcb_job_stats'             => 'wp-career-board/job-stats',
-			'wcb_recent_jobs'           => 'wp-career-board/recent-jobs',
-			'wcb_featured_jobs'         => 'wp-career-board/featured-jobs',
-			'wcb_similar_companies'     => 'wp-career-board/similar-companies-card',
-			'wcb_job_alert_card'        => 'wp-career-board/job-alert-card',
-			// Canonical alias for the existing wcb_registration tag. Matches the
-			// block name (employer-registration) and the docs. wcb_registration
-			// stays registered above as a back-compat tag for sites that already
-			// embedded it.
-			'wcb_employer_registration' => 'wp-career-board/employer-registration',
-		);
+		$shortcodes = self::SHORTCODES;
 
 		// WordPress's shortcode parser lowercases attribute keys (jobId →
 		// jobid), but block.json schemas use camelCase. Without remapping,
@@ -1055,10 +1080,13 @@ final class Plugin {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $template Theme-resolved template path.
-	 * @return string Plugin-shipped template path or original.
+	 * @param mixed  $template Theme-resolved template path.
+	 * @return mixed Plugin-shipped template path or original.
 	 */
-	public function use_wcb_archive_template( string $template ): string {
+	public function use_wcb_archive_template( $template ) {
+		if ( ! is_string( $template ) ) {
+			return $template; // Another filter handed back a non-string: pass it on untouched.
+		}
 		// A block theme renders its own template; see TemplateOverride::block_theme().
 		if ( \WCB\Core\TemplateOverride::block_theme() ) {
 			return $template;

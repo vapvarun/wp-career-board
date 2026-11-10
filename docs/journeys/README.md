@@ -3,20 +3,21 @@
 One journey per feature. Each journey walks the **whole feature in the browser**,
 through every role that touches it (Anonymous → Candidate → Employer → Admin).
 This is the human/Playwright walkthrough layer — readable, role-organised, and
-complete — distinct from `audit/journeys/**` (the small automated CI regression
-sentinels) and `docs/qa/AGENT_SMOKE_RUNBOOK.md` (the release smoke).
+complete — distinct from `audit/journeys/**` (the small regression
+sentinels that `bin/run-journeys.sh` reads) and `docs/qa/AGENT_SMOKE_RUNBOOK.md` (the release smoke).
 
 ## The rule
 
 **Every feature has exactly one journey here. Add a new feature → add its journey
-in the same PR.** A feature with no journey is not done. (The drift gate in
-`audit/qa-coverage.json` flags manifest entries with no coverage.)
+in the same PR.** A feature with no journey is not done. (`audit/qa-coverage.json` drift-gates manifest entries against test source, not against this folder.)
 
-**Route gate:** every `/wcb/v1/...` path a journey references must resolve to a
-route the plugin actually registers — enforced by `bin/check-journey-routes.php`
-(`composer journeys:routes`), which also runs as a pre-flight in
-`bin/run-journeys.sh` before any journey executes. A journey naming a
-renamed/removed route fails the run, so journeys can't silently drift from the API.
+**Route gate:** `bin/check-journey-routes.php` (`composer journeys:routes`, also a pre-flight in
+`bin/run-journeys.sh`) scans ONLY `audit/journeys/`. The `/wcb/v1/...` paths written in this folder are
+not machine-checked, so when you rename or remove a route, grep `docs/journeys/` for it by hand.
+
+**Who reads this folder:** nobody in code. No script parses these files; they are read by people and
+agents walking a feature. The three walkthrough layers are explained in
+[`audit/journeys/README.md`](../../audit/journeys/README.md).
 
 ## Per-feature journey template
 

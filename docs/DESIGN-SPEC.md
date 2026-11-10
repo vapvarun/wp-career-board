@@ -177,7 +177,7 @@ Block (Interactivity API) → REST API v1 → Module → DB
 | `wcb_credit_ledger` | id, employer_id, amount, type (topup/deduction/refund/hold), job_id, note, created_at | Every credit transaction. Append-only. |
 | `wcb_field_groups` | id, board_id, entity_type (job/company/candidate), label, order, created_at | Field builder groups. |
 | `wcb_field_definitions` | id, group_id, field_key, field_type, label, options (JSON), rules (JSON), visibility, required, order | Individual field configs. |
-| `wcb_field_values` | id, post_id, field_key, value (longtext) | Stored custom field values per post. |
+| ~~`wcb_field_values`~~ | - | Removed in 1.8.3: custom field values live in post meta. |
 | `wcb_job_boards` | id, job_id, board_id | Junction table: many-to-many job ↔ board membership. |
 | `wcb_job_alerts` | id, user_id, board_id, search_query, filters (JSON), frequency (daily/weekly/instant), last_sent_at, created_at | Saved searches for job alert emails. |
 | `wcb_application_stages` | id, board_id, label, color, order, is_terminal (bool), terminal_outcome (hired/rejected/null) | Stage pipeline stages per board. |

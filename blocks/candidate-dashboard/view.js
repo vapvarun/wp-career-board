@@ -14,7 +14,7 @@
  *
  * @package WP_Career_Board
  */
-import { store, getContext, withScope } from '@wordpress/interactivity';
+import { store, getConfig, getContext, withScope } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
 import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
@@ -22,19 +22,8 @@ import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, t
  * Tabs that can appear in the URL hash (first = default). Anything else is
  * ignored on read so a stale `#whatever` never lands in an undefined tab.
  */
-const VALID_TABS = [
-	'overview',
-	'applications',
-	'bookmarks',
-	'saved-companies',
-	'saved-resumes',
-	'resumes',
-	'resume-builder',
-	'alerts',
-	'profile',
-	'settings',
-	'notifications',
-];
+// Tabs whose panel rendered, decided in render.php (Pro-only tabs drop out without Pro).
+const VALID_TABS = getConfig( 'wcb-candidate-dashboard' ).tabs;
 
 const tabs = tabRouter( VALID_TABS, 'wcb_candidate_tab' );
 

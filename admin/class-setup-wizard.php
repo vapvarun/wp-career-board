@@ -23,6 +23,38 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class SetupWizard extends \WCB\Api\RestController {
 
+	/**
+	 * Sample companies: name, tagline, industry slug, size, HQ, website.
+	 *
+	 * Kept in step with the Wbcom Demo Installer's Career Board content, so the
+	 * wizard and the installer build the same board.
+	 *
+	 * @since 1.8.3
+	 */
+	private const SAMPLE_COMPANIES = array(
+		array( 'Roastworks', 'Coffee subscriptions for people who care about the bean', 'retail', '11-50', 'Berlin, DE', 'https://roastworks.example' ),
+		array( 'Paperplane Studio', 'A remote-first product studio for small brands', 'design', '11-50', 'Lagos, NG', 'https://paperplane.example' ),
+		array( 'Crumb', 'Ordering and stock software for independent bakeries', 'technology', '1-10', 'Kochi, IN', 'https://crumb.example' ),
+	);
+
+	/**
+	 * Sample jobs: company index, title, category, type, location, experience,
+	 * salary min, salary max, currency, pay period (yearly / monthly / hourly),
+	 * remote, description (blank line between paragraphs).
+	 *
+	 * @since 1.8.3
+	 */
+	private const SAMPLE_JOBS = array(
+		array( 0, 'Backend Engineer (Go)', 'Engineering', 'Full-time', 'Berlin, DE', 'Mid Level', 65000, 85000, 'EUR', 'yearly', true, "We are rebuilding our subscription engine in Go and need a second backend engineer.\n\nYou will own billing and delivery scheduling, work closely with our two-person ops team, and help us choose what not to build.\n\nYou have shipped a Go service to production, you like boring reliable systems, and you write things down." ),
+		array( 0, 'Customer Happiness Lead', 'Customer Success', 'Part-time', 'Remote', 'Mid Level', 30000, 38000, 'EUR', 'yearly', true, 'Help 9,000 coffee lovers get the right beans. You will answer email and chat, spot patterns in what people ask, and tell product what to fix first.' ),
+		array( 1, 'Senior Product Designer', 'Design', 'Full-time', 'Remote', 'Senior', 70000, 90000, 'USD', 'yearly', true, "Design end to end for two client products at a time.\n\nYou run research, sketch quickly, prototype, and stay with the work until it ships. You are comfortable presenting to founders and saying no with reasons." ),
+		array( 1, 'Frontend Developer', 'Engineering', 'Full-time', 'Remote', 'Mid Level', 55000, 72000, 'USD', 'yearly', true, 'Build accessible, fast interfaces with our designers. Modern CSS, a little JavaScript, a lot of care. We test with real keyboards and screen readers.' ),
+		array( 1, 'UX Writer (Contract)', 'Design', 'Contract', 'Remote', 'Mid Level', 50, 70, 'USD', 'hourly', true, 'Three months, two products, every word on screen. Error messages, onboarding, empty states. Hourly rate, flexible hours.' ),
+		array( 2, 'Full-stack Developer', 'Engineering', 'Full-time', 'Kochi, IN', 'Mid Level', 1800000, 2600000, 'INR', 'yearly', false, 'Join employee number three. Laravel and Vue today, whatever we need tomorrow. You will talk to bakers every week.' ),
+		array( 2, 'Mobile Developer (Android)', 'Engineering', 'Contract', 'Remote', 'Senior', 30000, 45000, 'USD', 'yearly', true, 'Our ordering app has to work in kitchens with flour on the screen and no wifi. Offline-first experience is a must.' ),
+		array( 2, 'Junior Support Engineer', 'Customer Success', 'Full-time', 'Kochi, IN', 'Entry Level', 600000, 800000, 'INR', 'yearly', false, 'Learn our product inside out, fix small bugs, and help bakeries get set up. Great first role, we will teach you a lot.' ),
+	);
+
 
 
 	/**
@@ -78,10 +110,13 @@ class SetupWizard extends \WCB\Api\RestController {
 	 *
 	 * @since 1.8.0
 	 *
-	 * @param string $classes Space-separated body classes.
-	 * @return string
+	 * @param mixed  $classes Space-separated body classes.
+	 * @return mixed
 	 */
-	public function focus_mode_class( string $classes ): string {
+	public function focus_mode_class( $classes ) {
+		if ( ! is_string( $classes ) ) {
+			return $classes; // Another filter handed back a non-string: pass it on untouched.
+		}
 		$screen = get_current_screen();
 		return $screen && 'admin_page_wcb-setup' === $screen->id ? $classes . ' wcb-wizard-focus' : $classes;
 	}
@@ -294,6 +329,11 @@ class SetupWizard extends \WCB\Api\RestController {
 						'default'           => 0,
 						'sanitize_callback' => 'absint',
 					),
+					'add_menu'       => array(
+						'type'              => 'integer',
+						'default'           => 0,
+						'sanitize_callback' => 'absint',
+					),
 				),
 			)
 		);
@@ -385,7 +425,12 @@ class SetupWizard extends \WCB\Api\RestController {
 		if ( $request->get_param( 'install_sample' ) ) {
 			$this->install_sample_data();
 		}
-		return rest_ensure_response( array( 'installed' => (bool) $request->get_param( 'install_sample' ) ) );
+		return rest_ensure_response(
+			array(
+				'installed' => (bool) $request->get_param( 'install_sample' ),
+				'menu'      => $request->get_param( 'add_menu' ) ? self::create_jobs_menu() : 0,
+			)
+		);
 	}
 
 	/**
@@ -483,7 +528,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		return array(
 			'wcb_category'   => array( 'Engineering', 'Design', 'Marketing', 'Product', 'Data', 'Customer Success' ),
 			'wcb_job_type'   => array( 'Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship' ),
-			'wcb_location'   => array( 'Remote', 'San Francisco, CA', 'New York, NY', 'London, UK' ),
+			'wcb_location'   => array( 'Remote', 'Berlin, DE', 'Lagos, NG', 'Kochi, IN' ),
 			'wcb_experience' => array( 'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Executive' ),
 			'wcb_tag'        => array( 'Remote-first', 'SaaS', 'Fintech', 'E-commerce', 'Open Source' ),
 		);
@@ -500,16 +545,16 @@ class SetupWizard extends \WCB\Api\RestController {
 	 * @return void
 	 */
 	private function install_sample_data(): void {
+		// With the Demo Installer active it owns the demo; never build a second set.
+		if ( '' !== self::demo_installer_url() ) {
+			return;
+		}
 		$author_id   = get_current_user_id() ? get_current_user_id() : 1;
 		$created_ids = array(
 			'companies' => array(),
 			'jobs'      => array(),
 			'terms'     => array(),
 		);
-
-		$deadline_3m = gmdate( 'Y-m-d', (int) strtotime( '+3 months' ) );
-		$deadline_6w = gmdate( 'Y-m-d', (int) strtotime( '+6 weeks' ) );
-		$deadline_2m = gmdate( 'Y-m-d', (int) strtotime( '+2 months' ) );
 
 		// -----------------------------------------------------------------
 		// 1. Taxonomy terms.
@@ -539,41 +584,23 @@ class SetupWizard extends \WCB\Api\RestController {
 		// -----------------------------------------------------------------
 		// 2. Companies.
 		// -----------------------------------------------------------------
-		$companies = array(
-			array(
-				'title' => 'Acme Corp',
-				'slug'  => 'acme-corp',
+		// The same companies and jobs the Wbcom Demo Installer builds, so a
+		// site gets one demo board whichever way it was set up.
+		$companies = array();
+		foreach ( self::SAMPLE_COMPANIES as $co ) {
+			list( $title, $tagline, $industry, $size, $hq, $site ) = $co;
+			$companies[] = array(
+				'title' => $title,
+				'slug'  => sanitize_title( $title ),
 				'meta'  => array(
-					'_wcb_tagline'      => 'Building the future, one product at a time',
-					'_wcb_website'      => 'https://acme-corp.example.com',
-					'_wcb_industry'     => 'technology',
-					'_wcb_company_size' => '201-500',
-					'_wcb_hq_location'  => 'San Francisco, CA',
+					'_wcb_tagline'      => $tagline,
+					'_wcb_website'      => $site,
+					'_wcb_industry'     => $industry,
+					'_wcb_company_size' => $size,
+					'_wcb_hq_location'  => $hq,
 				),
-			),
-			array(
-				'title' => 'Starter Labs',
-				'slug'  => 'starter-labs',
-				'meta'  => array(
-					'_wcb_tagline'      => 'Developer tools for the modern web',
-					'_wcb_website'      => 'https://starterlabs.example.com',
-					'_wcb_industry'     => 'technology',
-					'_wcb_company_size' => '51-200',
-					'_wcb_hq_location'  => 'Remote',
-				),
-			),
-			array(
-				'title' => 'PayFlow',
-				'slug'  => 'payflow',
-				'meta'  => array(
-					'_wcb_tagline'      => 'Payments infrastructure for the internet',
-					'_wcb_website'      => 'https://payflow.example.com',
-					'_wcb_industry'     => 'finance',
-					'_wcb_company_size' => '501-1000',
-					'_wcb_hq_location'  => 'New York, NY',
-				),
-			),
-		);
+			);
+		}
 
 		$company_ids = array();
 		foreach ( $companies as $co ) {
@@ -585,13 +612,16 @@ class SetupWizard extends \WCB\Api\RestController {
 				$created_ids['companies'][] = (int) $existing->ID;
 				continue;
 			}
-			$cid = wp_insert_post(
+			// Companies joined before their jobs were posted.
+			$joined_gmt = gmdate( 'Y-m-d H:i:s', time() - wp_rand( 25, 60 ) * DAY_IN_SECONDS );
+			$cid        = wp_insert_post(
 				array(
-					'post_type'   => 'wcb_company',
-					'post_title'  => $co['title'],
-					'post_name'   => $co['slug'],
-					'post_status' => 'publish',
-					'post_author' => $author_id,
+					'post_type'     => 'wcb_company',
+					'post_title'    => $co['title'],
+					'post_name'     => $co['slug'],
+					'post_status'   => 'publish',
+					'post_author'   => $author_id,
+					'post_date_gmt' => $joined_gmt,
 				)
 			);
 			if ( $cid && ! is_wp_error( $cid ) ) {
@@ -611,185 +641,41 @@ class SetupWizard extends \WCB\Api\RestController {
 		}
 
 		// -----------------------------------------------------------------
-		// 3. Jobs — 8 published across 3 companies.
+		// 3. Jobs - 8 published across 3 companies.
 		// -----------------------------------------------------------------
-		$jobs = array(
-			array(
-				'title'   => 'Senior PHP Developer',
-				'slug'    => 'wcb-sample-senior-php-developer',
-				'company' => 'acme-corp',
-				'content' => "We're looking for an experienced PHP developer to join our growing team.\n\n**What you'll do:**\n- Build and maintain scalable backend services with PHP 8+\n- Design RESTful APIs used by our frontend and mobile apps\n- Write tests, participate in code reviews, and mentor junior developers\n\n**You have:**\n- 5+ years of PHP experience (Laravel or WordPress preferred)\n- Strong understanding of SQL, caching, and queue systems",
+		$company_slugs = array_column( $companies, 'slug' );
+		$jobs          = array();
+		foreach ( self::SAMPLE_JOBS as $i => $j ) {
+			list( $ci, $title, $cat, $type, $loc, $exp, $min, $max, $currency, $period, $remote, $body ) = $j;
+			$jobs[] = array(
+				'title'   => $title,
+				'slug'    => 'wcb-sample-' . sanitize_title( $title ),
+				'company' => $company_slugs[ $ci ],
+				'content' => $body,
 				'meta'    => array(
-					'_wcb_salary_min'      => '120000',
-					'_wcb_salary_max'      => '160000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '1',
-					'_wcb_deadline'        => $deadline_3m,
-					'_wcb_featured'        => '1',
+					'_wcb_salary_min'      => (string) $min,
+					'_wcb_salary_max'      => (string) $max,
+					// Each job's own currency and pay period, so Kochi pay reads in rupees
+					// and a contract rate reads per hour, whatever the site currency.
+					'_wcb_salary_currency' => $currency,
+					'_wcb_salary_type'     => $period,
+					'_wcb_remote'          => $remote ? '1' : '0',
+					'_wcb_deadline'        => gmdate( 'Y-m-d', (int) strtotime( '+' . ( 20 + $i * 5 ) . ' days' ) ),
+					'_wcb_featured'        => 0 === $i % 3 ? '1' : '0',
 				),
 				'tax'     => array(
-					'wcb_category'   => array( 'Engineering' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'Remote', 'San Francisco, CA' ),
-					'wcb_experience' => array( 'Senior' ),
+					'wcb_category'   => array( $cat ),
+					'wcb_job_type'   => array( $type ),
+					'wcb_location'   => array( $loc ),
+					'wcb_experience' => array( $exp ),
 				),
-			),
-			array(
-				'title'   => 'Product Designer',
-				'slug'    => 'wcb-sample-product-designer',
-				'company' => 'acme-corp',
-				'content' => "Shape the product experience for thousands of users.\n\n**Responsibilities:**\n- Own end-to-end design for key product areas\n- Create wireframes, prototypes, and high-fidelity mockups in Figma\n- Run usability studies and translate insights into designs",
-				'meta'    => array(
-					'_wcb_salary_min'      => '110000',
-					'_wcb_salary_max'      => '145000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '1',
-					'_wcb_deadline'        => $deadline_2m,
-					'_wcb_featured'        => '1',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Design' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'Remote' ),
-					'wcb_experience' => array( 'Mid Level', 'Senior' ),
-				),
-			),
-			array(
-				'title'   => 'Growth Marketing Manager',
-				'slug'    => 'wcb-sample-growth-marketing-manager',
-				'company' => 'acme-corp',
-				'content' => "Drive product-led growth across acquisition, activation, and retention.\n\n**Requirements:**\n- 4+ years in growth marketing at a SaaS company\n- Data-driven — comfortable with SQL, analytics tools, and A/B testing\n- Experience managing paid channels and SEO strategy",
-				'meta'    => array(
-					'_wcb_salary_min'      => '100000',
-					'_wcb_salary_max'      => '135000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '0',
-					'_wcb_deadline'        => $deadline_6w,
-					'_wcb_featured'        => '0',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Marketing' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'San Francisco, CA' ),
-					'wcb_experience' => array( 'Senior' ),
-				),
-			),
-			array(
-				'title'   => 'Frontend Engineer',
-				'slug'    => 'wcb-sample-frontend-engineer',
-				'company' => 'starter-labs',
-				'content' => "Build beautiful, performant developer tools.\n\n**What you'll do:**\n- Build React/TypeScript components for our developer dashboard\n- Optimize Core Web Vitals and bundle size\n- Work closely with designers to deliver pixel-perfect UIs",
-				'meta'    => array(
-					'_wcb_salary_min'      => '130000',
-					'_wcb_salary_max'      => '175000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '1',
-					'_wcb_deadline'        => $deadline_3m,
-					'_wcb_featured'        => '0',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Engineering' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'Remote' ),
-					'wcb_experience' => array( 'Mid Level' ),
-					'wcb_tag'        => array( 'Remote-first', 'Open Source' ),
-				),
-			),
-			array(
-				'title'   => 'DevOps Engineer',
-				'slug'    => 'wcb-sample-devops-engineer',
-				'company' => 'starter-labs',
-				'content' => "Own our cloud infrastructure and CI/CD pipelines.\n\n**Requirements:**\n- 3+ years with AWS or GCP\n- Strong Kubernetes and Terraform experience\n- Observability mindset — Prometheus, Grafana, OpenTelemetry",
-				'meta'    => array(
-					'_wcb_salary_min'      => '140000',
-					'_wcb_salary_max'      => '185000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '1',
-					'_wcb_deadline'        => $deadline_2m,
-					'_wcb_featured'        => '0',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Engineering' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'Remote' ),
-					'wcb_experience' => array( 'Senior' ),
-					'wcb_tag'        => array( 'Remote-first' ),
-				),
-			),
-			array(
-				'title'   => 'Data Analyst',
-				'slug'    => 'wcb-sample-data-analyst',
-				'company' => 'payflow',
-				'content' => "Turn data into insights that drive business decisions.\n\n**You have:**\n- 3+ years of analytics experience\n- Expert SQL skills and experience with Python or R\n- Experience building dashboards in Looker, Metabase, or similar",
-				'meta'    => array(
-					'_wcb_salary_min'      => '95000',
-					'_wcb_salary_max'      => '130000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '0',
-					'_wcb_deadline'        => $deadline_6w,
-					'_wcb_featured'        => '0',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Data' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'New York, NY' ),
-					'wcb_experience' => array( 'Mid Level' ),
-					'wcb_tag'        => array( 'Fintech' ),
-				),
-			),
-			array(
-				'title'   => 'Backend Engineer — Payments',
-				'slug'    => 'wcb-sample-backend-engineer-payments',
-				'company' => 'payflow',
-				'content' => "Build reliable, secure payment systems processing millions of transactions.\n\n**What you'll do:**\n- Design and build APIs for payment processing, settlements, and reconciliation\n- Work with Go and PostgreSQL in a microservices architecture\n- Ensure PCI DSS compliance across all payment flows",
-				'meta'    => array(
-					'_wcb_salary_min'      => '160000',
-					'_wcb_salary_max'      => '220000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '1',
-					'_wcb_deadline'        => $deadline_3m,
-					'_wcb_featured'        => '1',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Engineering' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'Remote', 'New York, NY' ),
-					'wcb_experience' => array( 'Senior', 'Lead' ),
-					'wcb_tag'        => array( 'Fintech', 'Remote-first' ),
-				),
-			),
-			array(
-				'title'   => 'Customer Success Manager',
-				'slug'    => 'wcb-sample-customer-success-manager',
-				'company' => 'payflow',
-				'content' => "Be the trusted advisor for our enterprise customers.\n\n**Requirements:**\n- 3+ years in customer success at a B2B SaaS company\n- Technical fluency — comfortable discussing APIs and integrations\n- Experience managing enterprise accounts with \$100K+ ARR",
-				'meta'    => array(
-					'_wcb_salary_min'      => '90000',
-					'_wcb_salary_max'      => '120000',
-					'_wcb_salary_currency' => \WCB\Modules\Jobs\JobsMeta::default_currency(),
-					'_wcb_salary_type'     => 'annual',
-					'_wcb_remote'          => '0',
-					'_wcb_deadline'        => $deadline_2m,
-					'_wcb_featured'        => '0',
-				),
-				'tax'     => array(
-					'wcb_category'   => array( 'Customer Success' ),
-					'wcb_job_type'   => array( 'Full-time' ),
-					'wcb_location'   => array( 'New York, NY' ),
-					'wcb_experience' => array( 'Mid Level' ),
-					'wcb_tag'        => array( 'Fintech', 'SaaS' ),
-				),
-			),
-		);
+			);
+		}
 
-		foreach ( $jobs as $job ) {
+		// Spread the sample over the last three weeks: "posted today" on every
+		// job read as fake on a fresh board.
+		$job_age = array( 1, 2, 4, 6, 9, 12, 15, 19 );
+		foreach ( $jobs as $job_index => $job ) {
 			$existing = get_page_by_path( $job['slug'], OBJECT, 'wcb_job' );
 			if ( $existing ) {
 				// Re-track on re-run so wcb_sample_data_ids stays complete.
@@ -798,14 +684,16 @@ class SetupWizard extends \WCB\Api\RestController {
 			}
 			$cid = $company_ids[ $job['company'] ] ?? 0;
 
-			$jid = wp_insert_post(
+			$posted_gmt = gmdate( 'Y-m-d H:i:s', time() - $job_age[ $job_index % count( $job_age ) ] * DAY_IN_SECONDS - wp_rand( 0, 8 ) * HOUR_IN_SECONDS );
+			$jid        = wp_insert_post(
 				array(
-					'post_type'    => 'wcb_job',
-					'post_title'   => $job['title'],
-					'post_name'    => $job['slug'],
-					'post_content' => self::sample_content_to_html( $job['content'] ),
-					'post_status'  => 'publish',
-					'post_author'  => $author_id,
+					'post_type'     => 'wcb_job',
+					'post_title'    => $job['title'],
+					'post_name'     => $job['slug'],
+					'post_content'  => self::sample_content_to_html( $job['content'] ),
+					'post_status'   => 'publish',
+					'post_author'   => $author_id,
+					'post_date_gmt' => $posted_gmt,
 				)
 			);
 
@@ -896,6 +784,70 @@ class SetupWizard extends \WCB\Api\RestController {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * The Wbcom Demo Installer's wizard, when that plugin is active.
+	 *
+	 * It builds the full demo (people, applications, logos, menu) from one
+	 * shared cast for every Wbcom product, so the wizard sends the owner there
+	 * instead of creating a second set. Support, not a dependency: '' when the
+	 * installer is absent.
+	 *
+	 * @since 1.8.3
+	 * @return string Admin URL, or ''.
+	 */
+	public static function demo_installer_url(): string {
+		return class_exists( '\\WbcomDemo\\Admin\\Page' ) ? (string) call_user_func( array( '\\WbcomDemo\\Admin\\Page', 'url' ) ) : '';
+	}
+
+	/**
+	 * Create a "Jobs" menu with Find Jobs, Companies and Post a Job.
+	 *
+	 * Opt-in from the wizard. The menu goes to the theme's first menu location
+	 * only when that location has no menu yet; an owner's existing menu is
+	 * never replaced, they assign this one in Appearance > Menus.
+	 *
+	 * @since 1.8.3
+	 * @return int Menu ID, or 0 when nothing was created.
+	 */
+	public static function create_jobs_menu(): int {
+		$items = array_filter(
+			array(
+				\WCB\Admin\Pages::get_id( 'jobs_archive_page' ),
+				\WCB\Admin\Pages::get_id( 'company_archive_page' ),
+				\WCB\Admin\Pages::get_id( 'post_job_page' ),
+			),
+			static fn( int $id ): bool => $id > 0 && 'publish' === get_post_status( $id )
+		);
+		if ( array() === $items ) {
+			return 0;
+		}
+		$name = __( 'Jobs', 'wp-career-board' );
+		$menu = wp_get_nav_menu_object( $name ) ? 0 : wp_create_nav_menu( $name );
+		if ( ! $menu || is_wp_error( $menu ) ) {
+			return 0;
+		}
+		foreach ( array_values( $items ) as $i => $page_id ) {
+			wp_update_nav_menu_item(
+				(int) $menu,
+				0,
+				array(
+					'menu-item-object'    => 'page',
+					'menu-item-object-id' => $page_id,
+					'menu-item-type'      => 'post_type',
+					'menu-item-status'    => 'publish',
+					'menu-item-position'  => $i + 1,
+				)
+			);
+		}
+		$location = array_key_first( get_registered_nav_menus() );
+		$assigned = (array) get_theme_mod( 'nav_menu_locations', array() );
+		if ( null !== $location && empty( $assigned[ $location ] ) ) {
+			$assigned[ $location ] = (int) $menu;
+			set_theme_mod( 'nav_menu_locations', $assigned );
+		}
+		return (int) $menu;
 	}
 
 	/**

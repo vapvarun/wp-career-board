@@ -106,14 +106,16 @@ if [ -n "$PHP_FILES" ]; then
 		#   3. 2-arg per-object meta-cap checks like
 		#      current_user_can( 'edit_post', $post_id ) — Abilities API is
 		#      global-scope only and doesn't replace WordPress's object-scoped
-		#      meta caps (edit_post, delete_post, read_post, edit_user, etc.).
+		#      meta caps (edit_post, delete_post, read_post, edit_user,
+		#      promote_user - the per-user role-change cap core's Edit User
+		#      screen checks - etc.).
 		# Match the bare function only — exclude prefixed variants like
 		# `bp_current_user_can` (BuddyPress) which are integration-specific
 		# and out of scope for this rule.
 		hits=$(grep -nE '(^|[^a-zA-Z0-9_])current_user_can\s*\(' "$f" 2>/dev/null \
 			| grep -vE '//[[:space:]]*phpcs:ignore' \
 			| grep -vE '^[0-9]+:[[:space:]]*(\*|//|#)' \
-			| grep -vE "current_user_can\(\s*['\"](edit|delete|read)_(post|page|user|comment|term)['\"]\s*," || true)
+			| grep -vE "current_user_can\(\s*['\"](edit|delete|read|promote)_(post|page|user|comment|term)['\"]\s*," || true)
 		[ -n "$hits" ] && OFFENDERS="$OFFENDERS$f:\n$hits\n"
 	done
 	if [ -n "$OFFENDERS" ]; then

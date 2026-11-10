@@ -234,7 +234,7 @@ abstract class RestController extends \WP_REST_Controller {
 			$wpdb->prefix . 'wcb_job_views',
 			array(
 				'job_id'    => $job_id,
-				'viewed_at' => current_time( 'mysql' ),
+				'viewed_at' => current_time( 'mysql', true ),
 				'ip_hash'   => hash( 'sha256', $ip ),
 			),
 			array( '%d', '%s', '%s' )

@@ -137,6 +137,21 @@ update_user_meta( $wcb_other, '_wcb_company_id', $wcb_admin_co );
 delete_post_meta( $wcb_admin_co, '_wcb_company_owner', $wcb_other );
 wcb_assert( ! $wcb_owns( $wcb_other, $wcb_admin_co ), 'a co-owner taken off the company loses it' );
 
+// Deleting a company takes its HQ location link with it.
+global $wpdb;
+$wcb_links = static fn ( int $id ): int => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->term_relationships} WHERE object_id = %d", $id ) );
+$wcb_hq_co = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'HQ link co' ) );
+\WCB\Core\Locations::sync_company_hq( $wcb_hq_co, 'Berlin, DE' );
+wcb_assert( 1 === $wcb_links( $wcb_hq_co ), 'control: the company is linked to its HQ location' );
+wp_delete_post( $wcb_hq_co, true );
+wcb_assert( 0 === $wcb_links( $wcb_hq_co ), 'deleting the company removes its HQ location link' );
+// A link a company deleted before 1.8.3 left behind is removed by the upgrade repair.
+$wcb_berlin = get_term_by( 'slug', sanitize_title( 'Berlin, DE' ), 'wcb_location' );
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- test fixture: an orphan link as older versions left it.
+$wpdb->insert( $wpdb->term_relationships, array( 'object_id' => 999999998, 'term_taxonomy_id' => (int) $wcb_berlin->term_taxonomy_id ) );
+\WCB\Core\Locations::remove_orphan_hq_links();
+wcb_assert( 0 === $wcb_links( 999999998 ), 'the upgrade repair removes a link to a company that no longer exists' );
+
 // Teardown.
 foreach ( array_filter( $wcb_created ) as $wcb_id ) {
 	wp_delete_post( (int) $wcb_id, true );

@@ -95,7 +95,7 @@ final class StatusTimeline extends AbstractWidget {
 						$user_name = $user instanceof \WP_User ? $user->display_name : __( 'System', 'wp-career-board' );
 						$from      = $entry['from'];
 						$to        = $entry['to'];
-						$at        = '' !== $entry['at'] ? (string) wp_date( (string) get_option( 'date_format' ) . ' ' . (string) get_option( 'time_format' ), (int) strtotime( $entry['at'] ) ) : '';
+						$at        = \WCB\Core\Time::datetime_label( $entry['at'], '' );
 						?>
 						<li class="wcb-app-timeline__item">
 							<span class="wcb-app-timeline__when"><?php echo esc_html( $at ); ?></span>

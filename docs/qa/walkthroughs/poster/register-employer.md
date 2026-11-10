@@ -19,7 +19,7 @@ covers: blocks/employer-registration (wcb/employer-registration), POST /wcb/v1/e
 >
 > `bin/qa-fixtures.sh` derives the same root the same way, so the two agree.
 
-**Why this journey exists:** This is NEW coverage — the "Register as an employer" row in `docs/qa/COMMON_USE_CASES.md` (Job Poster → Tier 1) previously had ⚠ *no dedicated journey*. It traces the full anonymous-visitor path: open the `wcb/employer-registration` block, choose the Employer role, fill name/email/company/password, submit to `POST /wcb/v1/employers/register`, and confirm the server creates a `wcb_employer` user + `wcb_company`, logs them in, and returns the dashboard URL the block redirects to. Guards the role-assignment contract (`set_role('wcb_employer')`, no subscriber residue) and the auto-login-into-dashboard handoff.
+**Why this journey exists:** This is NEW coverage — the "Register as an employer" row in `docs/qa/COMMON_USE_CASES.md` (Job Poster → Tier 1) previously had ⚠ *no dedicated journey*. It traces the full anonymous-visitor path: open the `wcb/employer-registration` block, choose the Employer role, fill name/email/company/password, submit to `POST /wcb/v1/employers/register`, and confirm the server creates a `wcb_employer` user + `wcb_company`, logs them in, and returns the dashboard URL the block redirects to. Guards the role-assignment contract (default role kept, `wcb_employer` added - 1.8.3) and the auto-login-into-dashboard handoff.
 
 ## Steps
 
@@ -37,7 +37,7 @@ covers: blocks/employer-registration (wcb/employer-registration), POST /wcb/v1/e
 
 7. Expect the block to swap to its success state: `.wcb-reg-success` loses `.wcb-hidden` (`data-wp-class--wcb-hidden="!state.submitted"`, render.php:92) showing "Account created!" and the employer copy "You are now logged in as an employer…" (render.php:93-96), and the `.wcb-btn--primary[data-wp-bind--href="state.dashboardUrl"]` "Go to Dashboard →" link points at `state.dashboardUrl` (view.js:127-128 reads `data.dashboard_url`).
 
-8. Assert role assignment in the DB: `wp user get fiona.figma --field=roles` → expect exactly `wcb_employer` (single role — `set_role('wcb_employer')` at class-employers-endpoint.php:305 / :190 uses replace semantics, so there is NO leftover `subscriber`). Also `wp user meta get <user_id> _wcb_company_id` → expect the `company_id` from step 6, and `wp post get <company_id> --field=post_type` → expect `wcb_company` (created publish, authored by the new user, class-employers-endpoint.php:318-328).
+8. Assert role assignment in the DB: `wp user get fiona.figma --field=roles` → expect `subscriber, wcb_employer` (the default role is kept and the employer role added by `Roles::grant_member_role`, 1.8.3). Also `wp user meta get <user_id> _wcb_company_id` → expect the `company_id` from step 6, and `wp post get <company_id> --field=post_type` → expect `wcb_company` (created publish, authored by the new user, class-employers-endpoint.php:318-328).
 
 9. Assert the new employer is authenticated and can reach the dashboard: the register callback calls `wp_set_auth_cookie()` (class-employers-endpoint.php:346-347), so click "Go to Dashboard →" (or navigate to `$WCB_SITE/employer-dashboard/`) → expect HTTP 200 and the employer-dashboard shell renders (tabs `#wcb-tab-jobs` "My Jobs" and `#wcb-tab-postjob` "Post a Job" present, `blocks/employer-dashboard/render.php:327-332`) — NOT a "sign in as an employer" gate.
 

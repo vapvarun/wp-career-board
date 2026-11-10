@@ -10,7 +10,7 @@
  */
 
 import { store, getContext } from '@wordpress/interactivity';
-import { flushEditors, formatSiteDate } from '@wcb/ui';
+import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
 import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 
@@ -58,6 +58,56 @@ const nf = ( value ) => {
 			return new Intl.NumberFormat( 'en' ).format( safe );
 		}
 	}
+};
+
+/**
+ * Fields kept in the browser draft, so a refresh or an ended login keeps the job.
+ */
+const DRAFT_FIELDS = [
+	'title', 'description', 'salaryMin', 'salaryMax', 'salaryType', 'currencyCode', 'deadline',
+	'applyUrl', 'applyEmail', 'locationSlug', 'locationCustom', 'typeSlug', 'categorySlugs',
+	'expSlug', 'tags', 'remote', 'featured', 'customFields', 'boardId', 'companyId',
+];
+
+const draft = () => formDraft( state.draftKey );
+
+/**
+ * Show a description in the editor (it reads the source textarea on hydrate).
+ *
+ * @param {string} value Description HTML.
+ */
+const showDescription = ( value ) => {
+	const source = document.getElementById( 'wcb-simple-desc' );
+	if ( source ) {
+		source.value = value;
+		source.dispatchEvent( new Event( 'wcb:editor:hydrate', { bubbles: true } ) );
+	}
+};
+
+/**
+ * Empty the form for the next job, and drop its browser draft.
+ */
+const clearForm = () => {
+	state.submitted     = false;
+	state.jobUrl        = '';
+	state.error         = '';
+	state.title         = '';
+	state.description   = '';
+	state.salaryMin     = '';
+	state.salaryMax     = '';
+	state.deadline      = state.deadlineMax;
+	state.applyUrl      = '';
+	state.applyEmail    = '';
+	state.locationSlug  = '';
+	state.locationCustom = '';
+	state.typeSlug      = '';
+	state.categorySlugs = [];
+	state.expSlug       = '';
+	state.tags          = '';
+	state.remote        = false;
+	state.customFields  = {};
+	state.draftRestored = false;
+	draft().clear();
 };
 
 const { state, actions } = store( 'wcb-job-form-simple', {
@@ -309,9 +359,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 				if ( ! response.ok ) {
 					const err = yield response.json().catch( () => null );
-					state.error = ( err && err.message )
-						? err.message
-						: t( 'errorGeneric', 'Job could not be posted. Please try again.' );
+					if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
+						state.error = t( 'errorSessionExpired', 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.' );
+					} else {
+						state.error = ( err && err.message )
+							? err.message
+							: t( 'errorGeneric', 'Job could not be posted. Please try again.' );
+					}
 					// Not enough credits: offer the Credits tab right there.
 					state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';
 					return;
@@ -321,6 +375,9 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				state.jobUrl    = json && json.permalink ? json.permalink : '';
 				state.featureError = ( json && json.feature_error ) || '';
 				state.submitted = true;
+				// The job is saved: drop the draft and its notice together.
+				state.draftRestored = false;
+				draft().clear();
 
 				if ( window.wcbCaptchaReset ) {
 					window.wcbCaptchaReset();
@@ -330,29 +387,51 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				// volatile fields so the user gets a fresh form instead of a
 				// stuck banner — same UX rule as the multi-step job-form.
 				setTimeout( () => {
-					if ( ! state.submitted ) return;
-					state.submitted   = false;
-					state.jobUrl      = '';
-					state.error       = '';
-					state.title       = '';
-					state.description = '';
-					state.salaryMin   = '';
-					state.salaryMax   = '';
-					state.deadline    = state.deadlineMax;
-					state.applyUrl    = '';
-					state.applyEmail  = '';
-					state.locationSlug = '';
-					state.typeSlug     = '';
-					state.categorySlugs = [];
-					state.expSlug      = '';
-					state.tags         = '';
-					state.remote       = false;
-					state.customFields = {};
+					if ( state.submitted ) {
+						clearForm();
+					}
 				}, 8000 );
 			} catch {
 				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.submitting = false;
+			}
+		},
+
+		discardDraft() {
+			clearForm();
+			showDescription( '' );
+		},
+	},
+
+	callbacks: {
+		// data-wp-init: bring back a job that a refresh or an ended login interrupted.
+		restoreDraft() {
+			const saved = draft().load();
+			if ( ! saved || state.title ) {
+				return;
+			}
+			DRAFT_FIELDS.forEach( ( field ) => {
+				if ( field in saved ) {
+					state[ field ] = saved[ field ];
+				}
+			} );
+			state.companyName   = ( state.companyNames || {} )[ state.companyId ] || '';
+			state.draftRestored = true;
+			showDescription( state.description || '' );
+		},
+
+		// data-wp-watch: re-runs whenever a draft field changes.
+		saveDraft() {
+			const values = {};
+			DRAFT_FIELDS.forEach( ( field ) => {
+				values[ field ] = state[ field ];
+			} );
+			if ( state.submitted ) {
+				return;
+			}
+			if ( values.title || values.description ) {
+				draft().save( values );
 			}
 		},
 	},
