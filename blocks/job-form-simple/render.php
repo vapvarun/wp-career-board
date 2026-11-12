@@ -37,43 +37,15 @@ $wcb_compact_attr  = ! empty( $attributes['compact'] );
 // sites (Pro) get a dropdown and the employer can target the post at a
 // specific board. Single-board sites skip the picker entirely; the REST
 // callback falls back to the default board when state.boardId stays 0.
-$wcb_board_options      = array();
+// Per-board credit cost + currency maps let view.js update state.creditCost
+// and state.currencyCode when the employer switches boards. Pro fulfils both
+// overrides via the wcb_board_credit_cost and wcb_board_currency filters.
 $wcb_board_credit_costs = array();
 $wcb_board_currencies   = array();
-if ( post_type_exists( 'wcb_board' ) ) {
-	$wcb_board_posts = get_posts(
-		array(
-			'post_type'      => 'wcb_board',
-			'post_status'    => 'publish',
-			'posts_per_page' => 50,
-			'no_found_rows'  => true,
-		)
-	);
-	foreach ( $wcb_board_posts as $wcb_b ) {
-		$wcb_board_options[] = array(
-			'id'    => (int) $wcb_b->ID,
-			'title' => $wcb_b->post_title,
-		);
-		// Per-board credit cost + currency maps seeded at render so view.js
-		// can update state.creditCost and state.currencyCode reactively when
-		// the employer switches boards. Pro fulfils both overrides via the
-		// wcb_board_credit_cost and wcb_board_currency filters.
-		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
-		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
-	}
-
-	/**
-	 * Filter the Boards dropdown shown to the current employer in the single-page
-	 * job form. Same filter that the multi-step wizard uses — Pro's BP-group
-	 * integration scopes the list to boards whose linked group the employer is
-	 * a member, mod, or admin of.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param array<int,array{id:int,title:string}> $wcb_board_options Default board list.
-	 * @param int                                   $wcb_user_id       Current user id.
-	 */
-	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
+$wcb_board_options      = \WCB\Modules\Boards\BoardsModule::options_for_employer( get_current_user_id() );
+foreach ( $wcb_board_options as $wcb_b ) {
+	$wcb_board_credit_costs[ (int) $wcb_b['id'] ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b['id'] );
+	$wcb_board_currencies[ (int) $wcb_b['id'] ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b['id'] );
 }
 
 // Resolve effective board id: explicit attribute → site-wide default option → first option.

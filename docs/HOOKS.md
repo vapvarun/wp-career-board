@@ -127,7 +127,7 @@ sponsors, brands, etc.):
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
 | `wcb_job_listings_board_options` | Add custom chips to the listings filter bar |
 | `wcb_job_listing_data` | Shape per-card data on the listings block |
-| `wcb_board_options_for_employer` | `(array $options, int $user_id)` - restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. |
+| `wcb_board_options_for_employer` | `(array $options, int $user_id)` - restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. Applied by `BoardsModule::options_for_employer()` (1.8.4) for both job forms and the employer dashboard, and only while Pro is active: without Pro the list is the default board alone and the picker is hidden. |
 | `wcb_page_needs_frontend_assets` | `(bool $needs)` - opt a request context into the shared `frontend.css` / `frontend-tokens.css` / `frontend-components.css` stylesheets when the post_content-based detector cannot see WCB block markup. Use for BuddyPress profile / group tabs, page-builder lazy renderers, and any surface that calls `render_block()` after `wp_head` has run. Without this, primitives like `.wcb-hidden` do not resolve and Interactivity toggles render both states stacked. |
 
 ## REST response filters (`wcb_rest_prepare_*`)

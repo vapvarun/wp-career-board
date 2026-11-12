@@ -180,6 +180,71 @@ final class BoardsModule {
 	}
 
 	/**
+	 * The boards an employer may post a job to.
+	 *
+	 * Multi-board is a Pro feature, so without Pro this is the default board
+	 * only and the job forms hide their picker; boards left over from Pro keep
+	 * their jobs. With Pro it is every published board, read in batches so no
+	 * board falls off the list, narrowed by `wcb_board_options_for_employer`.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $user_id Employer user ID (0 if logged out).
+	 * @return array<int, array{id:int, title:string}>
+	 */
+	public static function options_for_employer( int $user_id ): array {
+		if ( ! apply_filters( 'wcb_pro_active', false ) ) {
+			$default = self::get_default_board_id();
+			return $default > 0 ? array(
+				array(
+					'id'    => $default,
+					'title' => (string) get_post_field( 'post_title', $default ),
+				),
+			) : array();
+		}
+
+		$options = array();
+		$page    = 1;
+		do {
+			$boards = get_posts(
+				array(
+					'post_type'              => 'wcb_board',
+					'post_status'            => 'publish',
+					'posts_per_page'         => 100,
+					'paged'                  => $page++,
+					'no_found_rows'          => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					'orderby'                => array(
+						'date' => 'DESC',
+						'ID'   => 'DESC',
+					),
+				)
+			);
+			foreach ( $boards as $board ) {
+				$options[] = array(
+					'id'    => (int) $board->ID,
+					'title' => $board->post_title,
+				);
+			}
+			$full = 100 === count( $boards );
+		} while ( $full );
+
+		/**
+		 * Filter the boards offered to an employer in the job forms.
+		 *
+		 * Pro's BP-group integration drops boards whose linked BuddyPress group
+		 * the employer is not a member, mod or admin of.
+		 *
+		 * @since 1.1.1
+		 *
+		 * @param array<int,array{id:int,title:string}> $options Every published board.
+		 * @param int                                   $user_id Employer user ID (0 if logged out).
+		 */
+		return (array) apply_filters( 'wcb_board_options_for_employer', $options, $user_id );
+	}
+
+	/**
 	 * Forget cached meta for jobs whose board was changed with a direct query.
 	 *
 	 * A bulk UPDATE of _wcb_board_id skips update_post_meta(), so nothing

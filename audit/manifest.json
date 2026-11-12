@@ -1336,7 +1336,7 @@
       "key": "module.boards",
       "class": "WCB\\Modules\\Boards\\BoardsModule",
       "added": "1.0.0",
-      "purpose": "wcb_board CPT (multi-board)"
+      "purpose": "wcb_board CPT (multi-board); options_for_employer() (1.8.4) is the one job-form/dashboard board list: default board only without Pro, every published board (batched) with Pro, filtered by wcb_board_options_for_employer"
     },
     {
       "key": "module.boards.rest_controller",
@@ -2984,7 +2984,7 @@
       "type": "filter",
       "args_count": 2,
       "args_signature": [],
-      "where": "blocks/job-form/render.php:193",
+      "where": "modules/boards/class-boards-module.php:244",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
@@ -3160,15 +3160,15 @@
       ]
     },
     {
-      "name": "wcb_board_options_for_employer",
+      "name": "wcb_pro_active",
       "type": "filter",
-      "args_count": 2,
+      "args_count": 1,
       "args_signature": [],
-      "where": "blocks/job-form-simple/render.php:89",
+      "where": "modules/boards/class-boards-module.php:196",
       "consumed_by": [
         {
           "plugin": "wp-career-board-pro",
-          "where": "integrations/buddypress/class-bp-group-boards.php:59",
+          "where": "core/class-free-coordination.php:36",
           "kind": "action_listener"
         }
       ]

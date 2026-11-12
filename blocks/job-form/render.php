@@ -130,7 +130,6 @@ $wcb_board_currency = $wcb_board_id > 0
 // ── Board picker options — multi-board sites (Pro) get a dropdown so the
 // employer can target the post at a specific board. Single-board sites skip
 // the picker entirely; the REST callback falls back to the default board.
-$wcb_board_options = array();
 // Per-board credit cost + currency maps: { board_id => value }. Seeded at
 // render so the JS layer can update `state.creditCost` / `state.currencyCode`
 // reactively when the employer switches boards in the picker, without a REST
@@ -138,38 +137,10 @@ $wcb_board_options = array();
 // `wcb_board_credit_cost` and `wcb_board_currency` filters.
 $wcb_board_credit_costs = array();
 $wcb_board_currencies   = array();
-if ( post_type_exists( 'wcb_board' ) ) {
-	$wcb_board_posts = get_posts(
-		array(
-			'post_type'      => 'wcb_board',
-			'post_status'    => 'publish',
-			'posts_per_page' => 50,
-			'no_found_rows'  => true,
-		)
-	);
-	foreach ( $wcb_board_posts as $wcb_b ) {
-		$wcb_board_options[]                        = array(
-			'id'    => (int) $wcb_b->ID,
-			'title' => $wcb_b->post_title,
-		);
-		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
-		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
-	}
-
-	/**
-	 * Filter the Boards dropdown shown to the current employer in the job form.
-	 *
-	 * Pro's BP-group integration uses this to drop boards whose linked
-	 * BuddyPress group the employer is not a member, mod, or admin of, so a
-	 * site-admin who manages every group is the only role that sees the full
-	 * list.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param array<int,array{id:int,title:string}> $wcb_board_options Default board list (every published wcb_board).
-	 * @param int                                   $wcb_user_id       Current user id (0 if logged out).
-	 */
-	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
+$wcb_board_options      = \WCB\Modules\Boards\BoardsModule::options_for_employer( $wcb_user_id );
+foreach ( $wcb_board_options as $wcb_b ) {
+	$wcb_board_credit_costs[ (int) $wcb_b['id'] ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b['id'] );
+	$wcb_board_currencies[ (int) $wcb_b['id'] ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b['id'] );
 }
 // Editing: preselect the job's own board, or saving would move (and re-price) it.
 $wcb_edit_board_id = $wcb_edit_job ? \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( get_post_meta( $wcb_edit_id, '_wcb_board_id', true ) ) : 0;

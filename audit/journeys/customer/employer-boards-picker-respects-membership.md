@@ -19,7 +19,9 @@ bug_ref: Basecamp 9877868161
 4. Confirm the dropdown does NOT include any group's name that `employer.stripe` is not a member, mod, or admin of → e.g. "Globex Hiring" must be absent.
 5. Repeat steps 2-4 as `employer.vercel` → expect the mirror result: their groups appear, `employer.stripe`'s groups do not.
 6. As any user with `manage_options` (site admin), open the same page → confirm EVERY published board appears in the dropdown (site admin bypass is intentional).
-7. tail debug.log diff → expect ZERO new fatal/warning lines.
+7. **No 50-board cap (1.8.4, Basecamp 10493698789).** With Pro and more than 50 published boards, the admin's dropdown on both `/post-a-job/` and the quick form `[wcb_job_form_simple]` lists the 51st board too. `wp eval-file tests/test-default-board.php` passes.
+8. **Free hides the picker (1.8.4).** Deactivate Pro on a site with two or more published boards → neither job form shows `#wcb-board-id` / `#wcb-simple-board-id`; a new job lands on the default board; the old boards and their jobs are left as they were.
+9. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown
 
@@ -27,4 +29,4 @@ None required — the journey only reads.
 
 ## Notes
 
-The filter `wcb_board_options_for_employer( array $options, int $user_id )` (Free, registered at `blocks/job-form/render.php`) is the contract. Pro's `BpGroupBoards::restrict_boards_to_user_groups()` implements it. The filter is now documented in `docs/HOOKS.md` and `audit/manifest.json` (since 1.2.0). Future Pro refactors that re-architect group/board mapping must keep the filter's behaviour intact or this journey will catch the regression.
+The filter `wcb_board_options_for_employer( array $options, int $user_id )` (Free, applied in `BoardsModule::options_for_employer()` since 1.8.4, Pro active only) is the contract. Pro's `BpGroupBoards::restrict_boards_to_user_groups()` implements it. The filter is now documented in `docs/HOOKS.md` and `audit/manifest.json` (since 1.2.0). Future Pro refactors that re-architect group/board mapping must keep the filter's behaviour intact or this journey will catch the regression.

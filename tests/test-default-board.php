@@ -114,8 +114,39 @@ $wcb_data = (array) rest_do_request( $wcb_req )->get_data();
 $wcb_ids  = array_map( static fn ( $j ) => (int) ( $j['id'] ?? 0 ), (array) ( $wcb_data['jobs'] ?? array() ) );
 wcb_db_assert( in_array( $wcb_plain, $wcb_ids, true ) || (int) ( $wcb_data['total'] ?? 0 ) > 100, 'the default board filter finds a job that had no board' );
 
+// The job-form board picker list (1.8.4): every board on Pro, only the default on Free.
+WP_CLI::log( 'Board options for an employer' );
+$wcb_many = array();
+for ( $wcb_i = 1; $wcb_i <= 51; $wcb_i++ ) {
+	$wcb_many[] = (int) wp_insert_post(
+		array(
+			'post_type'   => 'wcb_board',
+			'post_status' => 'publish',
+			'post_title'  => "DB picker board {$wcb_i}",
+		)
+	);
+}
+$wcb_has_helper = method_exists( BoardsModule::class, 'options_for_employer' );
+wcb_db_assert( $wcb_has_helper, 'BoardsModule::options_for_employer() exists' );
+if ( $wcb_has_helper ) {
+	add_filter( 'wcb_pro_active', '__return_true', 999 );
+	$wcb_ids = array_map( static fn ( $o ) => (int) $o['id'], BoardsModule::options_for_employer( 1 ) );
+	wcb_db_assert( array() === array_diff( $wcb_many, $wcb_ids ), 'with Pro, all 51 new boards are offered (no 50 cap)' );
+	$wcb_drop = static fn ( array $o ) => array_values( array_filter( $o, static fn ( $b ) => (int) $b['id'] !== $wcb_many[0] ) );
+	add_filter( 'wcb_board_options_for_employer', $wcb_drop );
+	$wcb_ids = array_map( static fn ( $o ) => (int) $o['id'], BoardsModule::options_for_employer( 1 ) );
+	wcb_db_assert( ! in_array( $wcb_many[0], $wcb_ids, true ), 'wcb_board_options_for_employer still narrows the list' );
+	remove_filter( 'wcb_board_options_for_employer', $wcb_drop );
+	remove_filter( 'wcb_pro_active', '__return_true', 999 );
+
+	add_filter( 'wcb_pro_active', '__return_false', 999 );
+	$wcb_ids = array_map( static fn ( $o ) => (int) $o['id'], BoardsModule::options_for_employer( 1 ) );
+	wcb_db_assert( array( $wcb_default ) === $wcb_ids, 'without Pro, only the default board is offered (picker hidden)' );
+	remove_filter( 'wcb_pro_active', '__return_false', 999 );
+}
+
 // Cleanup.
-foreach ( array( $wcb_plain, $wcb_chosen, $wcb_empty, $wcb_moved, $wcb_other ) as $wcb_id ) {
+foreach ( array_merge( array( $wcb_plain, $wcb_chosen, $wcb_empty, $wcb_moved, $wcb_other ), $wcb_many ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
 }
 

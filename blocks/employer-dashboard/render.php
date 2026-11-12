@@ -173,17 +173,8 @@ $wcb_credits_added = isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['
 // On a site where every board is free, 'Credits 0' read like a problem.
 $wcb_show_credits = (bool) apply_filters( 'wcb_credits_enabled', false ) && ( $wcb_credit_balance > 0 || $wcb_credits_added > 0 );
 if ( ! $wcb_show_credits && apply_filters( 'wcb_credits_enabled', false ) && ! \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
-	// shortcut: checks the first 50 published boards; a site with more paid boards past that still shows credits once one is in range.
-	foreach ( get_posts(
-		array(
-			'post_type'      => 'wcb_board',
-			'post_status'    => 'publish',
-			'posts_per_page' => 50,
-			'fields'         => 'ids',
-			'no_found_rows'  => true,
-		)
-	) as $wcb_board_post_id ) {
-		if ( (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_board_post_id ) > 0 ) {
+	foreach ( \WCB\Modules\Boards\BoardsModule::options_for_employer( $wcb_employer_id ) as $wcb_board_option ) {
+		if ( (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_board_option['id'] ) > 0 ) {
 			$wcb_show_credits = true;
 			break;
 		}
