@@ -115,21 +115,21 @@ final class EmployersModule {
 	}
 
 	/**
-	 * Keep '&' in a company name as '&'.
+	 * Keep '&' in a company, job, resume or board title as '&'.
 	 *
 	 * For users without unfiltered_html, WordPress stores "Smith & Co" as
-	 * "Smith &amp; Co". Themes print titles as HTML, but company names are
-	 * copied into job meta and printed as text (cards, REST, the picker),
-	 * where the entity showed. Only the ampersand is restored, so no markup
-	 * can come back.
+	 * "Smith &amp; Co". Themes print titles as HTML, but these titles are
+	 * copied into meta, emails, CSV and REST and printed as text (cards, the
+	 * picker, notifications), where the entity showed. Only the ampersand is
+	 * restored, so no markup can come back.
 	 *
-	 * @since 1.8.1
+	 * @since 1.8.1 Companies only; 1.8.4 jobs, resumes and boards too.
 	 *
 	 * @param array<string, mixed> $data Slashed post data.
 	 * @return array<string, mixed>
 	 */
 	public static function plain_company_title( array $data ): array {
-		if ( 'wcb_company' === ( $data['post_type'] ?? '' ) && is_string( $data['post_title'] ?? null ) ) {
+		if ( in_array( $data['post_type'] ?? '', array( 'wcb_company', 'wcb_job', 'wcb_resume', 'wcb_board' ), true ) && is_string( $data['post_title'] ?? null ) ) {
 			$data['post_title'] = str_replace( array( '&amp;', '&#038;' ), '&', $data['post_title'] );
 		}
 		return $data;
