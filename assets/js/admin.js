@@ -138,10 +138,10 @@
 						badge.className   = 'wcb-badge wcb-badge--' + ( toneMap[ res.status_tone ] || 'default' );
 						badge.textContent = res.status_label;
 					}
-				} ).catch( function () {
+				} ).catch( function ( err ) {
 					select.disabled = false;
 					select.value = select.dataset.original;
-					wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
+					wcbToast( failMessage( err ), 'error' );
 				} );
 			} );
 		} );
@@ -223,11 +223,17 @@
 					return; // User cancelled.
 				}
 				btn.disabled = false;
-				wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
+				wcbToast( failMessage( err ), 'error' );
 			} );
 		} );
 	}
 
+	function failMessage( err ) {
+		// The server's own reason (e.g. "not enough credits") beats a generic line.
+		return err && 'string' === typeof err.message && err.message ? err.message : wcbAdmin.i18n.saveFailed;
+	}
+
+	
 	// -------------------------------------------------------------------------
 	// Company trust level selects — T22c
 	// -------------------------------------------------------------------------
@@ -251,10 +257,10 @@
 			} ).then( function () {
 				select.disabled = false;
 				select.dataset.original = level;
-			} ).catch( function () {
+			} ).catch( function ( err ) {
 				select.disabled = false;
 				select.value = select.dataset.original || '';
-				wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
+				wcbToast( failMessage( err ), 'error' );
 			} );
 
 			select.dataset.original = level;
