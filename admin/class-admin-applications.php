@@ -309,12 +309,10 @@ class AdminApplications extends \WP_List_Table {
 			// already use (Install migration 1.2.6 indexes wp_posts.post_title).
 			$title_clause = \WCB\Core\TitleSearch::title_clause( $search );
 			if ( '' !== $title_clause ) {
-				// $title_clause is already prepared; the cap is an int constant.
-				$job_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
-					"SELECT ID FROM {$wpdb->posts}
-					 WHERE post_type = 'wcb_job' AND {$title_clause}
-					 LIMIT " . self::SEARCH_ID_CAP
-				);
+				// $title_clause is already prepared (preparing it again would mangle its
+				// LIKE escapes); the cap is an int constant.
+				$sql     = "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'wcb_job' AND {$title_clause} LIMIT " . self::SEARCH_ID_CAP;
+				$job_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- $sql is built from the prepared title clause and an int constant.
 			}
 
 			// Candidate half - wp_users has no FULLTEXT index, so the cap is what
