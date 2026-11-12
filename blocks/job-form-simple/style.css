@@ -150,45 +150,12 @@
 }
 .wcb-form-simple__credit.wcb-shown { display: block; }
 
-.wcb-form-simple__actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wcb-space-sm);
-}
-
-@media (max-width: 640px) {
-	.wcb-form-simple__actions .wcb-btn {
-		flex: 1 1 100%;
-		justify-content: center;
-	}
-}
-
 /* Insufficient-credit state escalates the credit notice to a warning. */
 .wcb-form-simple__credit--warn {
 	background: var(--wcb-warning-bg-soft, #fffbeb);
 	border-color: var(--wcb-warning-border, #fde68a);
 	color: var(--wcb-warning-fg, #92400e);
 }
-
-/* ── Success state ───────────────────────────────────────────────────── */
-
-.wcb-form-simple__success {
-	display: none;
-	padding: var(--wcb-space-4xl) var(--wcb-space-2xl);
-	background: var(--wcb-success-bg);
-	border-radius: var(--wcb-radius-xl);
-}
-.wcb-form-simple__success.wcb-shown { display: block; }
-.wcb-form-simple__success h2 {
-	display: flex; /* block-level, so its margin holds when the review message wraps (wcb-icon-label is inline-flex) */
-	font-size: var(--wcb-text-2xl);
-	font-weight: var(--wcb-font-bold);
-	color: var(--wcb-success);
-	margin: 0 0 var(--wcb-space-lg);
-}
-.wcb-form-simple__success p { margin: 0; }
-/* Same spacing as the multi-step form's success actions. */
-.wcb-form-simple__success .wcb-form-simple__actions { margin-top: var(--wcb-space-sm); }
 
 /* ── Submit nav ──────────────────────────────────────────────────────── */
 
@@ -200,8 +167,7 @@
 	padding-top: var(--wcb-space-sm);
 }
 
-.wcb-form-simple .wcb-btn,
-.wcb-form-simple__success .wcb-btn {
+.wcb-form-simple .wcb-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;

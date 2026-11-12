@@ -291,7 +291,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 	<div class="wcb-draft-notice" role="status" hidden data-wp-bind--hidden="!state.draftRestored">
 		<p class="wcb-draft-notice__text"><?php esc_html_e( 'We kept the job you were writing on this device.', 'wp-career-board' ); ?></p>
-		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.discardDraft"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
+		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.resetForm"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
 	</div>
 
 	<!-- Honeypot — bots filling all fields trigger a fake success. -->
@@ -300,26 +300,38 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		<input type="text" id="wcb-hp-simple" name="wcb_hp" tabindex="-1" autocomplete="off" />
 	</label>
 
-	<!-- Success state -->
-	<div class="wcb-form-simple__success" data-wp-class--wcb-shown="state.submitted">
-		<h2 class="wcb-icon-label"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><span data-wp-class--wcb-hidden="state.jobPending"><?php esc_html_e( 'Job posted', 'wp-career-board' ); ?></span><span class="wcb-hidden" data-wp-class--wcb-hidden="!state.jobPending"><?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?></span></h2>
-		<p
-			class="wcb-form-simple__meta"
-			data-wp-class--wcb-hidden="!state.hasListingWindow"
-			data-wp-text="state.listingWindowMessage"
-		></p>
-		<p hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
-		<p class="wcb-form-simple__actions">
-			<a class="wcb-btn wcb-btn--primary" data-wp-class--wcb-hidden="!state.showJobLink" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
-				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
+	<!-- Success state: the multi-step form's panel (blocks/job-form/render.php), styles shared in wcb-ui.css. -->
+	<?php
+	$wcb_my_jobs_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
+	$wcb_my_jobs_url = '' !== $wcb_my_jobs_url ? $wcb_my_jobs_url . '#jobs' : '';
+	?>
+	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
+		<span class="wcb-form-success__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+		<div>
+			<p class="wcb-form-success__title">
+				<span data-wp-class--wcb-hidden="state.jobPending"><?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?></span>
+				<span data-wp-class--wcb-hidden="!state.jobPending">
+					<?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?>
+				</span>
+			</p>
+			<p
+				class="wcb-form-success__meta"
+				data-wp-class--wcb-hidden="!state.hasListingWindow"
+				data-wp-text="state.listingWindowMessage"
+			></p>
+			<p class="wcb-form-success__meta" hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
+			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="!state.showJobLink">
+				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
-			<?php
-			$wcb_dashboard_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
-			if ( '' !== $wcb_dashboard_url ) :
-				?>
-				<a class="wcb-btn wcb-btn--secondary" href="<?php echo esc_url( $wcb_dashboard_url . '#jobs' ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
-			<?php endif; ?>
-		</p>
+			<div class="wcb-form-success__actions">
+				<?php if ( $wcb_my_jobs_url ) : ?>
+					<a class="wcb-btn wcb-btn--primary" href="<?php echo esc_url( $wcb_my_jobs_url ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
+				<?php endif; ?>
+				<button type="button" class="wcb-form-success__reset" data-wp-on--click="actions.resetForm">
+					<?php esc_html_e( 'Post another job', 'wp-career-board' ); ?>
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<!-- Form -->

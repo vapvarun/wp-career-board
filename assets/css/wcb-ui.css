@@ -2489,13 +2489,12 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 	display: none;
 }
 
-/* Web-address inputs: the error shows once the browser finds the address unusable. */
+/* Web-address inputs: the error shows while @wcb/fields marks the input invalid (server rule). */
 .wcb-field-error--url {
 	display: none;
 }
 
-.wcb-field:user-invalid ~ .wcb-field-error--url,
-.wcb-field-input:user-invalid ~ .wcb-field-error--url {
+[aria-invalid="true"] ~ .wcb-field-error--url {
 	display: block;
 }
 
@@ -2522,4 +2521,111 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 .wcb-draft-notice__text {
 	margin: 0;
 	flex: 1 1 16rem;
+}
+
+/* ── Job form success panel (multi-step and single-page job forms) ───── */
+.wcb-form-success {
+	display: none;
+	align-items: flex-start;
+	gap: var(--wcb-space-lg);
+	padding: var(--wcb-space-2xl);
+	background: var(--wcb-success-bg-soft);
+	border: 1px solid var(--wcb-success-border);
+	border-radius: var(--wcb-radius-xl);
+	margin-bottom: var(--wcb-space-2xl);
+}
+
+.wcb-form-success--show {
+	display: flex;
+}
+
+.wcb-form-success__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--wcb-space-3xl);
+	height: var(--wcb-space-3xl);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-success);
+	color: #ffffff;
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-bold);
+	flex-shrink: 0;
+}
+
+.wcb-form-success__icon svg {
+	width: 22px;
+	height: 22px;
+}
+
+.wcb-form-success__title {
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-bold);
+	color: var(--wcb-success-fg);
+	margin: 0 0 var(--wcb-space-xs);
+}
+
+.wcb-form-success__link {
+	display: inline-block;
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-success-fg);
+	font-weight: var(--wcb-font-semibold);
+	text-decoration: underline;
+	margin-inline-end: var(--wcb-space-md);
+}
+
+.wcb-form-success__reset {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--wcb-space-sm) var(--wcb-space-lg);
+	margin-top: var(--wcb-space-sm);
+	background: transparent;
+	border: 1px solid var(--wcb-success-border);
+	border-radius: var(--wcb-radius-md);
+	color: var(--wcb-success-fg);
+	font-size: var(--wcb-text-base);
+	font-weight: var(--wcb-font-semibold);
+	cursor: pointer;
+	transition: background var(--wcb-transition-fast), color var(--wcb-transition-fast);
+}
+
+.wcb-form-success__reset:hover {
+	background: var(--wcb-success);
+	color: #ffffff;
+}
+
+.wcb-form-success__reset:focus-visible {
+	background: var(--wcb-success);
+	color: #ffffff;
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
+}
+
+.wcb-form-success__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	margin-top: var(--wcb-space-sm);
+}
+
+.wcb-form-success__actions .wcb-form-success__reset {
+	margin-top: 0;
+}
+
+@media ( max-width: 640px ) {
+	.wcb-form-success {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.wcb-form-success__actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.wcb-form-success__actions > * {
+		width: 100%;
+		justify-content: center;
+	}
 }

@@ -425,7 +425,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			}
 		},
 
-		discardDraft() {
+		// "Post another job" and the draft notice's "Start over".
+		resetForm() {
 			clearForm();
 			showDescription( '' );
 		},

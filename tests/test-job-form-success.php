@@ -96,7 +96,7 @@ foreach ( array( 'job-form', 'job-form-simple' ) as $wcb_block ) {
 	$wcb_view   = (string) file_get_contents( $wcb_dir . $wcb_block . '/view.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
 	wcb_jfs_assert( str_contains( $wcb_render, $wcb_pending_msg ), "{$wcb_block}: says the job was submitted for review" );
 	$wcb_link_hidden = (bool) preg_match( '/data-wp-bind--href="state\.jobUrl"[^>]*state\.jobPending|state\.jobPending[^>]*data-wp-bind--href="state\.jobUrl"/', $wcb_render )
-		|| ( str_contains( $wcb_render, 'data-wp-class--wcb-hidden="!state.showJobLink" data-wp-bind--href="state.jobUrl"' ) && str_contains( $wcb_view, '! state.jobPending' ) );
+		|| ( str_contains( $wcb_render, 'data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="!state.showJobLink"' ) && str_contains( $wcb_view, '! state.jobPending' ) );
 	wcb_jfs_assert( $wcb_link_hidden, "{$wcb_block}: hides the job link while pending" );
 	wcb_jfs_assert( (bool) preg_match( '/jobStatus\s*=\s*.*status/', $wcb_view ), "{$wcb_block}: stores the status from the REST answer" );
 	wcb_jfs_assert( str_contains( $wcb_view, "jobStatus === 'pending'" ), "{$wcb_block}: treats pending as held for review" );
@@ -109,10 +109,16 @@ foreach ( array( 'job-form', 'job-form-simple' ) as $wcb_block ) {
 	wcb_jfs_assert( (bool) preg_match( '/setTimeout\( \(\) => \{.{0,300}?jobPending/s', $wcb_view ), "{$wcb_block}: keeps the review message instead of auto-resetting" );
 }
 
-// 3c. Single-page success panel: start-aligned like the multi-step panel, buttons spaced off the heading.
-$wcb_simple_css = (string) file_get_contents( $wcb_dir . 'job-form-simple/style.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
-wcb_jfs_assert( ! preg_match( '/\.wcb-form-simple__success\s*\{[^}]*text-align:\s*center/', $wcb_simple_css ), 'single-page success panel is start-aligned like the multi-step one' );
-wcb_jfs_assert( (bool) preg_match( '/\.wcb-form-simple__success \.wcb-form-simple__actions\s*\{[^}]*margin-top:\s*var\(--wcb-space-sm\)/', $wcb_simple_css ), 'single-page success buttons keep the multi-step spacing from the heading' );
+// 3c. Single-page success panel is the multi-step panel: same markup, shared styles, Post another job.
+$wcb_simple_render = (string) file_get_contents( $wcb_dir . 'job-form-simple/render.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+$wcb_simple_view   = (string) file_get_contents( $wcb_dir . 'job-form-simple/view.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+$wcb_ui_css        = (string) file_get_contents( dirname( __DIR__ ) . '/assets/css/wcb-ui.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+foreach ( array( 'wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted"', 'wcb-form-success__title', 'wcb-form-success__actions', 'wcb-form-success__reset" data-wp-on--click="actions.resetForm"' ) as $wcb_bit ) {
+	wcb_jfs_assert( str_contains( $wcb_simple_render, $wcb_bit ), "single-page success uses {$wcb_bit}" );
+}
+wcb_jfs_assert( (bool) preg_match( '/\n\t\tresetForm\(\) \{/', $wcb_simple_view ), 'single-page form has the resetForm action' );
+wcb_jfs_assert( ! str_contains( $wcb_simple_render, 'wcb-form-simple__success' ) && ! str_contains( $wcb_simple_css, 'wcb-form-simple__success' ), 'the old single-page success rules are gone' );
+wcb_jfs_assert( (bool) preg_match( '/\.wcb-form-success__title\s*\{[^}]*color:\s*var\(--wcb-success-fg\)/', $wcb_ui_css ), 'the success styles are shared (wcb-ui.css) with the dark-green title' );
 
 // 4. My Jobs offers "View" only for a job that has a page (live, closed or expired).
 $wcb_live_id = (int) wp_insert_post(
