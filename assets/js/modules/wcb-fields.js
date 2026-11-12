@@ -12,21 +12,50 @@
  * @module @wcb/fields
  */
 
+const HOST_LABEL = '[a-z0-9\u0080-￿](?:[a-z0-9\u0080-￿-]*[a-z0-9\u0080-￿])?';
+const WEB_HOST   = new RegExp( '^' + HOST_LABEL + '(?:\\.' + HOST_LABEL + ')+$', 'i' );
+
+/**
+ * Whether a typed web address passes the server rule (\WCB\Core\Text::web_url()).
+ *
+ * An http(s) URL or a bare domain ("northwind.example/careers", saved with
+ * https) with a dotted host. Empty is fine; whether a field is required is
+ * checked elsewhere. Keep in step with Text::web_url().
+ *
+ * @param {string} raw Typed value.
+ * @return {boolean} True when the server would keep it.
+ */
+export function isWebAddress( raw ) {
+	const value = String( raw ?? '' ).trim();
+	if ( '' === value ) {
+		return true;
+	}
+	const scheme = /^([a-z][a-z0-9+.-]*):\/\//i.exec( value );
+	if ( scheme ? ! /^https?$/i.test( scheme[ 1 ] ) : value.includes( ':' ) ) {
+		return false;
+	}
+	const rest = scheme ? value.slice( scheme[ 0 ].length ) : value;
+	const host = rest.split( /[/?#]/ )[ 0 ].replace( /:\d+$/, '' );
+	return WEB_HOST.test( host );
+}
+
 /*
- * Web-address inputs: aria-invalid follows the browser's own check, at the
- * moment the CSS (:user-invalid) shows the inline .wcb-field-error--url, so
- * screen readers hear the same thing people see. Marked on leaving the
- * field, cleared as soon as the typed address becomes usable.
+ * Web-address inputs (inputmode="url" with a .wcb-field-error--url after
+ * them): marked aria-invalid and pointed at the error when the field is
+ * left with an address the server would drop; cleared as soon as it is fixed.
  */
 const markWebAddress = ( event ) => {
-	const el = event.target;
-	if ( ! el.matches?.( 'input[type="url"]' ) || ! el.nextElementSibling?.classList.contains( 'wcb-field-error--url' ) ) {
+	const el    = event.target;
+	const error = el.nextElementSibling;
+	if ( ! el.matches?.( 'input[inputmode="url"]' ) || ! error?.classList.contains( 'wcb-field-error--url' ) ) {
 		return;
 	}
-	if ( el.validity.valid ) {
+	if ( isWebAddress( el.value ) ) {
 		el.removeAttribute( 'aria-invalid' );
-	} else if ( 'focusout' === event.type ) {
+		el.removeAttribute( 'aria-describedby' );
+	} else if ( 'focusout' === event.type || el.hasAttribute( 'aria-invalid' ) ) {
 		el.setAttribute( 'aria-invalid', 'true' );
+		el.setAttribute( 'aria-describedby', error.id );
 	}
 };
 document.addEventListener( 'focusout', markWebAddress );

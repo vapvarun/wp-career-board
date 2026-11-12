@@ -1261,7 +1261,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 						</div>
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-site"><?php esc_html_e( 'Website', 'wp-career-board' ); ?></label>
-							<input id="wcb-company-site" type="url" class="wcb-field-input" aria-describedby="wcb-company-site-error" placeholder="https://" data-wcb-field="companySite" data-wp-bind--value="state.companySite" data-wp-on--input="actions.updateField" />
+							<input id="wcb-company-site" type="text" inputmode="url" class="wcb-field-input" placeholder="https://" data-wcb-field="companySite" data-wp-bind--value="state.companySite" data-wp-on--input="actions.updateField" />
 							<p class="wcb-field-error wcb-field-error--url" id="wcb-company-site-error"><?php esc_html_e( 'Enter a full web address, like https://example.com', 'wp-career-board' ); ?></p>
 						</div>
 					</div>
@@ -1290,12 +1290,12 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					<div class="wcb-field-row">
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-linkedin"><?php esc_html_e( 'LinkedIn', 'wp-career-board' ); ?></label>
-							<input id="wcb-company-linkedin" type="url" class="wcb-field-input" aria-describedby="wcb-company-linkedin-error" placeholder="https://linkedin.com/company/…" data-wcb-field="companyLinkedin" data-wp-bind--value="state.companyLinkedin" data-wp-on--input="actions.updateField" />
+							<input id="wcb-company-linkedin" type="text" inputmode="url" class="wcb-field-input" placeholder="https://linkedin.com/company/…" data-wcb-field="companyLinkedin" data-wp-bind--value="state.companyLinkedin" data-wp-on--input="actions.updateField" />
 							<p class="wcb-field-error wcb-field-error--url" id="wcb-company-linkedin-error"><?php esc_html_e( 'Enter a full web address, like https://example.com', 'wp-career-board' ); ?></p>
 						</div>
 						<div class="wcb-field-group">
 							<label class="wcb-field-label" for="wcb-company-twitter"><?php esc_html_e( 'X (Twitter)', 'wp-career-board' ); ?></label>
-							<input id="wcb-company-twitter" type="url" class="wcb-field-input" aria-describedby="wcb-company-twitter-error" placeholder="https://x.com/…" data-wcb-field="companyTwitter" data-wp-bind--value="state.companyTwitter" data-wp-on--input="actions.updateField" />
+							<input id="wcb-company-twitter" type="text" inputmode="url" class="wcb-field-input" placeholder="https://x.com/…" data-wcb-field="companyTwitter" data-wp-bind--value="state.companyTwitter" data-wp-on--input="actions.updateField" />
 							<p class="wcb-field-error wcb-field-error--url" id="wcb-company-twitter-error"><?php esc_html_e( 'Enter a full web address, like https://example.com', 'wp-career-board' ); ?></p>
 						</div>
 					</div>

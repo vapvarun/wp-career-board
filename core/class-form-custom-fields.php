@@ -556,15 +556,18 @@ final class FormCustomFields {
 			$resolved   = $type_map[ $type ] ?? $type;
 			$allowed    = array( 'text', 'email', 'tel', 'url', 'number', 'date' );
 			$input_type = in_array( $resolved, $allowed, true ) ? $resolved : 'text';
-			echo '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
+			// A web address is a text input: the browser's url check rejects a bare
+			// domain the server accepts, so @wcb/fields checks it with the server rule.
+			echo '<input type="' . esc_attr( 'url' === $input_type ? 'text' : $input_type ) . '"'
+				. ( 'url' === $input_type ? ' inputmode="url"' : '' )
+				. ' id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
 				. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
 				. ' data-wcb-field="' . esc_attr( $key ) . '"'
 				. ' ' . $value_bind
-				. ( 'url' === $input_type ? ' aria-describedby="' . esc_attr( $dom_id . '-error' ) . '"' : '' )
 				. $placeholder_attr . $required_attr . ' />';
 			if ( 'url' === $input_type ) {
-				wp_enqueue_script_module( '@wcb/fields' ); // Sets aria-invalid with the error below.
-				// Shown by CSS (:user-invalid) once the browser finds the address unusable; the save drops it.
+				wp_enqueue_script_module( '@wcb/fields' );
+				// Shown while @wcb/fields marks the input aria-invalid; the save drops the value.
 				echo '<p class="wcb-field-error wcb-field-error--url" id="' . esc_attr( $dom_id . '-error' ) . '">' . esc_html__( 'Enter a full web address, like https://example.com', 'wp-career-board' ) . '</p>';
 			}
 			if ( 'file' === $type ) {
