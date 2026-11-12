@@ -726,6 +726,9 @@ class AdminMetaBoxes {
 		);
 		foreach ( $wcb_text_fields as $wcb_post_key => $wcb_meta_key ) {
 			$wcb_value = isset( $_POST[ $wcb_post_key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $wcb_post_key ] ) ) : '';
+			if ( in_array( $wcb_post_key, array( 'wcb_website', 'wcb_linkedin', 'wcb_twitter' ), true ) ) {
+				$wcb_value = \WCB\Core\Text::web_url( $wcb_value );
+			}
 			update_post_meta( $post_id, $wcb_meta_key, $wcb_value );
 		}
 

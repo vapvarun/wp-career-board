@@ -45,9 +45,9 @@ if (
 $wcb_name     = $wcb_company->post_title;
 $wcb_desc     = $wcb_company->post_content;
 $wcb_tagline  = (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true );
-$wcb_website  = (string) get_post_meta( $wcb_company_id, '_wcb_website', true );
-$wcb_linkedin = (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true );
-$wcb_twitter  = (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true );
+$wcb_website  = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) );
+$wcb_linkedin = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true ) );
+$wcb_twitter  = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) );
 $wcb_industry = \WCB\Core\Industries::label( (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) );
 $wcb_size     = (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true );
 $wcb_type     = (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true );

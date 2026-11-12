@@ -369,6 +369,21 @@ final class CandidatesEndpoint extends RestController {
 	}
 
 	/**
+	 * One profile field for `_wcb_resume_data`: a link field keeps only a real web address.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $key   Field key as sent.
+	 * @param mixed  $value Field value as sent.
+	 * @return string
+	 */
+	private static function resume_value( string $key, mixed $value ): string {
+		return in_array( sanitize_key( $key ), array( 'linkedin', 'github', 'website', 'twitter' ), true )
+			? \WCB\Core\Text::web_url( (string) $value )
+			: sanitize_textarea_field( (string) $value );
+	}
+
+	/**
 	 * Update a candidate profile (bio, visibility, resume data).
 	 *
 	 * @since 1.0.0
@@ -419,7 +434,7 @@ final class CandidatesEndpoint extends RestController {
 			$safe_resume = array();
 			if ( is_array( $resume_data ) ) {
 				foreach ( $resume_data as $key => $value ) {
-					$safe_resume[ sanitize_key( (string) $key ) ] = sanitize_textarea_field( (string) $value );
+					$safe_resume[ sanitize_key( (string) $key ) ] = self::resume_value( (string) $key, $value );
 				}
 			}
 			update_user_meta( $user_id, '_wcb_resume_data', $safe_resume );
@@ -433,7 +448,7 @@ final class CandidatesEndpoint extends RestController {
 			$existing = get_user_meta( $user_id, '_wcb_resume_data', true );
 			$existing = is_array( $existing ) ? $existing : array();
 			foreach ( $resume_data_partial as $key => $value ) {
-				$existing[ sanitize_key( (string) $key ) ] = sanitize_textarea_field( (string) $value );
+				$existing[ sanitize_key( (string) $key ) ] = self::resume_value( (string) $key, $value );
 			}
 			update_user_meta( $user_id, '_wcb_resume_data', $existing );
 		}

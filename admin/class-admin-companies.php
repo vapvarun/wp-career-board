@@ -486,7 +486,7 @@ class AdminCompanies extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_website( $item ): string {
-		$website = (string) get_post_meta( $item->ID, '_wcb_website', true );
+		$website = \WCB\Core\Text::web_url( (string) get_post_meta( $item->ID, '_wcb_website', true ) );
 
 		if ( $website ) {
 			return sprintf(

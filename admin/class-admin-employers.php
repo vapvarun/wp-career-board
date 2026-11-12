@@ -617,7 +617,7 @@ class AdminEmployers extends \WP_List_Table {
 	 */
 	protected function column_website( $item ): string {
 		$company_id = (int) get_user_meta( $item->ID, '_wcb_company_id', true );
-		$website    = $company_id ? (string) get_post_meta( $company_id, '_wcb_website', true ) : '';
+		$website    = $company_id ? \WCB\Core\Text::web_url( (string) get_post_meta( $company_id, '_wcb_website', true ) ) : '';
 
 		if ( $website ) {
 			return sprintf(

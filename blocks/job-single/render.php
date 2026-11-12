@@ -118,7 +118,7 @@ $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_desc     = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
 	? \WCB\Core\Text::excerpt( $wcb_company_post->post_content, 40 )
 	: $wcb_company_tagline;
-$wcb_company_site     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
+$wcb_company_site     = $wcb_company_id ? \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) ) : '';
 $wcb_company_trust    = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
 $wcb_company_industry = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
 $wcb_company_size     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';

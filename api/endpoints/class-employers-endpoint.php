@@ -26,6 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class EmployersEndpoint extends RestController {
 
+	/**
+	 * Company fields that hold a web address (saved through Text::web_url()).
+	 *
+	 * @since 1.8.4
+	 */
+	private const LINK_PARAMS = array( 'website', 'linkedin', 'twitter' );
 
 	/**
 	 * Register all employer routes.
@@ -252,7 +258,7 @@ final class EmployersEndpoint extends RestController {
 				foreach ( $reg_meta as $param => $meta_key ) {
 					$val = $request->get_param( $param );
 					if ( $val ) {
-						update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+						update_post_meta( $company_id, $meta_key, 'website' === $param ? \WCB\Core\Text::web_url( (string) $val ) : sanitize_text_field( (string) $val ) );
 					}
 				}
 				\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $request->get_param( 'hq' ) );
@@ -385,7 +391,7 @@ final class EmployersEndpoint extends RestController {
 			foreach ( $reg_meta as $param => $meta_key ) {
 				$val = $request->get_param( $param );
 				if ( $val ) {
-					update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+					update_post_meta( $company_id, $meta_key, 'website' === $param ? \WCB\Core\Text::web_url( (string) $val ) : sanitize_text_field( (string) $val ) );
 				}
 			}
 			\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $request->get_param( 'hq' ) );
@@ -468,7 +474,7 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				$value = sanitize_text_field( (string) $value );
+				$value = in_array( $param, self::LINK_PARAMS, true ) ? \WCB\Core\Text::web_url( (string) $value ) : sanitize_text_field( (string) $value );
 				update_post_meta( $company_id, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 			}
 		}
@@ -569,7 +575,7 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				$value = sanitize_text_field( (string) $value );
+				$value = in_array( $param, self::LINK_PARAMS, true ) ? \WCB\Core\Text::web_url( (string) $value ) : sanitize_text_field( (string) $value );
 				update_post_meta( $post->ID, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 				$changed = true;
 			}
@@ -1532,7 +1538,7 @@ final class EmployersEndpoint extends RestController {
 			'description'    => $post->post_content,
 			'logo'           => $logo ? $logo : '',
 			'tagline'        => $shape['tagline'],
-			'website'        => (string) get_post_meta( $post->ID, '_wcb_website', true ),
+			'website'        => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_website', true ) ),
 			'industry'       => $shape['industry'],
 			'industry_label' => $shape['industry_label'],
 			'size'           => $shape['size'],
@@ -1540,8 +1546,8 @@ final class EmployersEndpoint extends RestController {
 			'hq'             => $shape['hq'],
 			'company_type'   => \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $post->ID, '_wcb_company_type', true ) ),
 			'founded'        => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
-			'linkedin'       => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
-			'twitter'        => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
+			'linkedin'       => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_linkedin', true ) ),
+			'twitter'        => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_twitter', true ) ),
 			'trust_level'    => $trust_level,
 			'trust_label'    => $trust_info['label'] ?? '',
 			'trust_icon'     => $trust_info['icon'] ?? '',
