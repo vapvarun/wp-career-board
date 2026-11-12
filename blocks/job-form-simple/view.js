@@ -411,8 +411,10 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				// Auto-dismiss the success state after 8 seconds and clear
 				// volatile fields so the user gets a fresh form instead of a
 				// stuck banner — same UX rule as the multi-step job-form.
+				// A job held for review keeps its message: it is the only
+				// place the employer learns the job is not live yet.
 				setTimeout( () => {
-					if ( state.submitted ) {
+					if ( state.submitted && ! state.jobPending ) {
 						clearForm();
 					}
 				}, 8000 );

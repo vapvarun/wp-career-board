@@ -830,10 +830,11 @@ const { state } = store(
 
 					// Auto-reset the success state after 8 seconds so a returning
 					// user sees a fresh form instead of a stuck success banner —
-					// matches the spec on Basecamp card 9817915492.
+					// matches the spec on Basecamp card 9817915492. A job held
+					// for review keeps its message: it says the job is not live yet.
 					setTimeout( () => {
 						const live = store( 'wcb-job-form' );
-						if ( live && live.state && live.state.submitted ) {
+						if ( live && live.state && live.state.submitted && ! live.state.jobPending ) {
 							if ( typeof live.actions?.resetForm === 'function' ) {
 								live.actions.resetForm();
 							} else {

@@ -103,6 +103,17 @@ foreach ( array( 'job-form', 'job-form-simple' ) as $wcb_block ) {
 	wcb_jfs_assert( (bool) preg_match( '/get hasListingWindow\(\)\s*\{[^\n]*\n(?:[^\n]*store\([^\n]*\n)?[^\n]*\n[^\n]*jobPending/', $wcb_view ), "{$wcb_block}: promises no live-until date while pending" );
 }
 
+// 3b. A review message is not cleared by the 8-second reset.
+foreach ( array( 'job-form', 'job-form-simple' ) as $wcb_block ) {
+	$wcb_view = (string) file_get_contents( $wcb_dir . $wcb_block . '/view.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+	wcb_jfs_assert( (bool) preg_match( '/setTimeout\( \(\) => \{.{0,300}?jobPending/s', $wcb_view ), "{$wcb_block}: keeps the review message instead of auto-resetting" );
+}
+
+// 3c. Single-page success panel: start-aligned like the multi-step panel, buttons spaced off the heading.
+$wcb_simple_css = (string) file_get_contents( $wcb_dir . 'job-form-simple/style.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+wcb_jfs_assert( ! preg_match( '/\.wcb-form-simple__success\s*\{[^}]*text-align:\s*center/', $wcb_simple_css ), 'single-page success panel is start-aligned like the multi-step one' );
+wcb_jfs_assert( (bool) preg_match( '/\.wcb-form-simple__success \.wcb-form-simple__actions\s*\{[^}]*margin-top:\s*var\(--wcb-space-sm\)/', $wcb_simple_css ), 'single-page success buttons keep the multi-step spacing from the heading' );
+
 // 4. My Jobs offers "View" only for a job that has a page (live, closed or expired).
 $wcb_live_id = (int) wp_insert_post(
 	array(
