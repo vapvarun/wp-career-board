@@ -653,7 +653,7 @@ final class JobsEndpoint extends RestController {
 		}
 
 		// Apply destination.
-		$wcb_apply_url = esc_url_raw( (string) ( $request->get_param( 'apply_url' ) ?? '' ) );
+		$wcb_apply_url = \WCB\Core\Text::web_url( (string) ( $request->get_param( 'apply_url' ) ?? '' ) );
 		if ( $wcb_apply_url ) {
 			update_post_meta( $job_id, '_wcb_apply_url', $wcb_apply_url );
 		}
@@ -997,7 +997,7 @@ final class JobsEndpoint extends RestController {
 		// Apply destination — sanitize identically to create_item().
 		$apply_url = $request->get_param( 'apply_url' );
 		if ( null !== $apply_url ) {
-			update_post_meta( $post->ID, '_wcb_apply_url', esc_url_raw( (string) $apply_url ) );
+			update_post_meta( $post->ID, '_wcb_apply_url', \WCB\Core\Text::web_url( (string) $apply_url ) );
 		}
 		$apply_email = $request->get_param( 'apply_email' );
 		if ( null !== $apply_email ) {
@@ -2018,6 +2018,10 @@ final class JobsEndpoint extends RestController {
 			),
 			'salary_max'      => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Maximum salary must be a number from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ) ),
+			),
+			// Refuse an address the server would drop, so the poster is told.
+			'apply_url'       => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Core\Text::web_url( (string) $v ), __( 'Enter a full web address, like https://example.com', 'wp-career-board' ) ),
 			),
 			'salary_currency' => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => array_key_exists( strtoupper( (string) $v ), \WCB\Admin\AdminSettings::get_currency_catalog() ), __( 'Unknown salary currency.', 'wp-career-board' ) ),

@@ -370,6 +370,7 @@ wp_interactivity_state(
 			'errorLoadApps'            => __( 'Could not load applications.', 'wp-career-board' ),
 			'errorConnectionApps'      => __( 'Connection error loading applications.', 'wp-career-board' ),
 			'errorCompanyNameRequired' => __( 'Company name is required.', 'wp-career-board' ),
+			'errorWebAddress'          => __( 'Enter a full web address, like https://example.com', 'wp-career-board' ),
 			'errorSaveProfile'         => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
 			'errorSaveLogo'            => __( 'Please save your company profile before uploading a logo.', 'wp-career-board' ),
 			'errorConnection'          => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),

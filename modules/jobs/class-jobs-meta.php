@@ -52,7 +52,7 @@ final class JobsMeta {
 			'_wcb_featured'        => array( 'string', array( self::class, 'sanitize_flag' ) ),
 			'_wcb_board_id'        => array( 'integer', array( self::class, 'sanitize_board_id' ) ),
 			'_wcb_salary_type'     => array( 'string', array( self::class, 'sanitize_salary_type' ) ),
-			'_wcb_apply_url'       => array( 'string', 'esc_url_raw' ),
+			'_wcb_apply_url'       => array( 'string', array( \WCB\Core\Text::class, 'web_url' ) ),
 			'_wcb_apply_email'     => array( 'string', 'sanitize_email' ),
 			'_wcb_company_id'      => array( 'integer', 'absint' ),
 			'_wcb_company_name'    => array( 'string', 'sanitize_text_field' ),

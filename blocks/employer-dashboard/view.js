@@ -5,7 +5,7 @@
  */
 import { store, getContext, getConfig } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue } from '@wcb/fields';
+import { customFieldValue, isWebAddress } from '@wcb/fields';
 import { flushEditors, formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
@@ -1977,6 +1977,19 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! state.companyName.trim() ) {
 				state.error = t( 'errorCompanyNameRequired', 'Company name is required.' );
 				document.getElementById( 'wcb-company-name' )?.focus();
+				return;
+			}
+
+			// A link the server would drop is not saved at all: no "saved" banner
+			// beside a field that came back empty. The red field message shows too.
+			const badLink = [ [ state.companySite, 'wcb-company-site' ], [ state.companyLinkedin, 'wcb-company-linkedin' ], [ state.companyTwitter, 'wcb-company-twitter' ] ]
+				.find( ( [ value ] ) => ! isWebAddress( value ) );
+			if ( badLink ) {
+				state.error = t( 'errorWebAddress', 'Enter a full web address, like https://example.com' );
+				const field = document.getElementById( badLink[ 1 ] );
+				field?.setAttribute( 'aria-invalid', 'true' );
+				field?.setAttribute( 'aria-describedby', badLink[ 1 ] + '-error' );
+				field?.focus();
 				return;
 			}
 
