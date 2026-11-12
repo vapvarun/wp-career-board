@@ -90,6 +90,16 @@ function pickApplicant( row ) {
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
 /**
+ * Whether the Feature action applies: a live, not yet featured job on a board
+ * with a featured price. Read from the job's current status, so Close and
+ * Reopen keep the row menu right without a reload.
+ *
+ * @param {Object} job Job row.
+ * @return {boolean}
+ */
+const canFeatureJob = ( job ) => Number( state.featuredCost ) > 0 && 'publish' === job.status && ! job.featured;
+
+/**
  * Resolve a job's status slug to its seeded, translated badge label. Applied at
  * job-load time so the first paint shows the SAME translated label the optimistic
  * close/reopen updates later assign — never the REST payload's untranslated
@@ -950,7 +960,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				isExpired: j.status === 'expired',
 				isRejected: !! j.rejected,
 				isDraft:   j.status === 'draft' && ! j.rejected,
-				canFeature: Number( state.featuredCost ) > 0 && j.status === 'publish' && ! j.featured,
+				canFeature: canFeatureJob( j ),
 			} ) );
 		},
 
@@ -1732,6 +1742,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isClosed    = true;
 						state.jobs[ idx ].isExpired   = false;
 						state.jobs[ idx ].isDraft     = false;
+						state.jobs[ idx ].canFeature  = canFeatureJob( state.jobs[ idx ] );
 					}
 				} else {
 					yield actions.reportRefusal( response );
@@ -1774,6 +1785,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isRejected  = false;
 						state.jobs[ idx ].isDraft     = false;
 						state.jobs[ idx ].closedNote  = '';
+						state.jobs[ idx ].canFeature  = canFeatureJob( state.jobs[ idx ] );
 					}
 				} else {
 					yield actions.reportRefusal( response );
