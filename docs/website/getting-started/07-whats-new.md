@@ -2,6 +2,16 @@
 
 You can use this page to see recent changes that affect how you set up and run your job board. For the full history, see the changelog in `readme.txt`.
 
+## In 1.8.4
+
+* **Sign-up on multisite.** Candidate and employer sign-up follows the network registration setting, so a subsite whose network closes registration refuses sign-up.
+* **Job forms.** Logging out clears an unsent draft. The board list shows every board. A deadline past the board maximum is moved to the maximum with a notice, and the success screen shows the date that was saved. The single-page form says when a job is held for review. See [Post a Job](../for-employers/02-post-a-job.md).
+* **My Jobs.** **View** is hidden for a job that has no public page yet.
+* **My Resumes.** Each row shows whether the resume is Public or Private.
+* **Links.** Custom field, company and candidate profile links keep only real web addresses. A bare domain is saved as https, and the form shows an error for anything else.
+* **Job page.** Links in Additional details are underlined and use the link colour.
+* **For developers.** New helpers `Text::web_url()`, `BoardsModule::options_for_employer()` and `JobDeadline::max_days()`. The REST `permalink` is empty for a job without a public page. See [Hooks reference](../developer-guide/02-hooks-reference.md).
+
 ## In 1.8.3
 
 * **Times and your timezone.** Every date and time is saved in UTC and shown in the timezone set in **Settings > General**, the same on admin screens, member pages, emails and job pages. Existing dates are converted when you update.

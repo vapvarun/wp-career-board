@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,27 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.4 - November 2026 =
+
+A fix release for 1.8.3.
+
+* New      - My Resumes rows show whether each resume is Public or Private.
+* Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.
+* Fix      - Logging out clears the unsent job form draft saved in the browser.
+* Fix      - The job form's board list shows every board, not only the first 50, and Free-only sites no longer show a board picker.
+* Fix      - A deadline typed past the board maximum is moved to the maximum with a notice, and the success screen shows the date that was saved.
+* Fix      - The single-page job form says when a job is held for review, keeps that message on screen, no longer links to a page the employer cannot open, and shows no "stays live until" line for a pending job.
+* Fix      - The job form's success panel spacing and alignment match the multi-step form.
+* Fix      - My Jobs hides View for jobs that have no public page yet.
+* Fix      - Custom field, company and candidate profile links keep only real web addresses, a bare domain is saved as https, the form shows an inline error, and invalid stored links no longer show as dead links.
+* Fix      - Links in the job page's Additional details are underlined and use the link colour.
+* Fix      - Plugin Check prepared-SQL findings in the Applications admin search.
+* Dev      - New \WCB\Core\Text::web_url(), BoardsModule::options_for_employer() and JobDeadline::max_days() helpers.
+* Dev      - The wcb_board_options_for_employer filter runs only while Pro is active.
+* Dev      - The REST permalink field is empty for jobs without a public page.
+* Dev      - New filter and hook notes are in docs/HOOKS.md.
+* Compat   - Aligned with WP Career Board Pro 1.8.4. Install both updates together.
 
 = 1.8.3 - November 2026 =
 
