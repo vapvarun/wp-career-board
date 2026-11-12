@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-12T07:09:22+00:00\n"
+"POT-Creation-Date: 2026-11-12T07:24:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-career-board\n"
@@ -610,7 +610,7 @@ msgstr ""
 #: admin/class-admin-jobs.php:124
 #: admin/class-admin-meta-boxes.php:346
 #: blocks/employer-dashboard/render.php:565
-#: blocks/job-form-simple/render.php:368
+#: blocks/job-form-simple/render.php:380
 #: blocks/job-form/render.php:593
 #: blocks/job-stats/render.php:51
 #: modules/employers/class-employers-module.php:635
@@ -703,7 +703,7 @@ msgstr ""
 #: admin/class-admin-import.php:323
 #: blocks/candidate-dashboard/render.php:1200
 #: blocks/job-filters/render.php:90
-#: blocks/job-form-simple/render.php:458
+#: blocks/job-form-simple/render.php:470
 #: blocks/job-form/render.php:907
 #: blocks/job-listings/render.php:686
 #: blocks/job-search-hero/render.php:85
@@ -900,15 +900,15 @@ msgstr ""
 
 #: admin/class-admin-job-editor.php:77
 #: admin/class-admin-job-editor.php:109
-#: blocks/job-form-simple/render.php:406
-#: blocks/job-form-simple/render.php:427
+#: blocks/job-form-simple/render.php:418
+#: blocks/job-form-simple/render.php:439
 #: blocks/job-form/render.php:634
 #: blocks/job-form/render.php:655
 msgid "Job description"
 msgstr ""
 
 #: admin/class-admin-job-editor.php:101
-#: blocks/job-form-simple/render.php:419
+#: blocks/job-form-simple/render.php:431
 #: blocks/job-form/render.php:647
 msgid "Describe the role, responsibilities and requirements…"
 msgstr ""
@@ -1131,7 +1131,7 @@ msgid "No rejection reason recorded."
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:275
-#: blocks/job-form-simple/render.php:512
+#: blocks/job-form-simple/render.php:524
 #: blocks/job-form/render.php:701
 msgid "Currency"
 msgstr ""
@@ -1148,19 +1148,19 @@ msgid "Per"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:294
-#: blocks/job-form-simple/render.php:530
+#: blocks/job-form-simple/render.php:542
 #: blocks/job-form/render.php:768
 msgid "Year"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:295
-#: blocks/job-form-simple/render.php:531
+#: blocks/job-form-simple/render.php:543
 #: blocks/job-form/render.php:769
 msgid "Month"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:296
-#: blocks/job-form-simple/render.php:532
+#: blocks/job-form-simple/render.php:544
 #: blocks/job-form/render.php:770
 msgid "Hour"
 msgstr ""
@@ -1174,7 +1174,7 @@ msgid "Salary Max"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:324
-#: blocks/job-form-simple/render.php:545
+#: blocks/job-form-simple/render.php:557
 #: blocks/job-form/render.php:794
 msgid "Application Deadline"
 msgstr ""
@@ -1188,13 +1188,13 @@ msgid "No expiry (stays open until closed)"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:338
-#: blocks/job-form-simple/render.php:560
+#: blocks/job-form-simple/render.php:572
 #: blocks/job-form/render.php:815
 msgid "Apply URL"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:342
-#: blocks/job-form-simple/render.php:564
+#: blocks/job-form-simple/render.php:576
 #: blocks/job-form/render.php:834
 #: blocks/job-single/render.php:757
 msgid "Apply Email"
@@ -1219,7 +1219,7 @@ msgid "Company name (displayed on listing)"
 msgstr ""
 
 #: admin/class-admin-meta-boxes.php:377
-#: blocks/job-form-simple/render.php:541
+#: blocks/job-form-simple/render.php:553
 #: blocks/job-form/render.php:788
 msgid "Remote-friendly position"
 msgstr ""
@@ -1690,7 +1690,7 @@ msgstr ""
 #. translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($).
 #: admin/class-admin-settings.php:773
 #: admin/views/wizard-steps/jobs.php:41
-#: blocks/job-form-simple/render.php:518
+#: blocks/job-form-simple/render.php:530
 #: blocks/job-form/render.php:715
 #, php-format
 msgid "%1$s  -  %2$s (%3$s)"
@@ -4932,7 +4932,7 @@ msgid "Add your company profile before posting jobs."
 msgstr ""
 
 #: blocks/employer-dashboard/render.php:839
-#: blocks/job-form-simple/render.php:330
+#: blocks/job-form-simple/render.php:342
 #: blocks/job-form/render.php:1100
 msgid "Buy credits"
 msgstr ""
@@ -5191,7 +5191,7 @@ msgstr ""
 #: blocks/employer-dashboard/render.php:1265
 #: blocks/employer-dashboard/render.php:1294
 #: blocks/employer-dashboard/render.php:1299
-#: core/class-form-custom-fields.php:568
+#: core/class-form-custom-fields.php:571
 msgid "Enter a full web address, like https://example.com"
 msgstr ""
 
@@ -5463,7 +5463,7 @@ msgid "Set Up Alerts"
 msgstr ""
 
 #: blocks/job-filters/render.php:81
-#: blocks/job-form-simple/render.php:449
+#: blocks/job-form-simple/render.php:461
 #: blocks/job-form/render.php:887
 #: blocks/job-listings/render.php:596
 #: blocks/job-search-hero/render.php:101
@@ -5483,7 +5483,7 @@ msgid "All Locations"
 msgstr ""
 
 #: blocks/job-filters/render.php:99
-#: blocks/job-form-simple/render.php:480
+#: blocks/job-form-simple/render.php:492
 #: blocks/job-listings/render.php:617
 #: blocks/job-single/render.php:722
 #: blocks/job-listings/index.js:19
@@ -5495,7 +5495,7 @@ msgid "All Experience Levels"
 msgstr ""
 
 #: blocks/job-filters/render.php:109
-#: blocks/job-form-simple/render.php:527
+#: blocks/job-form-simple/render.php:539
 msgid "Minimum salary"
 msgstr ""
 
@@ -5504,7 +5504,7 @@ msgid "Min salary"
 msgstr ""
 
 #: blocks/job-filters/render.php:110
-#: blocks/job-form-simple/render.php:528
+#: blocks/job-form-simple/render.php:540
 msgid "Maximum salary"
 msgstr ""
 
@@ -5608,34 +5608,41 @@ msgstr ""
 msgid "Start over"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:305
-msgid "Job posted"
+#: blocks/job-form-simple/render.php:312
+#: blocks/job-form/render.php:533
+msgid "Job posted successfully!"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:305
+#: blocks/job-form-simple/render.php:314
 #: blocks/job-form/render.php:537
 msgid "Job submitted for review. You'll be notified once it's approved."
 msgstr ""
 
-#: blocks/job-form-simple/render.php:314
-msgid "View your job"
+#: blocks/job-form-simple/render.php:324
+#: blocks/job-form/render.php:547
+msgid "View your job listing →"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:320
+#: blocks/job-form-simple/render.php:328
 #: blocks/job-form/render.php:552
 msgid "View my jobs"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:342
+#: blocks/job-form-simple/render.php:331
+#: blocks/job-form/render.php:555
+msgid "Post another job"
+msgstr ""
+
+#: blocks/job-form-simple/render.php:354
 msgid "About the role"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:347
+#: blocks/job-form-simple/render.php:359
 #: blocks/job-form/render.php:573
 msgid "Post to Board"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:388
+#: blocks/job-form-simple/render.php:400
 #: blocks/job-form/render.php:611
 #: core/class-applications-csv.php:58
 #: modules/notifications/emails/class-email-app-confirmation.php:87
@@ -5653,117 +5660,117 @@ msgstr ""
 msgid "Job title"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:395
+#: blocks/job-form-simple/render.php:407
 #: blocks/job-form/render.php:618
 msgid "e.g. Senior PHP Developer"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:414
+#: blocks/job-form-simple/render.php:426
 #: blocks/job-form/render.php:642
 msgid "Generate with AI"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:415
+#: blocks/job-form-simple/render.php:427
 #: blocks/job-form/render.php:643
 msgid "Generating…"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:439
+#: blocks/job-form-simple/render.php:451
 msgid "Classification"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:451
+#: blocks/job-form-simple/render.php:463
 #: blocks/job-form/render.php:896
 msgid "Select a job type"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:460
+#: blocks/job-form-simple/render.php:472
 #: blocks/job-form/render.php:921
 msgid "Select a location"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:464
+#: blocks/job-form-simple/render.php:476
 #: blocks/job-form/render.php:927
 msgid "Other (enter manually)…"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:474
+#: blocks/job-form-simple/render.php:486
 #: blocks/job-form/render.php:937
 msgid "Custom location"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:475
+#: blocks/job-form-simple/render.php:487
 #: blocks/job-form/render.php:938
 msgid "e.g. Berlin, DE or Remote - Europe"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:482
+#: blocks/job-form-simple/render.php:494
 #: blocks/job-form/render.php:955
 msgid "Select experience level"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:491
+#: blocks/job-form-simple/render.php:503
 #: blocks/job-form/render.php:968
 msgid "Skills / Tags"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:496
+#: blocks/job-form-simple/render.php:508
 #: blocks/job-form/render.php:974
 msgid "e.g. React, TypeScript, Node.js"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:501
+#: blocks/job-form-simple/render.php:513
 msgid "Comma-separated."
 msgstr ""
 
-#: blocks/job-form-simple/render.php:507
+#: blocks/job-form-simple/render.php:519
 msgid "Compensation & schedule"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:510
+#: blocks/job-form-simple/render.php:522
 #: blocks/job-form/render.php:696
 msgid "Salary Range"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:527
+#: blocks/job-form-simple/render.php:539
 #: blocks/job-form/render.php:727
 #: core/class-form-custom-fields.php:518
 msgid "Min"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:528
+#: blocks/job-form-simple/render.php:540
 #: blocks/job-form/render.php:742
 #: core/class-form-custom-fields.php:519
 msgid "Max"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:529
+#: blocks/job-form-simple/render.php:541
 msgid "Period"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:535
+#: blocks/job-form-simple/render.php:547
 #: blocks/job-form/render.php:775
 msgid "Leave blank to hide salary from candidates."
 msgstr ""
 
-#: blocks/job-form-simple/render.php:556
+#: blocks/job-form-simple/render.php:568
 msgid "How candidates apply"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:561
+#: blocks/job-form-simple/render.php:573
 msgid "https://yourcompany.com/careers/apply"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:565
+#: blocks/job-form-simple/render.php:577
 msgid "jobs@yourcompany.com"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:596
+#: blocks/job-form-simple/render.php:608
 msgid "Additional details"
 msgstr ""
 
 #. translators: 1: number of days, 2: number of credits
-#: blocks/job-form-simple/render.php:610
+#: blocks/job-form-simple/render.php:622
 #: blocks/job-form/render.php:1090
 #, php-format
 msgid "Feature this job: it lists first for %1$d days (%2$s credit)."
@@ -5771,13 +5778,13 @@ msgid_plural "Feature this job: it lists first for %1$d days (%2$s credits)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: blocks/job-form-simple/render.php:627
+#: blocks/job-form-simple/render.php:639
 #: blocks/job-form/render.php:416
 #: blocks/job-form/render.php:1118
 msgid "Post Job"
 msgstr ""
 
-#: blocks/job-form-simple/render.php:628
+#: blocks/job-form-simple/render.php:640
 #: blocks/job-form/render.php:1121
 msgid "Posting…"
 msgstr ""
@@ -5889,20 +5896,8 @@ msgstr ""
 msgid "Buy Credits →"
 msgstr ""
 
-#: blocks/job-form/render.php:533
-msgid "Job posted successfully!"
-msgstr ""
-
 #: blocks/job-form/render.php:534
 msgid "Job updated."
-msgstr ""
-
-#: blocks/job-form/render.php:547
-msgid "View your job listing →"
-msgstr ""
-
-#: blocks/job-form/render.php:555
-msgid "Post another job"
 msgstr ""
 
 #: blocks/job-form/render.php:567
@@ -6545,12 +6540,12 @@ msgstr ""
 msgid "Enter one entry per line."
 msgstr ""
 
-#: core/class-form-custom-fields.php:571
+#: core/class-form-custom-fields.php:574
 msgid "Paste a link to your file."
 msgstr ""
 
 #. translators: 1: start of a date or salary range, 2: end of that range.
-#: core/class-form-custom-fields.php:884
+#: core/class-form-custom-fields.php:887
 #, php-format
 msgid "%1$s - %2$s"
 msgstr ""
