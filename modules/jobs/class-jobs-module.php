@@ -29,6 +29,14 @@ final class JobsModule {
 	public const TAXONOMIES = array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' );
 
 	/**
+	 * One-minute cookie set on logout; its value is the site (blog) ID whose
+	 * job form drafts the next page removes from the browser.
+	 *
+	 * @var string
+	 */
+	public const CLEAR_DRAFTS_COOKIE = 'wcb_clear_drafts';
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -58,6 +66,50 @@ final class JobsModule {
 		// jobs don't leak on the pretty permalink or archive.
 		add_filter( 'wcb_job_listings_query_args', array( $this, 'exclude_blocked_authors' ) );
 		add_action( 'template_redirect', array( $this, 'guard_hidden_single_job' ) );
+		add_action( 'wp_logout', array( self::class, 'flag_draft_cleanup' ) );
+		add_action( 'login_enqueue_scripts', array( self::class, 'enqueue_draft_cleanup' ) );
+		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_draft_cleanup' ) );
+	}
+
+	/**
+	 * Ask the next page to remove this site's job form drafts.
+	 *
+	 * The drafts live in the browser's localStorage, which only page script
+	 * can clear, so an explicit logout leaves a one-minute cookie the next
+	 * page (normally the sign-in screen) acts on. A session that simply
+	 * expires keeps its draft for when the employer signs back in.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function flag_draft_cleanup(): void {
+		if ( headers_sent() ) {
+			return;
+		}
+		setcookie(
+			self::CLEAR_DRAFTS_COOKIE,
+			(string) get_current_blog_id(),
+			array(
+				'expires'  => time() + MINUTE_IN_SECONDS,
+				'path'     => '/',
+				'secure'   => is_ssl(),
+				'httponly' => false, // The page script reads and expires it.
+				'samesite' => 'Lax',
+			)
+		);
+	}
+
+	/**
+	 * Load the draft cleanup script on the page after a logout.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function enqueue_draft_cleanup(): void {
+		if ( ! isset( $_COOKIE[ self::CLEAR_DRAFTS_COOKIE ] ) ) {
+			return;
+		}
+		wp_enqueue_script( 'wcb-clear-drafts', WCB_URL . 'assets/js/wcb-clear-drafts.js', array(), WCB_VERSION, array( 'strategy' => 'defer' ) );
 	}
 
 	/**

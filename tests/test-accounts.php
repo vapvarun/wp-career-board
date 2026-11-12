@@ -322,6 +322,34 @@ wcb_assert( 200 === wcb_rest( 'POST', '/wcb/v1/account', array( 'email' => "acc-
 wcb_assert( 200 === wcb_rest( 'POST', '/wcb/v1/account', array( 'display_name' => 'Acc C' ), $wcb_c )->get_status(), 'name-only change needs no password' );
 wp_set_current_user( 0 );
 
+WP_CLI::log( '--- logging out flags the job form drafts for removal ---' );
+$wcb_lo      = $wcb_mk( 'lo', 'wcb_employer' );
+$wcb_lo_exp  = time() + HOUR_IN_SECONDS;
+$wcb_lo_tok  = WP_Session_Tokens::get_instance( $wcb_lo )->create( $wcb_lo_exp );
+$wcb_lo_li   = wp_generate_auth_cookie( $wcb_lo, $wcb_lo_exp, 'logged_in', $wcb_lo_tok );
+$wcb_lo_auth = wp_generate_auth_cookie( $wcb_lo, $wcb_lo_exp, 'auth', $wcb_lo_tok );
+$_COOKIE[ LOGGED_IN_COOKIE ] = $wcb_lo_li;
+wp_set_current_user( $wcb_lo );
+$wcb_lo_url = add_query_arg( array( 'action' => 'logout', '_wpnonce' => wp_create_nonce( 'log-out' ) ), wp_login_url() );
+unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
+wp_set_current_user( 0 );
+$wcb_lo_res = wp_remote_get(
+	$wcb_lo_url,
+	array(
+		'timeout'     => 20,
+		'sslverify'   => false,
+		'redirection' => 0,
+		'cookies'     => array( LOGGED_IN_COOKIE => $wcb_lo_li, AUTH_COOKIE => $wcb_lo_auth ),
+	)
+);
+$wcb_lo_set = implode( "\n", (array) wp_remote_retrieve_header( $wcb_lo_res, 'set-cookie' ) );
+wcb_assert( str_contains( $wcb_lo_set, 'wcb_clear_drafts=' . get_current_blog_id() ) && ! str_contains( strtolower( $wcb_lo_set ), 'wcb_clear_drafts=' . get_current_blog_id() . '; expires=thu, 01' ), 'logging out sets the short-lived draft-cleanup cookie for this site' );
+wcb_assert( preg_match( '/wcb_clear_drafts=[^\n]*Max-Age=60/i', $wcb_lo_set ) && ! preg_match( '/wcb_clear_drafts=[^\n]*HttpOnly/i', $wcb_lo_set ), 'the cookie lives one minute and is readable by the page script' );
+$wcb_lo_page = wp_remote_get( wp_login_url(), array( 'timeout' => 20, 'sslverify' => false, 'cookies' => array( 'wcb_clear_drafts' => (string) get_current_blog_id() ) ) );
+wcb_assert( str_contains( (string) wp_remote_retrieve_body( $wcb_lo_page ), 'wcb-clear-drafts' ), 'the sign-in screen loads the draft cleanup script when the cookie is there' );
+$wcb_lo_plain = wp_remote_get( wp_login_url(), array( 'timeout' => 20, 'sslverify' => false ) );
+wcb_assert( ! str_contains( (string) wp_remote_retrieve_body( $wcb_lo_plain ), 'wcb-clear-drafts' ), 'control: no cleanup script without the cookie' );
+
 // Teardown.
 foreach ( array_unique( $wcb_users ) as $wcb_u ) {
 	wp_delete_user( (int) $wcb_u );

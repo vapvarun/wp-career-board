@@ -1366,7 +1366,7 @@
       "key": "module.jobs",
       "class": "WCB\\Modules\\Jobs\\JobsModule",
       "added": "1.0.0",
-      "purpose": "wcb_job CPT + taxonomies + meta + cron sub-services"
+      "purpose": "wcb_job CPT + taxonomies + meta + cron sub-services; 1.8.4: wp_logout sets the one-minute wcb_clear_drafts cookie (CLEAR_DRAFTS_COOKIE) and enqueue_draft_cleanup() loads assets/js/wcb-clear-drafts.js on login_enqueue_scripts/wp_enqueue_scripts while it is present"
     },
     {
       "key": "module.moderation",
