@@ -52,16 +52,8 @@ if ( empty( $wcb_jobs ) ) {
 // user meta still get one. Author user meta stays as the legacy fallback for
 // rows that pre-date the postmeta convention; read-only, no self-healing write.
 $wcb_company_map = array(); // Maps job ID to company thumbnail URL (empty string when absent).
-$wcb_author_map  = array(); // Memoised author ID => company ID for the fallback.
 foreach ( $wcb_jobs as $wcb_job_row ) {
-	$wcb_cid = (int) get_post_meta( $wcb_job_row->ID, '_wcb_company_id', true );
-	if ( ! $wcb_cid ) {
-		$wcb_aid = (int) $wcb_job_row->post_author;
-		if ( ! isset( $wcb_author_map[ $wcb_aid ] ) ) {
-			$wcb_author_map[ $wcb_aid ] = (int) get_user_meta( $wcb_aid, '_wcb_company_id', true );
-		}
-		$wcb_cid = $wcb_author_map[ $wcb_aid ];
-	}
+	$wcb_cid = \WCB\Core\CompanyMetaShape::for_job( $wcb_job_row );
 	$wcb_company_map[ $wcb_job_row->ID ] = $wcb_cid ? (string) get_the_post_thumbnail_url( $wcb_cid, 'thumbnail' ) : '';
 }
 ?>

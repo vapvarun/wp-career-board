@@ -185,10 +185,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	// company, which is the wrong badge when an admin posts on an employer's
 	// behalf, and is empty for employers whose reciprocal meta was never written.
 	// Read-only on purpose: this runs once per card, so no self-healing write here.
-	$wcb_company_post_id = (int) get_post_meta( $wcb_job_post->ID, '_wcb_company_id', true );
-	if ( ! $wcb_company_post_id ) {
-		$wcb_company_post_id = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
-	}
+	$wcb_company_post_id = \WCB\Core\CompanyMetaShape::for_job( $wcb_job_post );
 	$wcb_trust      = $wcb_company_post_id ? sanitize_key( (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) ) : '';
 	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
