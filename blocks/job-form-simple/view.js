@@ -90,6 +90,7 @@ const showDescription = ( value ) => {
 const clearForm = () => {
 	state.submitted     = false;
 	state.jobUrl        = '';
+	state.jobStatus     = '';
 	state.error         = '';
 	state.title         = '';
 	state.description   = '';
@@ -155,6 +156,15 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				.replace( '%1$s', noun )
 				.replace( '%2$s', nf( balance - cost ) )
 				.replace( '%3$s', nf( balance ) );
+		},
+
+		// Same rule as the multi-step job form: a pending job has no public page yet.
+		get jobPending() {
+			return state.jobStatus === 'pending';
+		},
+
+		get showJobLink() {
+			return !! state.jobUrl && ! state.jobPending;
 		},
 
 		get hasListingWindow() {
@@ -387,6 +397,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				// Show the day the server saved, not the one typed.
 				state.deadline  = ( json && json.deadline_day ) || state.deadline;
 				state.featureError = ( json && json.feature_error ) || '';
+				state.jobStatus = ( json && json.status ) || 'publish';
 				state.submitted = true;
 				// The job is saved: drop the draft and its notice together.
 				state.draftRestored = false;

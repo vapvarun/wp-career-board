@@ -194,6 +194,7 @@ $wcb_state = apply_filters(
 		'submitted'         => false,
 		'_aiGenerating'     => false,
 		'jobUrl'            => '',
+		'jobStatus'         => '',
 		'error'             => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
@@ -301,7 +302,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 	<!-- Success state -->
 	<div class="wcb-form-simple__success" data-wp-class--wcb-shown="state.submitted">
-		<h2 class="wcb-icon-label"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Job posted', 'wp-career-board' ); ?></h2>
+		<h2 class="wcb-icon-label"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><span data-wp-class--wcb-hidden="state.jobPending"><?php esc_html_e( 'Job posted', 'wp-career-board' ); ?></span><span class="wcb-hidden" data-wp-class--wcb-hidden="!state.jobPending"><?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?></span></h2>
 		<p
 			class="wcb-form-simple__meta"
 			data-wp-class--wcb-hidden="!state.hasListingWindow"
@@ -309,7 +310,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		></p>
 		<p hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
 		<p class="wcb-form-simple__actions">
-			<a class="wcb-btn wcb-btn--primary" data-wp-class--wcb-hidden="!state.jobUrl" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
+			<a class="wcb-btn wcb-btn--primary" data-wp-class--wcb-hidden="!state.showJobLink" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
 			</a>
 			<?php
