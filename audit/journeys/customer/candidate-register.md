@@ -20,7 +20,8 @@ needs: cli
 5. Verify a `wcb_resume` CPT record was created for the new user: `wp post list --post_type=wcb_resume --author=$(wp user get smoke.candidate.reg --field=ID) --field=ID` → expect at least one row returned
 6. As `smoke.candidate.reg` (autologin), GET `/candidate-dashboard/?autologin=smoke.candidate.reg` → expect HTTP 200, candidate dashboard renders (NOT a redirect to login, NOT a 403)
 7. Attempt duplicate registration: POST `/wp-json/wcb/v1/candidates/register` again with the same email → expect HTTP 400 or 409 with a non-empty error `code` (must not be HTTP 200 or 500)
-8. tail debug.log diff → expect ZERO new fatal/warning lines
+8. Close registration (`wp option update users_can_register 0`; on multisite set the network setting to "Registration is disabled"), then repeat step 2 with a new email → expect HTTP 403 `wcb_registration_disabled` and no user created; the same for `POST /wp-json/wcb/v1/employers/register`. Restore the setting. (1.8.4: multisite subsites no longer bypass the network setting.)
+9. tail debug.log diff → expect ZERO new fatal/warning lines
 
 ## Teardown
 

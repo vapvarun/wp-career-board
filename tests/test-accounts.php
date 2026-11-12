@@ -241,6 +241,41 @@ foreach ( array( 'a', 'b', 'c' ) as $wcb_x ) {
 	}
 }
 
+WP_CLI::log( '--- registration closed: both sign-up routes refuse (single site and multisite) ---' );
+// On multisite core filters option_users_can_register from the network setting,
+// so closing the network setting is the real-world case there.
+$wcb_net_was = is_multisite() ? get_site_option( 'registration' ) : null;
+$wcb_closed  = static fn () => 0;
+if ( is_multisite() ) {
+	update_site_option( 'registration', 'none' );
+} else {
+	add_filter( 'pre_option_users_can_register', $wcb_closed );
+}
+foreach ( array( 'candidates', 'employers' ) as $wcb_kind ) {
+	$wcb_r = wcb_rest(
+		'POST',
+		"/wcb/v1/{$wcb_kind}/register",
+		array(
+			'first_name'   => 'Acc',
+			'last_name'    => 'Closed',
+			'email'        => "acc-closed-{$wcb_kind}-{$wcb_s}@example.test",
+			'company_name' => 'Closed Co',
+			'password'     => $wcb_pw,
+		),
+		0
+	);
+	wcb_assert( 403 === $wcb_r->get_status() && 'wcb_registration_disabled' === ( $wcb_r->get_data()['code'] ?? '' ), "{$wcb_kind}/register is refused with 403 when registration is closed" . ( is_multisite() ? ' (multisite)' : ' (single site; the multisite case needs a network run)' ) );
+	$wcb_u = get_user_by( 'email', "acc-closed-{$wcb_kind}-{$wcb_s}@example.test" );
+	if ( $wcb_u ) {
+		$wcb_users[] = $wcb_u->ID;
+	}
+}
+if ( is_multisite() ) {
+	update_site_option( 'registration', $wcb_net_was );
+} else {
+	remove_filter( 'pre_option_users_can_register', $wcb_closed );
+}
+
 WP_CLI::log( '--- email verification ---' );
 $wcb_new = $wcb_mk( 'new', 'wcb_candidate' );
 EmailVerification::start( $wcb_new );
