@@ -491,7 +491,8 @@ const { state } = store(
 
 			get hasListingWindow() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.deadline;
+				// A job waiting for review is not live yet, so promise no date.
+				return ! ! state.deadline && ! state.jobPending;
 			},
 
 			// One format string, not "Apply by" + a value node — the date must be

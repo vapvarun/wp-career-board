@@ -168,7 +168,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		},
 
 		get hasListingWindow() {
-			return ! ! state.deadline;
+			// A job waiting for review is not live yet, so promise no date.
+			return ! ! state.deadline && ! state.jobPending;
 		},
 
 		get listingWindowMessage() {

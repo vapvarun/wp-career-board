@@ -100,6 +100,7 @@ foreach ( array( 'job-form', 'job-form-simple' ) as $wcb_block ) {
 	wcb_jfs_assert( $wcb_link_hidden, "{$wcb_block}: hides the job link while pending" );
 	wcb_jfs_assert( (bool) preg_match( '/jobStatus\s*=\s*.*status/', $wcb_view ), "{$wcb_block}: stores the status from the REST answer" );
 	wcb_jfs_assert( str_contains( $wcb_view, "jobStatus === 'pending'" ), "{$wcb_block}: treats pending as held for review" );
+	wcb_jfs_assert( (bool) preg_match( '/get hasListingWindow\(\)\s*\{[^\n]*\n(?:[^\n]*store\([^\n]*\n)?[^\n]*\n[^\n]*jobPending/', $wcb_view ), "{$wcb_block}: promises no live-until date while pending" );
 }
 
 // 4. My Jobs offers "View" only for a job that has a page (live, closed or expired).
