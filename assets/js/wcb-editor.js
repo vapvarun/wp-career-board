@@ -480,7 +480,16 @@
 
 		editorEl.wcbEditor = editor;
 		// Store actions yield this (flushEditors in @wcb/ui) before they read the field.
-		editorEl.wcbFlush = () => editor.isReady.then( writeBack );
+		// A value put in the textarea from outside (autofill, a script) that the
+		// editor never saw is kept: saving the still-empty editor over it would
+		// erase it. Show it in the editor instead.
+		editorEl.wcbFlush = () => editor.isReady.then( () => {
+			if ( ! isUserEditing && textarea.value !== lastRendered ) {
+				rerenderFromTextarea();
+				return undefined;
+			}
+			return writeBack();
+		} );
 		editorEl.dataset.wcbEditorVersion = EDITOR_VERSION;
 		flushOnNativeSubmit( editorEl.closest( 'form' ) );
 	}
