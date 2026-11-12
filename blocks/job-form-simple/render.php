@@ -257,6 +257,7 @@ $wcb_state = apply_filters(
 			// Submit-time validation + transport errors.
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
 			'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
+			'errorSalaryAmount'        => sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Enter a salary from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
 			'errorSessionExpired'      => __( 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
@@ -536,8 +537,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 							</option>
 						<?php endforeach; ?>
 					</select>
-					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />
-					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Max', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMax" data-wp-bind--value="state.salaryMax" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" />
+					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />
+					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Max', 'wp-career-board' ); ?>" min="0" max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>" data-wcb-field="salaryMax" data-wp-bind--value="state.salaryMax" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" />
 					<select class="wcb-field" data-wcb-field="salaryType" data-wp-bind--value="state.salaryType" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Period', 'wp-career-board' ); ?>">
 						<option value="yearly"><?php esc_html_e( 'Year', 'wp-career-board' ); ?></option>
 						<option value="monthly"><?php esc_html_e( 'Month', 'wp-career-board' ); ?></option>

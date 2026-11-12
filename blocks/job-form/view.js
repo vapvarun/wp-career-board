@@ -24,7 +24,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, fitDeadline, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 
 /**
@@ -656,6 +656,11 @@ const { state } = store(
 							return;
 						}
 					}
+					if ( state.step === 2 && salaryOutOfRange( state.salaryMin, state.salaryMax ) ) {
+						setValidation( state, 'salary', t( 'errorSalaryAmount', 'Enter a salary from 0 to 1,000,000,000.' ) );
+						focusField( 'wcb-salary-min' );
+						return;
+					}
 					if ( state.step === 2 && salaryInverted( state.salaryMin, state.salaryMax ) ) {
 						setValidation( state, 'salary', t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' ) );
 						focusField( 'wcb-salary-max' );
@@ -798,9 +803,7 @@ const { state } = store(
 						if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
 							state.error = t( 'errorSessionExpired', 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.' );
 						} else {
-							state.error = ( err && err.message )
-								? err.message
-								: t( 'errorSubmitFailed', 'Job could not be posted. Please try again.' );
+							state.error = restErrorMessage( err, t( 'errorSubmitFailed', 'Job could not be posted. Please try again.' ) );
 						}
 						// Not enough credits: offer the Credits tab right there.
 						state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';

@@ -2014,10 +2014,10 @@ final class JobsEndpoint extends RestController {
 				'type' => 'boolean',
 			),
 			'salary_min'      => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Minimum salary must be a positive number.', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Minimum salary must be a number from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ) ),
 			),
 			'salary_max'      => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Maximum salary must be a positive number.', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Maximum salary must be a number from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ) ),
 			),
 			'salary_currency' => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => array_key_exists( strtoupper( (string) $v ), \WCB\Admin\AdminSettings::get_currency_catalog() ), __( 'Unknown salary currency.', 'wp-career-board' ) ),

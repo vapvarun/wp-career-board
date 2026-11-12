@@ -142,14 +142,22 @@ final class JobsMeta {
 	}
 
 	/**
-	 * Keep a non-negative number, drop anything else.
+	 * The largest salary figure accepted, per period. Far above any real pay in
+	 * any currency; it only stops typos like 99999999999.
+	 *
+	 * @since 1.8.4
+	 */
+	public const MAX_SALARY = 1000000000;
+
+	/**
+	 * Keep a number from 0 to MAX_SALARY, drop anything else.
 	 *
 	 * @since  1.8.0
 	 * @param  mixed $value Raw value.
 	 * @return string
 	 */
 	public static function sanitize_amount( mixed $value ): string {
-		return ( is_numeric( $value ) && (float) $value >= 0 ) ? (string) ( 0 + $value ) : '';
+		return ( is_numeric( $value ) && (float) $value >= 0 && (float) $value <= self::MAX_SALARY ) ? (string) ( 0 + $value ) : '';
 	}
 
 	/**

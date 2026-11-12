@@ -113,6 +113,35 @@ export function jobLocationLabel( slug, custom ) {
 }
 
 /**
+ * The reason a REST error gives. A rejected field comes back as the generic
+ * "Invalid parameter(s): salary_min"; its own message sits in data.params.
+ *
+ * @param {Object|null} err      Decoded REST error body.
+ * @param {string}      fallback Text when the body has no message.
+ * @return {string}
+ */
+export function restErrorMessage( err, fallback ) {
+	const field = err && err.data && err.data.params ? Object.values( err.data.params )[ 0 ] : '';
+	if ( 'string' === typeof field && field ) {
+		return field;
+	}
+	return err && err.message ? err.message : fallback;
+}
+
+export const SALARY_MAX = 1000000000; // Same as JobsMeta::MAX_SALARY.
+
+/**
+ * Whether a typed salary is negative or above the largest accepted figure.
+ *
+ * @param {string|number} min Minimum salary as typed.
+ * @param {string|number} max Maximum salary as typed.
+ * @return {boolean}
+ */
+export function salaryOutOfRange( min, max ) {
+	return [ min, max ].some( ( v ) => '' !== String( v ?? '' ).trim() && ( Number( v ) < 0 || Number( v ) > SALARY_MAX ) );
+}
+
+/**
  * Whether a typed salary range runs backwards (both ends set, min above max).
  *
  * @param {string|number} min Minimum salary.

@@ -304,6 +304,7 @@ class AdminMetaBoxes {
 					name="wcb_salary_min"
 					value="<?php echo esc_attr( $wcb_salary_min ); ?>"
 					min="0"
+					max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>"
 					step="any"
 					placeholder="e.g. 60000"
 				/>
@@ -316,6 +317,7 @@ class AdminMetaBoxes {
 					name="wcb_salary_max"
 					value="<?php echo esc_attr( $wcb_salary_max ); ?>"
 					min="0"
+					max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>"
 					step="any"
 					placeholder="e.g. 90000"
 				/>
