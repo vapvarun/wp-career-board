@@ -66,11 +66,11 @@ msgstr "지원서"
 #: admin/class-admin.php:215
 #: admin/class-admin.php:216
 #: admin/class-admin.php:594
-#: blocks/candidate-dashboard/render.php:625
-#: blocks/employer-dashboard/render.php:406
-#: blocks/employer-dashboard/render.php:558
-#: blocks/employer-dashboard/render.php:711
-#: blocks/employer-dashboard/render.php:897
+#: blocks/candidate-dashboard/render.php:627
+#: blocks/employer-dashboard/render.php:407
+#: blocks/employer-dashboard/render.php:559
+#: blocks/employer-dashboard/render.php:712
+#: blocks/employer-dashboard/render.php:898
 #: modules/applications/class-applications-module.php:182
 msgid "Applications"
 msgstr "지원서"
@@ -102,7 +102,7 @@ msgid_plural "Candidates"
 msgstr[0] "지원자"
 
 #: admin/class-admin-applications.php:159
-#: blocks/employer-dashboard/render.php:904
+#: blocks/employer-dashboard/render.php:905
 #: blocks/job-stats/render.php:42
 #: modules/applications/widgets/class-applicant-card.php:117
 #: modules/gdpr/class-gdpr-module.php:331
@@ -165,8 +165,8 @@ msgstr "휴지통으로 이동"
 #: admin/class-admin-companies.php:322
 #: admin/class-admin-jobs.php:292
 #: admin/class-reported-members.php:161
-#: blocks/employer-dashboard/render.php:813
-#: blocks/employer-dashboard/render.php:937
+#: blocks/employer-dashboard/render.php:814
+#: blocks/employer-dashboard/render.php:938
 msgid "All"
 msgstr "전체"
 
@@ -229,7 +229,7 @@ msgid "Restore"
 msgstr "복원"
 
 #: admin/class-admin-applications.php:692
-#: blocks/employer-dashboard/render.php:1016
+#: blocks/employer-dashboard/render.php:1017
 msgid "Change application status"
 msgstr "지원서 상태 변경"
 
@@ -245,7 +245,7 @@ msgstr "채용공고 ID"
 msgid "Applicant Email"
 msgstr "지원자 이메일"
 
-#: blocks/employer-dashboard/render.php:446
+#: blocks/employer-dashboard/render.php:447
 #: core/class-applications-csv.php:62
 #: modules/applications/class-application-status.php:175
 #: modules/gdpr/class-gdpr-module.php:339
@@ -312,8 +312,8 @@ msgid "Registered"
 msgstr "가입일"
 
 #: admin/class-admin-candidates.php:144
-#: blocks/candidate-dashboard/render.php:1065
-#: blocks/candidate-dashboard/render.php:1149
+#: blocks/candidate-dashboard/render.php:1067
+#: blocks/candidate-dashboard/render.php:1151
 #: core/class-plugin.php:1229
 msgid "Delete"
 msgstr "삭제"
@@ -335,9 +335,9 @@ msgstr "후보자 선택"
 #: admin/class-admin-employers.php:552
 #: admin/class-admin-jobs.php:446
 #: admin/class-email-settings.php:189
-#: blocks/candidate-dashboard/render.php:1038
-#: blocks/employer-dashboard/render.php:873
-#: blocks/employer-dashboard/render.php:880
+#: blocks/candidate-dashboard/render.php:1040
+#: blocks/employer-dashboard/render.php:874
+#: blocks/employer-dashboard/render.php:881
 msgid "Edit"
 msgstr "편집"
 
@@ -353,9 +353,9 @@ msgstr "회사들"
 #: admin/class-admin-companies.php:84
 #: admin/class-admin.php:237
 #: admin/class-admin.php:238
-#: blocks/employer-dashboard/render.php:410
-#: blocks/employer-dashboard/render.php:567
-#: blocks/employer-dashboard/render.php:1116
+#: blocks/employer-dashboard/render.php:411
+#: blocks/employer-dashboard/render.php:568
+#: blocks/employer-dashboard/render.php:1117
 #: modules/employers/class-employers-module.php:634
 msgid "Companies"
 msgstr "회사"
@@ -389,19 +389,19 @@ msgstr "고용주"
 #: admin/class-admin-employers.php:130
 #: blocks/company-profile/render.php:229
 #: blocks/company-profile/render.php:301
-#: blocks/employer-dashboard/render.php:1263
+#: blocks/employer-dashboard/render.php:1264
 msgid "Website"
 msgstr "웹사이트"
 
 #: admin/class-admin-companies.php:126
 #: admin/class-admin-employers.php:131
 #: admin/class-admin.php:589
-#: blocks/employer-dashboard/render.php:769
+#: blocks/employer-dashboard/render.php:770
 msgid "Active Jobs"
 msgstr "활성 채용공고"
 
 #: admin/class-admin-companies.php:127
-#: admin/class-admin-meta-boxes.php:575
+#: admin/class-admin-meta-boxes.php:577
 msgid "Trust Level"
 msgstr "신뢰 수준"
 
@@ -410,7 +410,7 @@ msgstr "신뢰 수준"
 #: admin/class-admin-jobs.php:297
 #: admin/class-admin-jobs.php:604
 #: api/endpoints/class-employers-endpoint.php:1572
-#: blocks/employer-dashboard/render.php:457
+#: blocks/employer-dashboard/render.php:458
 msgid "Published"
 msgstr "게시됨"
 
@@ -419,8 +419,8 @@ msgstr "게시됨"
 #: admin/class-admin-jobs.php:299
 #: admin/class-admin-jobs.php:606
 #: api/endpoints/class-employers-endpoint.php:1573
-#: blocks/employer-dashboard/render.php:458
-#: blocks/employer-dashboard/render.php:815
+#: blocks/employer-dashboard/render.php:459
+#: blocks/employer-dashboard/render.php:816
 msgid "Draft"
 msgstr "임시저장"
 
@@ -455,9 +455,9 @@ msgstr " -  없음  - "
 #: blocks/company-archive/render.php:375
 #: blocks/company-profile/render.php:70
 #: blocks/job-listings/render.php:161
-#: blocks/job-listings/render.php:849
-#: blocks/job-single/render.php:128
-#: core/class-company-meta-shape.php:94
+#: blocks/job-listings/render.php:846
+#: blocks/job-single/render.php:124
+#: core/class-company-meta-shape.php:98
 msgid "Verified"
 msgstr "인증됨"
 
@@ -466,8 +466,8 @@ msgstr "인증됨"
 #: blocks/company-archive/render.php:71
 #: blocks/company-profile/render.php:74
 #: blocks/job-listings/render.php:162
-#: blocks/job-single/render.php:132
-#: core/class-company-meta-shape.php:98
+#: blocks/job-single/render.php:128
+#: core/class-company-meta-shape.php:102
 msgid "Trusted"
 msgstr "신뢰됨"
 
@@ -476,8 +476,8 @@ msgstr "신뢰됨"
 #: blocks/company-archive/render.php:72
 #: blocks/company-profile/render.php:78
 #: blocks/job-listings/render.php:163
-#: blocks/job-single/render.php:136
-#: core/class-company-meta-shape.php:102
+#: blocks/job-single/render.php:132
+#: core/class-company-meta-shape.php:106
 msgid "Premium"
 msgstr "프리미엄"
 
@@ -520,10 +520,10 @@ msgstr "모든 고용주 선택"
 
 #: admin/class-admin-employers.php:129
 #: admin/class-admin-jobs.php:124
-#: admin/class-admin-meta-boxes.php:346
-#: blocks/employer-dashboard/render.php:565
-#: blocks/job-form-simple/render.php:380
-#: blocks/job-form/render.php:593
+#: admin/class-admin-meta-boxes.php:348
+#: blocks/employer-dashboard/render.php:566
+#: blocks/job-form-simple/render.php:381
+#: blocks/job-form/render.php:594
 #: blocks/job-stats/render.php:51
 #: modules/employers/class-employers-module.php:635
 #: modules/jobs/class-jobs-module.php:236
@@ -604,13 +604,13 @@ msgstr "제목 및 설명"
 #: admin/class-admin-import.php:79
 #: admin/class-admin-import.php:234
 #: admin/class-admin-import.php:323
-#: blocks/candidate-dashboard/render.php:1200
+#: blocks/candidate-dashboard/render.php:1202
 #: blocks/job-filters/render.php:90
-#: blocks/job-form-simple/render.php:470
-#: blocks/job-form/render.php:907
-#: blocks/job-listings/render.php:686
+#: blocks/job-form-simple/render.php:471
+#: blocks/job-form/render.php:910
+#: blocks/job-listings/render.php:683
 #: blocks/job-search-hero/render.php:85
-#: blocks/job-single/render.php:729
+#: blocks/job-single/render.php:725
 #: modules/gdpr/class-gdpr-module.php:446
 #: modules/jobs/class-jobs-module.php:241
 #: modules/jobs/class-jobs-module.php:410
@@ -760,17 +760,17 @@ msgid "Resume import requires WP Career Board Pro."
 msgstr "이력서 가져오기에는 WP Career Board Pro 가 필요해요."
 
 #: admin/class-admin-job-editor.php:101
-#: blocks/job-form-simple/render.php:431
-#: blocks/job-form/render.php:647
+#: blocks/job-form-simple/render.php:432
+#: blocks/job-form/render.php:648
 msgid "Describe the role, responsibilities and requirements…"
 msgstr "역할, 책임 및 요건을 설명해 주세요…"
 
 #: admin/class-admin-job-editor.php:77
 #: admin/class-admin-job-editor.php:109
-#: blocks/job-form-simple/render.php:418
-#: blocks/job-form-simple/render.php:439
-#: blocks/job-form/render.php:634
-#: blocks/job-form/render.php:655
+#: blocks/job-form-simple/render.php:419
+#: blocks/job-form-simple/render.php:440
+#: blocks/job-form/render.php:635
+#: blocks/job-form/render.php:656
 msgid "Job description"
 msgstr "채용공고 설명"
 
@@ -794,7 +794,7 @@ msgstr "채용공고"
 #: admin/class-admin.php:204
 #: admin/class-setup-wizard.php:226
 #: admin/class-setup-wizard.php:826
-#: blocks/employer-dashboard/render.php:549
+#: blocks/employer-dashboard/render.php:550
 #: modules/jobs/class-jobs-module.php:327
 msgid "Jobs"
 msgstr "채용공고"
@@ -804,7 +804,7 @@ msgid "Manage job listings, approve pending submissions, and track active postin
 msgstr "채용공고를 관리하고, 대기 중인 제출물을 승인하며, 활성 게시물을 추적하세요."
 
 #: admin/class-admin-jobs.php:101
-#: blocks/job-listings/render.php:537
+#: blocks/job-listings/render.php:534
 #: blocks/job-search-hero/render.php:57
 #: blocks/job-search-hero/render.php:64
 #: blocks/job-search/render.php:41
@@ -851,15 +851,15 @@ msgstr "검토 대기 중"
 #: admin/class-admin-jobs.php:300
 #: admin/class-admin-jobs.php:607
 #: api/endpoints/class-employers-endpoint.php:1577
-#: blocks/employer-dashboard/render.php:459
+#: blocks/employer-dashboard/render.php:460
 msgid "Expired"
 msgstr "만료됨"
 
 #: admin/class-admin-jobs.php:301
 #: admin/class-admin-jobs.php:608
 #: api/endpoints/class-employers-endpoint.php:1576
-#: blocks/employer-dashboard/render.php:455
-#: blocks/employer-dashboard/render.php:817
+#: blocks/employer-dashboard/render.php:456
+#: blocks/employer-dashboard/render.php:818
 #: modules/applications/class-application-status.php:186
 msgid "Closed"
 msgstr "마감됨"
@@ -894,8 +894,8 @@ msgstr "게시 취소"
 
 #: admin/class-admin-jobs.php:605
 #: api/endpoints/class-employers-endpoint.php:1574
-#: blocks/employer-dashboard/render.php:456
-#: blocks/employer-dashboard/render.php:816
+#: blocks/employer-dashboard/render.php:457
+#: blocks/employer-dashboard/render.php:817
 msgid "Pending"
 msgstr "대기 중"
 
@@ -908,8 +908,8 @@ msgid_plural "%d reports"
 msgstr[0] "%d건 신고"
 
 #: admin/class-admin-meta-boxes.php:82
-#: blocks/job-form/render.php:690
-#: blocks/job-single/render.php:710
+#: blocks/job-form/render.php:691
+#: blocks/job-single/render.php:706
 msgid "Job Details"
 msgstr "채용 공고 세부 정보"
 
@@ -936,8 +936,8 @@ msgid "No rejection reason recorded."
 msgstr "거부 사유가 기록되어 있지 않아요."
 
 #: admin/class-admin-meta-boxes.php:275
-#: blocks/job-form-simple/render.php:524
-#: blocks/job-form/render.php:701
+#: blocks/job-form-simple/render.php:525
+#: blocks/job-form/render.php:702
 msgid "Currency"
 msgstr "통화"
 
@@ -948,25 +948,25 @@ msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
 #: admin/class-admin-meta-boxes.php:292
-#: blocks/job-form/render.php:759
+#: blocks/job-form/render.php:762
 msgid "Per"
 msgstr "기준"
 
 #: admin/class-admin-meta-boxes.php:294
-#: blocks/job-form-simple/render.php:542
-#: blocks/job-form/render.php:768
+#: blocks/job-form-simple/render.php:543
+#: blocks/job-form/render.php:771
 msgid "Year"
 msgstr "년"
 
 #: admin/class-admin-meta-boxes.php:295
-#: blocks/job-form-simple/render.php:543
-#: blocks/job-form/render.php:769
+#: blocks/job-form-simple/render.php:544
+#: blocks/job-form/render.php:772
 msgid "Month"
 msgstr "월"
 
 #: admin/class-admin-meta-boxes.php:296
-#: blocks/job-form-simple/render.php:544
-#: blocks/job-form/render.php:770
+#: blocks/job-form-simple/render.php:545
+#: blocks/job-form/render.php:773
 msgid "Hour"
 msgstr "시간"
 
@@ -974,199 +974,199 @@ msgstr "시간"
 msgid "Salary Min"
 msgstr "최소 급여"
 
-#: admin/class-admin-meta-boxes.php:312
+#: admin/class-admin-meta-boxes.php:313
 msgid "Salary Max"
 msgstr "최대 급여"
 
-#: admin/class-admin-meta-boxes.php:324
-#: blocks/job-form-simple/render.php:557
-#: blocks/job-form/render.php:794
+#: admin/class-admin-meta-boxes.php:326
+#: blocks/job-form-simple/render.php:558
+#: blocks/job-form/render.php:797
 msgid "Application Deadline"
 msgstr "지원 마감일"
 
-#: admin/class-admin-meta-boxes.php:349
+#: admin/class-admin-meta-boxes.php:351
 msgid " -  Select a company  - "
 msgstr " -  회사 선택  - "
 
 #. translators: %s: URL to add a new company
-#: admin/class-admin-meta-boxes.php:361
+#: admin/class-admin-meta-boxes.php:363
 #, php-format
 msgid "No companies yet. %s"
 msgstr "아직 등록된 회사가 없어요. %s"
 
-#: admin/class-admin-meta-boxes.php:362
+#: admin/class-admin-meta-boxes.php:364
 msgid "Add one"
 msgstr "추가하기"
 
 #: admin/class-admin-companies.php:123
-#: admin/class-admin-meta-boxes.php:366
-#: blocks/employer-dashboard/render.php:1201
+#: admin/class-admin-meta-boxes.php:368
+#: blocks/employer-dashboard/render.php:1202
 #: blocks/employer-registration/render.php:310
 #: modules/notifications/emails/class-email-deadline-reminder.php:91
 msgid "Company name"
 msgstr "회사명"
 
-#: admin/class-admin-meta-boxes.php:366
+#: admin/class-admin-meta-boxes.php:368
 msgid "Company name (displayed on listing)"
 msgstr "회사명 (채용 공고에 표시됨)"
 
-#: admin/class-admin-meta-boxes.php:377
-#: blocks/job-form-simple/render.php:553
-#: blocks/job-form/render.php:788
+#: admin/class-admin-meta-boxes.php:379
+#: blocks/job-form-simple/render.php:554
+#: blocks/job-form/render.php:791
 msgid "Remote-friendly position"
 msgstr "원격 근무 가능 직위"
 
-#: admin/class-admin-meta-boxes.php:388
+#: admin/class-admin-meta-boxes.php:390
 msgid "Featured listing"
 msgstr "추천 공고"
 
-#: admin/class-admin-meta-boxes.php:419
+#: admin/class-admin-meta-boxes.php:421
 #: blocks/employer-dashboard/render.php:188
 #: blocks/employer-registration/render.php:100
-#: core/class-company-meta-shape.php:194
+#: core/class-company-meta-shape.php:198
 msgid "1-10 employees"
 msgstr "직원 1~10명"
 
-#: admin/class-admin-meta-boxes.php:420
+#: admin/class-admin-meta-boxes.php:422
 #: blocks/employer-dashboard/render.php:189
 #: blocks/employer-registration/render.php:101
-#: core/class-company-meta-shape.php:195
+#: core/class-company-meta-shape.php:199
 msgid "11-50 employees"
 msgstr "11-50명의 직원"
 
-#: admin/class-admin-meta-boxes.php:421
+#: admin/class-admin-meta-boxes.php:423
 #: blocks/employer-dashboard/render.php:190
 #: blocks/employer-registration/render.php:102
-#: core/class-company-meta-shape.php:196
+#: core/class-company-meta-shape.php:200
 msgid "51-200 employees"
 msgstr "51-200명의 직원"
 
-#: admin/class-admin-meta-boxes.php:422
+#: admin/class-admin-meta-boxes.php:424
 #: blocks/employer-dashboard/render.php:191
 #: blocks/employer-registration/render.php:103
-#: core/class-company-meta-shape.php:197
+#: core/class-company-meta-shape.php:201
 msgid "201-500 employees"
 msgstr "201-500명의 직원"
 
-#: admin/class-admin-meta-boxes.php:423
+#: admin/class-admin-meta-boxes.php:425
 #: blocks/employer-dashboard/render.php:192
 #: blocks/employer-registration/render.php:104
-#: core/class-company-meta-shape.php:198
+#: core/class-company-meta-shape.php:202
 msgid "501-1,000 employees"
 msgstr "501-1,000명의 직원"
 
-#: admin/class-admin-meta-boxes.php:424
+#: admin/class-admin-meta-boxes.php:426
 #: blocks/employer-dashboard/render.php:193
 #: blocks/employer-registration/render.php:105
-#: core/class-company-meta-shape.php:199
+#: core/class-company-meta-shape.php:203
 msgid "1,001-5,000 employees"
 msgstr "1,001-5,000명의 직원"
 
-#: admin/class-admin-meta-boxes.php:425
-#: core/class-company-meta-shape.php:208
+#: admin/class-admin-meta-boxes.php:427
+#: core/class-company-meta-shape.php:212
 msgid "5,001+ employees"
 msgstr "5,001명 이상의 직원"
 
-#: core/class-company-meta-shape.php:136
+#: core/class-company-meta-shape.php:140
 msgid "Public Company"
 msgstr "상장 기업"
 
-#: core/class-company-meta-shape.php:137
+#: core/class-company-meta-shape.php:141
 msgid "Privately Held"
 msgstr "비상장 기업"
 
-#: core/class-company-meta-shape.php:138
+#: core/class-company-meta-shape.php:142
 msgid "Self-Employed / Freelance"
 msgstr "자영업 / 프리랜서"
 
-#: core/class-company-meta-shape.php:139
+#: core/class-company-meta-shape.php:143
 msgid "Non-profit"
 msgstr "비영리 단체"
 
-#: core/class-company-meta-shape.php:140
+#: core/class-company-meta-shape.php:144
 msgid "Government Agency"
 msgstr "정부 기관"
 
-#: core/class-company-meta-shape.php:141
+#: core/class-company-meta-shape.php:145
 msgid "Educational Institution"
 msgstr "교육 기관"
 
-#: core/class-company-meta-shape.php:142
+#: core/class-company-meta-shape.php:146
 msgid "Partnership"
 msgstr "파트너십"
 
-#: admin/class-admin-meta-boxes.php:439
+#: admin/class-admin-meta-boxes.php:441
 msgid "Featured company"
 msgstr "추천 기업"
 
-#: admin/class-admin-meta-boxes.php:444
+#: admin/class-admin-meta-boxes.php:446
 msgid "Tagline / Slogan"
 msgstr "태그라인 / 슬로건"
 
-#: admin/class-admin-meta-boxes.php:450
+#: admin/class-admin-meta-boxes.php:452
 msgid "e.g. Building a better future, one product at a time"
 msgstr "예: 한 번에 하나의 제품으로 더 나은 미래를 만들어요"
 
-#: admin/class-admin-meta-boxes.php:452
+#: admin/class-admin-meta-boxes.php:454
 msgid "Short company motto shown below the name."
 msgstr "이름 아래에 표시되는 짧은 회사 슬로건이에요."
 
-#: admin/class-admin-meta-boxes.php:456
+#: admin/class-admin-meta-boxes.php:458
 msgid "Website URL"
 msgstr "웹사이트 URL"
 
-#: admin/class-admin-meta-boxes.php:467
+#: admin/class-admin-meta-boxes.php:469
 #: blocks/company-archive/render.php:292
 #: blocks/company-profile/render.php:271
-#: blocks/employer-dashboard/render.php:1229
+#: blocks/employer-dashboard/render.php:1230
 #: blocks/employer-registration/render.php:333
-#: blocks/job-single/render.php:929
+#: blocks/job-single/render.php:925
 msgid "Industry"
 msgstr "업종"
 
-#: admin/class-admin-meta-boxes.php:478
-#: blocks/employer-dashboard/render.php:1270
+#: admin/class-admin-meta-boxes.php:480
+#: blocks/employer-dashboard/render.php:1271
 msgid "Company Type"
 msgstr "기업 유형"
 
-#: admin/class-admin-meta-boxes.php:500
-#: blocks/employer-dashboard/render.php:1286
+#: admin/class-admin-meta-boxes.php:502
+#: blocks/employer-dashboard/render.php:1287
 msgid "Founded Year"
 msgstr "설립 연도"
 
-#: admin/class-admin-meta-boxes.php:513
+#: admin/class-admin-meta-boxes.php:515
 msgid "Headquarters Location"
 msgstr "본사 위치"
 
-#: admin/class-admin-meta-boxes.php:519
+#: admin/class-admin-meta-boxes.php:521
 msgid "e.g. San Francisco, CA, USA"
 msgstr "예: 미국, 캘리포니아주, 샌프란시스코"
 
-#: admin/class-admin-meta-boxes.php:542
+#: admin/class-admin-meta-boxes.php:544
 msgid "LinkedIn URL"
 msgstr "LinkedIn URL"
 
-#: admin/class-admin-meta-boxes.php:549
+#: admin/class-admin-meta-boxes.php:551
 msgid "X (Twitter) URL"
 msgstr "X (Twitter) URL"
 
-#: admin/class-admin-meta-boxes.php:568
+#: admin/class-admin-meta-boxes.php:570
 msgid "None"
 msgstr "없음"
 
-#: admin/class-admin-meta-boxes.php:569
+#: admin/class-admin-meta-boxes.php:571
 msgid "Verified ✓"
 msgstr "인증됨 ✓"
 
-#: admin/class-admin-meta-boxes.php:570
+#: admin/class-admin-meta-boxes.php:572
 msgid "Trusted ★"
 msgstr "신뢰됨 ★"
 
-#: admin/class-admin-meta-boxes.php:571
+#: admin/class-admin-meta-boxes.php:573
 msgid "Premium ◆"
 msgstr "프리미엄 ◆"
 
-#: admin/class-admin-meta-boxes.php:583
+#: admin/class-admin-meta-boxes.php:585
 msgid "\"Verified\" shows the checkmark badge on job listings."
 msgstr "\"인증됨\"은 채용 공고에 체크마크 배지를 표시해요."
 
@@ -1193,11 +1193,11 @@ msgid "Pages"
 msgstr "페이지"
 
 #: blocks/candidate-dashboard/render.php:209
-#: blocks/candidate-dashboard/render.php:557
-#: blocks/candidate-dashboard/render.php:1313
-#: blocks/employer-dashboard/render.php:415
-#: blocks/employer-dashboard/render.php:642
-#: blocks/employer-dashboard/render.php:1562
+#: blocks/candidate-dashboard/render.php:559
+#: blocks/candidate-dashboard/render.php:1315
+#: blocks/employer-dashboard/render.php:416
+#: blocks/employer-dashboard/render.php:643
+#: blocks/employer-dashboard/render.php:1563
 msgid "Notifications"
 msgstr "알림"
 
@@ -1217,16 +1217,16 @@ msgid "Integrations"
 msgstr "통합"
 
 #: admin/class-admin-settings.php:419
-#: blocks/employer-dashboard/render.php:872
+#: blocks/employer-dashboard/render.php:873
 msgid "Pipeline"
 msgstr "파이프라인"
 
 #: admin/class-admin-settings.php:420
-#: blocks/employer-dashboard/render.php:416
-#: blocks/employer-dashboard/render.php:582
-#: blocks/employer-dashboard/render.php:585
-#: blocks/employer-dashboard/render.php:720
-#: blocks/employer-dashboard/render.php:1548
+#: blocks/employer-dashboard/render.php:417
+#: blocks/employer-dashboard/render.php:583
+#: blocks/employer-dashboard/render.php:586
+#: blocks/employer-dashboard/render.php:721
+#: blocks/employer-dashboard/render.php:1549
 msgid "Credits"
 msgstr "크레딧"
 
@@ -1273,10 +1273,10 @@ msgstr "샘플 데이터 삭제"
 
 #: admin/class-admin.php:865
 #: admin/class-admin.php:936
-#: blocks/candidate-dashboard/render.php:998
-#: blocks/candidate-dashboard/render.php:1080
+#: blocks/candidate-dashboard/render.php:1000
+#: blocks/candidate-dashboard/render.php:1082
 #: blocks/job-form/editor-toolbar.php:30
-#: blocks/job-single/render.php:1017
+#: blocks/job-single/render.php:1013
 #: core/class-plugin.php:1334
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
@@ -1372,8 +1372,8 @@ msgstr "기본 급여 통화"
 #. translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($).
 #: admin/class-admin-settings.php:773
 #: admin/views/wizard-steps/jobs.php:41
-#: blocks/job-form-simple/render.php:530
-#: blocks/job-form/render.php:715
+#: blocks/job-form-simple/render.php:531
+#: blocks/job-form/render.php:716
 #, php-format
 msgid "%1$s  -  %2$s (%3$s)"
 msgstr "%1$s - %2$s (%3$s)"
@@ -1547,9 +1547,9 @@ msgstr "공고 태그"
 #: admin/class-admin.php:528
 #: admin/class-admin.php:730
 #: blocks/candidate-dashboard/render.php:208
-#: blocks/candidate-dashboard/render.php:550
-#: blocks/employer-dashboard/render.php:414
-#: blocks/employer-dashboard/render.php:635
+#: blocks/candidate-dashboard/render.php:552
+#: blocks/employer-dashboard/render.php:415
+#: blocks/employer-dashboard/render.php:636
 #: blocks/featured-jobs/index.js:57
 #: blocks/recent-jobs/index.js:42
 #: blocks/similar-companies-card/index.js:43
@@ -1597,10 +1597,10 @@ msgstr "+ 사용자 추가"
 #. translators: link to the full jobs archive. The trailing arrow is part of the string so RTL locales can flip its glyph in translation.
 #: admin/class-admin.php:622
 #: admin/class-admin.php:663
-#: blocks/candidate-dashboard/render.php:654
-#: blocks/candidate-dashboard/render.php:678
-#: blocks/employer-dashboard/render.php:750
-#: blocks/recent-jobs/render.php:78
+#: blocks/candidate-dashboard/render.php:656
+#: blocks/candidate-dashboard/render.php:680
+#: blocks/employer-dashboard/render.php:751
+#: blocks/recent-jobs/render.php:70
 msgid "View all →"
 msgstr "모두 보기 →"
 
@@ -1614,8 +1614,8 @@ msgid "No jobs pending review."
 msgstr "검토 대기 중인 공고가 없어요."
 
 #: admin/class-admin.php:660
-#: blocks/candidate-dashboard/render.php:653
-#: blocks/employer-dashboard/render.php:749
+#: blocks/candidate-dashboard/render.php:655
+#: blocks/employer-dashboard/render.php:750
 msgid "Recent Applications"
 msgstr "최근 지원서"
 
@@ -1624,7 +1624,7 @@ msgid "Add User"
 msgstr "사용자 추가"
 
 #: admin/class-admin.php:751
-#: blocks/employer-dashboard/render.php:689
+#: blocks/employer-dashboard/render.php:690
 msgid "Dismiss"
 msgstr "닫기"
 
@@ -1669,7 +1669,7 @@ msgid "Reason (optional):"
 msgstr "사유 (선택 사항):"
 
 #: admin/class-admin.php:864
-#: blocks/candidate-dashboard/render.php:1075
+#: blocks/candidate-dashboard/render.php:1077
 #: core/class-plugin.php:1333
 msgid "Confirm"
 msgstr "확인"
@@ -1684,7 +1684,7 @@ msgstr "가져오는 중…"
 
 #: admin/class-admin.php:965
 #: blocks/company-profile/render.php:122
-#: blocks/job-single/render.php:377
+#: blocks/job-single/render.php:373
 #: core/widgets/class-widget-shortcode.php:119
 msgid "Could not save."
 msgstr "저장할 수 없어요."
@@ -1722,14 +1722,14 @@ msgstr "이미지 선택"
 
 #: admin/class-admin-settings.php:1139
 #: admin/class-admin.php:906
-#: blocks/candidate-dashboard/render.php:767
-#: blocks/candidate-dashboard/render.php:828
-#: blocks/candidate-dashboard/render.php:885
-#: blocks/candidate-dashboard/render.php:943
-#: blocks/employer-dashboard/render.php:1153
-#: blocks/employer-dashboard/render.php:1376
-#: blocks/employer-dashboard/render.php:1420
-#: blocks/employer-dashboard/render.php:1467
+#: blocks/candidate-dashboard/render.php:769
+#: blocks/candidate-dashboard/render.php:830
+#: blocks/candidate-dashboard/render.php:887
+#: blocks/candidate-dashboard/render.php:945
+#: blocks/employer-dashboard/render.php:1154
+#: blocks/employer-dashboard/render.php:1377
+#: blocks/employer-dashboard/render.php:1421
+#: blocks/employer-dashboard/render.php:1468
 msgid "Remove"
 msgstr "제거"
 
@@ -1738,9 +1738,9 @@ msgid "Footer Text"
 msgstr "푸터 텍스트"
 
 #: admin/class-email-settings.php:151
-#: blocks/candidate-dashboard/render.php:1175
-#: blocks/candidate-dashboard/render.php:1263
-#: blocks/employer-dashboard/render.php:1500
+#: blocks/candidate-dashboard/render.php:1177
+#: blocks/candidate-dashboard/render.php:1265
+#: blocks/employer-dashboard/render.php:1501
 #: blocks/employer-registration/render.php:143
 #: modules/applications/widgets/class-applicant-card.php:107
 #: modules/gdpr/class-gdpr-module.php:351
@@ -1853,14 +1853,14 @@ msgid "When"
 msgstr "시간"
 
 #: admin/class-email-settings.php:301
-#: blocks/candidate-dashboard/render.php:723
-#: blocks/candidate-dashboard/render.php:798
-#: blocks/candidate-dashboard/render.php:854
-#: blocks/candidate-dashboard/render.php:912
-#: blocks/candidate-dashboard/render.php:1005
-#: blocks/employer-dashboard/render.php:1356
-#: blocks/employer-dashboard/render.php:1399
-#: blocks/employer-dashboard/render.php:1446
+#: blocks/candidate-dashboard/render.php:725
+#: blocks/candidate-dashboard/render.php:800
+#: blocks/candidate-dashboard/render.php:856
+#: blocks/candidate-dashboard/render.php:914
+#: blocks/candidate-dashboard/render.php:1007
+#: blocks/employer-dashboard/render.php:1357
+#: blocks/employer-dashboard/render.php:1400
+#: blocks/employer-dashboard/render.php:1447
 msgid "Loading…"
 msgstr "불러오는 중…"
 
@@ -1991,9 +1991,9 @@ msgstr "id \"%s\"와(과) 일치하는 등록된 이메일이 없어요."
 
 #: api/endpoints/class-admin-endpoint.php:255
 #: api/endpoints/class-admin-endpoint.php:256
-#: blocks/candidate-dashboard/render.php:629
-#: blocks/employer-dashboard/render.php:450
-#: blocks/employer-dashboard/render.php:949
+#: blocks/candidate-dashboard/render.php:631
+#: blocks/employer-dashboard/render.php:451
+#: blocks/employer-dashboard/render.php:950
 #: modules/applications/class-application-status.php:177
 msgid "Shortlisted"
 msgstr "최종 후보 선정됨"
@@ -2166,16 +2166,16 @@ msgstr "회사명을 입력해야 해요."
 
 #: admin/class-admin-candidates.php:433
 #: api/endpoints/class-employers-endpoint.php:1575
-#: blocks/candidate-dashboard/render.php:1021
+#: blocks/candidate-dashboard/render.php:1023
 msgid "Private"
 msgstr "비공개"
 
 #: api/endpoints/class-employers-endpoint.php:822
 #: api/endpoints/class-employers-endpoint.php:936
-#: blocks/employer-dashboard/render.php:452
-#: blocks/employer-dashboard/render.php:460
-#: blocks/employer-dashboard/render.php:818
-#: blocks/employer-dashboard/render.php:953
+#: blocks/employer-dashboard/render.php:453
+#: blocks/employer-dashboard/render.php:461
+#: blocks/employer-dashboard/render.php:819
+#: blocks/employer-dashboard/render.php:954
 #: modules/applications/class-application-status.php:180
 msgid "Rejected"
 msgstr "거절됨"
@@ -2207,7 +2207,7 @@ msgstr "WP Job Manager Resumes가 활성화되어 있지 않아요."
 
 #. translators: %s: number of jobs found, already localised.
 #: api/endpoints/class-jobs-endpoint.php:322
-#: blocks/job-listings/render.php:367
+#: blocks/job-listings/render.php:364
 #, php-format
 msgid "%s job found"
 msgid_plural "%s jobs found"
@@ -2239,17 +2239,17 @@ msgstr "채용 공고 제목을 입력해야 해요."
 
 #. translators: %s: human-readable time difference, e.g. "3 days".
 #: api/endpoints/class-jobs-endpoint.php:1870
-#: blocks/job-listings/render.php:230
-#: blocks/recent-jobs/render.php:129
+#: blocks/job-listings/render.php:227
+#: blocks/recent-jobs/render.php:121
 #, php-format
 msgid "%s ago"
 msgstr "%s 전"
 
-#: api/endpoints/class-jobs-endpoint.php:2097
+#: api/endpoints/class-jobs-endpoint.php:2101
 msgid "Sort jobs by attribute."
 msgstr "속성별로 채용 공고를 정렬해요."
 
-#: api/endpoints/class-jobs-endpoint.php:2105
+#: api/endpoints/class-jobs-endpoint.php:2109
 msgid "Order jobs ascending or descending."
 msgstr "채용 공고를 오름차순 또는 내림차순으로 정렬하세요."
 
@@ -2258,220 +2258,220 @@ msgid "You do not have permission to view this dashboard."
 msgstr "이 대시보드를 볼 권한이 없어요."
 
 #: blocks/candidate-dashboard/render.php:198
-#: blocks/candidate-dashboard/render.php:445
-#: blocks/candidate-dashboard/render.php:575
-#: blocks/employer-dashboard/render.php:404
-#: blocks/employer-dashboard/render.php:545
-#: blocks/employer-dashboard/render.php:660
+#: blocks/candidate-dashboard/render.php:447
+#: blocks/candidate-dashboard/render.php:577
+#: blocks/employer-dashboard/render.php:405
+#: blocks/employer-dashboard/render.php:546
+#: blocks/employer-dashboard/render.php:661
 msgid "Overview"
 msgstr "개요"
 
 #: blocks/candidate-dashboard/render.php:199
-#: blocks/candidate-dashboard/render.php:451
-#: blocks/candidate-dashboard/render.php:718
+#: blocks/candidate-dashboard/render.php:453
+#: blocks/candidate-dashboard/render.php:720
 msgid "My Applications"
 msgstr "내 지원 현황"
 
 #: blocks/candidate-dashboard/render.php:203
-#: blocks/candidate-dashboard/render.php:469
-#: blocks/candidate-dashboard/render.php:638
-#: blocks/candidate-dashboard/render.php:967
+#: blocks/candidate-dashboard/render.php:471
+#: blocks/candidate-dashboard/render.php:640
+#: blocks/candidate-dashboard/render.php:969
 msgid "My Resumes"
 msgstr "내 이력서"
 
 #: blocks/candidate-dashboard/render.php:205
-#: blocks/candidate-dashboard/render.php:488
+#: blocks/candidate-dashboard/render.php:490
 #: modules/candidates/class-candidates-module.php:233
 msgid "Edit Resume"
 msgstr "이력서 수정"
 
 #: blocks/candidate-dashboard/render.php:206
-#: blocks/candidate-dashboard/render.php:427
-#: blocks/employer-dashboard/render.php:409
-#: blocks/employer-dashboard/render.php:517
+#: blocks/candidate-dashboard/render.php:429
+#: blocks/employer-dashboard/render.php:410
+#: blocks/employer-dashboard/render.php:518
 msgid "Dashboard"
 msgstr "대시보드"
 
 #: blocks/candidate-dashboard/render.php:207
-#: blocks/candidate-dashboard/render.php:544
-#: blocks/employer-dashboard/render.php:407
-#: blocks/employer-dashboard/render.php:571
+#: blocks/candidate-dashboard/render.php:546
+#: blocks/employer-dashboard/render.php:408
+#: blocks/employer-dashboard/render.php:572
 msgid "Profile"
 msgstr "프로필"
 
 #. translators: %1$s: match score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires.
-#: blocks/candidate-dashboard/render.php:213
-#: blocks/employer-dashboard/render.php:442
+#: blocks/candidate-dashboard/render.php:215
+#: blocks/employer-dashboard/render.php:443
 #, php-format
 msgid "%1$s%"
 msgstr "%1$s%"
 
 #. translators: location dropdown label for jobs with no fixed place.
-#: blocks/candidate-dashboard/render.php:214
-#: blocks/job-form/render.php:1025
-#: blocks/job-listings/render.php:869
-#: blocks/job-single/render.php:436
-#: blocks/job-single/render.php:737
+#: blocks/candidate-dashboard/render.php:216
+#: blocks/job-form/render.php:1028
+#: blocks/job-listings/render.php:866
+#: blocks/job-single/render.php:432
+#: blocks/job-single/render.php:733
 #: core/class-locations.php:145
 #: modules/seo/class-rss-feed-enrichment.php:182
 msgid "Remote"
 msgstr "원격 근무"
 
 #. translators: currency symbol shown on salary pills when the site has no configured currency symbol.
-#: blocks/candidate-dashboard/render.php:216
+#: blocks/candidate-dashboard/render.php:218
 msgid "$"
 msgstr "$"
 
-#: blocks/candidate-dashboard/render.php:217
-#: blocks/employer-dashboard/render.php:393
-#: blocks/employer-dashboard/render.php:905
-#: blocks/employer-dashboard/render.php:915
+#: blocks/candidate-dashboard/render.php:219
+#: blocks/employer-dashboard/render.php:394
+#: blocks/employer-dashboard/render.php:906
+#: blocks/employer-dashboard/render.php:916
 msgid "All jobs"
 msgstr "모든 채용 공고"
 
-#: blocks/candidate-dashboard/render.php:218
+#: blocks/candidate-dashboard/render.php:220
 msgid "Uploaded CV"
 msgstr "업로드한 이력서"
 
-#: blocks/candidate-dashboard/render.php:219
-#: blocks/employer-dashboard/render.php:474
+#: blocks/candidate-dashboard/render.php:221
+#: blocks/employer-dashboard/render.php:475
 msgid "Account updated."
 msgstr "계정이 업데이트되었어요."
 
-#: blocks/candidate-dashboard/render.php:220
-#: blocks/employer-dashboard/render.php:478
+#: blocks/candidate-dashboard/render.php:222
+#: blocks/employer-dashboard/render.php:479
 msgid "Password updated."
 msgstr "비밀번호가 업데이트되었어요."
 
-#: blocks/candidate-dashboard/render.php:221
+#: blocks/candidate-dashboard/render.php:223
 msgid "Could not load your applications."
 msgstr "지원 현황을 불러올 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:222
-#: blocks/employer-dashboard/render.php:378
+#: blocks/candidate-dashboard/render.php:224
+#: blocks/employer-dashboard/render.php:379
 msgid "Could not load saved jobs."
 msgstr "저장한 채용 공고를 불러올 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:223
-#: blocks/employer-dashboard/render.php:379
+#: blocks/candidate-dashboard/render.php:225
+#: blocks/employer-dashboard/render.php:380
 msgid "Could not load saved companies."
 msgstr "저장한 기업을 불러올 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:224
-#: blocks/employer-dashboard/render.php:380
+#: blocks/candidate-dashboard/render.php:226
+#: blocks/employer-dashboard/render.php:381
 msgid "Could not load saved resumes."
 msgstr "저장한 이력서를 불러올 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:225
+#: blocks/candidate-dashboard/render.php:227
 msgid "Could not load your resumes."
 msgstr "내 이력서를 불러올 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:226
+#: blocks/candidate-dashboard/render.php:228
 msgid "Could not load your alerts."
 msgstr "채용 알림을 불러올 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:227
+#: blocks/candidate-dashboard/render.php:229
 msgid "Could not remove saved job. Please try again."
 msgstr "저장한 채용 공고를 삭제할 수 없어요. 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:228
+#: blocks/candidate-dashboard/render.php:230
 msgid "Could not create resume. Please try again."
 msgstr "이력서를 생성할 수 없어요. 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:229
+#: blocks/candidate-dashboard/render.php:231
 msgid "Could not delete resume. Please try again."
 msgstr "이력서를 삭제할 수 없어요. 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:230
-#: blocks/employer-dashboard/render.php:373
+#: blocks/candidate-dashboard/render.php:232
+#: blocks/employer-dashboard/render.php:374
 msgid "Could not save profile. Please try again."
 msgstr "프로필을 저장할 수 없어요. 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:231
-#: blocks/employer-dashboard/render.php:475
+#: blocks/candidate-dashboard/render.php:233
+#: blocks/employer-dashboard/render.php:476
 msgid "Could not save your account."
 msgstr "계정을 저장할 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:232
-#: blocks/employer-dashboard/render.php:476
+#: blocks/candidate-dashboard/render.php:234
+#: blocks/employer-dashboard/render.php:477
 msgid "Enter your current and new password."
 msgstr "현재 비밀번호와 새 비밀번호를 입력해 주세요."
 
-#: blocks/candidate-dashboard/render.php:233
-#: blocks/employer-dashboard/render.php:477
+#: blocks/candidate-dashboard/render.php:235
+#: blocks/employer-dashboard/render.php:478
 msgid "New password and confirmation do not match."
 msgstr "새 비밀번호와 확인 비밀번호가 일치하지 않아요."
 
-#: blocks/candidate-dashboard/render.php:234
-#: blocks/employer-dashboard/render.php:479
+#: blocks/candidate-dashboard/render.php:236
+#: blocks/employer-dashboard/render.php:480
 msgid "Could not update your password."
 msgstr "비밀번호를 업데이트할 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:235
+#: blocks/candidate-dashboard/render.php:237
 msgid "Upload failed."
 msgstr "업로드에 실패했어요."
 
-#: blocks/candidate-dashboard/render.php:236
+#: blocks/candidate-dashboard/render.php:238
 msgid "Upload failed: no attachment returned."
 msgstr "업로드에 실패했어요: 첨부 파일이 반환되지 않았어요."
 
-#: blocks/candidate-dashboard/render.php:237
+#: blocks/candidate-dashboard/render.php:239
 msgid "Failed to upload resume file. Please try again."
 msgstr "이력서 파일 업로드에 실패했어요. 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:238
-#: blocks/employer-dashboard/render.php:375
+#: blocks/candidate-dashboard/render.php:240
+#: blocks/employer-dashboard/render.php:376
 #: blocks/employer-registration/render.php:152
-#: blocks/job-form-simple/render.php:264
+#: blocks/job-form-simple/render.php:265
 #: blocks/job-form/render.php:403
-#: blocks/job-listings/render.php:507
-#: blocks/job-single/render.php:383
+#: blocks/job-listings/render.php:504
+#: blocks/job-single/render.php:379
 #: templates/parts/privacy-settings.php:47
 msgid "Connection error. Please check your network and try again."
 msgstr "연결 오류예요. 네트워크를 확인하고 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:239
-#: blocks/employer-dashboard/render.php:377
+#: blocks/candidate-dashboard/render.php:241
+#: blocks/employer-dashboard/render.php:378
 msgid "Connection error. Please try again."
 msgstr "연결 오류예요. 다시 시도해 주세요."
 
-#: blocks/candidate-dashboard/render.php:240
-#: blocks/employer-dashboard/render.php:376
+#: blocks/candidate-dashboard/render.php:242
+#: blocks/employer-dashboard/render.php:377
 msgid "Connection error."
 msgstr "연결 오류예요."
 
-#: blocks/candidate-dashboard/render.php:241
+#: blocks/candidate-dashboard/render.php:243
 msgid "Withdraw application?"
 msgstr "지원을 철회할까요?"
 
-#: blocks/candidate-dashboard/render.php:242
+#: blocks/candidate-dashboard/render.php:244
 msgid "Are you sure you want to withdraw this application? This cannot be undone."
 msgstr "이 지원을 철회하시겠어요? 이 작업은 되돌릴 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:243
-#: blocks/candidate-dashboard/render.php:760
+#: blocks/candidate-dashboard/render.php:245
+#: blocks/candidate-dashboard/render.php:762
 msgid "Withdraw"
 msgstr "철회"
 
-#: blocks/candidate-dashboard/render.php:250
-#: blocks/employer-dashboard/render.php:383
+#: blocks/candidate-dashboard/render.php:252
+#: blocks/employer-dashboard/render.php:384
 msgid "Clear all notifications?"
 msgstr "모든 알림을 삭제할까요?"
 
-#: blocks/candidate-dashboard/render.php:251
-#: blocks/employer-dashboard/render.php:384
+#: blocks/candidate-dashboard/render.php:253
+#: blocks/employer-dashboard/render.php:385
 msgid "This permanently removes all of your notifications. This cannot be undone."
 msgstr "회원님의 모든 알림이 영구적으로 삭제돼요. 이 작업은 되돌릴 수 없어요."
 
-#: blocks/candidate-dashboard/render.php:252
+#: blocks/candidate-dashboard/render.php:254
 #: blocks/company-archive/render.php:270
-#: blocks/employer-dashboard/render.php:385
-#: blocks/job-listings/render.php:580
-#: blocks/job-listings/render.php:802
+#: blocks/employer-dashboard/render.php:386
+#: blocks/job-listings/render.php:577
+#: blocks/job-listings/render.php:799
 msgid "Clear all"
 msgstr "모두 지우기"
 
-#: blocks/candidate-dashboard/render.php:253
+#: blocks/candidate-dashboard/render.php:255
 msgid "Could not withdraw application. Please try again."
 msgstr "지원을 철회할 수 없었어요. 다시 시도해 주세요."
 
@@ -2479,192 +2479,192 @@ msgstr "지원을 철회할 수 없었어요. 다시 시도해 주세요."
 msgid "Could not submit your privacy request. Please try again or contact support."
 msgstr "개인정보 요청을 제출할 수 없었어요. 다시 시도하시거나 고객 지원에 문의해 주세요."
 
-#: blocks/candidate-dashboard/render.php:424
-#: blocks/employer-dashboard/render.php:514
+#: blocks/candidate-dashboard/render.php:426
+#: blocks/employer-dashboard/render.php:515
 msgid "Toggle navigation"
 msgstr "내비게이션 전환"
 
-#: blocks/candidate-dashboard/render.php:443
+#: blocks/candidate-dashboard/render.php:445
 msgid "Candidate dashboard navigation"
 msgstr "지원자 대시보드 내비게이션"
 
-#: blocks/candidate-dashboard/render.php:477
+#: blocks/candidate-dashboard/render.php:479
 msgid "Public Resume"
 msgstr "공개 이력서"
 
-#: blocks/candidate-dashboard/render.php:590
+#: blocks/candidate-dashboard/render.php:592
 msgid "Here's how to get started:"
 msgstr "이렇게 시작해 보세요:"
 
-#: blocks/candidate-dashboard/render.php:565
-#: blocks/candidate-dashboard/render.php:596
-#: blocks/candidate-dashboard/render.php:671
-#: blocks/candidate-dashboard/render.php:695
-#: blocks/candidate-dashboard/render.php:785
-#: blocks/candidate-dashboard/render.php:841
-#: blocks/candidate-dashboard/render.php:1161
-#: blocks/employer-dashboard/render.php:1388
+#: blocks/candidate-dashboard/render.php:567
+#: blocks/candidate-dashboard/render.php:598
+#: blocks/candidate-dashboard/render.php:673
+#: blocks/candidate-dashboard/render.php:697
+#: blocks/candidate-dashboard/render.php:787
+#: blocks/candidate-dashboard/render.php:843
+#: blocks/candidate-dashboard/render.php:1163
+#: blocks/employer-dashboard/render.php:1389
 msgid "Browse jobs"
 msgstr "채용 공고 둘러보기"
 
-#: blocks/candidate-dashboard/render.php:597
+#: blocks/candidate-dashboard/render.php:599
 msgid "Search and apply to roles that match your skills."
 msgstr "내 역량에 맞는 채용 공고를 검색하고 지원해 보세요."
 
-#: blocks/candidate-dashboard/render.php:604
+#: blocks/candidate-dashboard/render.php:606
 msgid "Build your resume"
 msgstr "이력서 작성하기"
 
-#: blocks/candidate-dashboard/render.php:605
+#: blocks/candidate-dashboard/render.php:607
 msgid "A complete profile gets noticed by employers faster."
 msgstr "프로필을 완성하면 채용 담당자의 눈에 더 빨리 띄어요."
 
-#: blocks/candidate-dashboard/render.php:613
+#: blocks/candidate-dashboard/render.php:615
 msgid "Set up job alerts"
 msgstr "채용 알림 설정하기"
 
-#: blocks/candidate-dashboard/render.php:614
+#: blocks/candidate-dashboard/render.php:616
 msgid "Get notified when matching roles are posted."
 msgstr "맞는 채용 공고가 올라오면 알림을 받아 보세요."
 
-#: blocks/candidate-dashboard/render.php:684
+#: blocks/candidate-dashboard/render.php:686
 msgid "Saved job"
 msgstr "저장한 채용 공고"
 
-#: blocks/candidate-dashboard/render.php:701
+#: blocks/candidate-dashboard/render.php:703
 msgid "Recommended for you"
 msgstr "회원님을 위한 추천"
 
 #: blocks/company-profile/render.php:395
 #: blocks/featured-jobs/render.php:96
-#: blocks/job-listings/render.php:890
+#: blocks/job-listings/render.php:887
 #: modules/jobs/class-jobs-module.php:331
 #: modules/notifications/emails/class-email-app-guest.php:76
 #: modules/notifications/emails/class-email-job-approved.php:74
 msgid "View Job"
 msgstr "채용 공고 보기"
 
-#: blocks/candidate-dashboard/render.php:898
-#: blocks/employer-dashboard/render.php:1432
+#: blocks/candidate-dashboard/render.php:900
+#: blocks/employer-dashboard/render.php:1433
 msgid "Browse Companies"
 msgstr "회사 둘러보기"
 
-#: blocks/candidate-dashboard/render.php:957
-#: blocks/employer-dashboard/render.php:1480
+#: blocks/candidate-dashboard/render.php:959
+#: blocks/employer-dashboard/render.php:1481
 msgid "Browse Candidates"
 msgstr "지원자 둘러보기"
 
-#: blocks/candidate-dashboard/render.php:975
+#: blocks/candidate-dashboard/render.php:977
 msgid "+ New Resume"
 msgstr "+ 새 이력서"
 
-#: blocks/candidate-dashboard/render.php:977
+#: blocks/candidate-dashboard/render.php:979
 msgid "Upload CV"
 msgstr "CV 업로드"
 
-#: blocks/candidate-dashboard/render.php:988
+#: blocks/candidate-dashboard/render.php:990
 msgid "Resume title"
 msgstr "이력서 제목"
 
-#: blocks/candidate-dashboard/render.php:993
+#: blocks/candidate-dashboard/render.php:995
 msgid "e.g. Software Developer"
 msgstr "예: 소프트웨어 개발자"
 
-#: blocks/candidate-dashboard/render.php:997
+#: blocks/candidate-dashboard/render.php:999
 msgid "Create"
 msgstr "만들기"
 
-#: blocks/candidate-dashboard/render.php:1070
+#: blocks/candidate-dashboard/render.php:1072
 msgid "Delete this resume?"
 msgstr "이 이력서를 삭제할까요?"
 
-#: blocks/candidate-dashboard/render.php:1108
+#: blocks/candidate-dashboard/render.php:1110
 msgid "Resume Builder"
 msgstr "이력서 작성기"
 
-#: blocks/candidate-dashboard/render.php:1111
+#: blocks/candidate-dashboard/render.php:1113
 msgid "Pick a resume from My Resumes to edit it here, or create a new one to get started."
 msgstr "내 이력서에서 이력서를 선택해 편집하거나, 새로 만들어서 시작해 보세요."
 
-#: blocks/candidate-dashboard/render.php:1112
+#: blocks/candidate-dashboard/render.php:1114
 msgid "Go to My Resumes"
 msgstr "내 이력서로 이동"
 
-#: blocks/candidate-dashboard/render.php:1143
+#: blocks/candidate-dashboard/render.php:1145
 msgid "Alert frequency"
 msgstr "알림 빈도"
 
-#: blocks/candidate-dashboard/render.php:1144
+#: blocks/candidate-dashboard/render.php:1146
 msgid "Instant"
 msgstr "즉시"
 
-#: blocks/candidate-dashboard/render.php:1145
+#: blocks/candidate-dashboard/render.php:1147
 msgid "Daily"
 msgstr "매일"
 
-#: blocks/candidate-dashboard/render.php:1146
+#: blocks/candidate-dashboard/render.php:1148
 msgid "Weekly"
 msgstr "매주"
 
-#: blocks/candidate-dashboard/render.php:1170
+#: blocks/candidate-dashboard/render.php:1172
 msgid "My Profile"
 msgstr "내 프로필"
 
-#: blocks/candidate-dashboard/render.php:1188
+#: blocks/candidate-dashboard/render.php:1190
 msgid "Phone"
 msgstr "전화번호"
 
-#: blocks/candidate-dashboard/render.php:1193
+#: blocks/candidate-dashboard/render.php:1195
 msgid "e.g. +1 555 123 4567"
 msgstr "예: +1 555 123 4567"
 
-#: blocks/candidate-dashboard/render.php:1205
+#: blocks/candidate-dashboard/render.php:1207
 msgid "e.g. Bengaluru, India"
 msgstr "예: 벵갈루루, 인도"
 
-#: blocks/candidate-dashboard/render.php:1213
+#: blocks/candidate-dashboard/render.php:1215
 msgid "Tell employers about yourself…"
 msgstr "자신에 대해 고용주에게 알려주세요…"
 
-#: blocks/candidate-dashboard/render.php:1212
-#: blocks/candidate-dashboard/render.php:1220
+#: blocks/candidate-dashboard/render.php:1214
+#: blocks/candidate-dashboard/render.php:1222
 msgid "Bio / About me"
 msgstr "자기소개"
 
-#: blocks/candidate-dashboard/render.php:1241
-#: blocks/employer-dashboard/render.php:1317
+#: blocks/candidate-dashboard/render.php:1243
+#: blocks/employer-dashboard/render.php:1318
 msgid "Save Profile"
 msgstr "프로필 저장"
 
 #: admin/class-admin.php:915
-#: blocks/candidate-dashboard/render.php:1242
-#: blocks/employer-dashboard/render.php:1318
+#: blocks/candidate-dashboard/render.php:1244
+#: blocks/employer-dashboard/render.php:1319
 #: blocks/employer-registration/render.php:391
 msgid "Saving…"
 msgstr "저장 중…"
 
 #: admin/class-admin.php:964
-#: blocks/candidate-dashboard/render.php:511
-#: blocks/candidate-dashboard/render.php:1244
+#: blocks/candidate-dashboard/render.php:513
+#: blocks/candidate-dashboard/render.php:1246
 #: blocks/company-profile/render.php:103
 #: blocks/company-profile/render.php:124
-#: blocks/employer-dashboard/render.php:609
-#: blocks/job-listings/render.php:495
-#: blocks/job-single/render.php:378
+#: blocks/employer-dashboard/render.php:610
+#: blocks/job-listings/render.php:492
+#: blocks/job-single/render.php:374
+#: blocks/job-single/render.php:550
 #: blocks/job-single/render.php:554
-#: blocks/job-single/render.php:558
 #: core/widgets/class-widget-shortcode.php:118
 #: templates/parts/email-preferences.php:32
 msgid "Saved"
 msgstr "저장됨"
 
-#: blocks/candidate-dashboard/render.php:1252
-#: blocks/employer-dashboard/render.php:1489
+#: blocks/candidate-dashboard/render.php:1254
+#: blocks/employer-dashboard/render.php:1490
 msgid "Account Settings"
 msgstr "계정 설정"
 
-#: blocks/candidate-dashboard/render.php:1259
-#: blocks/employer-dashboard/render.php:1496
+#: blocks/candidate-dashboard/render.php:1261
+#: blocks/employer-dashboard/render.php:1497
 msgid "Display Name"
 msgstr "표시 이름"
 
@@ -2676,28 +2676,28 @@ msgstr "표시 이름"
 #: admin/class-admin-settings.php:1147
 #: admin/class-admin-settings.php:1197
 #: admin/class-admin-settings.php:1415
-#: blocks/candidate-dashboard/render.php:1273
-#: blocks/employer-dashboard/render.php:1510
+#: blocks/candidate-dashboard/render.php:1275
+#: blocks/employer-dashboard/render.php:1511
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
-#: blocks/candidate-dashboard/render.php:1278
-#: blocks/employer-dashboard/render.php:1515
+#: blocks/candidate-dashboard/render.php:1280
+#: blocks/employer-dashboard/render.php:1516
 msgid "Change Password"
 msgstr "비밀번호 변경"
 
-#: blocks/candidate-dashboard/render.php:1289
-#: blocks/employer-dashboard/render.php:1526
+#: blocks/candidate-dashboard/render.php:1291
+#: blocks/employer-dashboard/render.php:1527
 msgid "New Password"
 msgstr "새 비밀번호"
 
-#: blocks/candidate-dashboard/render.php:1293
-#: blocks/employer-dashboard/render.php:1530
+#: blocks/candidate-dashboard/render.php:1295
+#: blocks/employer-dashboard/render.php:1531
 msgid "Confirm New Password"
 msgstr "새 비밀번호 확인"
 
-#: blocks/candidate-dashboard/render.php:1297
-#: blocks/employer-dashboard/render.php:1534
+#: blocks/candidate-dashboard/render.php:1299
+#: blocks/employer-dashboard/render.php:1535
 msgid "Update password"
 msgstr "비밀번호 업데이트"
 
@@ -2728,32 +2728,32 @@ msgstr "회사 정렬"
 
 #: admin/class-admin-settings.php:756
 #: blocks/company-archive/render.php:238
-#: blocks/job-listings/render.php:543
+#: blocks/job-listings/render.php:540
 #: templates/parts/archive-toolbar.php:76
 msgid "Newest first"
 msgstr "최신순"
 
 #: admin/class-admin-settings.php:759
 #: blocks/company-archive/render.php:239
-#: blocks/job-listings/render.php:546
+#: blocks/job-listings/render.php:543
 #: templates/parts/archive-toolbar.php:77
 msgid "Oldest first"
 msgstr "오래된순"
 
 #: blocks/company-archive/render.php:242
-#: blocks/job-listings/render.php:553
+#: blocks/job-listings/render.php:550
 #: templates/parts/archive-toolbar.php:83
 msgid "View layout"
 msgstr "보기 레이아웃"
 
 #: blocks/company-archive/render.php:243
-#: blocks/job-listings/render.php:554
+#: blocks/job-listings/render.php:551
 #: templates/parts/archive-toolbar.php:84
 msgid "List view"
 msgstr "목록 보기"
 
 #: blocks/company-archive/render.php:244
-#: blocks/job-listings/render.php:555
+#: blocks/job-listings/render.php:552
 #: templates/parts/archive-toolbar.php:85
 msgid "Grid view"
 msgstr "그리드 보기"
@@ -2764,17 +2764,17 @@ msgstr "회사 필터"
 
 #: blocks/company-archive/render.php:266
 #: blocks/job-filters/render.php:68
-#: blocks/job-listings/render.php:576
+#: blocks/job-listings/render.php:573
 #: blocks/job-search-hero/index.js:41
 msgid "Filters"
 msgstr "필터"
 
-#: admin/class-admin-meta-boxes.php:489
+#: admin/class-admin-meta-boxes.php:491
 #: blocks/company-archive/render.php:307
 #: blocks/company-profile/render.php:277
-#: blocks/employer-dashboard/render.php:1239
+#: blocks/employer-dashboard/render.php:1240
 #: blocks/employer-registration/render.php:344
-#: blocks/job-single/render.php:935
+#: blocks/job-single/render.php:931
 msgid "Company size"
 msgstr "회사 규모"
 
@@ -2788,14 +2788,14 @@ msgid "No companies match your filters"
 msgstr "필터와 일치하는 회사가 없어요"
 
 #: blocks/company-archive/render.php:422
-#: blocks/job-listings/render.php:912
+#: blocks/job-listings/render.php:909
 msgid "Try removing a filter or clearing them all to see more results."
 msgstr "필터를 하나 제거하거나 모두 지워서 더 많은 결과를 확인해 보세요."
 
 #: admin/class-list-empty-state.php:109
 #: blocks/company-archive/render.php:425
-#: blocks/employer-dashboard/render.php:852
-#: blocks/job-listings/render.php:915
+#: blocks/employer-dashboard/render.php:853
+#: blocks/job-listings/render.php:912
 #: templates/parts/archive-empty-state.php:53
 msgid "Clear filters"
 msgstr "필터 지우기"
@@ -2806,7 +2806,7 @@ msgstr "회사 더 불러오기"
 
 #: blocks/employer-dashboard/render.php:194
 #: blocks/employer-registration/render.php:106
-#: core/class-company-meta-shape.php:207
+#: core/class-company-meta-shape.php:211
 msgid "5,000+ employees"
 msgstr "5,000명 이상"
 
@@ -2821,7 +2821,7 @@ msgid "Save this company"
 msgstr "이 회사 저장"
 
 #: blocks/company-profile/render.php:235
-#: blocks/employer-dashboard/render.php:1292
+#: blocks/employer-dashboard/render.php:1293
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
@@ -2844,7 +2844,7 @@ msgstr "설립"
 
 #: blocks/company-profile/render.php:295
 #: blocks/employer-registration/render.php:357
-#: blocks/job-single/render.php:948
+#: blocks/job-single/render.php:944
 msgid "Headquarters"
 msgstr "본사"
 
@@ -2857,18 +2857,18 @@ msgid "No open positions at the moment. Check back soon."
 msgstr "현재 채용 중인 포지션이 없어요. 곧 다시 확인해 주세요."
 
 #: blocks/company-profile/render.php:385
-#: blocks/job-listings/render.php:835
+#: blocks/job-listings/render.php:832
 msgid "Job listing"
 msgstr "채용 공고"
 
 #: blocks/company-profile/render.php:407
-#: blocks/job-listings/render.php:927
+#: blocks/job-listings/render.php:924
 msgid "Load more jobs"
 msgstr "채용 공고 더 불러오기"
 
-#: blocks/candidate-dashboard/render.php:776
+#: blocks/candidate-dashboard/render.php:778
 #: blocks/company-profile/render.php:408
-#: blocks/employer-dashboard/render.php:1107
+#: blocks/employer-dashboard/render.php:1108
 #: templates/parts/archive-load-more.php:32
 msgid "Loading&hellip;"
 msgstr "불러오는 중&hellip;"
@@ -2902,38 +2902,38 @@ msgstr "지원서를 불러올 수 없어요."
 msgid "Connection error loading applications."
 msgstr "지원서를 불러오는 중 연결 오류가 발생했어요."
 
-#: blocks/employer-dashboard/render.php:374
+#: blocks/employer-dashboard/render.php:375
 msgid "Please save your company profile before uploading a logo."
 msgstr "로고를 업로드하기 전에 회사 프로필을 저장해주세요."
 
-#: blocks/employer-dashboard/render.php:386
+#: blocks/employer-dashboard/render.php:387
 msgid "Close this job?"
 msgstr "이 채용 공고를 마감할까요?"
 
-#: blocks/employer-dashboard/render.php:401
+#: blocks/employer-dashboard/render.php:402
 msgid "Close job"
 msgstr "채용 공고 마감"
 
-#: blocks/employer-dashboard/render.php:405
-#: blocks/employer-dashboard/render.php:551
-#: blocks/employer-dashboard/render.php:808
+#: blocks/employer-dashboard/render.php:406
+#: blocks/employer-dashboard/render.php:552
+#: blocks/employer-dashboard/render.php:809
 msgid "My Jobs"
 msgstr "내 채용 공고"
 
-#: blocks/employer-dashboard/render.php:419
+#: blocks/employer-dashboard/render.php:420
 msgid "Uploading…"
 msgstr "업로드 중…"
 
-#: blocks/employer-dashboard/render.php:420
+#: blocks/employer-dashboard/render.php:421
 msgid "Change Logo"
 msgstr "로고 변경"
 
-#: blocks/employer-dashboard/render.php:421
+#: blocks/employer-dashboard/render.php:422
 msgid "Upload Logo"
 msgstr "로고 업로드"
 
 #. translators: %1$s: applicant name.
-#: blocks/employer-dashboard/render.php:424
+#: blocks/employer-dashboard/render.php:425
 #, php-format
 msgid "View application from %1$s"
 msgstr "%1$s님의 지원서 보기"
@@ -2953,263 +2953,263 @@ msgid_plural "%1$s of %2$s jobs"
 msgstr[0] "%2$s개 중 %1$s개 채용 공고"
 
 #. translators: %1$s: number of credits added to the employer's balance, already localised.
-#: blocks/employer-dashboard/render.php:429
+#: blocks/employer-dashboard/render.php:430
 #, php-format
 msgid "%1$s credit added to your balance."
 msgid_plural "%1$s credits added to your balance."
 msgstr[0] "%1$s 크레딧이 잔액에 추가되었어요."
 
 #. translators: %1$s: number of credits left on the employer's balance, already localised.
-#: blocks/employer-dashboard/render.php:434
+#: blocks/employer-dashboard/render.php:435
 #, php-format
 msgid "Low balance: %1$s credit left."
 msgid_plural "Low balance: %1$s credits left."
 msgstr[0] "잔액 부족: %1$s 크레딧 남음."
 
-#: blocks/employer-dashboard/render.php:439
+#: blocks/employer-dashboard/render.php:440
 msgid "Rank by AI fit"
 msgstr "AI 적합도로 순위 매기기"
 
-#: blocks/employer-dashboard/render.php:440
+#: blocks/employer-dashboard/render.php:441
 msgid "Ranking…"
 msgstr "순위 매기는 중…"
 
-#: blocks/employer-dashboard/render.php:449
-#: blocks/employer-dashboard/render.php:945
+#: blocks/employer-dashboard/render.php:450
+#: blocks/employer-dashboard/render.php:946
 #: modules/applications/class-application-status.php:176
 msgid "Reviewing"
 msgstr "검토 중"
 
-#: blocks/employer-dashboard/render.php:451
-#: blocks/employer-dashboard/render.php:957
+#: blocks/employer-dashboard/render.php:452
+#: blocks/employer-dashboard/render.php:958
 #: modules/applications/class-application-status.php:181
 msgid "Hired"
 msgstr "채용됨"
 
-#: blocks/employer-dashboard/render.php:468
+#: blocks/employer-dashboard/render.php:469
 msgid "Status updated. The candidate has been notified."
 msgstr "상태가 업데이트되었어요. 지원자에게 알림이 전송되었어요."
 
-#: blocks/employer-dashboard/render.php:471
+#: blocks/employer-dashboard/render.php:472
 msgid "Could not update the status. Please try again."
 msgstr "상태를 업데이트할 수 없어요. 다시 시도해주세요."
 
-#: blocks/employer-dashboard/render.php:540
+#: blocks/employer-dashboard/render.php:541
 msgid "Dashboard navigation"
 msgstr "대시보드 내비게이션"
 
-#: blocks/employer-dashboard/render.php:574
+#: blocks/employer-dashboard/render.php:575
 msgid "Public Page"
 msgstr "공개 페이지"
 
-#: blocks/employer-dashboard/render.php:590
+#: blocks/employer-dashboard/render.php:591
 msgid "Balance"
 msgstr "잔액"
 
-#: blocks/employer-dashboard/render.php:665
+#: blocks/employer-dashboard/render.php:666
 msgid "Welcome! Let's get you set up."
 msgstr "환영해요! 설정을 시작해볼까요."
 
-#: blocks/employer-dashboard/render.php:666
+#: blocks/employer-dashboard/render.php:667
 msgid "Create your company profile to start posting jobs and receiving applications."
 msgstr "채용 공고를 등록하고 지원서를 받으려면 회사 프로필을 만들어주세요."
 
-#: blocks/employer-dashboard/render.php:668
-#: blocks/employer-dashboard/render.php:835
+#: blocks/employer-dashboard/render.php:669
+#: blocks/employer-dashboard/render.php:836
 msgid "Set Up Company Profile"
 msgstr "회사 프로필 설정하기"
 
-#: blocks/employer-dashboard/render.php:673
+#: blocks/employer-dashboard/render.php:674
 msgid "Your company is ready."
 msgstr "회사 설정이 완료되었어요."
 
-#: blocks/employer-dashboard/render.php:674
+#: blocks/employer-dashboard/render.php:675
 msgid "Post your first job to start receiving applications."
 msgstr "첫 채용 공고를 등록하고 지원서를 받아보세요."
 
-#: blocks/employer-dashboard/render.php:676
-#: blocks/employer-dashboard/render.php:845
+#: blocks/employer-dashboard/render.php:677
+#: blocks/employer-dashboard/render.php:846
 msgid "Post Your First Job"
 msgstr "첫 채용 공고 등록하기"
 
-#: blocks/employer-dashboard/render.php:694
+#: blocks/employer-dashboard/render.php:695
 msgid "Buy more"
 msgstr "더 구매하기"
 
-#: blocks/employer-dashboard/render.php:703
+#: blocks/employer-dashboard/render.php:704
 msgid "Total Jobs"
 msgstr "전체 채용 공고"
 
-#: blocks/employer-dashboard/render.php:707
-#: blocks/employer-dashboard/render.php:814
+#: blocks/employer-dashboard/render.php:708
+#: blocks/employer-dashboard/render.php:815
 msgid "Live"
 msgstr "게시 중"
 
-#: blocks/employer-dashboard/render.php:715
+#: blocks/employer-dashboard/render.php:716
 msgid "New This Week"
 msgstr "이번 주 신규"
 
-#: blocks/employer-dashboard/render.php:770
+#: blocks/employer-dashboard/render.php:771
 msgid "Manage all →"
 msgstr "전체 관리 →"
 
-#: blocks/employer-dashboard/render.php:784
+#: blocks/employer-dashboard/render.php:785
 msgid "No active jobs."
 msgstr "활성화된 채용 공고가 없어요."
 
-#: blocks/employer-dashboard/render.php:821
+#: blocks/employer-dashboard/render.php:822
 msgid "Search your jobs"
 msgstr "채용 공고 검색"
 
-#: blocks/employer-dashboard/render.php:821
-#: blocks/employer-dashboard/render.php:909
-#: blocks/job-listings/render.php:538
+#: blocks/employer-dashboard/render.php:822
+#: blocks/employer-dashboard/render.php:910
+#: blocks/job-listings/render.php:535
 #: blocks/job-search-hero/render.php:21
 #: blocks/job-search/render.php:49
 msgid "Search jobs…"
 msgstr "채용 공고 검색…"
 
-#: blocks/employer-dashboard/render.php:825
-#: blocks/employer-dashboard/render.php:967
+#: blocks/employer-dashboard/render.php:826
+#: blocks/employer-dashboard/render.php:968
 msgid "Loading"
 msgstr "로딩 중"
 
-#: blocks/candidate-dashboard/render.php:827
-#: blocks/candidate-dashboard/render.php:884
-#: blocks/candidate-dashboard/render.php:942
-#: blocks/candidate-dashboard/render.php:1051
-#: blocks/employer-dashboard/render.php:879
-#: blocks/employer-dashboard/render.php:1151
-#: blocks/employer-dashboard/render.php:1375
-#: blocks/employer-dashboard/render.php:1419
-#: blocks/employer-dashboard/render.php:1466
+#: blocks/candidate-dashboard/render.php:829
+#: blocks/candidate-dashboard/render.php:886
+#: blocks/candidate-dashboard/render.php:944
+#: blocks/candidate-dashboard/render.php:1053
+#: blocks/employer-dashboard/render.php:880
+#: blocks/employer-dashboard/render.php:1152
+#: blocks/employer-dashboard/render.php:1376
+#: blocks/employer-dashboard/render.php:1420
+#: blocks/employer-dashboard/render.php:1467
 msgid "View ↗"
 msgstr "보기 ↗"
 
-#: blocks/employer-dashboard/render.php:885
+#: blocks/employer-dashboard/render.php:886
 msgid "Close"
 msgstr "닫기"
 
-#: blocks/employer-dashboard/render.php:882
+#: blocks/employer-dashboard/render.php:883
 msgid "Publish"
 msgstr "게시"
 
-#: blocks/employer-dashboard/render.php:883
+#: blocks/employer-dashboard/render.php:884
 msgid "Resubmit"
 msgstr "다시 제출"
 
-#: blocks/employer-dashboard/render.php:884
+#: blocks/employer-dashboard/render.php:885
 msgid "Reopen"
 msgstr "다시 열기"
 
-#: blocks/employer-dashboard/render.php:909
+#: blocks/employer-dashboard/render.php:910
 msgid "Search applications by job"
 msgstr "채용 공고별로 지원서 검색"
 
-#: blocks/employer-dashboard/render.php:924
+#: blocks/employer-dashboard/render.php:925
 msgid "No jobs match your search."
 msgstr "검색과 일치하는 채용 공고가 없어요."
 
-#: blocks/employer-dashboard/render.php:930
+#: blocks/employer-dashboard/render.php:931
 #: core/class-plugin.php:1206
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
 msgstr "목록"
 
-#: blocks/employer-dashboard/render.php:931
+#: blocks/employer-dashboard/render.php:932
 msgid "Board"
 msgstr "보드"
 
-#: blocks/employer-dashboard/render.php:1025
+#: blocks/employer-dashboard/render.php:1026
 msgid "AI fit"
 msgstr "AI 적합도"
 
-#: blocks/employer-dashboard/render.php:1066
-#: blocks/job-single/render.php:1143
+#: blocks/employer-dashboard/render.php:1067
+#: blocks/job-single/render.php:1139
 #: modules/applications/widgets/class-resume-preview.php:85
 #: modules/candidates/class-candidates-module.php:231
 msgid "Resume"
 msgstr "이력서"
 
-#: blocks/employer-dashboard/render.php:1069
+#: blocks/employer-dashboard/render.php:1070
 msgid "Download Resume"
 msgstr "이력서 다운로드"
 
-#: blocks/employer-dashboard/render.php:1164
+#: blocks/employer-dashboard/render.php:1165
 msgid "Company Profile"
 msgstr "회사 프로필"
 
-#: blocks/employer-dashboard/render.php:1188
+#: blocks/employer-dashboard/render.php:1189
 msgid "Company Logo"
 msgstr "회사 로고"
 
-#: blocks/employer-dashboard/render.php:1199
+#: blocks/employer-dashboard/render.php:1200
 msgid "Save your company profile first to enable logo upload."
 msgstr "로고 업로드를 사용하려면 먼저 회사 프로필을 저장해 주세요."
 
-#: blocks/employer-dashboard/render.php:1206
+#: blocks/employer-dashboard/render.php:1207
 msgid "Tagline"
 msgstr "태그라인"
 
-#: blocks/employer-dashboard/render.php:1207
+#: blocks/employer-dashboard/render.php:1208
 msgid "One-line description shown on listings"
 msgstr "목록에 표시되는 한 줄 설명"
 
-#: blocks/employer-dashboard/render.php:1213
+#: blocks/employer-dashboard/render.php:1214
 msgid "What does your company do? Mission, products, culture…"
 msgstr "회사는 어떤 일을 하나요? 미션, 제품, 문화…"
 
-#: blocks/employer-dashboard/render.php:1212
-#: blocks/employer-dashboard/render.php:1220
-#: blocks/job-single/render.php:896
+#: blocks/employer-dashboard/render.php:1213
+#: blocks/employer-dashboard/render.php:1221
+#: blocks/job-single/render.php:892
 msgid "About the company"
 msgstr "회사 소개"
 
-#: admin/class-admin-meta-boxes.php:418
-#: blocks/employer-dashboard/render.php:1241
+#: admin/class-admin-meta-boxes.php:420
+#: blocks/employer-dashboard/render.php:1242
 msgid " -  Select size  - "
 msgstr " -  크기 선택  - "
 
-#: blocks/employer-dashboard/render.php:1259
+#: blocks/employer-dashboard/render.php:1260
 msgid "HQ Location"
 msgstr "본사 위치"
 
-#: blocks/employer-dashboard/render.php:1260
+#: blocks/employer-dashboard/render.php:1261
 #: blocks/employer-registration/render.php:358
 msgid "e.g. San Francisco, CA"
 msgstr "예: San Francisco, CA"
 
-#: admin/class-admin-meta-boxes.php:428
-#: blocks/employer-dashboard/render.php:1272
+#: admin/class-admin-meta-boxes.php:430
+#: blocks/employer-dashboard/render.php:1273
 msgid " -  Select type  - "
 msgstr " -  유형 선택  - "
 
-#: blocks/employer-dashboard/render.php:1287
+#: blocks/employer-dashboard/render.php:1288
 msgid "e.g. 2012"
 msgstr "예: 2012"
 
-#: blocks/employer-dashboard/render.php:1297
+#: blocks/employer-dashboard/render.php:1298
 msgid "X (Twitter)"
 msgstr "X (Twitter)"
 
-#: blocks/employer-dashboard/render.php:1314
+#: blocks/employer-dashboard/render.php:1315
 msgid "Profile saved successfully."
 msgstr "프로필이 성공적으로 저장됐어요."
 
-#: blocks/employer-dashboard/render.php:1324
+#: blocks/employer-dashboard/render.php:1325
 msgid "Live Preview"
 msgstr "실시간 미리보기"
 
-#: blocks/employer-dashboard/render.php:1365
+#: blocks/employer-dashboard/render.php:1366
 msgid "Bookmarked job"
 msgstr "북마크한 채용공고"
 
-#: blocks/employer-dashboard/render.php:1409
+#: blocks/employer-dashboard/render.php:1410
 msgid "Bookmarked company"
 msgstr "북마크한 회사"
 
-#: blocks/employer-dashboard/render.php:1456
+#: blocks/employer-dashboard/render.php:1457
 msgid "Bookmarked resume"
 msgstr "북마크한 이력서"
 
@@ -3299,9 +3299,9 @@ msgid "Back"
 msgstr "뒤로"
 
 #: blocks/employer-registration/render.php:243
-#: blocks/job-form-simple/render.php:299
-#: blocks/job-form/render.php:1129
-#: blocks/job-single/render.php:1286
+#: blocks/job-form-simple/render.php:300
+#: blocks/job-form/render.php:1132
+#: blocks/job-single/render.php:1282
 msgid "Leave this field blank"
 msgstr "이 필드는 비워두세요"
 
@@ -3374,7 +3374,7 @@ msgstr "새로운 채용 공고를 놓치지 마세요. 원하시는 조건에 �
 msgid "Set Up Alerts"
 msgstr "알림 설정하기"
 
-#: blocks/job-listings/render.php:638
+#: blocks/job-listings/render.php:635
 #: templates/parts/job-category-field.php:64
 #: blocks/job-listings/index.js:20
 msgid "Category"
@@ -3395,9 +3395,9 @@ msgid "All Locations"
 msgstr "전체 지역"
 
 #: blocks/job-filters/render.php:99
-#: blocks/job-form-simple/render.php:492
-#: blocks/job-listings/render.php:617
-#: blocks/job-single/render.php:722
+#: blocks/job-form-simple/render.php:493
+#: blocks/job-listings/render.php:614
+#: blocks/job-single/render.php:718
 #: blocks/job-listings/index.js:19
 msgid "Experience"
 msgstr "경력"
@@ -3407,7 +3407,7 @@ msgid "All Experience Levels"
 msgstr "전체 경력 수준"
 
 #: blocks/job-filters/render.php:109
-#: blocks/job-form-simple/render.php:539
+#: blocks/job-form-simple/render.php:540
 msgid "Minimum salary"
 msgstr "최소 급여"
 
@@ -3416,7 +3416,7 @@ msgid "Min salary"
 msgstr "최소 급여"
 
 #: blocks/job-filters/render.php:110
-#: blocks/job-form-simple/render.php:540
+#: blocks/job-form-simple/render.php:541
 msgid "Maximum salary"
 msgstr "최대 급여"
 
@@ -3425,8 +3425,8 @@ msgid "Max salary"
 msgstr "최대 급여"
 
 #: blocks/job-filters/render.php:122
-#: blocks/job-listings/render.php:502
-#: blocks/job-listings/render.php:691
+#: blocks/job-listings/render.php:499
+#: blocks/job-listings/render.php:688
 msgid "Remote only"
 msgstr "원격 근무 전용"
 
@@ -3480,57 +3480,59 @@ msgstr "이 게시판은 %1$s가 필요해요. 잔액: %2$s. 크레딧을 더 �
 msgid "Posting deducts %1$s. Balance after: %2$s (currently %3$s)."
 msgstr "게시하면 %1$s가 차감돼요. 차감 후 잔액: %2$s (현재 %3$s)."
 
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
 #: blocks/job-form-simple/render.php:254
-#: blocks/job-form/render.php:409
+#: blocks/job-form/render.php:410
 msgid "Enter a job title first so AI can generate a description."
 msgstr "AI가 설명을 생성할 수 있도록 먼저 채용 공고 제목을 입력해 주세요."
 
 #: blocks/job-form-simple/render.php:255
-#: blocks/job-form/render.php:410
+#: blocks/job-form/render.php:411
 msgid "Failed to generate description. Please try again."
 msgstr "설명 생성에 실패했어요. 다시 시도해 주세요."
 
-#: blocks/job-form-simple/render.php:260
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: blocks/job-form-simple/render.php:261
 msgid "Job description is required."
 msgstr "채용 공고 설명은 필수예요."
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance.
-#: blocks/job-form-simple/render.php:263
+#: blocks/job-form-simple/render.php:264
 #: blocks/job-form/render.php:240
 #, php-format
 msgid "Insufficient credits. This board requires %1$s but your balance is %2$s."
 msgstr "크레딧이 부족해요. 이 게시판은 %1$s가 필요하지만 잔액은 %2$s예요."
 
-#: blocks/job-form-simple/render.php:265
+#: blocks/job-form-simple/render.php:266
 #: blocks/job-form/render.php:404
 msgid "Job could not be posted. Please try again."
 msgstr "구인 공고를 게시하지 못했어요. 다시 시도해 주세요."
 
-#: blocks/job-form-simple/render.php:354
+#: blocks/job-form-simple/render.php:355
 msgid "About the role"
 msgstr "직무 소개"
 
-#: blocks/job-form-simple/render.php:359
-#: blocks/job-form/render.php:573
+#: blocks/job-form-simple/render.php:360
+#: blocks/job-form/render.php:574
 msgid "Post to Board"
 msgstr "보드에 게시하기"
 
-#: blocks/job-form-simple/render.php:407
-#: blocks/job-form/render.php:618
+#: blocks/job-form-simple/render.php:408
+#: blocks/job-form/render.php:619
 msgid "e.g. Senior PHP Developer"
 msgstr "예: 시니어 PHP 개발자"
 
-#: blocks/job-form-simple/render.php:426
-#: blocks/job-form/render.php:642
+#: blocks/job-form-simple/render.php:427
+#: blocks/job-form/render.php:643
 msgid "Generate with AI"
 msgstr "AI로 생성하기"
 
-#: blocks/job-form-simple/render.php:427
-#: blocks/job-form/render.php:643
+#: blocks/job-form-simple/render.php:428
+#: blocks/job-form/render.php:644
 msgid "Generating…"
 msgstr "생성 중…"
 
-#: blocks/job-form-simple/render.php:451
+#: blocks/job-form-simple/render.php:452
 msgid "Classification"
 msgstr "분류"
 
@@ -3538,117 +3540,117 @@ msgstr "분류"
 msgid "Select a category"
 msgstr "카테고리를 선택하세요"
 
-#: blocks/job-form-simple/render.php:463
-#: blocks/job-form/render.php:896
+#: blocks/job-form-simple/render.php:464
+#: blocks/job-form/render.php:899
 msgid "Select a job type"
 msgstr "직업 유형을 선택하세요"
 
-#: blocks/job-form-simple/render.php:472
-#: blocks/job-form/render.php:921
+#: blocks/job-form-simple/render.php:473
+#: blocks/job-form/render.php:924
 msgid "Select a location"
 msgstr "위치를 선택하세요"
 
-#: blocks/job-form-simple/render.php:476
-#: blocks/job-form/render.php:927
+#: blocks/job-form-simple/render.php:477
+#: blocks/job-form/render.php:930
 msgid "Other (enter manually)…"
 msgstr "기타 (직접 입력)…"
 
-#: blocks/job-form-simple/render.php:486
-#: blocks/job-form/render.php:937
+#: blocks/job-form-simple/render.php:487
+#: blocks/job-form/render.php:940
 msgid "Custom location"
 msgstr "직접 입력 위치"
 
-#: blocks/job-form-simple/render.php:487
-#: blocks/job-form/render.php:938
+#: blocks/job-form-simple/render.php:488
+#: blocks/job-form/render.php:941
 msgid "e.g. Berlin, DE or Remote - Europe"
 msgstr "예: Berlin, DE 또는 Remote - Europe"
 
-#: blocks/job-form-simple/render.php:494
-#: blocks/job-form/render.php:955
+#: blocks/job-form-simple/render.php:495
+#: blocks/job-form/render.php:958
 msgid "Select experience level"
 msgstr "경력 수준을 선택하세요"
 
-#: blocks/job-form-simple/render.php:503
-#: blocks/job-form/render.php:968
+#: blocks/job-form-simple/render.php:504
+#: blocks/job-form/render.php:971
 msgid "Skills / Tags"
 msgstr "스킬 / 태그"
 
-#: blocks/job-form-simple/render.php:508
-#: blocks/job-form/render.php:974
+#: blocks/job-form-simple/render.php:509
+#: blocks/job-form/render.php:977
 msgid "e.g. React, TypeScript, Node.js"
 msgstr "예: React, TypeScript, Node.js"
 
-#: blocks/job-form-simple/render.php:513
+#: blocks/job-form-simple/render.php:514
 msgid "Comma-separated."
 msgstr "쉼표로 구분하세요."
 
-#: blocks/job-form-simple/render.php:519
+#: blocks/job-form-simple/render.php:520
 msgid "Compensation & schedule"
 msgstr "보상 및 일정"
 
-#: blocks/job-form-simple/render.php:522
-#: blocks/job-form/render.php:696
+#: blocks/job-form-simple/render.php:523
+#: blocks/job-form/render.php:697
 msgid "Salary Range"
 msgstr "급여 범위"
 
-#: blocks/job-form-simple/render.php:539
-#: blocks/job-form/render.php:727
+#: blocks/job-form-simple/render.php:540
+#: blocks/job-form/render.php:728
 #: core/class-form-custom-fields.php:518
 msgid "Min"
 msgstr "최소"
 
-#: blocks/job-form-simple/render.php:540
-#: blocks/job-form/render.php:742
+#: blocks/job-form-simple/render.php:541
+#: blocks/job-form/render.php:744
 #: core/class-form-custom-fields.php:519
 msgid "Max"
 msgstr "최대"
 
-#: blocks/job-form-simple/render.php:541
+#: blocks/job-form-simple/render.php:542
 msgid "Period"
 msgstr "기간"
 
-#: blocks/job-form-simple/render.php:547
-#: blocks/job-form/render.php:775
+#: blocks/job-form-simple/render.php:548
+#: blocks/job-form/render.php:778
 msgid "Leave blank to hide salary from candidates."
 msgstr "지원자에게 급여를 숨기려면 비워 두세요."
 
-#: blocks/job-form-simple/render.php:568
+#: blocks/job-form-simple/render.php:569
 msgid "How candidates apply"
 msgstr "지원자 지원 방법"
 
-#: admin/class-admin-meta-boxes.php:338
-#: blocks/job-form-simple/render.php:572
-#: blocks/job-form/render.php:815
+#: admin/class-admin-meta-boxes.php:340
+#: blocks/job-form-simple/render.php:573
+#: blocks/job-form/render.php:818
 msgid "Apply URL"
 msgstr "지원 URL"
 
-#: blocks/job-form-simple/render.php:573
+#: blocks/job-form-simple/render.php:574
 msgid "https://yourcompany.com/careers/apply"
 msgstr "https://yourcompany.com/careers/apply"
 
-#: admin/class-admin-meta-boxes.php:342
-#: blocks/job-form-simple/render.php:576
-#: blocks/job-form/render.php:834
-#: blocks/job-single/render.php:757
+#: admin/class-admin-meta-boxes.php:344
+#: blocks/job-form-simple/render.php:577
+#: blocks/job-form/render.php:837
+#: blocks/job-single/render.php:753
 msgid "Apply Email"
 msgstr "지원 이메일"
 
-#: blocks/job-form-simple/render.php:577
+#: blocks/job-form-simple/render.php:578
 msgid "jobs@yourcompany.com"
 msgstr "jobs@yourcompany.com"
 
-#: blocks/job-form-simple/render.php:608
+#: blocks/job-form-simple/render.php:609
 msgid "Additional details"
 msgstr "추가 정보"
 
-#: blocks/job-form-simple/render.php:639
-#: blocks/job-form/render.php:416
-#: blocks/job-form/render.php:1118
+#: blocks/job-form-simple/render.php:640
+#: blocks/job-form/render.php:417
+#: blocks/job-form/render.php:1121
 msgid "Post Job"
 msgstr "공고 등록"
 
-#: blocks/job-form-simple/render.php:640
-#: blocks/job-form/render.php:1121
+#: blocks/job-form-simple/render.php:641
+#: blocks/job-form/render.php:1124
 msgid "Posting…"
 msgstr "등록 중…"
 
@@ -3668,155 +3670,155 @@ msgstr "계속하려면 채용 공고 제목을 입력해야 해요."
 msgid "Job description is required before you can continue."
 msgstr "계속하려면 채용 공고 설명을 입력해야 해요."
 
-#: blocks/job-form/render.php:413
+#: blocks/job-form/render.php:414
 msgid "Insufficient credits to post on this board."
 msgstr "이 게시판에 게시하기에 크레딧이 부족해요."
 
-#: blocks/job-form/render.php:417
-#: blocks/job-form/render.php:1118
+#: blocks/job-form/render.php:418
+#: blocks/job-form/render.php:1121
 msgid "Update Job"
 msgstr "채용 공고 수정"
 
 #. translators: %s: localized application deadline date.
-#: blocks/job-form/render.php:427
-#: blocks/job-single/render.php:540
+#: blocks/job-form/render.php:428
+#: blocks/job-single/render.php:536
 #, php-format
 msgid "Apply by %s"
 msgstr "%s까지 지원"
 
-#: blocks/job-form/render.php:446
+#: blocks/job-form/render.php:447
 msgid "Basics"
 msgstr "기본 정보"
 
-#: blocks/job-form/render.php:447
+#: blocks/job-form/render.php:448
 msgid "Details"
 msgstr "상세 정보"
 
-#: blocks/job-form/render.php:448
+#: blocks/job-form/render.php:449
 #: templates/parts/job-category-field.php:82
 msgid "Categories"
 msgstr "카테고리"
 
 #: admin/class-email-settings.php:220
-#: blocks/job-form/render.php:449
+#: blocks/job-form/render.php:450
 msgid "Preview"
 msgstr "미리보기"
 
-#: blocks/job-form/render.php:475
+#: blocks/job-form/render.php:476
 msgid "Form progress"
 msgstr "양식 진행 상태"
 
-#: blocks/job-form/render.php:523
+#: blocks/job-form/render.php:524
 msgid "Buy Credits →"
 msgstr "크레딧 구매 →"
 
-#: blocks/job-form-simple/render.php:312
-#: blocks/job-form/render.php:533
+#: blocks/job-form-simple/render.php:313
+#: blocks/job-form/render.php:534
 msgid "Job posted successfully!"
 msgstr "채용 공고가 성공적으로 등록되었어요!"
 
-#: blocks/job-form-simple/render.php:314
-#: blocks/job-form/render.php:537
+#: blocks/job-form-simple/render.php:315
+#: blocks/job-form/render.php:538
 msgid "Job submitted for review. You'll be notified once it's approved."
 msgstr "채용 공고가 검토를 위해 제출되었어요. 승인되면 알려드릴게요."
 
-#: blocks/job-form-simple/render.php:324
-#: blocks/job-form/render.php:547
+#: blocks/job-form-simple/render.php:325
+#: blocks/job-form/render.php:548
 msgid "View your job listing →"
 msgstr "채용 공고 보기 →"
 
-#: blocks/job-form-simple/render.php:331
-#: blocks/job-form/render.php:555
+#: blocks/job-form-simple/render.php:332
+#: blocks/job-form/render.php:556
 msgid "Post another job"
 msgstr "다른 채용 공고 등록"
 
-#: blocks/job-form/render.php:567
+#: blocks/job-form/render.php:568
 msgid "Job Basics"
 msgstr "채용 기본 정보"
 
-#: blocks/job-form/render.php:681
+#: blocks/job-form/render.php:682
 msgid "Next: Details"
 msgstr "다음: 상세 정보"
 
-#: blocks/job-form/render.php:827
+#: blocks/job-form/render.php:830
 msgid "Link to your external ATS or application form."
 msgstr "외부 ATS 또는 지원 양식에 링크하세요."
 
-#: blocks/job-form/render.php:846
+#: blocks/job-form/render.php:849
 msgid "Candidates can apply directly by email."
 msgstr "지원자들이 이메일로 직접 지원할 수 있어요."
 
-#: blocks/job-form/render.php:862
-#: blocks/job-form/render.php:1000
-#: blocks/job-form/render.php:1109
+#: blocks/job-form/render.php:865
+#: blocks/job-form/render.php:1003
+#: blocks/job-form/render.php:1112
 msgid "← Back"
 msgstr "← 뒤로"
 
-#: blocks/job-form/render.php:865
+#: blocks/job-form/render.php:868
 msgid "Next: Categories"
 msgstr "다음: 카테고리"
 
-#: blocks/job-form/render.php:874
+#: blocks/job-form/render.php:877
 msgid "Classify Your Job"
 msgstr "채용 공고 분류하기"
 
-#: blocks/job-form/render.php:946
+#: blocks/job-form/render.php:949
 #: modules/jobs/class-jobs-module.php:424
 msgid "Experience Level"
 msgstr "경력 수준"
 
-#: blocks/job-form/render.php:980
+#: blocks/job-form/render.php:983
 msgid "Comma-separated. Helps candidates find your job via keyword search."
 msgstr "쉼표로 구분하세요. 지원자들이 키워드 검색으로 채용 공고를 찾는 데 도움이 돼요."
 
-#: blocks/job-form/render.php:1003
+#: blocks/job-form/render.php:1006
 msgid "Preview Job"
 msgstr "채용 공고 미리보기"
 
-#: blocks/job-form/render.php:1012
+#: blocks/job-form/render.php:1015
 msgid "Preview & Submit"
 msgstr "미리보기 및 제출"
 
-#: blocks/job-form/render.php:1080
+#: blocks/job-form/render.php:1083
 msgid "Review the details above. Go back to make changes before submitting."
 msgstr "위의 세부 정보를 검토해 주세요. 제출 전에 뒤로 돌아가서 수정하세요."
 
-#: blocks/job-listings/render.php:496
-#: blocks/job-listings/render.php:858
-#: blocks/job-single/render.php:379
+#: blocks/job-listings/render.php:493
+#: blocks/job-listings/render.php:855
+#: blocks/job-single/render.php:375
+#: blocks/job-single/render.php:550
 #: blocks/job-single/render.php:554
-#: blocks/job-single/render.php:558
 msgid "Save job"
 msgstr "채용 공고 저장"
 
-#: blocks/job-listings/render.php:499
+#: blocks/job-listings/render.php:496
 msgid "Any"
 msgstr "전체"
 
-#: blocks/job-listings/render.php:539
+#: blocks/job-listings/render.php:536
 msgid "Sort jobs"
 msgstr "채용 공고 정렬"
 
-#: blocks/job-listings/render.php:571
+#: blocks/job-listings/render.php:568
 msgid "Filter jobs"
 msgstr "채용 공고 필터"
 
 #: blocks/job-filters/render.php:81
-#: blocks/job-form-simple/render.php:461
-#: blocks/job-form/render.php:887
-#: blocks/job-listings/render.php:596
+#: blocks/job-form-simple/render.php:462
+#: blocks/job-form/render.php:890
+#: blocks/job-listings/render.php:593
 #: blocks/job-search-hero/render.php:101
-#: blocks/job-single/render.php:715
+#: blocks/job-single/render.php:711
 #: blocks/job-listings/index.js:18
 msgid "Job type"
 msgstr "고용 형태"
 
-#: blocks/job-listings/render.php:666
+#: blocks/job-listings/render.php:663
 #: blocks/job-listings/index.js:21
 msgid "Tags"
 msgstr "태그"
 
-#: blocks/job-listings/render.php:703
+#: blocks/job-listings/render.php:700
 #: modules/boards/class-boards-module.php:68
 #: blocks/job-listings/index.js:23
 #: blocks/job-listings/index.js:136
@@ -3824,37 +3826,37 @@ msgid "Job board"
 msgstr "채용 게시판"
 
 #: admin/class-admin-import.php:80
-#: blocks/job-listings/render.php:734
-#: blocks/job-single/render.php:743
+#: blocks/job-listings/render.php:731
+#: blocks/job-single/render.php:739
 #: modules/jobs/class-jobs-module.php:253
 #: blocks/job-listings/index.js:24
 msgid "Salary"
 msgstr "급여"
 
-#: blocks/job-listings/render.php:737
+#: blocks/job-listings/render.php:734
 msgid "Minimum"
 msgstr "최소"
 
-#: blocks/job-listings/render.php:752
+#: blocks/job-listings/render.php:749
 msgid "Maximum"
 msgstr "최대"
 
-#: blocks/job-listings/render.php:769
+#: blocks/job-listings/render.php:766
 msgid "Reset"
 msgstr "초기화"
 
-#: blocks/job-listings/render.php:796
+#: blocks/job-listings/render.php:793
 msgid "Remove filter"
 msgstr "필터 제거"
 
-#: blocks/employer-dashboard/render.php:866
-#: blocks/job-listings/render.php:867
-#: blocks/job-single/render.php:432
+#: blocks/employer-dashboard/render.php:867
+#: blocks/job-listings/render.php:864
+#: blocks/job-single/render.php:428
 msgid "Featured"
 msgstr "추천"
 
 #: admin/class-admin-jobs.php:381
-#: blocks/job-listings/render.php:911
+#: blocks/job-listings/render.php:908
 msgid "No jobs match your filters"
 msgstr "필터에 맞는 채용 공고가 없어요"
 
@@ -3863,204 +3865,204 @@ msgstr "필터에 맞는 채용 공고가 없어요"
 msgid "Search"
 msgstr "검색"
 
-#: blocks/job-single/render.php:380
+#: blocks/job-single/render.php:376
 msgid "Please enter your name and email to apply."
 msgstr "지원하려면 이름과 이메일을 입력해 주세요."
 
-#: blocks/job-single/render.php:381
+#: blocks/job-single/render.php:377
 msgid "Please attach your resume to apply."
 msgstr "지원하려면 이력서를 첨부해 주세요."
 
-#: blocks/job-single/render.php:382
+#: blocks/job-single/render.php:378
 msgid "Application could not be submitted. Please try again."
 msgstr "지원서를 제출할 수 없어요. 다시 시도해 주세요."
 
-#: blocks/job-single/render.php:384
+#: blocks/job-single/render.php:380
 msgid "Please choose a reason for reporting."
 msgstr "신고 이유를 선택해 주세요."
 
-#: blocks/job-single/render.php:385
+#: blocks/job-single/render.php:381
 msgid "Could not submit your report. Please try again."
 msgstr "신고를 제출할 수 없어요. 다시 시도해 주세요."
 
-#: blocks/job-single/render.php:386
+#: blocks/job-single/render.php:382
 msgid "Write with AI"
 msgstr "AI로 작성하기"
 
-#: blocks/job-single/render.php:387
+#: blocks/job-single/render.php:383
 msgid "Writing…"
 msgstr "작성 중…"
 
-#: blocks/job-single/render.php:465
+#: blocks/job-single/render.php:461
 msgid "Posted today"
 msgstr "오늘 게시됨"
 
-#: blocks/job-single/render.php:467
+#: blocks/job-single/render.php:463
 msgid "Posted yesterday"
 msgstr "어제 게시됨"
 
 #. translators: %s: number of days since the job was posted, already localised.
-#: blocks/job-single/render.php:474
+#: blocks/job-single/render.php:470
 #, php-format
 msgid "Posted %s day ago"
 msgid_plural "Posted %s days ago"
 msgstr[0] "%s일 전 게시됨"
 
-#: blocks/job-single/render.php:488
-#: blocks/job-single/render.php:808
+#: blocks/job-single/render.php:484
+#: blocks/job-single/render.php:804
 #: core/class-abilities.php:240
 msgid "View Applications"
 msgstr "지원서 보기"
 
-#: blocks/job-single/render.php:507
-#: blocks/job-single/render.php:819
+#: blocks/job-single/render.php:503
+#: blocks/job-single/render.php:815
 msgid "Apply on Company Site ↗"
 msgstr "회사 사이트에서 지원하기 ↗"
 
-#: blocks/job-single/render.php:530
+#: blocks/job-single/render.php:526
 msgid "Get notified about similar jobs"
 msgstr "유사한 채용공고 알림 받기"
 
-#: blocks/job-single/render.php:532
+#: blocks/job-single/render.php:528
 msgid "You will be notified about similar jobs"
 msgstr "유사한 채용공고 알림을 받게 돼요"
 
-#: blocks/job-single/render.php:555
+#: blocks/job-single/render.php:551
 msgid "Save this job"
 msgstr "이 채용공고 저장하기"
 
-#: blocks/job-single/render.php:582
+#: blocks/job-single/render.php:578
 msgid "About This Role"
 msgstr "이 직무 소개"
 
-#: blocks/job-single/render.php:674
+#: blocks/job-single/render.php:670
 msgid "Skills & Tags"
 msgstr "스킬 및 태그"
 
-#: blocks/job-single/render.php:735
+#: blocks/job-single/render.php:731
 msgid "Work Mode"
 msgstr "근무 방식"
 
-#: blocks/job-single/render.php:737
+#: blocks/job-single/render.php:733
 msgid "On-site"
 msgstr "현장 근무"
 
 #. translators: %s: job title
-#: blocks/job-single/render.php:762
+#: blocks/job-single/render.php:758
 #, php-format
 msgid "Application for %s"
 msgstr "%s 지원서"
 
-#: blocks/job-single/render.php:770
+#: blocks/job-single/render.php:766
 msgid "Apply Via"
 msgstr "지원 방법"
 
 #. translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales.
-#: blocks/job-single/render.php:784
-#: blocks/job-single/render.php:974
+#: blocks/job-single/render.php:780
+#: blocks/job-single/render.php:970
 #, php-format
 msgid "%s ↗"
 msgstr "%s ↗"
 
-#: blocks/job-single/render.php:785
+#: blocks/job-single/render.php:781
 msgid "External site"
 msgstr "외부 사이트"
 
-#: blocks/job-single/render.php:853
+#: blocks/job-single/render.php:849
 msgid "Share"
 msgstr "공유하기"
 
-#: blocks/job-single/render.php:861
+#: blocks/job-single/render.php:857
 msgid "Share on X"
 msgstr "X에서 공유하기"
 
-#: blocks/job-single/render.php:870
+#: blocks/job-single/render.php:866
 msgid "Share on LinkedIn"
 msgstr "LinkedIn 에서 공유"
 
-#: blocks/job-single/render.php:878
+#: blocks/job-single/render.php:874
 msgid "Copy link"
 msgstr "링크 복사하기"
 
 #. translators: The → is a "go to" affordance. Flip it to ← (or drop it) for RTL locales.
-#: blocks/job-single/render.php:959
+#: blocks/job-single/render.php:955
 msgid "View Company Profile →"
 msgstr "회사 프로필 보기 →"
 
-#: blocks/job-single/render.php:997
+#: blocks/job-single/render.php:993
 msgid "Report this job"
 msgstr "이 채용공고 신고하기"
 
-#: blocks/job-single/render.php:1002
+#: blocks/job-single/render.php:998
 msgid "Why are you reporting this job?"
 msgstr "이 채용공고를 신고하는 이유가 무엇인가요?"
 
-#: blocks/job-single/render.php:1009
+#: blocks/job-single/render.php:1005
 msgid "- Select a reason -"
 msgstr "- 이유 선택 -"
 
-#: blocks/job-single/render.php:1025
+#: blocks/job-single/render.php:1021
 msgid "Submit report"
 msgstr "신고 제출"
 
-#: blocks/job-single/render.php:1032
+#: blocks/job-single/render.php:1028
 msgid "Thanks - this job has been reported for review."
 msgstr "감사해요 - 이 채용공고가 검토를 위해 신고됐어요."
 
-#: blocks/job-single/render.php:1057
+#: blocks/job-single/render.php:1053
 msgid "Close application panel"
 msgstr "지원 패널 닫기"
 
-#: blocks/job-single/render.php:1061
+#: blocks/job-single/render.php:1057
 msgid "Apply for this job"
 msgstr "이 채용공고에 지원하기"
 
-#: blocks/job-single/render.php:1075
+#: blocks/job-single/render.php:1071
 msgid "Your Name"
 msgstr "이름"
 
-#: blocks/job-single/render.php:1087
+#: blocks/job-single/render.php:1083
 msgid "Your Email"
 msgstr "이메일"
 
-#: blocks/job-single/render.php:1106
+#: blocks/job-single/render.php:1102
 msgid "Select Resume"
 msgstr "이력서 선택"
 
-#: blocks/job-single/render.php:1125
+#: blocks/job-single/render.php:1121
 msgid "Upload a different file instead"
 msgstr "다른 파일로 업로드하기"
 
-#: blocks/job-single/render.php:1130
+#: blocks/job-single/render.php:1126
 msgid "No saved resume yet."
 msgstr "저장된 이력서가 없어요."
 
-#: blocks/job-single/render.php:1134
+#: blocks/job-single/render.php:1130
 msgid "Build a resume →"
 msgstr "이력서 만들기 →"
 
-#: blocks/job-single/render.php:1147
-#: blocks/job-single/render.php:1176
+#: blocks/job-single/render.php:1143
+#: blocks/job-single/render.php:1172
 msgid "(optional)"
 msgstr "(선택 사항)"
 
-#: blocks/job-single/render.php:1154
+#: blocks/job-single/render.php:1150
 msgid "Click to upload resume"
 msgstr "클릭하여 이력서 업로드"
 
 #. translators: %s: max upload size in MB, already localised.
-#: blocks/job-single/render.php:1158
+#: blocks/job-single/render.php:1154
 #, php-format
 msgid "PDF, DOC or DOCX  -  max %s MB"
 msgstr "PDF, DOC 또는 DOCX  -  최대 %s MB"
 
-#: blocks/job-single/render.php:1187
+#: blocks/job-single/render.php:1183
 msgid "Tell the employer why you are a great fit for this role…"
 msgstr "이 직무에 적합한 이유를 고용주에게 알려주세요…"
 
-#: blocks/employer-dashboard/render.php:1052
-#: blocks/job-single/render.php:1175
-#: blocks/job-single/render.php:1194
+#: blocks/employer-dashboard/render.php:1053
+#: blocks/job-single/render.php:1171
+#: blocks/job-single/render.php:1190
 #: core/class-applications-csv.php:63
 #: modules/applications/widgets/class-cover-letter.php:43
 #: modules/applications/widgets/class-cover-letter.php:77
@@ -4068,11 +4070,11 @@ msgstr "이 직무에 적합한 이유를 고용주에게 알려주세요…"
 msgid "Cover letter"
 msgstr "자기소개서"
 
-#: blocks/job-single/render.php:1277
+#: blocks/job-single/render.php:1273
 msgid "Submit Application"
 msgstr "지원서 제출"
 
-#: blocks/job-single/render.php:1278
+#: blocks/job-single/render.php:1274
 msgid "Submitting…"
 msgstr "제출 중…"
 
@@ -4080,7 +4082,7 @@ msgstr "제출 중…"
 msgid "No recent jobs to display."
 msgstr "최근 채용 공고가 없어요."
 
-#: blocks/recent-jobs/render.php:72
+#: blocks/recent-jobs/render.php:64
 msgid "Recent Jobs"
 msgstr "최근 채용 공고"
 
@@ -4543,7 +4545,7 @@ msgstr "비회원 지원자"
 msgid "Applied"
 msgstr "지원함"
 
-#: blocks/employer-dashboard/render.php:1054
+#: blocks/employer-dashboard/render.php:1055
 #: modules/applications/widgets/class-cover-letter.php:79
 msgid "No cover letter submitted."
 msgstr "자기소개서가 제출되지 않았어요."
@@ -4667,13 +4669,13 @@ msgid "Closed <span class=\"count\">(%s)</span>"
 msgid_plural "Closed <span class=\"count\">(%s)</span>"
 msgstr[0] "마감됨 <span class=\"count\">(%s)</span>"
 
-#: blocks/job-listings/render.php:887
-#: blocks/job-single/render.php:750
+#: blocks/job-listings/render.php:884
+#: blocks/job-single/render.php:746
 #: modules/jobs/class-jobs-module.php:258
 msgid "Apply by"
 msgstr "지원 마감일"
 
-#: blocks/job-form/render.php:465
+#: blocks/job-form/render.php:466
 #: modules/jobs/class-jobs-module.php:330
 msgid "Edit Job"
 msgstr "채용 공고 편집"
@@ -4738,8 +4740,8 @@ msgstr "지원 확인 (지원자)"
 msgid "Application submitted successfully"
 msgstr "지원이 성공적으로 제출되었습니다"
 
-#: blocks/job-single/render.php:519
-#: blocks/job-single/render.php:831
+#: blocks/job-single/render.php:515
+#: blocks/job-single/render.php:827
 #: modules/notifications/emails/class-email-app-confirmation.php:68
 msgid "Application submitted"
 msgstr "지원서 제출 완료"
@@ -4767,8 +4769,8 @@ msgstr "내 지원서 보기"
 msgid "Candidate name"
 msgstr "지원자 이름"
 
-#: blocks/job-form-simple/render.php:400
-#: blocks/job-form/render.php:611
+#: blocks/job-form-simple/render.php:401
+#: blocks/job-form/render.php:612
 #: core/class-applications-csv.php:58
 #: modules/notifications/emails/class-email-app-confirmation.php:87
 #: modules/notifications/emails/class-email-app-guest.php:87
@@ -4887,8 +4889,8 @@ msgstr "{job_title} 지원 마감이 다가오고 있습니다"
 msgid "Your saved job is closing soon"
 msgstr "저장한 채용 공고가 곧 마감돼요"
 
-#: blocks/job-single/render.php:516
-#: blocks/job-single/render.php:828
+#: blocks/job-single/render.php:512
+#: blocks/job-single/render.php:824
 #: modules/notifications/emails/class-email-deadline-reminder.php:80
 msgid "Apply now"
 msgstr "지금 지원하기"
@@ -5061,7 +5063,7 @@ msgstr "채용 공고 목록 설정"
 msgid "Show only jobs assigned to this board. \"All boards\" shows every job."
 msgstr "이 게시판에 배정된 채용 공고만 표시해요. \"모든 게시판\"은 모든 공고를 표시해요."
 
-#: blocks/employer-dashboard/render.php:929
+#: blocks/employer-dashboard/render.php:930
 #: blocks/job-listings/index.js:143
 #: blocks/job-search-hero/index.js:29
 #: blocks/job-search-hero/index.js:31
@@ -5529,7 +5531,7 @@ msgstr "일치하는 항목 모두 CSV 내보내기"
 
 #: admin/class-admin-applications.php:595
 #: admin/class-admin-candidates.php:383
-#: blocks/employer-dashboard/render.php:1068
+#: blocks/employer-dashboard/render.php:1069
 #: modules/applications/widgets/class-applicant-card.php:128
 #: modules/candidates/class-candidates-module.php:241
 msgid "View resume"
@@ -5550,7 +5552,7 @@ msgid "Suspended"
 msgstr "정지됨"
 
 #: admin/class-admin-candidates.php:433
-#: blocks/candidate-dashboard/render.php:1020
+#: blocks/candidate-dashboard/render.php:1022
 msgid "Public"
 msgstr "공개"
 
@@ -5603,7 +5605,7 @@ msgstr "채용공고 제목 또는 회사…"
 
 #: admin/class-admin-jobs.php:361
 #: admin/class-admin-jobs.php:614
-#: blocks/employer-dashboard/render.php:461
+#: blocks/employer-dashboard/render.php:462
 msgid "Awaiting payment"
 msgstr "결제 대기"
 
@@ -5623,11 +5625,11 @@ msgstr "Google for Jobs 에 없음: 위치를 추가하거나 원격 근무로 �
 msgid "No location"
 msgstr "위치 없음"
 
-#: admin/class-admin-meta-boxes.php:331
+#: admin/class-admin-meta-boxes.php:333
 msgid "Leave empty to use the board's listing length."
 msgstr "비워 두면 보드의 게시 기간을 써요."
 
-#: admin/class-admin-meta-boxes.php:334
+#: admin/class-admin-meta-boxes.php:336
 msgid "No expiry (stays open until closed)"
 msgstr "만료 없음(마감할 때까지 열려 있어요)"
 
@@ -5718,12 +5720,12 @@ msgid "Default order"
 msgstr "기본 정렬"
 
 #: admin/class-admin-settings.php:757
-#: blocks/job-listings/render.php:544
+#: blocks/job-listings/render.php:541
 msgid "Closing soonest"
 msgstr "마감이 가까운 순"
 
 #: admin/class-admin-settings.php:758
-#: blocks/job-listings/render.php:545
+#: blocks/job-listings/render.php:542
 msgid "Highest salary"
 msgstr "급여 높은 순"
 
@@ -6600,35 +6602,27 @@ msgid "Choose up to %s category for this job."
 msgid_plural "Choose up to %s categories for this job."
 msgstr[0] "이 채용공고는 카테고리를 최대 %s개까지 고를 수 있어요."
 
-#: api/endpoints/class-jobs-endpoint.php:2017
-msgid "Minimum salary must be a positive number."
-msgstr "최소 급여는 양수여야 해요."
-
-#: api/endpoints/class-jobs-endpoint.php:2020
-msgid "Maximum salary must be a positive number."
-msgstr "최대 급여는 양수여야 해요."
-
-#: api/endpoints/class-jobs-endpoint.php:2023
+#: api/endpoints/class-jobs-endpoint.php:2027
 msgid "Unknown salary currency."
 msgstr "알 수 없는 급여 통화예요."
 
-#: api/endpoints/class-jobs-endpoint.php:2030
+#: api/endpoints/class-jobs-endpoint.php:2034
 msgid "Deadline must be a date in YYYY-MM-DD format."
 msgstr "마감일은 YYYY-MM-DD 형식의 날짜여야 해요."
 
-#: api/endpoints/class-jobs-endpoint.php:2033
+#: api/endpoints/class-jobs-endpoint.php:2037
 msgid "Unknown job board."
 msgstr "알 수 없는 채용 보드예요."
 
-#: api/endpoints/class-jobs-endpoint.php:2037
+#: api/endpoints/class-jobs-endpoint.php:2041
 msgid "Unknown company."
 msgstr "알 수 없는 회사예요."
 
-#: api/endpoints/class-jobs-endpoint.php:2040
+#: api/endpoints/class-jobs-endpoint.php:2044
 msgid "Apply email is not a valid email address."
 msgstr "지원 이메일이 유효한 주소가 아니에요."
 
-#: api/endpoints/class-jobs-endpoint.php:2093
+#: api/endpoints/class-jobs-endpoint.php:2097
 msgid "relevance (keyword searches), newest (featured first), oldest, salary, closing. Default: relevance with a keyword, else the Settings default."
 msgstr "관련도(키워드 검색), 최신(추천 우선), 오래된 순, 급여, 마감. 기본: 키워드가 있으면 관련도, 없으면 설정 기본값."
 
@@ -6697,139 +6691,139 @@ msgid "Resumes: %1$s of %2$s"
 msgstr "이력서: %2$s개 중 %1$s개"
 
 #. translators: %s: name of the item the menu acts on (a job, resume or company).
-#: blocks/candidate-dashboard/render.php:245
-#: blocks/employer-dashboard/render.php:392
+#: blocks/candidate-dashboard/render.php:247
+#: blocks/employer-dashboard/render.php:393
 #, php-format
 msgid "More actions for %s"
 msgstr "%s 추가 작업"
 
-#: blocks/candidate-dashboard/render.php:449
+#: blocks/candidate-dashboard/render.php:451
 msgid "My activity"
 msgstr "내 활동"
 
-#: blocks/candidate-dashboard/render.php:513
-#: blocks/employer-dashboard/render.php:612
+#: blocks/candidate-dashboard/render.php:515
+#: blocks/employer-dashboard/render.php:613
 msgctxt "saved items menu: saved jobs"
 msgid "Jobs"
 msgstr "채용공고"
 
-#: blocks/candidate-dashboard/render.php:517
-#: blocks/employer-dashboard/render.php:616
+#: blocks/candidate-dashboard/render.php:519
+#: blocks/employer-dashboard/render.php:617
 msgctxt "saved items menu: saved companies"
 msgid "Companies"
 msgstr "회사"
 
-#: blocks/candidate-dashboard/render.php:522
-#: blocks/employer-dashboard/render.php:622
+#: blocks/candidate-dashboard/render.php:524
+#: blocks/employer-dashboard/render.php:623
 msgctxt "saved items menu: saved resumes"
 msgid "Resumes"
 msgstr "이력서"
 
-#: blocks/candidate-dashboard/render.php:531
+#: blocks/candidate-dashboard/render.php:533
 msgid "Moderation"
 msgstr " моде레이션"
 
-#: blocks/candidate-dashboard/render.php:533
+#: blocks/candidate-dashboard/render.php:535
 #: blocks/employer-dashboard/render.php:56
 #: templates/parts/post-job-gate.php:53
 msgid "Review jobs"
 msgstr "채용공고 검토"
 
-#: blocks/candidate-dashboard/render.php:539
-#: blocks/employer-dashboard/render.php:630
+#: blocks/candidate-dashboard/render.php:541
+#: blocks/employer-dashboard/render.php:631
 msgid "Account"
 msgstr "계정"
 
 #. translators: %s: candidate's first name
-#: blocks/candidate-dashboard/render.php:585
+#: blocks/candidate-dashboard/render.php:587
 #, php-format
 msgid "Welcome, %s"
 msgstr "환영해요, %s 님"
 
-#: blocks/candidate-dashboard/render.php:670
+#: blocks/candidate-dashboard/render.php:672
 msgid "Jobs you apply to show up here with their status."
 msgstr "지원한 채용공고가 상태와 함께 여기에 보여요."
 
-#: blocks/candidate-dashboard/render.php:775
+#: blocks/candidate-dashboard/render.php:777
 msgid "Load more applications"
 msgstr "지원서 더 불러오기"
 
-#: blocks/candidate-dashboard/render.php:783
+#: blocks/candidate-dashboard/render.php:785
 msgid "Apply to a job and follow its progress here."
 msgstr "채용공고에 지원하고 진행 상황을 여기에서 확인하세요."
 
-#: blocks/candidate-dashboard/render.php:838
-#: blocks/employer-dashboard/render.php:1386
+#: blocks/candidate-dashboard/render.php:840
+#: blocks/employer-dashboard/render.php:1387
 msgid "No saved jobs"
 msgstr "저장한 채용공고 없음"
 
-#: blocks/candidate-dashboard/render.php:839
-#: blocks/employer-dashboard/render.php:1387
+#: blocks/candidate-dashboard/render.php:841
+#: blocks/employer-dashboard/render.php:1388
 msgid "Bookmark a job to find it here."
 msgstr "채용공고를 북마크하면 여기에서 찾을 수 있어요."
 
-#: blocks/candidate-dashboard/render.php:895
-#: blocks/employer-dashboard/render.php:1430
+#: blocks/candidate-dashboard/render.php:897
+#: blocks/employer-dashboard/render.php:1431
 msgid "No saved companies"
 msgstr "저장한 회사 없음"
 
-#: blocks/candidate-dashboard/render.php:896
-#: blocks/employer-dashboard/render.php:1431
+#: blocks/candidate-dashboard/render.php:898
+#: blocks/employer-dashboard/render.php:1432
 msgid "Bookmark a company to find it here."
 msgstr "회사를 북마크하면 여기에서 찾을 수 있어요."
 
-#: blocks/candidate-dashboard/render.php:953
-#: blocks/employer-dashboard/render.php:1477
+#: blocks/candidate-dashboard/render.php:955
+#: blocks/employer-dashboard/render.php:1478
 msgid "No saved resumes"
 msgstr "저장한 이력서 없음"
 
-#: blocks/candidate-dashboard/render.php:954
-#: blocks/employer-dashboard/render.php:1478
+#: blocks/candidate-dashboard/render.php:956
+#: blocks/employer-dashboard/render.php:1479
 msgid "Bookmark a candidate to find it here."
 msgstr "후보자를 북마크하면 여기에서 찾을 수 있어요."
 
-#: blocks/candidate-dashboard/render.php:1088
+#: blocks/candidate-dashboard/render.php:1090
 msgid "No resumes yet"
 msgstr "아직 이력서가 없어요"
 
-#: blocks/candidate-dashboard/render.php:1090
+#: blocks/candidate-dashboard/render.php:1092
 msgid "Build a resume here or upload a CV you already have, using the buttons above."
 msgstr "위의 버튼으로 여기에서 이력서를 만들거나, 이미 있는 CV 를 업로드하세요."
 
-#: blocks/candidate-dashboard/render.php:1158
+#: blocks/candidate-dashboard/render.php:1160
 msgid "No job alerts yet"
 msgstr "아직 채용 알림이 없어요"
 
-#: blocks/candidate-dashboard/render.php:1159
+#: blocks/candidate-dashboard/render.php:1161
 msgid "Search for jobs and click \"Alert me\" to hear when matching jobs are posted."
 msgstr "채용공고를 검색한 뒤 \"알림 받기\"를 누르면 맞는 공고가 올라올 때 알려 드려요."
 
-#: blocks/candidate-dashboard/render.php:1178
+#: blocks/candidate-dashboard/render.php:1180
 msgid "Change email in Settings"
 msgstr "설정에서 이메일 변경"
 
-#: blocks/candidate-dashboard/render.php:1178
+#: blocks/candidate-dashboard/render.php:1180
 msgid "Change"
 msgstr "변경"
 
-#: blocks/candidate-dashboard/render.php:1183
+#: blocks/candidate-dashboard/render.php:1185
 msgid "Employers see your photo, skills and experience from your resume."
 msgstr "고용주는 이력서의 사진, 기술, 경력을 봐요."
 
-#: blocks/candidate-dashboard/render.php:1184
+#: blocks/candidate-dashboard/render.php:1186
 msgid "Edit my resume"
 msgstr "내 이력서 편집"
 
-#: blocks/candidate-dashboard/render.php:1268
-#: blocks/candidate-dashboard/render.php:1285
-#: blocks/employer-dashboard/render.php:1505
-#: blocks/employer-dashboard/render.php:1522
+#: blocks/candidate-dashboard/render.php:1270
+#: blocks/candidate-dashboard/render.php:1287
+#: blocks/employer-dashboard/render.php:1506
+#: blocks/employer-dashboard/render.php:1523
 #: modules/account/class-credential-guard.php:94
 msgid "Current password"
 msgstr "현재 비밀번호"
 
-#: blocks/candidate-dashboard/render.php:1270
-#: blocks/employer-dashboard/render.php:1507
+#: blocks/candidate-dashboard/render.php:1272
+#: blocks/employer-dashboard/render.php:1508
 msgid "Needed only if you change your email."
 msgstr "이메일을 바꿀 때만 필요해요."
 
@@ -6878,244 +6872,244 @@ msgid "%d star"
 msgid_plural "%d stars"
 msgstr[0] "별점 %d"
 
-#: blocks/employer-dashboard/render.php:387
+#: blocks/employer-dashboard/render.php:388
 msgid "It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed."
 msgstr "채용 목록에서 빠지고 지원을 받지 않아요. 아직 채용하거나 거절하지 않은 지원자에게는 포지션이 마감됐다고 알려요."
 
 #. translators: %s: a date, already formatted for the site.
-#: blocks/employer-dashboard/render.php:395
+#: blocks/employer-dashboard/render.php:396
 #, php-format
 msgid "Closes %s"
 msgstr "%s 마감"
 
-#: blocks/employer-dashboard/render.php:396
-#: blocks/employer-dashboard/render.php:979
+#: blocks/employer-dashboard/render.php:397
+#: blocks/employer-dashboard/render.php:980
 msgid "No applications with this status."
 msgstr "이 상태의 지원서가 없어요."
 
-#: blocks/employer-dashboard/render.php:397
+#: blocks/employer-dashboard/render.php:398
 msgid "No applications this week."
 msgstr "이번 주 지원서가 없어요."
 
-#: blocks/employer-dashboard/render.php:398
+#: blocks/employer-dashboard/render.php:399
 msgid "Remove this company?"
 msgstr "이 회사를 제거할까요?"
 
-#: blocks/employer-dashboard/render.php:399
+#: blocks/employer-dashboard/render.php:400
 msgid "Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them."
 msgstr "페이지가 내려가고 게시 중인 채용공고가 마감되며 지원자에게 알려요. 검토 대기 공고는 임시저장으로 돌아가요. 사이트 관리자가 회사는 복원할 수 있지만, 마감된 공고는 다시 열 때까지 마감 상태예요."
 
-#: blocks/employer-dashboard/render.php:400
+#: blocks/employer-dashboard/render.php:401
 msgid "Remove company"
 msgstr "회사 제거"
 
-#: blocks/employer-dashboard/render.php:443
+#: blocks/employer-dashboard/render.php:444
 msgid "Not scored"
 msgstr "점수 없음"
 
 #. translators: %s: number of applications.
-#: blocks/employer-dashboard/render.php:448
+#: blocks/employer-dashboard/render.php:449
 #, php-format
 msgid "Not on the board (closed, withdrawn or removed): %s"
 msgstr "보드에 없음(마감, 철회 또는 삭제): %s"
 
 #. translators: %s: number of credits. Label form: the number is filled in on the page, so one string must fit every count.
-#: blocks/employer-dashboard/render.php:463
+#: blocks/employer-dashboard/render.php:464
 #, php-format
 msgid "Featured jobs list first. Credits this uses from your balance: %s."
 msgstr "추천 채용공고가 먼저 나와요. 잔액에서 쓰는 크레딧: %s."
 
-#: blocks/employer-dashboard/render.php:464
+#: blocks/employer-dashboard/render.php:465
 msgid "Feature this job?"
 msgstr "이 채용공고를 추천할까요?"
 
-#: blocks/employer-dashboard/render.php:465
+#: blocks/employer-dashboard/render.php:466
 msgid "Feature job"
 msgstr "채용공고 추천"
 
-#: blocks/employer-dashboard/render.php:469
+#: blocks/employer-dashboard/render.php:470
 msgid "No change. The candidate was not notified."
 msgstr "변경 없음. 후보자에게 알리지 않았어요."
 
-#: blocks/employer-dashboard/render.php:470
+#: blocks/employer-dashboard/render.php:471
 msgid "Status updated. This applicant left no email address, so they were not notified."
 msgstr "상태를 업데이트했어요. 이 지원자는 이메일을 남기지 않아 알리지 않았어요."
 
 #: blocks/candidate-dashboard/render.php:202
-#: blocks/candidate-dashboard/render.php:907
-#: blocks/employer-dashboard/render.php:413
-#: blocks/employer-dashboard/render.php:622
-#: blocks/employer-dashboard/render.php:1442
+#: blocks/candidate-dashboard/render.php:909
+#: blocks/employer-dashboard/render.php:414
+#: blocks/employer-dashboard/render.php:623
+#: blocks/employer-dashboard/render.php:1443
 #: modules/gdpr/class-gdpr-module.php:452
 msgid "Saved resumes"
 msgstr "저장한 이력서"
 
-#: blocks/employer-dashboard/render.php:729
+#: blocks/employer-dashboard/render.php:730
 msgid "Needs attention"
 msgstr "확인 필요"
 
-#: blocks/employer-dashboard/render.php:734
+#: blocks/employer-dashboard/render.php:735
 msgid "Review"
 msgstr "검토"
 
-#: blocks/employer-dashboard/render.php:739
+#: blocks/employer-dashboard/render.php:740
 msgid "Manage"
 msgstr "관리"
 
-#: blocks/employer-dashboard/render.php:743
+#: blocks/employer-dashboard/render.php:744
 msgid "Nothing needs your attention right now."
 msgstr "지금 확인할 항목이 없어요."
 
-#: blocks/employer-dashboard/render.php:795
+#: blocks/employer-dashboard/render.php:796
 msgid "Filter by company"
 msgstr "회사별 필터"
 
-#: blocks/employer-dashboard/render.php:796
+#: blocks/employer-dashboard/render.php:797
 msgid "All companies"
 msgstr "모든 회사"
 
-#: blocks/employer-dashboard/render.php:833
+#: blocks/employer-dashboard/render.php:834
 msgid "Set up your company"
 msgstr "회사 설정하기"
 
-#: blocks/employer-dashboard/render.php:834
+#: blocks/employer-dashboard/render.php:835
 msgid "Add your company profile before posting jobs."
 msgstr "채용공고를 올리기 전에 회사 프로필을 추가하세요."
 
 #: admin/class-admin-jobs.php:387
-#: blocks/employer-dashboard/render.php:843
+#: blocks/employer-dashboard/render.php:844
 msgid "No jobs yet"
 msgstr "아직 채용공고가 없어요"
 
-#: blocks/employer-dashboard/render.php:844
+#: blocks/employer-dashboard/render.php:845
 msgid "Post your first job and it will appear here."
 msgstr "첫 채용공고를 올리면 여기에 나타나요."
 
-#: blocks/employer-dashboard/render.php:881
+#: blocks/employer-dashboard/render.php:882
 msgid "Feature"
 msgstr "추천"
 
-#: blocks/employer-dashboard/render.php:933
+#: blocks/employer-dashboard/render.php:934
 msgid "Export CSV"
 msgstr "CSV 내보내기"
 
-#: blocks/employer-dashboard/render.php:960
+#: blocks/employer-dashboard/render.php:961
 msgid "Remove filter: this week"
 msgstr "필터 제거: 이번 주"
 
-#: blocks/employer-dashboard/render.php:961
+#: blocks/employer-dashboard/render.php:962
 msgid "This week"
 msgstr "이번 주"
 
-#: blocks/employer-dashboard/render.php:975
+#: blocks/employer-dashboard/render.php:976
 msgid "Applications to your jobs arrive here, newest first."
 msgstr "채용공고로 온 지원서가 최신순으로 여기에 도착해요."
 
-#: blocks/employer-dashboard/render.php:1005
+#: blocks/employer-dashboard/render.php:1006
 msgid "Pick an applicant"
 msgstr "지원자를 고르세요"
 
-#: blocks/employer-dashboard/render.php:1006
+#: blocks/employer-dashboard/render.php:1007
 msgid "Their answers, resume and your team notes open here."
 msgstr "답변, 이력서, 팀 메모가 여기에서 열려요."
 
-#: blocks/employer-dashboard/render.php:1030
+#: blocks/employer-dashboard/render.php:1031
 msgid "Rating and notes"
 msgstr "평가와 메모"
 
-#: blocks/employer-dashboard/render.php:1031
+#: blocks/employer-dashboard/render.php:1032
 msgid "Only your hiring team sees these."
 msgstr "채용 팀만 볼 수 있어요."
 
-#: blocks/employer-dashboard/render.php:1032
+#: blocks/employer-dashboard/render.php:1033
 msgid "Rating"
 msgstr "평가"
 
-#: blocks/employer-dashboard/render.php:1036
+#: blocks/employer-dashboard/render.php:1037
 msgid "Not rated"
 msgstr "평가 없음"
 
-#: blocks/employer-dashboard/render.php:1043
+#: blocks/employer-dashboard/render.php:1044
 msgid "Delete note"
 msgstr "메모 삭제"
 
-#: blocks/employer-dashboard/render.php:1047
+#: blocks/employer-dashboard/render.php:1048
 msgid "Add a note"
 msgstr "메모 추가"
 
-#: blocks/employer-dashboard/render.php:1048
+#: blocks/employer-dashboard/render.php:1049
 msgid "Add a note for your team…"
 msgstr "팀을 위한 메모를 추가하세요…"
 
-#: blocks/employer-dashboard/render.php:1049
+#: blocks/employer-dashboard/render.php:1050
 msgid "Add note"
 msgstr "메모 추가"
 
-#: blocks/employer-dashboard/render.php:1057
+#: blocks/employer-dashboard/render.php:1058
 #: modules/applications/widgets/class-custom-answers.php:43
 #: modules/applications/widgets/class-custom-answers.php:92
 msgid "Application answers"
 msgstr "지원 답변"
 
-#: blocks/employer-dashboard/render.php:1092
+#: blocks/employer-dashboard/render.php:1093
 msgid "Move to"
 msgstr "이동"
 
-#: blocks/employer-dashboard/render.php:1106
+#: blocks/employer-dashboard/render.php:1107
 msgid "Load more applicants"
 msgstr "지원자 더 불러오기"
 
 #: admin/class-admin-companies.php:370
-#: blocks/employer-dashboard/render.php:1117
-#: blocks/employer-dashboard/render.php:1125
+#: blocks/employer-dashboard/render.php:1118
+#: blocks/employer-dashboard/render.php:1126
 msgid "Add company"
 msgstr "회사 추가"
 
-#: blocks/employer-dashboard/render.php:1119
+#: blocks/employer-dashboard/render.php:1120
 msgid "Every company you hire for. Post a Job, My Jobs and Applications cover all of them; your main company is the one Post a Job picks first."
 msgstr "채용하는 모든 회사예요. 채용공고 등록, 내 채용공고, 지원서가 모두 포함되고, 메인 회사는 채용공고 등록이 먼저 고르는 회사예요."
 
-#: blocks/employer-dashboard/render.php:1123
+#: blocks/employer-dashboard/render.php:1124
 msgid "No company yet"
 msgstr "아직 회사가 없어요"
 
-#: blocks/employer-dashboard/render.php:1124
+#: blocks/employer-dashboard/render.php:1125
 msgid "Add the company you hire for. Candidates see its name, logo and profile on every job."
 msgstr "채용하는 회사를 추가하세요. 후보자는 모든 채용공고에서 이름, 로고, 프로필을 봐요."
 
-#: blocks/employer-dashboard/render.php:1138
+#: blocks/employer-dashboard/render.php:1139
 msgid "Main company"
 msgstr "메인 회사"
 
-#: blocks/employer-dashboard/render.php:1145
+#: blocks/employer-dashboard/render.php:1146
 msgid "Edit profile"
 msgstr "프로필 편집"
 
-#: blocks/employer-dashboard/render.php:1152
+#: blocks/employer-dashboard/render.php:1153
 msgid "Make main"
 msgstr "메인으로 지정"
 
-#: blocks/employer-dashboard/render.php:1164
+#: blocks/employer-dashboard/render.php:1165
 msgid "Add a company"
 msgstr "회사 추가"
 
-#: blocks/employer-dashboard/render.php:1166
+#: blocks/employer-dashboard/render.php:1167
 msgid "← All companies"
 msgstr "← 모든 회사"
 
 #. translators: %s: company name
-#: blocks/employer-dashboard/render.php:1175
+#: blocks/employer-dashboard/render.php:1176
 #, php-format
 msgid "Editing %s, your main company."
 msgstr "메인 회사 %s 을(를) 편집 중이에요."
 
 #. translators: %s: company name
-#: blocks/employer-dashboard/render.php:1177
+#: blocks/employer-dashboard/render.php:1178
 #, php-format
 msgid "Editing %s."
 msgstr "%s 을(를) 편집 중이에요."
 
-#: blocks/employer-dashboard/render.php:1182
+#: blocks/employer-dashboard/render.php:1183
 msgid "Your main company stays the same. After saving you can add the logo."
 msgstr "메인 회사는 그대로예요. 저장한 뒤에 로고를 넣을 수 있어요."
 
@@ -7140,20 +7134,20 @@ msgstr "이 보드는 %1$s 이(가) 필요해요. 잔액: %2$s. 크레딧을 추
 
 #. translators: %s: latest allowed deadline date.
 #: blocks/job-form-simple/render.php:251
-#: blocks/job-form/render.php:423
+#: blocks/job-form/render.php:424
 #, php-format
 msgid "Pick any date up to %s, the longest this board allows."
 msgstr "이 보드가 허용하는 가장 늦은 날짜인 %s 까지 고를 수 있어요."
 
-#: blocks/employer-dashboard/render.php:839
-#: blocks/job-form-simple/render.php:342
-#: blocks/job-form/render.php:1100
+#: blocks/employer-dashboard/render.php:840
+#: blocks/job-form-simple/render.php:343
+#: blocks/job-form/render.php:1103
 msgid "Buy credits"
 msgstr "크레딧 구매"
 
 #. translators: 1: number of days, 2: number of credits
-#: blocks/job-form-simple/render.php:622
-#: blocks/job-form/render.php:1090
+#: blocks/job-form-simple/render.php:623
+#: blocks/job-form/render.php:1093
 #, php-format
 msgid "Feature this job: it lists first for %1$d days (%2$s credit)."
 msgid_plural "Feature this job: it lists first for %1$d days (%2$s credits)."
@@ -7200,88 +7194,88 @@ msgstr "링크 주소"
 msgid "Add link"
 msgstr "링크 추가"
 
-#: blocks/job-form/render.php:428
+#: blocks/job-form/render.php:429
 #: templates/parts/job-category-field.php:50
 msgctxt "separator between category names"
 msgid ", "
 msgstr ", "
 
-#: blocks/job-form/render.php:534
+#: blocks/job-form/render.php:535
 msgid "Job updated."
 msgstr "채용공고를 업데이트했어요."
 
-#: blocks/job-form/render.php:665
+#: blocks/job-form/render.php:666
 msgid "Format with the toolbar above. For headings and quotes, use the + beside a line."
 msgstr "위 도구 모음으로 서식을 넣어요. 제목과 인용은 줄 옆의 + 를 쓰세요."
 
-#: blocks/job-form/render.php:909
+#: blocks/job-form/render.php:912
 msgid "(required unless the job is remote)"
 msgstr "(원격이 아니면 필수)"
 
 #. translators: %d: number of hidden filter options.
-#: blocks/job-listings/render.php:311
+#: blocks/job-listings/render.php:308
 #, php-format
 msgid "Show %d more"
 msgid_plural "Show %d more"
 msgstr[0] "%d개 더 보기"
 
-#: blocks/job-listings/render.php:312
+#: blocks/job-listings/render.php:309
 msgid "Show less"
 msgstr "간단히 보기"
 
 #. translators: %s: the filter's label, e.g. "Full-time".
-#: blocks/job-listings/render.php:504
+#: blocks/job-listings/render.php:501
 #, php-format
 msgid "Remove filter: %s"
 msgstr "필터 제거: %s"
 
-#: blocks/job-listings/render.php:542
+#: blocks/job-listings/render.php:539
 msgid "Recommended"
 msgstr "권장"
 
-#: blocks/job-listings/render.php:640
+#: blocks/job-listings/render.php:637
 #: templates/parts/category-picker.php:99
 #: templates/parts/job-category-field.php:95
 #: templates/parts/job-category-field.php:100
 msgid "Search categories"
 msgstr "카테고리 검색"
 
-#: blocks/job-single/render.php:186
+#: blocks/job-single/render.php:182
 msgid "This job is no longer taking applications"
 msgstr "이 채용공고는 더 이상 지원을 받지 않아요"
 
 #. translators: %s: the date applications closed.
-#: blocks/job-single/render.php:188
+#: blocks/job-single/render.php:184
 #, php-format
 msgid "Applications closed on %s"
 msgstr "%s 에 지원이 마감됐어요"
 
-#: blocks/job-single/render.php:497
-#: blocks/job-single/render.php:1069
+#: blocks/job-single/render.php:493
+#: blocks/job-single/render.php:1065
 msgid "Sign in to apply"
 msgstr "로그인해서 지원하기"
 
-#: blocks/job-single/render.php:575
+#: blocks/job-single/render.php:571
 msgid "This job is closed and no longer taking applications."
 msgstr "이 채용공고는 마감되어 더 이상 지원을 받지 않아요."
 
-#: blocks/job-single/render.php:576
+#: blocks/job-single/render.php:572
 msgid "This job has expired and is no longer taking applications."
 msgstr "이 채용공고는 만료되어 더 이상 지원을 받지 않아요."
 
-#: blocks/job-single/render.php:629
+#: blocks/job-single/render.php:625
 msgid "No description has been provided for this role yet."
 msgstr "이 직무에 대한 설명이 아직 없어요."
 
-#: blocks/job-single/render.php:687
+#: blocks/job-single/render.php:683
 msgid "Open roles you might like"
 msgstr "마음에 들 수 있는 열린 직무"
 
-#: blocks/job-single/render.php:887
+#: blocks/job-single/render.php:883
 msgid "Copy this link"
 msgstr "이 링크 복사"
 
-#: blocks/job-single/render.php:1140
+#: blocks/job-single/render.php:1136
 msgid "or upload a file"
 msgstr "또는 파일 업로드"
 
@@ -7771,19 +7765,19 @@ msgid "Profile resume"
 msgstr "프로필 이력서"
 
 #: blocks/candidate-dashboard/render.php:200
-#: blocks/candidate-dashboard/render.php:633
-#: blocks/candidate-dashboard/render.php:677
-#: blocks/candidate-dashboard/render.php:793
-#: blocks/employer-dashboard/render.php:411
-#: blocks/employer-dashboard/render.php:1352
+#: blocks/candidate-dashboard/render.php:635
+#: blocks/candidate-dashboard/render.php:679
+#: blocks/candidate-dashboard/render.php:795
+#: blocks/employer-dashboard/render.php:412
+#: blocks/employer-dashboard/render.php:1353
 #: modules/gdpr/class-gdpr-module.php:450
 msgid "Saved jobs"
 msgstr "저장한 채용공고"
 
 #: blocks/candidate-dashboard/render.php:201
-#: blocks/candidate-dashboard/render.php:849
-#: blocks/employer-dashboard/render.php:412
-#: blocks/employer-dashboard/render.php:1395
+#: blocks/candidate-dashboard/render.php:851
+#: blocks/employer-dashboard/render.php:413
+#: blocks/employer-dashboard/render.php:1396
 #: modules/gdpr/class-gdpr-module.php:451
 msgid "Saved companies"
 msgstr "저장한 회사"
@@ -8277,7 +8271,7 @@ msgstr[0] "카테고리 %s개"
 msgid "Job category:"
 msgstr "직무 카테고리:"
 
-#: blocks/job-single/render.php:662
+#: blocks/job-single/render.php:658
 #: templates/parts/category-picker.php:102
 msgid "Job categories"
 msgstr "직무 카테고리"
@@ -8330,9 +8324,9 @@ msgid "Chosen categories"
 msgstr "선택한 카테고리"
 
 #: admin/class-admin.php:722
-#: blocks/employer-dashboard/render.php:408
-#: blocks/employer-dashboard/render.php:555
-#: blocks/employer-dashboard/render.php:650
+#: blocks/employer-dashboard/render.php:409
+#: blocks/employer-dashboard/render.php:556
+#: blocks/employer-dashboard/render.php:651
 #: templates/parts/post-job-gate.php:23
 msgid "Post a job"
 msgstr "채용공고 등록"
@@ -8415,16 +8409,16 @@ msgid "Employer Dashboard"
 msgstr "고용주 대시보드"
 
 #: admin/class-pages.php:80
-#: blocks/job-form-simple/render.php:288
-#: blocks/job-form/render.php:465
+#: blocks/job-form-simple/render.php:289
+#: blocks/job-form/render.php:466
 msgctxt "page title"
 msgid "Post a Job"
 msgstr "채용공고 등록"
 
 #: blocks/candidate-dashboard/render.php:204
-#: blocks/candidate-dashboard/render.php:495
-#: blocks/candidate-dashboard/render.php:644
-#: blocks/candidate-dashboard/render.php:1124
+#: blocks/candidate-dashboard/render.php:497
+#: blocks/candidate-dashboard/render.php:646
+#: blocks/candidate-dashboard/render.php:1126
 msgid "Job alerts"
 msgstr "채용 알림"
 
@@ -8454,10 +8448,10 @@ msgstr "모든 후보자 보기"
 
 #: admin/class-admin-applications.php:516
 #: admin/class-admin.php:672
-#: blocks/candidate-dashboard/render.php:669
-#: blocks/candidate-dashboard/render.php:782
-#: blocks/employer-dashboard/render.php:764
-#: blocks/employer-dashboard/render.php:974
+#: blocks/candidate-dashboard/render.php:671
+#: blocks/candidate-dashboard/render.php:784
+#: blocks/employer-dashboard/render.php:765
+#: blocks/employer-dashboard/render.php:975
 msgid "No applications yet"
 msgstr "아직 지원서가 없어요"
 
@@ -8565,30 +8559,30 @@ msgid "Minimum salary cannot be more than the maximum."
 msgstr "최소 급여는 최대 급여보다 클 수 없어요."
 
 #. translators: %s: job title.
-#: blocks/candidate-dashboard/render.php:247
+#: blocks/candidate-dashboard/render.php:249
 #, php-format
 msgid "Withdraw application for %s"
 msgstr "%s 지원 철회"
 
 #. translators: %s: job title.
-#: blocks/candidate-dashboard/render.php:249
+#: blocks/candidate-dashboard/render.php:251
 #, php-format
 msgid "Remove application for %s"
 msgstr "%s 지원서 삭제"
 
-#: blocks/candidate-dashboard/render.php:693
+#: blocks/candidate-dashboard/render.php:695
 msgid "No saved jobs yet."
 msgstr "저장한 채용공고가 아직 없어요."
 
-#: blocks/candidate-dashboard/render.php:694
+#: blocks/candidate-dashboard/render.php:696
 msgid "Save jobs to find them here."
 msgstr "채용공고를 저장하면 여기에서 볼 수 있어요."
 
-#: blocks/candidate-dashboard/render.php:1032
+#: blocks/candidate-dashboard/render.php:1034
 msgid "Open CV"
 msgstr "CV 열기"
 
-#: blocks/candidate-dashboard/render.php:1053
+#: blocks/candidate-dashboard/render.php:1055
 msgid "Replace CV"
 msgstr "CV 교체"
 
@@ -8596,15 +8590,15 @@ msgstr "CV 교체"
 msgid "Companies appear here once employers set up their profiles."
 msgstr "고용주가 프로필을 설정하면 회사가 여기에 표시돼요."
 
-#: blocks/employer-dashboard/render.php:812
+#: blocks/employer-dashboard/render.php:813
 msgid "Filter by status"
 msgstr "상태별 필터"
 
-#: blocks/employer-dashboard/render.php:850
+#: blocks/employer-dashboard/render.php:851
 msgid "No jobs match these filters"
 msgstr "이 필터에 맞는 채용공고가 없어요"
 
-#: blocks/employer-dashboard/render.php:851
+#: blocks/employer-dashboard/render.php:852
 msgid "Try another status or clear the search."
 msgstr "다른 상태를 선택하거나 검색을 지워 보세요."
 
@@ -8674,7 +8668,7 @@ msgstr "계속하면 %1$s개인정보처리방침%2$s에 동의하게 돼요."
 
 #. translators: %1$s: localised expiry date, e.g. "June 12, 2026".
 #: blocks/job-form-simple/render.php:249
-#: blocks/job-form/render.php:421
+#: blocks/job-form/render.php:422
 #, php-format
 msgid "Your listing stays live until %1$s. You can renew it from your dashboard."
 msgstr "채용공고는 %1$s까지 게시돼요. 대시보드에서 갱신할 수 있어요."
@@ -8684,44 +8678,44 @@ msgstr "채용공고는 %1$s까지 게시돼요. 대시보드에서 갱신할 �
 msgid "The minimum salary is more than the maximum."
 msgstr "최소 급여가 최대 급여보다 커요."
 
-#: blocks/job-form-simple/render.php:328
-#: blocks/job-form/render.php:552
+#: blocks/job-form-simple/render.php:329
+#: blocks/job-form/render.php:553
 msgid "View my jobs"
 msgstr "내 채용공고 보기"
 
 #. translators: 1: current step number, 2: number of steps, 3: step name.
-#: blocks/job-form/render.php:502
+#: blocks/job-form/render.php:503
 #, php-format
 msgid "Step %1$s of %2$s: %3$s"
 msgstr "%1$s/%2$s단계: %3$s"
 
-#: blocks/job-form/render.php:1064
+#: blocks/job-form/render.php:1067
 msgid "Description"
 msgstr "설명"
 
 #. translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies when a salary range is set.
-#: blocks/job-listings/render.php:256
+#: blocks/job-listings/render.php:253
 #, php-format
 msgid "Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs."
 msgstr "다른 통화로 지급되는 채용공고예요. 급여 범위는 %s 기준이라 이 채용공고에는 적용되지 않아요."
 
 #. translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort.
-#: blocks/job-listings/render.php:261
+#: blocks/job-listings/render.php:258
 #, php-format
 msgid "Paid in other currencies. These follow the %s jobs, highest first within each currency."
 msgstr "다른 통화로 지급되는 채용공고예요. %s 채용공고 다음에 표시되며, 각 통화 안에서 높은 순으로 정렬돼요."
 
 #. translators: %s: the search keyword, shown as a removable pill.
-#: blocks/job-listings/render.php:506
+#: blocks/job-listings/render.php:503
 #, php-format
 msgid "\"%s\""
 msgstr "\"%s\""
 
-#: blocks/job-listings/render.php:916
+#: blocks/job-listings/render.php:913
 msgid "No jobs posted yet"
 msgstr "아직 등록된 채용공고가 없어요"
 
-#: blocks/job-listings/render.php:917
+#: blocks/job-listings/render.php:914
 msgid "New openings appear here as soon as employers post them."
 msgstr "고용주가 채용공고를 게시하면 바로 여기에 표시돼요."
 
@@ -8845,7 +8839,7 @@ msgstr "채용 공고를 게시하고 지원자를 검토하고 채용을 관리
 msgid "Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake."
 msgstr "사이트 관리자가 계정을 정지하여 이 페이지를 사용할 수 없습니다. 오류라고 생각되면 사이트 관리자에게 문의하세요."
 
-#: blocks/job-form-simple/render.php:261
+#: blocks/job-form-simple/render.php:262
 #: blocks/job-form/render.php:402
 msgid "You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page."
 msgstr "로그아웃되었습니다. 새 탭에서 다시 로그인한 다음 여기에서 다시 제출하세요. 입력한 채용 정보는 이 페이지에 그대로 있습니다."
@@ -8884,13 +8878,13 @@ msgstr "채용 찾기, 회사, 채용 공고 등록이 포함된 채용 메뉴 �
 msgid "It is placed in your main menu location only if that location is empty. Otherwise assign it in Appearance > Menus."
 msgstr "기본 메뉴 위치가 비어 있을 때만 그 위치에 배치됩니다. 그렇지 않으면 외모 > 메뉴에서 지정하세요."
 
-#: blocks/job-form-simple/render.php:293
-#: blocks/job-form/render.php:470
+#: blocks/job-form-simple/render.php:294
+#: blocks/job-form/render.php:471
 msgid "We kept the job you were writing on this device."
 msgstr "작성 중이던 채용 공고를 이 기기에 보관해 두었습니다."
 
-#: blocks/job-form-simple/render.php:294
-#: blocks/job-form/render.php:471
+#: blocks/job-form-simple/render.php:295
+#: blocks/job-form/render.php:472
 msgid "Start over"
 msgstr "다시 시작"
 
@@ -8903,9 +8897,38 @@ msgstr "Career Board 역할"
 msgid "Added on top of the Role above, so the member keeps it."
 msgstr "위의 역할에 추가로 부여되므로 회원이 계속 유지합니다."
 
-#: blocks/employer-dashboard/render.php:1265
-#: blocks/employer-dashboard/render.php:1294
-#: blocks/employer-dashboard/render.php:1299
+#: api/endpoints/class-jobs-endpoint.php:2024
+#: blocks/employer-dashboard/render.php:373
+#: blocks/employer-dashboard/render.php:1266
+#: blocks/employer-dashboard/render.php:1295
+#: blocks/employer-dashboard/render.php:1300
 #: core/class-form-custom-fields.php:571
 msgid "Enter a full web address, like https://example.com"
 msgstr "https://example.com 같은 전체 웹 주소를 입력해 주세요"
+
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: api/endpoints/class-jobs-endpoint.php:2017
+#, php-format
+msgid "Minimum salary must be a number from 0 to %s."
+msgstr "최소 급여는 0에서 %s 사이의 숫자여야 해요."
+
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: api/endpoints/class-jobs-endpoint.php:2020
+#, php-format
+msgid "Maximum salary must be a number from 0 to %s."
+msgstr "최대 급여는 0에서 %s 사이의 숫자여야 해요."
+
+#: blocks/candidate-dashboard/render.php:212
+msgid "Delete a resume to add another."
+msgstr "이력서를 하나 삭제하면 다른 이력서를 추가할 수 있어요."
+
+#: blocks/candidate-dashboard/render.php:213
+msgid "Give the resume a title first."
+msgstr "먼저 이력서 제목을 입력해 주세요."
+
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: blocks/job-form-simple/render.php:260
+#: blocks/job-form/render.php:409
+#, php-format
+msgid "Enter a salary from 0 to %s."
+msgstr "0에서 %s 사이의 급여를 입력해 주세요."

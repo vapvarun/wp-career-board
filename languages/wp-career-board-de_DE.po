@@ -66,11 +66,11 @@ msgstr "Bewerbungen"
 #: admin/class-admin.php:215
 #: admin/class-admin.php:216
 #: admin/class-admin.php:594
-#: blocks/candidate-dashboard/render.php:625
-#: blocks/employer-dashboard/render.php:406
-#: blocks/employer-dashboard/render.php:558
-#: blocks/employer-dashboard/render.php:711
-#: blocks/employer-dashboard/render.php:897
+#: blocks/candidate-dashboard/render.php:627
+#: blocks/employer-dashboard/render.php:407
+#: blocks/employer-dashboard/render.php:559
+#: blocks/employer-dashboard/render.php:712
+#: blocks/employer-dashboard/render.php:898
 #: modules/applications/class-applications-module.php:182
 msgid "Applications"
 msgstr "Bewerbungen"
@@ -103,7 +103,7 @@ msgstr[0] "Kandidat"
 msgstr[1] "Kandidaten"
 
 #: admin/class-admin-applications.php:159
-#: blocks/employer-dashboard/render.php:904
+#: blocks/employer-dashboard/render.php:905
 #: blocks/job-stats/render.php:42
 #: modules/applications/widgets/class-applicant-card.php:117
 #: modules/gdpr/class-gdpr-module.php:331
@@ -167,8 +167,8 @@ msgstr "In den Papierkorb verschieben"
 #: admin/class-admin-companies.php:322
 #: admin/class-admin-jobs.php:292
 #: admin/class-reported-members.php:161
-#: blocks/employer-dashboard/render.php:813
-#: blocks/employer-dashboard/render.php:937
+#: blocks/employer-dashboard/render.php:814
+#: blocks/employer-dashboard/render.php:938
 msgid "All"
 msgstr "Alle"
 
@@ -231,7 +231,7 @@ msgid "Restore"
 msgstr "Wiederherstellen"
 
 #: admin/class-admin-applications.php:692
-#: blocks/employer-dashboard/render.php:1016
+#: blocks/employer-dashboard/render.php:1017
 msgid "Change application status"
 msgstr "Bewerbungsstatus ändern"
 
@@ -247,7 +247,7 @@ msgstr "Job-ID"
 msgid "Applicant Email"
 msgstr "Bewerber-E-Mail"
 
-#: blocks/employer-dashboard/render.php:446
+#: blocks/employer-dashboard/render.php:447
 #: core/class-applications-csv.php:62
 #: modules/applications/class-application-status.php:175
 #: modules/gdpr/class-gdpr-module.php:339
@@ -314,8 +314,8 @@ msgid "Registered"
 msgstr "Registriert"
 
 #: admin/class-admin-candidates.php:144
-#: blocks/candidate-dashboard/render.php:1065
-#: blocks/candidate-dashboard/render.php:1149
+#: blocks/candidate-dashboard/render.php:1067
+#: blocks/candidate-dashboard/render.php:1151
 #: core/class-plugin.php:1229
 msgid "Delete"
 msgstr "Löschen"
@@ -337,9 +337,9 @@ msgstr "Kandidat auswählen"
 #: admin/class-admin-employers.php:552
 #: admin/class-admin-jobs.php:446
 #: admin/class-email-settings.php:189
-#: blocks/candidate-dashboard/render.php:1038
-#: blocks/employer-dashboard/render.php:873
-#: blocks/employer-dashboard/render.php:880
+#: blocks/candidate-dashboard/render.php:1040
+#: blocks/employer-dashboard/render.php:874
+#: blocks/employer-dashboard/render.php:881
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -355,9 +355,9 @@ msgstr "Unternehmen"
 #: admin/class-admin-companies.php:84
 #: admin/class-admin.php:237
 #: admin/class-admin.php:238
-#: blocks/employer-dashboard/render.php:410
-#: blocks/employer-dashboard/render.php:567
-#: blocks/employer-dashboard/render.php:1116
+#: blocks/employer-dashboard/render.php:411
+#: blocks/employer-dashboard/render.php:568
+#: blocks/employer-dashboard/render.php:1117
 #: modules/employers/class-employers-module.php:634
 msgid "Companies"
 msgstr "Unternehmen"
@@ -391,19 +391,19 @@ msgstr "Arbeitgeber"
 #: admin/class-admin-employers.php:130
 #: blocks/company-profile/render.php:229
 #: blocks/company-profile/render.php:301
-#: blocks/employer-dashboard/render.php:1263
+#: blocks/employer-dashboard/render.php:1264
 msgid "Website"
 msgstr "Website"
 
 #: admin/class-admin-companies.php:126
 #: admin/class-admin-employers.php:131
 #: admin/class-admin.php:589
-#: blocks/employer-dashboard/render.php:769
+#: blocks/employer-dashboard/render.php:770
 msgid "Active Jobs"
 msgstr "Aktive Stellen"
 
 #: admin/class-admin-companies.php:127
-#: admin/class-admin-meta-boxes.php:575
+#: admin/class-admin-meta-boxes.php:577
 msgid "Trust Level"
 msgstr "Vertrauensstufe"
 
@@ -412,7 +412,7 @@ msgstr "Vertrauensstufe"
 #: admin/class-admin-jobs.php:297
 #: admin/class-admin-jobs.php:604
 #: api/endpoints/class-employers-endpoint.php:1572
-#: blocks/employer-dashboard/render.php:457
+#: blocks/employer-dashboard/render.php:458
 msgid "Published"
 msgstr "Veröffentlicht"
 
@@ -421,8 +421,8 @@ msgstr "Veröffentlicht"
 #: admin/class-admin-jobs.php:299
 #: admin/class-admin-jobs.php:606
 #: api/endpoints/class-employers-endpoint.php:1573
-#: blocks/employer-dashboard/render.php:458
-#: blocks/employer-dashboard/render.php:815
+#: blocks/employer-dashboard/render.php:459
+#: blocks/employer-dashboard/render.php:816
 msgid "Draft"
 msgstr "Entwurf"
 
@@ -457,9 +457,9 @@ msgstr " -  Keine  - "
 #: blocks/company-archive/render.php:375
 #: blocks/company-profile/render.php:70
 #: blocks/job-listings/render.php:161
-#: blocks/job-listings/render.php:849
-#: blocks/job-single/render.php:128
-#: core/class-company-meta-shape.php:94
+#: blocks/job-listings/render.php:846
+#: blocks/job-single/render.php:124
+#: core/class-company-meta-shape.php:98
 msgid "Verified"
 msgstr "Verifiziert"
 
@@ -468,8 +468,8 @@ msgstr "Verifiziert"
 #: blocks/company-archive/render.php:71
 #: blocks/company-profile/render.php:74
 #: blocks/job-listings/render.php:162
-#: blocks/job-single/render.php:132
-#: core/class-company-meta-shape.php:98
+#: blocks/job-single/render.php:128
+#: core/class-company-meta-shape.php:102
 msgid "Trusted"
 msgstr "Vertrauenswürdig"
 
@@ -478,8 +478,8 @@ msgstr "Vertrauenswürdig"
 #: blocks/company-archive/render.php:72
 #: blocks/company-profile/render.php:78
 #: blocks/job-listings/render.php:163
-#: blocks/job-single/render.php:136
-#: core/class-company-meta-shape.php:102
+#: blocks/job-single/render.php:132
+#: core/class-company-meta-shape.php:106
 msgid "Premium"
 msgstr "Premium"
 
@@ -522,10 +522,10 @@ msgstr "Alle Arbeitgeber auswählen"
 
 #: admin/class-admin-employers.php:129
 #: admin/class-admin-jobs.php:124
-#: admin/class-admin-meta-boxes.php:346
-#: blocks/employer-dashboard/render.php:565
-#: blocks/job-form-simple/render.php:380
-#: blocks/job-form/render.php:593
+#: admin/class-admin-meta-boxes.php:348
+#: blocks/employer-dashboard/render.php:566
+#: blocks/job-form-simple/render.php:381
+#: blocks/job-form/render.php:594
 #: blocks/job-stats/render.php:51
 #: modules/employers/class-employers-module.php:635
 #: modules/jobs/class-jobs-module.php:236
@@ -607,13 +607,13 @@ msgstr "Titel & Beschreibung"
 #: admin/class-admin-import.php:79
 #: admin/class-admin-import.php:234
 #: admin/class-admin-import.php:323
-#: blocks/candidate-dashboard/render.php:1200
+#: blocks/candidate-dashboard/render.php:1202
 #: blocks/job-filters/render.php:90
-#: blocks/job-form-simple/render.php:470
-#: blocks/job-form/render.php:907
-#: blocks/job-listings/render.php:686
+#: blocks/job-form-simple/render.php:471
+#: blocks/job-form/render.php:910
+#: blocks/job-listings/render.php:683
 #: blocks/job-search-hero/render.php:85
-#: blocks/job-single/render.php:729
+#: blocks/job-single/render.php:725
 #: modules/gdpr/class-gdpr-module.php:446
 #: modules/jobs/class-jobs-module.php:241
 #: modules/jobs/class-jobs-module.php:410
@@ -763,17 +763,17 @@ msgid "Resume import requires WP Career Board Pro."
 msgstr "Der Lebenslaufimport erfordert WP Career Board Pro."
 
 #: admin/class-admin-job-editor.php:101
-#: blocks/job-form-simple/render.php:431
-#: blocks/job-form/render.php:647
+#: blocks/job-form-simple/render.php:432
+#: blocks/job-form/render.php:648
 msgid "Describe the role, responsibilities and requirements…"
 msgstr "Beschreib die Rolle, Verantwortungen und Anforderungen…"
 
 #: admin/class-admin-job-editor.php:77
 #: admin/class-admin-job-editor.php:109
-#: blocks/job-form-simple/render.php:418
-#: blocks/job-form-simple/render.php:439
-#: blocks/job-form/render.php:634
-#: blocks/job-form/render.php:655
+#: blocks/job-form-simple/render.php:419
+#: blocks/job-form-simple/render.php:440
+#: blocks/job-form/render.php:635
+#: blocks/job-form/render.php:656
 msgid "Job description"
 msgstr "Jobbeschreibung"
 
@@ -797,7 +797,7 @@ msgstr "Jobs"
 #: admin/class-admin.php:204
 #: admin/class-setup-wizard.php:226
 #: admin/class-setup-wizard.php:826
-#: blocks/employer-dashboard/render.php:549
+#: blocks/employer-dashboard/render.php:550
 #: modules/jobs/class-jobs-module.php:327
 msgid "Jobs"
 msgstr "Jobs"
@@ -807,7 +807,7 @@ msgid "Manage job listings, approve pending submissions, and track active postin
 msgstr "Verwalte Joblisten, genehmige ausstehende Einreichungen und verfolge aktive Beiträge."
 
 #: admin/class-admin-jobs.php:101
-#: blocks/job-listings/render.php:537
+#: blocks/job-listings/render.php:534
 #: blocks/job-search-hero/render.php:57
 #: blocks/job-search-hero/render.php:64
 #: blocks/job-search/render.php:41
@@ -854,15 +854,15 @@ msgstr "Überprüfung ausstehend"
 #: admin/class-admin-jobs.php:300
 #: admin/class-admin-jobs.php:607
 #: api/endpoints/class-employers-endpoint.php:1577
-#: blocks/employer-dashboard/render.php:459
+#: blocks/employer-dashboard/render.php:460
 msgid "Expired"
 msgstr "Abgelaufen"
 
 #: admin/class-admin-jobs.php:301
 #: admin/class-admin-jobs.php:608
 #: api/endpoints/class-employers-endpoint.php:1576
-#: blocks/employer-dashboard/render.php:455
-#: blocks/employer-dashboard/render.php:817
+#: blocks/employer-dashboard/render.php:456
+#: blocks/employer-dashboard/render.php:818
 #: modules/applications/class-application-status.php:186
 msgid "Closed"
 msgstr "Geschlossen"
@@ -897,8 +897,8 @@ msgstr "Veröffentlichung aufheben"
 
 #: admin/class-admin-jobs.php:605
 #: api/endpoints/class-employers-endpoint.php:1574
-#: blocks/employer-dashboard/render.php:456
-#: blocks/employer-dashboard/render.php:816
+#: blocks/employer-dashboard/render.php:457
+#: blocks/employer-dashboard/render.php:817
 msgid "Pending"
 msgstr "Ausstehend"
 
@@ -912,8 +912,8 @@ msgstr[0] "%d Meldung"
 msgstr[1] "%d Meldungen"
 
 #: admin/class-admin-meta-boxes.php:82
-#: blocks/job-form/render.php:690
-#: blocks/job-single/render.php:710
+#: blocks/job-form/render.php:691
+#: blocks/job-single/render.php:706
 msgid "Job Details"
 msgstr "Stellendetails"
 
@@ -940,8 +940,8 @@ msgid "No rejection reason recorded."
 msgstr "Kein Ablehnungsgrund aufgezeichnet."
 
 #: admin/class-admin-meta-boxes.php:275
-#: blocks/job-form-simple/render.php:524
-#: blocks/job-form/render.php:701
+#: blocks/job-form-simple/render.php:525
+#: blocks/job-form/render.php:702
 msgid "Currency"
 msgstr "Währung"
 
@@ -952,25 +952,25 @@ msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
 #: admin/class-admin-meta-boxes.php:292
-#: blocks/job-form/render.php:759
+#: blocks/job-form/render.php:762
 msgid "Per"
 msgstr "Pro"
 
 #: admin/class-admin-meta-boxes.php:294
-#: blocks/job-form-simple/render.php:542
-#: blocks/job-form/render.php:768
+#: blocks/job-form-simple/render.php:543
+#: blocks/job-form/render.php:771
 msgid "Year"
 msgstr "Jahr"
 
 #: admin/class-admin-meta-boxes.php:295
-#: blocks/job-form-simple/render.php:543
-#: blocks/job-form/render.php:769
+#: blocks/job-form-simple/render.php:544
+#: blocks/job-form/render.php:772
 msgid "Month"
 msgstr "Monat"
 
 #: admin/class-admin-meta-boxes.php:296
-#: blocks/job-form-simple/render.php:544
-#: blocks/job-form/render.php:770
+#: blocks/job-form-simple/render.php:545
+#: blocks/job-form/render.php:773
 msgid "Hour"
 msgstr "Stunde"
 
@@ -978,199 +978,199 @@ msgstr "Stunde"
 msgid "Salary Min"
 msgstr "Mindestgehalt"
 
-#: admin/class-admin-meta-boxes.php:312
+#: admin/class-admin-meta-boxes.php:313
 msgid "Salary Max"
 msgstr "Höchstgehalt"
 
-#: admin/class-admin-meta-boxes.php:324
-#: blocks/job-form-simple/render.php:557
-#: blocks/job-form/render.php:794
+#: admin/class-admin-meta-boxes.php:326
+#: blocks/job-form-simple/render.php:558
+#: blocks/job-form/render.php:797
 msgid "Application Deadline"
 msgstr "Bewerbungsfrist"
 
-#: admin/class-admin-meta-boxes.php:349
+#: admin/class-admin-meta-boxes.php:351
 msgid " -  Select a company  - "
 msgstr " -  Wähle ein Unternehmen  - "
 
 #. translators: %s: URL to add a new company
-#: admin/class-admin-meta-boxes.php:361
+#: admin/class-admin-meta-boxes.php:363
 #, php-format
 msgid "No companies yet. %s"
 msgstr "Noch keine Unternehmen. %s"
 
-#: admin/class-admin-meta-boxes.php:362
+#: admin/class-admin-meta-boxes.php:364
 msgid "Add one"
 msgstr "Einen hinzufügen"
 
 #: admin/class-admin-companies.php:123
-#: admin/class-admin-meta-boxes.php:366
-#: blocks/employer-dashboard/render.php:1201
+#: admin/class-admin-meta-boxes.php:368
+#: blocks/employer-dashboard/render.php:1202
 #: blocks/employer-registration/render.php:310
 #: modules/notifications/emails/class-email-deadline-reminder.php:91
 msgid "Company name"
 msgstr "Unternehmensname"
 
-#: admin/class-admin-meta-boxes.php:366
+#: admin/class-admin-meta-boxes.php:368
 msgid "Company name (displayed on listing)"
 msgstr "Unternehmensname (wird in der Anzeige angezeigt)"
 
-#: admin/class-admin-meta-boxes.php:377
-#: blocks/job-form-simple/render.php:553
-#: blocks/job-form/render.php:788
+#: admin/class-admin-meta-boxes.php:379
+#: blocks/job-form-simple/render.php:554
+#: blocks/job-form/render.php:791
 msgid "Remote-friendly position"
 msgstr "Remote-freundliche Position"
 
-#: admin/class-admin-meta-boxes.php:388
+#: admin/class-admin-meta-boxes.php:390
 msgid "Featured listing"
 msgstr "Featured-Anzeige"
 
-#: admin/class-admin-meta-boxes.php:419
+#: admin/class-admin-meta-boxes.php:421
 #: blocks/employer-dashboard/render.php:188
 #: blocks/employer-registration/render.php:100
-#: core/class-company-meta-shape.php:194
+#: core/class-company-meta-shape.php:198
 msgid "1-10 employees"
 msgstr "1-10 Mitarbeiter"
 
-#: admin/class-admin-meta-boxes.php:420
+#: admin/class-admin-meta-boxes.php:422
 #: blocks/employer-dashboard/render.php:189
 #: blocks/employer-registration/render.php:101
-#: core/class-company-meta-shape.php:195
+#: core/class-company-meta-shape.php:199
 msgid "11-50 employees"
 msgstr "11-50 Mitarbeiter"
 
-#: admin/class-admin-meta-boxes.php:421
+#: admin/class-admin-meta-boxes.php:423
 #: blocks/employer-dashboard/render.php:190
 #: blocks/employer-registration/render.php:102
-#: core/class-company-meta-shape.php:196
+#: core/class-company-meta-shape.php:200
 msgid "51-200 employees"
 msgstr "51-200 Mitarbeiter"
 
-#: admin/class-admin-meta-boxes.php:422
+#: admin/class-admin-meta-boxes.php:424
 #: blocks/employer-dashboard/render.php:191
 #: blocks/employer-registration/render.php:103
-#: core/class-company-meta-shape.php:197
+#: core/class-company-meta-shape.php:201
 msgid "201-500 employees"
 msgstr "201-500 Mitarbeiter"
 
-#: admin/class-admin-meta-boxes.php:423
+#: admin/class-admin-meta-boxes.php:425
 #: blocks/employer-dashboard/render.php:192
 #: blocks/employer-registration/render.php:104
-#: core/class-company-meta-shape.php:198
+#: core/class-company-meta-shape.php:202
 msgid "501-1,000 employees"
 msgstr "501-1.000 Mitarbeiter"
 
-#: admin/class-admin-meta-boxes.php:424
+#: admin/class-admin-meta-boxes.php:426
 #: blocks/employer-dashboard/render.php:193
 #: blocks/employer-registration/render.php:105
-#: core/class-company-meta-shape.php:199
+#: core/class-company-meta-shape.php:203
 msgid "1,001-5,000 employees"
 msgstr "1.001-5.000 Mitarbeiter"
 
-#: admin/class-admin-meta-boxes.php:425
-#: core/class-company-meta-shape.php:208
+#: admin/class-admin-meta-boxes.php:427
+#: core/class-company-meta-shape.php:212
 msgid "5,001+ employees"
 msgstr "5.001+ Mitarbeiter"
 
-#: core/class-company-meta-shape.php:136
+#: core/class-company-meta-shape.php:140
 msgid "Public Company"
 msgstr "Börsennotiertes Unternehmen"
 
-#: core/class-company-meta-shape.php:137
+#: core/class-company-meta-shape.php:141
 msgid "Privately Held"
 msgstr "In Privatbesitz"
 
-#: core/class-company-meta-shape.php:138
+#: core/class-company-meta-shape.php:142
 msgid "Self-Employed / Freelance"
 msgstr "Selbstständig / Freiberufler"
 
-#: core/class-company-meta-shape.php:139
+#: core/class-company-meta-shape.php:143
 msgid "Non-profit"
 msgstr "Gemeinnützige Organisation"
 
-#: core/class-company-meta-shape.php:140
+#: core/class-company-meta-shape.php:144
 msgid "Government Agency"
 msgstr "Behörde"
 
-#: core/class-company-meta-shape.php:141
+#: core/class-company-meta-shape.php:145
 msgid "Educational Institution"
 msgstr "Bildungseinrichtung"
 
-#: core/class-company-meta-shape.php:142
+#: core/class-company-meta-shape.php:146
 msgid "Partnership"
 msgstr "Partnerschaft"
 
-#: admin/class-admin-meta-boxes.php:439
+#: admin/class-admin-meta-boxes.php:441
 msgid "Featured company"
 msgstr "Hervorgehobenes Unternehmen"
 
-#: admin/class-admin-meta-boxes.php:444
+#: admin/class-admin-meta-boxes.php:446
 msgid "Tagline / Slogan"
 msgstr "Motto / Slogan"
 
-#: admin/class-admin-meta-boxes.php:450
+#: admin/class-admin-meta-boxes.php:452
 msgid "e.g. Building a better future, one product at a time"
 msgstr "z. B. Eine bessere Zukunft aufbauen, ein Produkt aufs Mal"
 
-#: admin/class-admin-meta-boxes.php:452
+#: admin/class-admin-meta-boxes.php:454
 msgid "Short company motto shown below the name."
 msgstr "Kurzes Unternehmens-Motto, das unter dem Namen angezeigt wird."
 
-#: admin/class-admin-meta-boxes.php:456
+#: admin/class-admin-meta-boxes.php:458
 msgid "Website URL"
 msgstr "Website URL"
 
-#: admin/class-admin-meta-boxes.php:467
+#: admin/class-admin-meta-boxes.php:469
 #: blocks/company-archive/render.php:292
 #: blocks/company-profile/render.php:271
-#: blocks/employer-dashboard/render.php:1229
+#: blocks/employer-dashboard/render.php:1230
 #: blocks/employer-registration/render.php:333
-#: blocks/job-single/render.php:929
+#: blocks/job-single/render.php:925
 msgid "Industry"
 msgstr "Branche"
 
-#: admin/class-admin-meta-boxes.php:478
-#: blocks/employer-dashboard/render.php:1270
+#: admin/class-admin-meta-boxes.php:480
+#: blocks/employer-dashboard/render.php:1271
 msgid "Company Type"
 msgstr "Unternehmenstyp"
 
-#: admin/class-admin-meta-boxes.php:500
-#: blocks/employer-dashboard/render.php:1286
+#: admin/class-admin-meta-boxes.php:502
+#: blocks/employer-dashboard/render.php:1287
 msgid "Founded Year"
 msgstr "Gründungsjahr"
 
-#: admin/class-admin-meta-boxes.php:513
+#: admin/class-admin-meta-boxes.php:515
 msgid "Headquarters Location"
 msgstr "Hauptsitz"
 
-#: admin/class-admin-meta-boxes.php:519
+#: admin/class-admin-meta-boxes.php:521
 msgid "e.g. San Francisco, CA, USA"
 msgstr "z. B. San Francisco, CA, USA"
 
-#: admin/class-admin-meta-boxes.php:542
+#: admin/class-admin-meta-boxes.php:544
 msgid "LinkedIn URL"
 msgstr "LinkedIn URL"
 
-#: admin/class-admin-meta-boxes.php:549
+#: admin/class-admin-meta-boxes.php:551
 msgid "X (Twitter) URL"
 msgstr "X (Twitter) URL"
 
-#: admin/class-admin-meta-boxes.php:568
+#: admin/class-admin-meta-boxes.php:570
 msgid "None"
 msgstr "Keine"
 
-#: admin/class-admin-meta-boxes.php:569
+#: admin/class-admin-meta-boxes.php:571
 msgid "Verified ✓"
 msgstr "Verifiziert ✓"
 
-#: admin/class-admin-meta-boxes.php:570
+#: admin/class-admin-meta-boxes.php:572
 msgid "Trusted ★"
 msgstr "Vertrauenswürdig ★"
 
-#: admin/class-admin-meta-boxes.php:571
+#: admin/class-admin-meta-boxes.php:573
 msgid "Premium ◆"
 msgstr "Premium ◆"
 
-#: admin/class-admin-meta-boxes.php:583
+#: admin/class-admin-meta-boxes.php:585
 msgid "\"Verified\" shows the checkmark badge on job listings."
 msgstr "\"Verifiziert\" zeigt das Häkchen-Abzeichen auf Stellenausschreibungen an."
 
@@ -1197,11 +1197,11 @@ msgid "Pages"
 msgstr "Seiten"
 
 #: blocks/candidate-dashboard/render.php:209
-#: blocks/candidate-dashboard/render.php:557
-#: blocks/candidate-dashboard/render.php:1313
-#: blocks/employer-dashboard/render.php:415
-#: blocks/employer-dashboard/render.php:642
-#: blocks/employer-dashboard/render.php:1562
+#: blocks/candidate-dashboard/render.php:559
+#: blocks/candidate-dashboard/render.php:1315
+#: blocks/employer-dashboard/render.php:416
+#: blocks/employer-dashboard/render.php:643
+#: blocks/employer-dashboard/render.php:1563
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
@@ -1221,16 +1221,16 @@ msgid "Integrations"
 msgstr "Integrationen"
 
 #: admin/class-admin-settings.php:419
-#: blocks/employer-dashboard/render.php:872
+#: blocks/employer-dashboard/render.php:873
 msgid "Pipeline"
 msgstr "Pipeline"
 
 #: admin/class-admin-settings.php:420
-#: blocks/employer-dashboard/render.php:416
-#: blocks/employer-dashboard/render.php:582
-#: blocks/employer-dashboard/render.php:585
-#: blocks/employer-dashboard/render.php:720
-#: blocks/employer-dashboard/render.php:1548
+#: blocks/employer-dashboard/render.php:417
+#: blocks/employer-dashboard/render.php:583
+#: blocks/employer-dashboard/render.php:586
+#: blocks/employer-dashboard/render.php:721
+#: blocks/employer-dashboard/render.php:1549
 msgid "Credits"
 msgstr "Credits"
 
@@ -1277,10 +1277,10 @@ msgstr "Beispieldaten löschen"
 
 #: admin/class-admin.php:865
 #: admin/class-admin.php:936
-#: blocks/candidate-dashboard/render.php:998
-#: blocks/candidate-dashboard/render.php:1080
+#: blocks/candidate-dashboard/render.php:1000
+#: blocks/candidate-dashboard/render.php:1082
 #: blocks/job-form/editor-toolbar.php:30
-#: blocks/job-single/render.php:1017
+#: blocks/job-single/render.php:1013
 #: core/class-plugin.php:1334
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
@@ -1376,8 +1376,8 @@ msgstr "Standard-Währung für Gehalt"
 #. translators: 1: code (USD), 2: name (US Dollar), 3: symbol ($).
 #: admin/class-admin-settings.php:773
 #: admin/views/wizard-steps/jobs.php:41
-#: blocks/job-form-simple/render.php:530
-#: blocks/job-form/render.php:715
+#: blocks/job-form-simple/render.php:531
+#: blocks/job-form/render.php:716
 #, php-format
 msgid "%1$s  -  %2$s (%3$s)"
 msgstr "%1$s  -  %2$s (%3$s)"
@@ -1551,9 +1551,9 @@ msgstr "Job-Tags"
 #: admin/class-admin.php:528
 #: admin/class-admin.php:730
 #: blocks/candidate-dashboard/render.php:208
-#: blocks/candidate-dashboard/render.php:550
-#: blocks/employer-dashboard/render.php:414
-#: blocks/employer-dashboard/render.php:635
+#: blocks/candidate-dashboard/render.php:552
+#: blocks/employer-dashboard/render.php:415
+#: blocks/employer-dashboard/render.php:636
 #: blocks/featured-jobs/index.js:57
 #: blocks/recent-jobs/index.js:42
 #: blocks/similar-companies-card/index.js:43
@@ -1601,10 +1601,10 @@ msgstr "+ Benutzer hinzufügen"
 #. translators: link to the full jobs archive. The trailing arrow is part of the string so RTL locales can flip its glyph in translation.
 #: admin/class-admin.php:622
 #: admin/class-admin.php:663
-#: blocks/candidate-dashboard/render.php:654
-#: blocks/candidate-dashboard/render.php:678
-#: blocks/employer-dashboard/render.php:750
-#: blocks/recent-jobs/render.php:78
+#: blocks/candidate-dashboard/render.php:656
+#: blocks/candidate-dashboard/render.php:680
+#: blocks/employer-dashboard/render.php:751
+#: blocks/recent-jobs/render.php:70
 msgid "View all →"
 msgstr "Alle anzeigen →"
 
@@ -1618,8 +1618,8 @@ msgid "No jobs pending review."
 msgstr "Keine zur Überprüfung anstehenden Jobs."
 
 #: admin/class-admin.php:660
-#: blocks/candidate-dashboard/render.php:653
-#: blocks/employer-dashboard/render.php:749
+#: blocks/candidate-dashboard/render.php:655
+#: blocks/employer-dashboard/render.php:750
 msgid "Recent Applications"
 msgstr "Aktuelle Bewerbungen"
 
@@ -1628,7 +1628,7 @@ msgid "Add User"
 msgstr "Benutzer hinzufügen"
 
 #: admin/class-admin.php:751
-#: blocks/employer-dashboard/render.php:689
+#: blocks/employer-dashboard/render.php:690
 msgid "Dismiss"
 msgstr "Schließen"
 
@@ -1673,7 +1673,7 @@ msgid "Reason (optional):"
 msgstr "Grund (optional):"
 
 #: admin/class-admin.php:864
-#: blocks/candidate-dashboard/render.php:1075
+#: blocks/candidate-dashboard/render.php:1077
 #: core/class-plugin.php:1333
 msgid "Confirm"
 msgstr "Bestätigen"
@@ -1688,7 +1688,7 @@ msgstr "Wird importiert…"
 
 #: admin/class-admin.php:965
 #: blocks/company-profile/render.php:122
-#: blocks/job-single/render.php:377
+#: blocks/job-single/render.php:373
 #: core/widgets/class-widget-shortcode.php:119
 msgid "Could not save."
 msgstr "Konnte nicht gespeichert werden."
@@ -1726,14 +1726,14 @@ msgstr "Bild wählen"
 
 #: admin/class-admin-settings.php:1139
 #: admin/class-admin.php:906
-#: blocks/candidate-dashboard/render.php:767
-#: blocks/candidate-dashboard/render.php:828
-#: blocks/candidate-dashboard/render.php:885
-#: blocks/candidate-dashboard/render.php:943
-#: blocks/employer-dashboard/render.php:1153
-#: blocks/employer-dashboard/render.php:1376
-#: blocks/employer-dashboard/render.php:1420
-#: blocks/employer-dashboard/render.php:1467
+#: blocks/candidate-dashboard/render.php:769
+#: blocks/candidate-dashboard/render.php:830
+#: blocks/candidate-dashboard/render.php:887
+#: blocks/candidate-dashboard/render.php:945
+#: blocks/employer-dashboard/render.php:1154
+#: blocks/employer-dashboard/render.php:1377
+#: blocks/employer-dashboard/render.php:1421
+#: blocks/employer-dashboard/render.php:1468
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -1742,9 +1742,9 @@ msgid "Footer Text"
 msgstr "Fußzeilentext"
 
 #: admin/class-email-settings.php:151
-#: blocks/candidate-dashboard/render.php:1175
-#: blocks/candidate-dashboard/render.php:1263
-#: blocks/employer-dashboard/render.php:1500
+#: blocks/candidate-dashboard/render.php:1177
+#: blocks/candidate-dashboard/render.php:1265
+#: blocks/employer-dashboard/render.php:1501
 #: blocks/employer-registration/render.php:143
 #: modules/applications/widgets/class-applicant-card.php:107
 #: modules/gdpr/class-gdpr-module.php:351
@@ -1857,14 +1857,14 @@ msgid "When"
 msgstr "Wann"
 
 #: admin/class-email-settings.php:301
-#: blocks/candidate-dashboard/render.php:723
-#: blocks/candidate-dashboard/render.php:798
-#: blocks/candidate-dashboard/render.php:854
-#: blocks/candidate-dashboard/render.php:912
-#: blocks/candidate-dashboard/render.php:1005
-#: blocks/employer-dashboard/render.php:1356
-#: blocks/employer-dashboard/render.php:1399
-#: blocks/employer-dashboard/render.php:1446
+#: blocks/candidate-dashboard/render.php:725
+#: blocks/candidate-dashboard/render.php:800
+#: blocks/candidate-dashboard/render.php:856
+#: blocks/candidate-dashboard/render.php:914
+#: blocks/candidate-dashboard/render.php:1007
+#: blocks/employer-dashboard/render.php:1357
+#: blocks/employer-dashboard/render.php:1400
+#: blocks/employer-dashboard/render.php:1447
 msgid "Loading…"
 msgstr "Wird geladen…"
 
@@ -1995,9 +1995,9 @@ msgstr "Keine registrierte E-Mail entspricht der ID \"%s\"."
 
 #: api/endpoints/class-admin-endpoint.php:255
 #: api/endpoints/class-admin-endpoint.php:256
-#: blocks/candidate-dashboard/render.php:629
-#: blocks/employer-dashboard/render.php:450
-#: blocks/employer-dashboard/render.php:949
+#: blocks/candidate-dashboard/render.php:631
+#: blocks/employer-dashboard/render.php:451
+#: blocks/employer-dashboard/render.php:950
 #: modules/applications/class-application-status.php:177
 msgid "Shortlisted"
 msgstr "Ausgewählt"
@@ -2172,16 +2172,16 @@ msgstr "Unternehmensname ist erforderlich."
 
 #: admin/class-admin-candidates.php:433
 #: api/endpoints/class-employers-endpoint.php:1575
-#: blocks/candidate-dashboard/render.php:1021
+#: blocks/candidate-dashboard/render.php:1023
 msgid "Private"
 msgstr "Privat"
 
 #: api/endpoints/class-employers-endpoint.php:822
 #: api/endpoints/class-employers-endpoint.php:936
-#: blocks/employer-dashboard/render.php:452
-#: blocks/employer-dashboard/render.php:460
-#: blocks/employer-dashboard/render.php:818
-#: blocks/employer-dashboard/render.php:953
+#: blocks/employer-dashboard/render.php:453
+#: blocks/employer-dashboard/render.php:461
+#: blocks/employer-dashboard/render.php:819
+#: blocks/employer-dashboard/render.php:954
 #: modules/applications/class-application-status.php:180
 msgid "Rejected"
 msgstr "Abgelehnt"
@@ -2214,7 +2214,7 @@ msgstr "WP Job Manager Resumes ist nicht aktiv."
 
 #. translators: %s: number of jobs found, already localised.
 #: api/endpoints/class-jobs-endpoint.php:322
-#: blocks/job-listings/render.php:367
+#: blocks/job-listings/render.php:364
 #, php-format
 msgid "%s job found"
 msgid_plural "%s jobs found"
@@ -2247,17 +2247,17 @@ msgstr "Stellentitel ist erforderlich."
 
 #. translators: %s: human-readable time difference, e.g. "3 days".
 #: api/endpoints/class-jobs-endpoint.php:1870
-#: blocks/job-listings/render.php:230
-#: blocks/recent-jobs/render.php:129
+#: blocks/job-listings/render.php:227
+#: blocks/recent-jobs/render.php:121
 #, php-format
 msgid "%s ago"
 msgstr "vor %s"
 
-#: api/endpoints/class-jobs-endpoint.php:2097
+#: api/endpoints/class-jobs-endpoint.php:2101
 msgid "Sort jobs by attribute."
 msgstr "Stellen nach Attribut sortieren."
 
-#: api/endpoints/class-jobs-endpoint.php:2105
+#: api/endpoints/class-jobs-endpoint.php:2109
 msgid "Order jobs ascending or descending."
 msgstr "Stellen aufsteigend oder absteigend sortieren."
 
@@ -2266,220 +2266,220 @@ msgid "You do not have permission to view this dashboard."
 msgstr "Du hast keine Berechtigung, um dieses Dashboard anzuzeigen."
 
 #: blocks/candidate-dashboard/render.php:198
-#: blocks/candidate-dashboard/render.php:445
-#: blocks/candidate-dashboard/render.php:575
-#: blocks/employer-dashboard/render.php:404
-#: blocks/employer-dashboard/render.php:545
-#: blocks/employer-dashboard/render.php:660
+#: blocks/candidate-dashboard/render.php:447
+#: blocks/candidate-dashboard/render.php:577
+#: blocks/employer-dashboard/render.php:405
+#: blocks/employer-dashboard/render.php:546
+#: blocks/employer-dashboard/render.php:661
 msgid "Overview"
 msgstr "Übersicht"
 
 #: blocks/candidate-dashboard/render.php:199
-#: blocks/candidate-dashboard/render.php:451
-#: blocks/candidate-dashboard/render.php:718
+#: blocks/candidate-dashboard/render.php:453
+#: blocks/candidate-dashboard/render.php:720
 msgid "My Applications"
 msgstr "Meine Bewerbungen"
 
 #: blocks/candidate-dashboard/render.php:203
-#: blocks/candidate-dashboard/render.php:469
-#: blocks/candidate-dashboard/render.php:638
-#: blocks/candidate-dashboard/render.php:967
+#: blocks/candidate-dashboard/render.php:471
+#: blocks/candidate-dashboard/render.php:640
+#: blocks/candidate-dashboard/render.php:969
 msgid "My Resumes"
 msgstr "Meine Lebensläufe"
 
 #: blocks/candidate-dashboard/render.php:205
-#: blocks/candidate-dashboard/render.php:488
+#: blocks/candidate-dashboard/render.php:490
 #: modules/candidates/class-candidates-module.php:233
 msgid "Edit Resume"
 msgstr "Lebenslauf bearbeiten"
 
 #: blocks/candidate-dashboard/render.php:206
-#: blocks/candidate-dashboard/render.php:427
-#: blocks/employer-dashboard/render.php:409
-#: blocks/employer-dashboard/render.php:517
+#: blocks/candidate-dashboard/render.php:429
+#: blocks/employer-dashboard/render.php:410
+#: blocks/employer-dashboard/render.php:518
 msgid "Dashboard"
 msgstr "Dashboard"
 
 #: blocks/candidate-dashboard/render.php:207
-#: blocks/candidate-dashboard/render.php:544
-#: blocks/employer-dashboard/render.php:407
-#: blocks/employer-dashboard/render.php:571
+#: blocks/candidate-dashboard/render.php:546
+#: blocks/employer-dashboard/render.php:408
+#: blocks/employer-dashboard/render.php:572
 msgid "Profile"
 msgstr "Profil"
 
 #. translators: %1$s: match score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires.
-#: blocks/candidate-dashboard/render.php:213
-#: blocks/employer-dashboard/render.php:442
+#: blocks/candidate-dashboard/render.php:215
+#: blocks/employer-dashboard/render.php:443
 #, php-format
 msgid "%1$s%"
 msgstr "%1$s%"
 
 #. translators: location dropdown label for jobs with no fixed place.
-#: blocks/candidate-dashboard/render.php:214
-#: blocks/job-form/render.php:1025
-#: blocks/job-listings/render.php:869
-#: blocks/job-single/render.php:436
-#: blocks/job-single/render.php:737
+#: blocks/candidate-dashboard/render.php:216
+#: blocks/job-form/render.php:1028
+#: blocks/job-listings/render.php:866
+#: blocks/job-single/render.php:432
+#: blocks/job-single/render.php:733
 #: core/class-locations.php:145
 #: modules/seo/class-rss-feed-enrichment.php:182
 msgid "Remote"
 msgstr "Remote"
 
 #. translators: currency symbol shown on salary pills when the site has no configured currency symbol.
-#: blocks/candidate-dashboard/render.php:216
+#: blocks/candidate-dashboard/render.php:218
 msgid "$"
 msgstr "$"
 
-#: blocks/candidate-dashboard/render.php:217
-#: blocks/employer-dashboard/render.php:393
-#: blocks/employer-dashboard/render.php:905
-#: blocks/employer-dashboard/render.php:915
+#: blocks/candidate-dashboard/render.php:219
+#: blocks/employer-dashboard/render.php:394
+#: blocks/employer-dashboard/render.php:906
+#: blocks/employer-dashboard/render.php:916
 msgid "All jobs"
 msgstr "Alle Jobs"
 
-#: blocks/candidate-dashboard/render.php:218
+#: blocks/candidate-dashboard/render.php:220
 msgid "Uploaded CV"
 msgstr "Hochgeladener Lebenslauf"
 
-#: blocks/candidate-dashboard/render.php:219
-#: blocks/employer-dashboard/render.php:474
+#: blocks/candidate-dashboard/render.php:221
+#: blocks/employer-dashboard/render.php:475
 msgid "Account updated."
 msgstr "Konto aktualisiert."
 
-#: blocks/candidate-dashboard/render.php:220
-#: blocks/employer-dashboard/render.php:478
+#: blocks/candidate-dashboard/render.php:222
+#: blocks/employer-dashboard/render.php:479
 msgid "Password updated."
 msgstr "Passwort aktualisiert."
 
-#: blocks/candidate-dashboard/render.php:221
+#: blocks/candidate-dashboard/render.php:223
 msgid "Could not load your applications."
 msgstr "Deine Bewerbungen konnten nicht geladen werden."
 
-#: blocks/candidate-dashboard/render.php:222
-#: blocks/employer-dashboard/render.php:378
+#: blocks/candidate-dashboard/render.php:224
+#: blocks/employer-dashboard/render.php:379
 msgid "Could not load saved jobs."
 msgstr "Deine gespeicherten Jobs konnten nicht geladen werden."
 
-#: blocks/candidate-dashboard/render.php:223
-#: blocks/employer-dashboard/render.php:379
+#: blocks/candidate-dashboard/render.php:225
+#: blocks/employer-dashboard/render.php:380
 msgid "Could not load saved companies."
 msgstr "Gespeicherte Unternehmen konnten nicht geladen werden."
 
-#: blocks/candidate-dashboard/render.php:224
-#: blocks/employer-dashboard/render.php:380
+#: blocks/candidate-dashboard/render.php:226
+#: blocks/employer-dashboard/render.php:381
 msgid "Could not load saved resumes."
 msgstr "Gespeicherte Lebensläufe konnten nicht geladen werden."
 
-#: blocks/candidate-dashboard/render.php:225
+#: blocks/candidate-dashboard/render.php:227
 msgid "Could not load your resumes."
 msgstr "Deine Lebensläufe konnten nicht geladen werden."
 
-#: blocks/candidate-dashboard/render.php:226
+#: blocks/candidate-dashboard/render.php:228
 msgid "Could not load your alerts."
 msgstr "Deine Benachrichtigungen konnten nicht geladen werden."
 
-#: blocks/candidate-dashboard/render.php:227
+#: blocks/candidate-dashboard/render.php:229
 msgid "Could not remove saved job. Please try again."
 msgstr "Der gespeicherte Job konnte nicht entfernt werden. Bitte versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:228
+#: blocks/candidate-dashboard/render.php:230
 msgid "Could not create resume. Please try again."
 msgstr "Der Lebenslauf konnte nicht erstellt werden. Bitte versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:229
+#: blocks/candidate-dashboard/render.php:231
 msgid "Could not delete resume. Please try again."
 msgstr "Der Lebenslauf konnte nicht gelöscht werden. Bitte versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:230
-#: blocks/employer-dashboard/render.php:373
+#: blocks/candidate-dashboard/render.php:232
+#: blocks/employer-dashboard/render.php:374
 msgid "Could not save profile. Please try again."
 msgstr "Profil konnte nicht gespeichert werden. Bitte versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:231
-#: blocks/employer-dashboard/render.php:475
+#: blocks/candidate-dashboard/render.php:233
+#: blocks/employer-dashboard/render.php:476
 msgid "Could not save your account."
 msgstr "Dein Konto konnte nicht gespeichert werden."
 
-#: blocks/candidate-dashboard/render.php:232
-#: blocks/employer-dashboard/render.php:476
+#: blocks/candidate-dashboard/render.php:234
+#: blocks/employer-dashboard/render.php:477
 msgid "Enter your current and new password."
 msgstr "Gib dein aktuelles und neues Passwort ein."
 
-#: blocks/candidate-dashboard/render.php:233
-#: blocks/employer-dashboard/render.php:477
+#: blocks/candidate-dashboard/render.php:235
+#: blocks/employer-dashboard/render.php:478
 msgid "New password and confirmation do not match."
 msgstr "Neues Passwort und Bestätigung stimmen nicht überein."
 
-#: blocks/candidate-dashboard/render.php:234
-#: blocks/employer-dashboard/render.php:479
+#: blocks/candidate-dashboard/render.php:236
+#: blocks/employer-dashboard/render.php:480
 msgid "Could not update your password."
 msgstr "Dein Passwort konnte nicht aktualisiert werden."
 
-#: blocks/candidate-dashboard/render.php:235
+#: blocks/candidate-dashboard/render.php:237
 msgid "Upload failed."
 msgstr "Upload fehlgeschlagen."
 
-#: blocks/candidate-dashboard/render.php:236
+#: blocks/candidate-dashboard/render.php:238
 msgid "Upload failed: no attachment returned."
 msgstr "Upload fehlgeschlagen: Keine Anlage zurückgegeben."
 
-#: blocks/candidate-dashboard/render.php:237
+#: blocks/candidate-dashboard/render.php:239
 msgid "Failed to upload resume file. Please try again."
 msgstr "Upload der Lebenslaufdatei fehlgeschlagen. Bitte versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:238
-#: blocks/employer-dashboard/render.php:375
+#: blocks/candidate-dashboard/render.php:240
+#: blocks/employer-dashboard/render.php:376
 #: blocks/employer-registration/render.php:152
-#: blocks/job-form-simple/render.php:264
+#: blocks/job-form-simple/render.php:265
 #: blocks/job-form/render.php:403
-#: blocks/job-listings/render.php:507
-#: blocks/job-single/render.php:383
+#: blocks/job-listings/render.php:504
+#: blocks/job-single/render.php:379
 #: templates/parts/privacy-settings.php:47
 msgid "Connection error. Please check your network and try again."
 msgstr "Verbindungsfehler. Bitte überprüfe deine Internetverbindung und versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:239
-#: blocks/employer-dashboard/render.php:377
+#: blocks/candidate-dashboard/render.php:241
+#: blocks/employer-dashboard/render.php:378
 msgid "Connection error. Please try again."
 msgstr "Verbindungsfehler. Bitte versuche es erneut."
 
-#: blocks/candidate-dashboard/render.php:240
-#: blocks/employer-dashboard/render.php:376
+#: blocks/candidate-dashboard/render.php:242
+#: blocks/employer-dashboard/render.php:377
 msgid "Connection error."
 msgstr "Verbindungsfehler."
 
-#: blocks/candidate-dashboard/render.php:241
+#: blocks/candidate-dashboard/render.php:243
 msgid "Withdraw application?"
 msgstr "Bewerbung zurückziehen?"
 
-#: blocks/candidate-dashboard/render.php:242
+#: blocks/candidate-dashboard/render.php:244
 msgid "Are you sure you want to withdraw this application? This cannot be undone."
 msgstr "Bist du sicher, dass du diese Bewerbung zurückziehen möchtest? Dies kann nicht rückgängig gemacht werden."
 
-#: blocks/candidate-dashboard/render.php:243
-#: blocks/candidate-dashboard/render.php:760
+#: blocks/candidate-dashboard/render.php:245
+#: blocks/candidate-dashboard/render.php:762
 msgid "Withdraw"
 msgstr "Zurückziehen"
 
-#: blocks/candidate-dashboard/render.php:250
-#: blocks/employer-dashboard/render.php:383
+#: blocks/candidate-dashboard/render.php:252
+#: blocks/employer-dashboard/render.php:384
 msgid "Clear all notifications?"
 msgstr "Alle Benachrichtigungen löschen?"
 
-#: blocks/candidate-dashboard/render.php:251
-#: blocks/employer-dashboard/render.php:384
+#: blocks/candidate-dashboard/render.php:253
+#: blocks/employer-dashboard/render.php:385
 msgid "This permanently removes all of your notifications. This cannot be undone."
 msgstr "Dies entfernt alle deine Benachrichtigungen dauerhaft. Dies kann nicht rückgängig gemacht werden."
 
-#: blocks/candidate-dashboard/render.php:252
+#: blocks/candidate-dashboard/render.php:254
 #: blocks/company-archive/render.php:270
-#: blocks/employer-dashboard/render.php:385
-#: blocks/job-listings/render.php:580
-#: blocks/job-listings/render.php:802
+#: blocks/employer-dashboard/render.php:386
+#: blocks/job-listings/render.php:577
+#: blocks/job-listings/render.php:799
 msgid "Clear all"
 msgstr "Alle löschen"
 
-#: blocks/candidate-dashboard/render.php:253
+#: blocks/candidate-dashboard/render.php:255
 msgid "Could not withdraw application. Please try again."
 msgstr "Bewerbung konnte nicht zurückgezogen werden. Bitte versuche es erneut."
 
@@ -2487,192 +2487,192 @@ msgstr "Bewerbung konnte nicht zurückgezogen werden. Bitte versuche es erneut."
 msgid "Could not submit your privacy request. Please try again or contact support."
 msgstr "Deine Datenschutzanfrage konnte nicht eingereicht werden. Bitte versuche es erneut oder kontaktiere den Support."
 
-#: blocks/candidate-dashboard/render.php:424
-#: blocks/employer-dashboard/render.php:514
+#: blocks/candidate-dashboard/render.php:426
+#: blocks/employer-dashboard/render.php:515
 msgid "Toggle navigation"
 msgstr "Navigation umschalten"
 
-#: blocks/candidate-dashboard/render.php:443
+#: blocks/candidate-dashboard/render.php:445
 msgid "Candidate dashboard navigation"
 msgstr "Kandidaten-Dashboard-Navigation"
 
-#: blocks/candidate-dashboard/render.php:477
+#: blocks/candidate-dashboard/render.php:479
 msgid "Public Resume"
 msgstr "Öffentlicher Lebenslauf"
 
-#: blocks/candidate-dashboard/render.php:590
+#: blocks/candidate-dashboard/render.php:592
 msgid "Here's how to get started:"
 msgstr "Hier ist eine Anleitung zum Einstieg:"
 
-#: blocks/candidate-dashboard/render.php:565
-#: blocks/candidate-dashboard/render.php:596
-#: blocks/candidate-dashboard/render.php:671
-#: blocks/candidate-dashboard/render.php:695
-#: blocks/candidate-dashboard/render.php:785
-#: blocks/candidate-dashboard/render.php:841
-#: blocks/candidate-dashboard/render.php:1161
-#: blocks/employer-dashboard/render.php:1388
+#: blocks/candidate-dashboard/render.php:567
+#: blocks/candidate-dashboard/render.php:598
+#: blocks/candidate-dashboard/render.php:673
+#: blocks/candidate-dashboard/render.php:697
+#: blocks/candidate-dashboard/render.php:787
+#: blocks/candidate-dashboard/render.php:843
+#: blocks/candidate-dashboard/render.php:1163
+#: blocks/employer-dashboard/render.php:1389
 msgid "Browse jobs"
 msgstr "Jobs durchsuchen"
 
-#: blocks/candidate-dashboard/render.php:597
+#: blocks/candidate-dashboard/render.php:599
 msgid "Search and apply to roles that match your skills."
 msgstr "Suche und bewerbe dich auf Positionen, die deinen Fähigkeiten entsprechen."
 
-#: blocks/candidate-dashboard/render.php:604
+#: blocks/candidate-dashboard/render.php:606
 msgid "Build your resume"
 msgstr "Baue deinen Lebenslauf auf"
 
-#: blocks/candidate-dashboard/render.php:605
+#: blocks/candidate-dashboard/render.php:607
 msgid "A complete profile gets noticed by employers faster."
 msgstr "Ein vollständiges Profil wird von Arbeitgebern schneller bemerkt."
 
-#: blocks/candidate-dashboard/render.php:613
+#: blocks/candidate-dashboard/render.php:615
 msgid "Set up job alerts"
 msgstr "Richte Jobbewachungen ein"
 
-#: blocks/candidate-dashboard/render.php:614
+#: blocks/candidate-dashboard/render.php:616
 msgid "Get notified when matching roles are posted."
 msgstr "Erhalte Benachrichtigungen, wenn passende Stellen veröffentlicht werden."
 
-#: blocks/candidate-dashboard/render.php:684
+#: blocks/candidate-dashboard/render.php:686
 msgid "Saved job"
 msgstr "Gespeicherte Stelle"
 
-#: blocks/candidate-dashboard/render.php:701
+#: blocks/candidate-dashboard/render.php:703
 msgid "Recommended for you"
 msgstr "Empfohlen für dich"
 
 #: blocks/company-profile/render.php:395
 #: blocks/featured-jobs/render.php:96
-#: blocks/job-listings/render.php:890
+#: blocks/job-listings/render.php:887
 #: modules/jobs/class-jobs-module.php:331
 #: modules/notifications/emails/class-email-app-guest.php:76
 #: modules/notifications/emails/class-email-job-approved.php:74
 msgid "View Job"
 msgstr "Stelle ansehen"
 
-#: blocks/candidate-dashboard/render.php:898
-#: blocks/employer-dashboard/render.php:1432
+#: blocks/candidate-dashboard/render.php:900
+#: blocks/employer-dashboard/render.php:1433
 msgid "Browse Companies"
 msgstr "Unternehmen durchsuchen"
 
-#: blocks/candidate-dashboard/render.php:957
-#: blocks/employer-dashboard/render.php:1480
+#: blocks/candidate-dashboard/render.php:959
+#: blocks/employer-dashboard/render.php:1481
 msgid "Browse Candidates"
 msgstr "Kandidaten durchsuchen"
 
-#: blocks/candidate-dashboard/render.php:975
+#: blocks/candidate-dashboard/render.php:977
 msgid "+ New Resume"
 msgstr "+ Neuer Lebenslauf"
 
-#: blocks/candidate-dashboard/render.php:977
+#: blocks/candidate-dashboard/render.php:979
 msgid "Upload CV"
 msgstr "CV hochladen"
 
-#: blocks/candidate-dashboard/render.php:988
+#: blocks/candidate-dashboard/render.php:990
 msgid "Resume title"
 msgstr "Titel des Lebenslaufs"
 
-#: blocks/candidate-dashboard/render.php:993
+#: blocks/candidate-dashboard/render.php:995
 msgid "e.g. Software Developer"
 msgstr "z.B. Softwareentwickler"
 
-#: blocks/candidate-dashboard/render.php:997
+#: blocks/candidate-dashboard/render.php:999
 msgid "Create"
 msgstr "Erstellen"
 
-#: blocks/candidate-dashboard/render.php:1070
+#: blocks/candidate-dashboard/render.php:1072
 msgid "Delete this resume?"
 msgstr "Diesen Lebenslauf löschen?"
 
-#: blocks/candidate-dashboard/render.php:1108
+#: blocks/candidate-dashboard/render.php:1110
 msgid "Resume Builder"
 msgstr "Lebenslauf-Generator"
 
-#: blocks/candidate-dashboard/render.php:1111
+#: blocks/candidate-dashboard/render.php:1113
 msgid "Pick a resume from My Resumes to edit it here, or create a new one to get started."
 msgstr "Wähle einen Lebenslauf aus Meine Lebensläufe, um ihn hier zu bearbeiten, oder erstelle einen neuen, um zu beginnen."
 
-#: blocks/candidate-dashboard/render.php:1112
+#: blocks/candidate-dashboard/render.php:1114
 msgid "Go to My Resumes"
 msgstr "Zu Meine Lebensläufe"
 
-#: blocks/candidate-dashboard/render.php:1143
+#: blocks/candidate-dashboard/render.php:1145
 msgid "Alert frequency"
 msgstr "Häufigkeit der Benachrichtigungen"
 
-#: blocks/candidate-dashboard/render.php:1144
+#: blocks/candidate-dashboard/render.php:1146
 msgid "Instant"
 msgstr "Sofort"
 
-#: blocks/candidate-dashboard/render.php:1145
+#: blocks/candidate-dashboard/render.php:1147
 msgid "Daily"
 msgstr "Täglich"
 
-#: blocks/candidate-dashboard/render.php:1146
+#: blocks/candidate-dashboard/render.php:1148
 msgid "Weekly"
 msgstr "Wöchentlich"
 
-#: blocks/candidate-dashboard/render.php:1170
+#: blocks/candidate-dashboard/render.php:1172
 msgid "My Profile"
 msgstr "Mein Profil"
 
-#: blocks/candidate-dashboard/render.php:1188
+#: blocks/candidate-dashboard/render.php:1190
 msgid "Phone"
 msgstr "Telefon"
 
-#: blocks/candidate-dashboard/render.php:1193
+#: blocks/candidate-dashboard/render.php:1195
 msgid "e.g. +1 555 123 4567"
 msgstr "z.B. +1 555 123 4567"
 
-#: blocks/candidate-dashboard/render.php:1205
+#: blocks/candidate-dashboard/render.php:1207
 msgid "e.g. Bengaluru, India"
 msgstr "z.B. Bengaluru, Indien"
 
-#: blocks/candidate-dashboard/render.php:1213
+#: blocks/candidate-dashboard/render.php:1215
 msgid "Tell employers about yourself…"
 msgstr "Erzähle Arbeitgebern von dir…"
 
-#: blocks/candidate-dashboard/render.php:1212
-#: blocks/candidate-dashboard/render.php:1220
+#: blocks/candidate-dashboard/render.php:1214
+#: blocks/candidate-dashboard/render.php:1222
 msgid "Bio / About me"
 msgstr "Bio / Über mich"
 
-#: blocks/candidate-dashboard/render.php:1241
-#: blocks/employer-dashboard/render.php:1317
+#: blocks/candidate-dashboard/render.php:1243
+#: blocks/employer-dashboard/render.php:1318
 msgid "Save Profile"
 msgstr "Profil speichern"
 
 #: admin/class-admin.php:915
-#: blocks/candidate-dashboard/render.php:1242
-#: blocks/employer-dashboard/render.php:1318
+#: blocks/candidate-dashboard/render.php:1244
+#: blocks/employer-dashboard/render.php:1319
 #: blocks/employer-registration/render.php:391
 msgid "Saving…"
 msgstr "Wird gespeichert…"
 
 #: admin/class-admin.php:964
-#: blocks/candidate-dashboard/render.php:511
-#: blocks/candidate-dashboard/render.php:1244
+#: blocks/candidate-dashboard/render.php:513
+#: blocks/candidate-dashboard/render.php:1246
 #: blocks/company-profile/render.php:103
 #: blocks/company-profile/render.php:124
-#: blocks/employer-dashboard/render.php:609
-#: blocks/job-listings/render.php:495
-#: blocks/job-single/render.php:378
+#: blocks/employer-dashboard/render.php:610
+#: blocks/job-listings/render.php:492
+#: blocks/job-single/render.php:374
+#: blocks/job-single/render.php:550
 #: blocks/job-single/render.php:554
-#: blocks/job-single/render.php:558
 #: core/widgets/class-widget-shortcode.php:118
 #: templates/parts/email-preferences.php:32
 msgid "Saved"
 msgstr "Gespeichert"
 
-#: blocks/candidate-dashboard/render.php:1252
-#: blocks/employer-dashboard/render.php:1489
+#: blocks/candidate-dashboard/render.php:1254
+#: blocks/employer-dashboard/render.php:1490
 msgid "Account Settings"
 msgstr "Kontoeinstellungen"
 
-#: blocks/candidate-dashboard/render.php:1259
-#: blocks/employer-dashboard/render.php:1496
+#: blocks/candidate-dashboard/render.php:1261
+#: blocks/employer-dashboard/render.php:1497
 msgid "Display Name"
 msgstr "Anzeigename"
 
@@ -2684,28 +2684,28 @@ msgstr "Anzeigename"
 #: admin/class-admin-settings.php:1147
 #: admin/class-admin-settings.php:1197
 #: admin/class-admin-settings.php:1415
-#: blocks/candidate-dashboard/render.php:1273
-#: blocks/employer-dashboard/render.php:1510
+#: blocks/candidate-dashboard/render.php:1275
+#: blocks/employer-dashboard/render.php:1511
 msgid "Save changes"
 msgstr "Änderungen speichern"
 
-#: blocks/candidate-dashboard/render.php:1278
-#: blocks/employer-dashboard/render.php:1515
+#: blocks/candidate-dashboard/render.php:1280
+#: blocks/employer-dashboard/render.php:1516
 msgid "Change Password"
 msgstr "Passwort ändern"
 
-#: blocks/candidate-dashboard/render.php:1289
-#: blocks/employer-dashboard/render.php:1526
+#: blocks/candidate-dashboard/render.php:1291
+#: blocks/employer-dashboard/render.php:1527
 msgid "New Password"
 msgstr "Neues Passwort"
 
-#: blocks/candidate-dashboard/render.php:1293
-#: blocks/employer-dashboard/render.php:1530
+#: blocks/candidate-dashboard/render.php:1295
+#: blocks/employer-dashboard/render.php:1531
 msgid "Confirm New Password"
 msgstr "Neues Passwort bestätigen"
 
-#: blocks/candidate-dashboard/render.php:1297
-#: blocks/employer-dashboard/render.php:1534
+#: blocks/candidate-dashboard/render.php:1299
+#: blocks/employer-dashboard/render.php:1535
 msgid "Update password"
 msgstr "Passwort aktualisieren"
 
@@ -2736,32 +2736,32 @@ msgstr "Unternehmen sortieren"
 
 #: admin/class-admin-settings.php:756
 #: blocks/company-archive/render.php:238
-#: blocks/job-listings/render.php:543
+#: blocks/job-listings/render.php:540
 #: templates/parts/archive-toolbar.php:76
 msgid "Newest first"
 msgstr "Neueste zuerst"
 
 #: admin/class-admin-settings.php:759
 #: blocks/company-archive/render.php:239
-#: blocks/job-listings/render.php:546
+#: blocks/job-listings/render.php:543
 #: templates/parts/archive-toolbar.php:77
 msgid "Oldest first"
 msgstr "Älteste zuerst"
 
 #: blocks/company-archive/render.php:242
-#: blocks/job-listings/render.php:553
+#: blocks/job-listings/render.php:550
 #: templates/parts/archive-toolbar.php:83
 msgid "View layout"
 msgstr "Ansichtslayout"
 
 #: blocks/company-archive/render.php:243
-#: blocks/job-listings/render.php:554
+#: blocks/job-listings/render.php:551
 #: templates/parts/archive-toolbar.php:84
 msgid "List view"
 msgstr "Listenansicht"
 
 #: blocks/company-archive/render.php:244
-#: blocks/job-listings/render.php:555
+#: blocks/job-listings/render.php:552
 #: templates/parts/archive-toolbar.php:85
 msgid "Grid view"
 msgstr "Rasteransicht"
@@ -2772,17 +2772,17 @@ msgstr "Unternehmen filtern"
 
 #: blocks/company-archive/render.php:266
 #: blocks/job-filters/render.php:68
-#: blocks/job-listings/render.php:576
+#: blocks/job-listings/render.php:573
 #: blocks/job-search-hero/index.js:41
 msgid "Filters"
 msgstr "Filter"
 
-#: admin/class-admin-meta-boxes.php:489
+#: admin/class-admin-meta-boxes.php:491
 #: blocks/company-archive/render.php:307
 #: blocks/company-profile/render.php:277
-#: blocks/employer-dashboard/render.php:1239
+#: blocks/employer-dashboard/render.php:1240
 #: blocks/employer-registration/render.php:344
-#: blocks/job-single/render.php:935
+#: blocks/job-single/render.php:931
 msgid "Company size"
 msgstr "Unternehmensgröße"
 
@@ -2796,14 +2796,14 @@ msgid "No companies match your filters"
 msgstr "Keine Unternehmen entsprechen deinen Filtern"
 
 #: blocks/company-archive/render.php:422
-#: blocks/job-listings/render.php:912
+#: blocks/job-listings/render.php:909
 msgid "Try removing a filter or clearing them all to see more results."
 msgstr "Versuche, einen Filter zu entfernen oder alle zu löschen, um mehr Ergebnisse zu sehen."
 
 #: admin/class-list-empty-state.php:109
 #: blocks/company-archive/render.php:425
-#: blocks/employer-dashboard/render.php:852
-#: blocks/job-listings/render.php:915
+#: blocks/employer-dashboard/render.php:853
+#: blocks/job-listings/render.php:912
 #: templates/parts/archive-empty-state.php:53
 msgid "Clear filters"
 msgstr "Filter löschen"
@@ -2814,7 +2814,7 @@ msgstr "Weitere Unternehmen laden"
 
 #: blocks/employer-dashboard/render.php:194
 #: blocks/employer-registration/render.php:106
-#: core/class-company-meta-shape.php:207
+#: core/class-company-meta-shape.php:211
 msgid "5,000+ employees"
 msgstr "5.000+ Mitarbeiter"
 
@@ -2829,7 +2829,7 @@ msgid "Save this company"
 msgstr "Dieses Unternehmen speichern"
 
 #: blocks/company-profile/render.php:235
-#: blocks/employer-dashboard/render.php:1292
+#: blocks/employer-dashboard/render.php:1293
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
@@ -2852,7 +2852,7 @@ msgstr "Gegründet"
 
 #: blocks/company-profile/render.php:295
 #: blocks/employer-registration/render.php:357
-#: blocks/job-single/render.php:948
+#: blocks/job-single/render.php:944
 msgid "Headquarters"
 msgstr "Hauptsitz"
 
@@ -2865,18 +2865,18 @@ msgid "No open positions at the moment. Check back soon."
 msgstr "Momentan keine offenen Stellen. Schau bald vorbei."
 
 #: blocks/company-profile/render.php:385
-#: blocks/job-listings/render.php:835
+#: blocks/job-listings/render.php:832
 msgid "Job listing"
 msgstr "Stellenangebot"
 
 #: blocks/company-profile/render.php:407
-#: blocks/job-listings/render.php:927
+#: blocks/job-listings/render.php:924
 msgid "Load more jobs"
 msgstr "Weitere Stellen laden"
 
-#: blocks/candidate-dashboard/render.php:776
+#: blocks/candidate-dashboard/render.php:778
 #: blocks/company-profile/render.php:408
-#: blocks/employer-dashboard/render.php:1107
+#: blocks/employer-dashboard/render.php:1108
 #: templates/parts/archive-load-more.php:32
 msgid "Loading&hellip;"
 msgstr "Lädt&hellip;"
@@ -2910,38 +2910,38 @@ msgstr "Bewerbungen konnten nicht geladen werden."
 msgid "Connection error loading applications."
 msgstr "Verbindungsfehler beim Laden von Bewerbungen."
 
-#: blocks/employer-dashboard/render.php:374
+#: blocks/employer-dashboard/render.php:375
 msgid "Please save your company profile before uploading a logo."
 msgstr "Bitte speichere dein Unternehmensprofil, bevor du ein Logo hochlädst."
 
-#: blocks/employer-dashboard/render.php:386
+#: blocks/employer-dashboard/render.php:387
 msgid "Close this job?"
 msgstr "Schließe diesen Job?"
 
-#: blocks/employer-dashboard/render.php:401
+#: blocks/employer-dashboard/render.php:402
 msgid "Close job"
 msgstr "Job schließen"
 
-#: blocks/employer-dashboard/render.php:405
-#: blocks/employer-dashboard/render.php:551
-#: blocks/employer-dashboard/render.php:808
+#: blocks/employer-dashboard/render.php:406
+#: blocks/employer-dashboard/render.php:552
+#: blocks/employer-dashboard/render.php:809
 msgid "My Jobs"
 msgstr "Meine Stellen"
 
-#: blocks/employer-dashboard/render.php:419
+#: blocks/employer-dashboard/render.php:420
 msgid "Uploading…"
 msgstr "Wird hochgeladen…"
 
-#: blocks/employer-dashboard/render.php:420
+#: blocks/employer-dashboard/render.php:421
 msgid "Change Logo"
 msgstr "Logo ändern"
 
-#: blocks/employer-dashboard/render.php:421
+#: blocks/employer-dashboard/render.php:422
 msgid "Upload Logo"
 msgstr "Logo hochladen"
 
 #. translators: %1$s: applicant name.
-#: blocks/employer-dashboard/render.php:424
+#: blocks/employer-dashboard/render.php:425
 #, php-format
 msgid "View application from %1$s"
 msgstr "Bewerbung von %1$s anzeigen"
@@ -2963,7 +2963,7 @@ msgstr[0] "%1$s von %2$s Job"
 msgstr[1] "%1$s von %2$s Jobs"
 
 #. translators: %1$s: number of credits added to the employer's balance, already localised.
-#: blocks/employer-dashboard/render.php:429
+#: blocks/employer-dashboard/render.php:430
 #, php-format
 msgid "%1$s credit added to your balance."
 msgid_plural "%1$s credits added to your balance."
@@ -2971,257 +2971,257 @@ msgstr[0] "%1$s Guthaben zu deinem Guthaben hinzugefügt."
 msgstr[1] "%1$s Guthaben zu deinem Guthaben hinzugefügt."
 
 #. translators: %1$s: number of credits left on the employer's balance, already localised.
-#: blocks/employer-dashboard/render.php:434
+#: blocks/employer-dashboard/render.php:435
 #, php-format
 msgid "Low balance: %1$s credit left."
 msgid_plural "Low balance: %1$s credits left."
 msgstr[0] "Niedriges Guthaben: %1$s Guthaben verbleibend."
 msgstr[1] "Niedriges Guthaben: %1$s Guthaben verbleibend."
 
-#: blocks/employer-dashboard/render.php:439
+#: blocks/employer-dashboard/render.php:440
 msgid "Rank by AI fit"
 msgstr "Nach AI-Passung ordnen"
 
-#: blocks/employer-dashboard/render.php:440
+#: blocks/employer-dashboard/render.php:441
 msgid "Ranking…"
 msgstr "Wird eingeordnet…"
 
-#: blocks/employer-dashboard/render.php:449
-#: blocks/employer-dashboard/render.php:945
+#: blocks/employer-dashboard/render.php:450
+#: blocks/employer-dashboard/render.php:946
 #: modules/applications/class-application-status.php:176
 msgid "Reviewing"
 msgstr "Überprüfung"
 
-#: blocks/employer-dashboard/render.php:451
-#: blocks/employer-dashboard/render.php:957
+#: blocks/employer-dashboard/render.php:452
+#: blocks/employer-dashboard/render.php:958
 #: modules/applications/class-application-status.php:181
 msgid "Hired"
 msgstr "Eingestellt"
 
-#: blocks/employer-dashboard/render.php:468
+#: blocks/employer-dashboard/render.php:469
 msgid "Status updated. The candidate has been notified."
 msgstr "Status aktualisiert. Der Kandidat wurde benachrichtigt."
 
-#: blocks/employer-dashboard/render.php:471
+#: blocks/employer-dashboard/render.php:472
 msgid "Could not update the status. Please try again."
 msgstr "Der Status konnte nicht aktualisiert werden. Bitte versuche es erneut."
 
-#: blocks/employer-dashboard/render.php:540
+#: blocks/employer-dashboard/render.php:541
 msgid "Dashboard navigation"
 msgstr "Dashboard-Navigation"
 
-#: blocks/employer-dashboard/render.php:574
+#: blocks/employer-dashboard/render.php:575
 msgid "Public Page"
 msgstr "Öffentliche Seite"
 
-#: blocks/employer-dashboard/render.php:590
+#: blocks/employer-dashboard/render.php:591
 msgid "Balance"
 msgstr "Guthaben"
 
-#: blocks/employer-dashboard/render.php:665
+#: blocks/employer-dashboard/render.php:666
 msgid "Welcome! Let's get you set up."
 msgstr "Willkommen! Lass dich einrichten."
 
-#: blocks/employer-dashboard/render.php:666
+#: blocks/employer-dashboard/render.php:667
 msgid "Create your company profile to start posting jobs and receiving applications."
 msgstr "Erstelle dein Unternehmerprofil, um Jobs zu posten und Bewerbungen zu erhalten."
 
-#: blocks/employer-dashboard/render.php:668
-#: blocks/employer-dashboard/render.php:835
+#: blocks/employer-dashboard/render.php:669
+#: blocks/employer-dashboard/render.php:836
 msgid "Set Up Company Profile"
 msgstr "Unternehmerprofil einrichten"
 
-#: blocks/employer-dashboard/render.php:673
+#: blocks/employer-dashboard/render.php:674
 msgid "Your company is ready."
 msgstr "Dein Unternehmen ist bereit."
 
-#: blocks/employer-dashboard/render.php:674
+#: blocks/employer-dashboard/render.php:675
 msgid "Post your first job to start receiving applications."
 msgstr "Veröffentliche deinen ersten Job, um Bewerbungen zu erhalten."
 
-#: blocks/employer-dashboard/render.php:676
-#: blocks/employer-dashboard/render.php:845
+#: blocks/employer-dashboard/render.php:677
+#: blocks/employer-dashboard/render.php:846
 msgid "Post Your First Job"
 msgstr "Deinen ersten Job posten"
 
-#: blocks/employer-dashboard/render.php:694
+#: blocks/employer-dashboard/render.php:695
 msgid "Buy more"
 msgstr "Mehr kaufen"
 
-#: blocks/employer-dashboard/render.php:703
+#: blocks/employer-dashboard/render.php:704
 msgid "Total Jobs"
 msgstr "Insgesamt Jobs"
 
-#: blocks/employer-dashboard/render.php:707
-#: blocks/employer-dashboard/render.php:814
+#: blocks/employer-dashboard/render.php:708
+#: blocks/employer-dashboard/render.php:815
 msgid "Live"
 msgstr "Live"
 
-#: blocks/employer-dashboard/render.php:715
+#: blocks/employer-dashboard/render.php:716
 msgid "New This Week"
 msgstr "Diese Woche neu"
 
-#: blocks/employer-dashboard/render.php:770
+#: blocks/employer-dashboard/render.php:771
 msgid "Manage all →"
 msgstr "Alles verwalten →"
 
-#: blocks/employer-dashboard/render.php:784
+#: blocks/employer-dashboard/render.php:785
 msgid "No active jobs."
 msgstr "Keine aktiven Jobs."
 
-#: blocks/employer-dashboard/render.php:821
+#: blocks/employer-dashboard/render.php:822
 msgid "Search your jobs"
 msgstr "Durchsuche deine Jobs"
 
-#: blocks/employer-dashboard/render.php:821
-#: blocks/employer-dashboard/render.php:909
-#: blocks/job-listings/render.php:538
+#: blocks/employer-dashboard/render.php:822
+#: blocks/employer-dashboard/render.php:910
+#: blocks/job-listings/render.php:535
 #: blocks/job-search-hero/render.php:21
 #: blocks/job-search/render.php:49
 msgid "Search jobs…"
 msgstr "Nach Jobs suchen…"
 
-#: blocks/employer-dashboard/render.php:825
-#: blocks/employer-dashboard/render.php:967
+#: blocks/employer-dashboard/render.php:826
+#: blocks/employer-dashboard/render.php:968
 msgid "Loading"
 msgstr "Wird geladen"
 
-#: blocks/candidate-dashboard/render.php:827
-#: blocks/candidate-dashboard/render.php:884
-#: blocks/candidate-dashboard/render.php:942
-#: blocks/candidate-dashboard/render.php:1051
-#: blocks/employer-dashboard/render.php:879
-#: blocks/employer-dashboard/render.php:1151
-#: blocks/employer-dashboard/render.php:1375
-#: blocks/employer-dashboard/render.php:1419
-#: blocks/employer-dashboard/render.php:1466
+#: blocks/candidate-dashboard/render.php:829
+#: blocks/candidate-dashboard/render.php:886
+#: blocks/candidate-dashboard/render.php:944
+#: blocks/candidate-dashboard/render.php:1053
+#: blocks/employer-dashboard/render.php:880
+#: blocks/employer-dashboard/render.php:1152
+#: blocks/employer-dashboard/render.php:1376
+#: blocks/employer-dashboard/render.php:1420
+#: blocks/employer-dashboard/render.php:1467
 msgid "View ↗"
 msgstr "Ansehen ↗"
 
-#: blocks/employer-dashboard/render.php:885
+#: blocks/employer-dashboard/render.php:886
 msgid "Close"
 msgstr "Schließen"
 
-#: blocks/employer-dashboard/render.php:882
+#: blocks/employer-dashboard/render.php:883
 msgid "Publish"
 msgstr "Veröffentlichen"
 
-#: blocks/employer-dashboard/render.php:883
+#: blocks/employer-dashboard/render.php:884
 msgid "Resubmit"
 msgstr "Erneut einreichen"
 
-#: blocks/employer-dashboard/render.php:884
+#: blocks/employer-dashboard/render.php:885
 msgid "Reopen"
 msgstr "Erneut öffnen"
 
-#: blocks/employer-dashboard/render.php:909
+#: blocks/employer-dashboard/render.php:910
 msgid "Search applications by job"
 msgstr "Bewerbungen nach Job durchsuchen"
 
-#: blocks/employer-dashboard/render.php:924
+#: blocks/employer-dashboard/render.php:925
 msgid "No jobs match your search."
 msgstr "Keine Jobs entsprechen deiner Suche."
 
-#: blocks/employer-dashboard/render.php:930
+#: blocks/employer-dashboard/render.php:931
 #: core/class-plugin.php:1206
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
 msgstr "Liste"
 
-#: blocks/employer-dashboard/render.php:931
+#: blocks/employer-dashboard/render.php:932
 msgid "Board"
 msgstr "Board"
 
-#: blocks/employer-dashboard/render.php:1025
+#: blocks/employer-dashboard/render.php:1026
 msgid "AI fit"
 msgstr "AI-Passung"
 
-#: blocks/employer-dashboard/render.php:1066
-#: blocks/job-single/render.php:1143
+#: blocks/employer-dashboard/render.php:1067
+#: blocks/job-single/render.php:1139
 #: modules/applications/widgets/class-resume-preview.php:85
 #: modules/candidates/class-candidates-module.php:231
 msgid "Resume"
 msgstr "Lebenslauf"
 
-#: blocks/employer-dashboard/render.php:1069
+#: blocks/employer-dashboard/render.php:1070
 msgid "Download Resume"
 msgstr "Lebenslauf herunterladen"
 
-#: blocks/employer-dashboard/render.php:1164
+#: blocks/employer-dashboard/render.php:1165
 msgid "Company Profile"
 msgstr "Unternehmensprofil"
 
-#: blocks/employer-dashboard/render.php:1188
+#: blocks/employer-dashboard/render.php:1189
 msgid "Company Logo"
 msgstr "Unternehmenslogo"
 
-#: blocks/employer-dashboard/render.php:1199
+#: blocks/employer-dashboard/render.php:1200
 msgid "Save your company profile first to enable logo upload."
 msgstr "Speichere zunächst dein Unternehmensprofil, um das Logo hochzuladen."
 
-#: blocks/employer-dashboard/render.php:1206
+#: blocks/employer-dashboard/render.php:1207
 msgid "Tagline"
 msgstr "Slogan"
 
-#: blocks/employer-dashboard/render.php:1207
+#: blocks/employer-dashboard/render.php:1208
 msgid "One-line description shown on listings"
 msgstr "Einzeilige Beschreibung, die in Angeboten angezeigt wird"
 
-#: blocks/employer-dashboard/render.php:1213
+#: blocks/employer-dashboard/render.php:1214
 msgid "What does your company do? Mission, products, culture…"
 msgstr "Was macht dein Unternehmen? Mission, Produkte, Unternehmenskultur…"
 
-#: blocks/employer-dashboard/render.php:1212
-#: blocks/employer-dashboard/render.php:1220
-#: blocks/job-single/render.php:896
+#: blocks/employer-dashboard/render.php:1213
+#: blocks/employer-dashboard/render.php:1221
+#: blocks/job-single/render.php:892
 msgid "About the company"
 msgstr "Über das Unternehmen"
 
-#: admin/class-admin-meta-boxes.php:418
-#: blocks/employer-dashboard/render.php:1241
+#: admin/class-admin-meta-boxes.php:420
+#: blocks/employer-dashboard/render.php:1242
 msgid " -  Select size  - "
 msgstr " -  Größe auswählen  - "
 
-#: blocks/employer-dashboard/render.php:1259
+#: blocks/employer-dashboard/render.php:1260
 msgid "HQ Location"
 msgstr "Hauptsitz"
 
-#: blocks/employer-dashboard/render.php:1260
+#: blocks/employer-dashboard/render.php:1261
 #: blocks/employer-registration/render.php:358
 msgid "e.g. San Francisco, CA"
 msgstr "z. B. San Francisco, CA"
 
-#: admin/class-admin-meta-boxes.php:428
-#: blocks/employer-dashboard/render.php:1272
+#: admin/class-admin-meta-boxes.php:430
+#: blocks/employer-dashboard/render.php:1273
 msgid " -  Select type  - "
 msgstr " -  Typ auswählen  - "
 
-#: blocks/employer-dashboard/render.php:1287
+#: blocks/employer-dashboard/render.php:1288
 msgid "e.g. 2012"
 msgstr "z. B. 2012"
 
-#: blocks/employer-dashboard/render.php:1297
+#: blocks/employer-dashboard/render.php:1298
 msgid "X (Twitter)"
 msgstr "X (Twitter)"
 
-#: blocks/employer-dashboard/render.php:1314
+#: blocks/employer-dashboard/render.php:1315
 msgid "Profile saved successfully."
 msgstr "Profil erfolgreich gespeichert."
 
-#: blocks/employer-dashboard/render.php:1324
+#: blocks/employer-dashboard/render.php:1325
 msgid "Live Preview"
 msgstr "Live-Vorschau"
 
-#: blocks/employer-dashboard/render.php:1365
+#: blocks/employer-dashboard/render.php:1366
 msgid "Bookmarked job"
 msgstr "Stellenangebot als Lesezeichen gespeichert"
 
-#: blocks/employer-dashboard/render.php:1409
+#: blocks/employer-dashboard/render.php:1410
 msgid "Bookmarked company"
 msgstr "Unternehmen als Lesezeichen gespeichert"
 
-#: blocks/employer-dashboard/render.php:1456
+#: blocks/employer-dashboard/render.php:1457
 msgid "Bookmarked resume"
 msgstr "Lebenslauf als Lesezeichen gespeichert"
 
@@ -3311,9 +3311,9 @@ msgid "Back"
 msgstr "Zurück"
 
 #: blocks/employer-registration/render.php:243
-#: blocks/job-form-simple/render.php:299
-#: blocks/job-form/render.php:1129
-#: blocks/job-single/render.php:1286
+#: blocks/job-form-simple/render.php:300
+#: blocks/job-form/render.php:1132
+#: blocks/job-single/render.php:1282
 msgid "Leave this field blank"
 msgstr "Lasse dieses Feld leer"
 
@@ -3386,7 +3386,7 @@ msgstr "Verpasse keine neuen Stellenangebote. Abonniere E-Mail-Benachrichtigunge
 msgid "Set Up Alerts"
 msgstr "Benachrichtigungen einrichten"
 
-#: blocks/job-listings/render.php:638
+#: blocks/job-listings/render.php:635
 #: templates/parts/job-category-field.php:64
 #: blocks/job-listings/index.js:20
 msgid "Category"
@@ -3407,9 +3407,9 @@ msgid "All Locations"
 msgstr "Alle Standorte"
 
 #: blocks/job-filters/render.php:99
-#: blocks/job-form-simple/render.php:492
-#: blocks/job-listings/render.php:617
-#: blocks/job-single/render.php:722
+#: blocks/job-form-simple/render.php:493
+#: blocks/job-listings/render.php:614
+#: blocks/job-single/render.php:718
 #: blocks/job-listings/index.js:19
 msgid "Experience"
 msgstr "Erfahrung"
@@ -3419,7 +3419,7 @@ msgid "All Experience Levels"
 msgstr "Alle Erfahrungsstufen"
 
 #: blocks/job-filters/render.php:109
-#: blocks/job-form-simple/render.php:539
+#: blocks/job-form-simple/render.php:540
 msgid "Minimum salary"
 msgstr "Mindestgehalt"
 
@@ -3428,7 +3428,7 @@ msgid "Min salary"
 msgstr "Min. Gehalt"
 
 #: blocks/job-filters/render.php:110
-#: blocks/job-form-simple/render.php:540
+#: blocks/job-form-simple/render.php:541
 msgid "Maximum salary"
 msgstr "Höchstgehalt"
 
@@ -3437,8 +3437,8 @@ msgid "Max salary"
 msgstr "Max. Gehalt"
 
 #: blocks/job-filters/render.php:122
-#: blocks/job-listings/render.php:502
-#: blocks/job-listings/render.php:691
+#: blocks/job-listings/render.php:499
+#: blocks/job-listings/render.php:688
 msgid "Remote only"
 msgstr "Nur Remote"
 
@@ -3493,57 +3493,59 @@ msgstr "Dieses Board erfordert %1$s. Dein Guthaben: %2$s. Bitte kaufe mehr Gutha
 msgid "Posting deducts %1$s. Balance after: %2$s (currently %3$s)."
 msgstr "Das Veröffentlichen zieht %1$s ab. Guthaben danach: %2$s (aktuell %3$s)."
 
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
 #: blocks/job-form-simple/render.php:254
-#: blocks/job-form/render.php:409
+#: blocks/job-form/render.php:410
 msgid "Enter a job title first so AI can generate a description."
 msgstr "Gib zuerst einen Job-Titel ein, damit AI eine Beschreibung generieren kann."
 
 #: blocks/job-form-simple/render.php:255
-#: blocks/job-form/render.php:410
+#: blocks/job-form/render.php:411
 msgid "Failed to generate description. Please try again."
 msgstr "Beschreibung konnte nicht generiert werden. Bitte versuche es erneut."
 
-#: blocks/job-form-simple/render.php:260
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: blocks/job-form-simple/render.php:261
 msgid "Job description is required."
 msgstr "Job-Beschreibung ist erforderlich."
 
 #. translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance.
-#: blocks/job-form-simple/render.php:263
+#: blocks/job-form-simple/render.php:264
 #: blocks/job-form/render.php:240
 #, php-format
 msgid "Insufficient credits. This board requires %1$s but your balance is %2$s."
 msgstr "Unzureichendes Guthaben. Dieses Board erfordert %1$s, aber dein Guthaben ist %2$s."
 
-#: blocks/job-form-simple/render.php:265
+#: blocks/job-form-simple/render.php:266
 #: blocks/job-form/render.php:404
 msgid "Job could not be posted. Please try again."
 msgstr "Die Stelle konnte nicht veröffentlicht werden. Bitte versuche es erneut."
 
-#: blocks/job-form-simple/render.php:354
+#: blocks/job-form-simple/render.php:355
 msgid "About the role"
 msgstr "Über die Stelle"
 
-#: blocks/job-form-simple/render.php:359
-#: blocks/job-form/render.php:573
+#: blocks/job-form-simple/render.php:360
+#: blocks/job-form/render.php:574
 msgid "Post to Board"
 msgstr "Im Board veröffentlichen"
 
-#: blocks/job-form-simple/render.php:407
-#: blocks/job-form/render.php:618
+#: blocks/job-form-simple/render.php:408
+#: blocks/job-form/render.php:619
 msgid "e.g. Senior PHP Developer"
 msgstr "z. B. Senior PHP Developer"
 
-#: blocks/job-form-simple/render.php:426
-#: blocks/job-form/render.php:642
+#: blocks/job-form-simple/render.php:427
+#: blocks/job-form/render.php:643
 msgid "Generate with AI"
 msgstr "Mit AI generieren"
 
-#: blocks/job-form-simple/render.php:427
-#: blocks/job-form/render.php:643
+#: blocks/job-form-simple/render.php:428
+#: blocks/job-form/render.php:644
 msgid "Generating…"
 msgstr "Wird generiert…"
 
-#: blocks/job-form-simple/render.php:451
+#: blocks/job-form-simple/render.php:452
 msgid "Classification"
 msgstr "Klassifizierung"
 
@@ -3551,117 +3553,117 @@ msgstr "Klassifizierung"
 msgid "Select a category"
 msgstr "Wähle eine Kategorie"
 
-#: blocks/job-form-simple/render.php:463
-#: blocks/job-form/render.php:896
+#: blocks/job-form-simple/render.php:464
+#: blocks/job-form/render.php:899
 msgid "Select a job type"
 msgstr "Wähle einen Jobtyp"
 
-#: blocks/job-form-simple/render.php:472
-#: blocks/job-form/render.php:921
+#: blocks/job-form-simple/render.php:473
+#: blocks/job-form/render.php:924
 msgid "Select a location"
 msgstr "Wähle einen Standort"
 
-#: blocks/job-form-simple/render.php:476
-#: blocks/job-form/render.php:927
+#: blocks/job-form-simple/render.php:477
+#: blocks/job-form/render.php:930
 msgid "Other (enter manually)…"
 msgstr "Sonstiges (manuell eingeben)…"
 
-#: blocks/job-form-simple/render.php:486
-#: blocks/job-form/render.php:937
+#: blocks/job-form-simple/render.php:487
+#: blocks/job-form/render.php:940
 msgid "Custom location"
 msgstr "Benutzerdefinierter Standort"
 
-#: blocks/job-form-simple/render.php:487
-#: blocks/job-form/render.php:938
+#: blocks/job-form-simple/render.php:488
+#: blocks/job-form/render.php:941
 msgid "e.g. Berlin, DE or Remote - Europe"
 msgstr "z.B. Berlin, DE oder Remote - Europa"
 
-#: blocks/job-form-simple/render.php:494
-#: blocks/job-form/render.php:955
+#: blocks/job-form-simple/render.php:495
+#: blocks/job-form/render.php:958
 msgid "Select experience level"
 msgstr "Wähle ein Erfahrungsniveau"
 
-#: blocks/job-form-simple/render.php:503
-#: blocks/job-form/render.php:968
+#: blocks/job-form-simple/render.php:504
+#: blocks/job-form/render.php:971
 msgid "Skills / Tags"
 msgstr "Fähigkeiten / Tags"
 
-#: blocks/job-form-simple/render.php:508
-#: blocks/job-form/render.php:974
+#: blocks/job-form-simple/render.php:509
+#: blocks/job-form/render.php:977
 msgid "e.g. React, TypeScript, Node.js"
 msgstr "z.B. React, TypeScript, Node.js"
 
-#: blocks/job-form-simple/render.php:513
+#: blocks/job-form-simple/render.php:514
 msgid "Comma-separated."
 msgstr "Komma-getrennt."
 
-#: blocks/job-form-simple/render.php:519
+#: blocks/job-form-simple/render.php:520
 msgid "Compensation & schedule"
 msgstr "Vergütung & Zeitplan"
 
-#: blocks/job-form-simple/render.php:522
-#: blocks/job-form/render.php:696
+#: blocks/job-form-simple/render.php:523
+#: blocks/job-form/render.php:697
 msgid "Salary Range"
 msgstr "Gehaltsbereich"
 
-#: blocks/job-form-simple/render.php:539
-#: blocks/job-form/render.php:727
+#: blocks/job-form-simple/render.php:540
+#: blocks/job-form/render.php:728
 #: core/class-form-custom-fields.php:518
 msgid "Min"
 msgstr "Min"
 
-#: blocks/job-form-simple/render.php:540
-#: blocks/job-form/render.php:742
+#: blocks/job-form-simple/render.php:541
+#: blocks/job-form/render.php:744
 #: core/class-form-custom-fields.php:519
 msgid "Max"
 msgstr "Max"
 
-#: blocks/job-form-simple/render.php:541
+#: blocks/job-form-simple/render.php:542
 msgid "Period"
 msgstr "Zeitraum"
 
-#: blocks/job-form-simple/render.php:547
-#: blocks/job-form/render.php:775
+#: blocks/job-form-simple/render.php:548
+#: blocks/job-form/render.php:778
 msgid "Leave blank to hide salary from candidates."
 msgstr "Leer lassen, um das Gehalt vor Kandidaten zu verbergen."
 
-#: blocks/job-form-simple/render.php:568
+#: blocks/job-form-simple/render.php:569
 msgid "How candidates apply"
 msgstr "Wie Kandidaten sich bewerben"
 
-#: admin/class-admin-meta-boxes.php:338
-#: blocks/job-form-simple/render.php:572
-#: blocks/job-form/render.php:815
+#: admin/class-admin-meta-boxes.php:340
+#: blocks/job-form-simple/render.php:573
+#: blocks/job-form/render.php:818
 msgid "Apply URL"
 msgstr "Bewerbungs-URL"
 
-#: blocks/job-form-simple/render.php:573
+#: blocks/job-form-simple/render.php:574
 msgid "https://yourcompany.com/careers/apply"
 msgstr "https://yourcompany.com/careers/apply"
 
-#: admin/class-admin-meta-boxes.php:342
-#: blocks/job-form-simple/render.php:576
-#: blocks/job-form/render.php:834
-#: blocks/job-single/render.php:757
+#: admin/class-admin-meta-boxes.php:344
+#: blocks/job-form-simple/render.php:577
+#: blocks/job-form/render.php:837
+#: blocks/job-single/render.php:753
 msgid "Apply Email"
 msgstr "Bewerbungs-E-Mail"
 
-#: blocks/job-form-simple/render.php:577
+#: blocks/job-form-simple/render.php:578
 msgid "jobs@yourcompany.com"
 msgstr "jobs@yourcompany.com"
 
-#: blocks/job-form-simple/render.php:608
+#: blocks/job-form-simple/render.php:609
 msgid "Additional details"
 msgstr "Zusätzliche Details"
 
-#: blocks/job-form-simple/render.php:639
-#: blocks/job-form/render.php:416
-#: blocks/job-form/render.php:1118
+#: blocks/job-form-simple/render.php:640
+#: blocks/job-form/render.php:417
+#: blocks/job-form/render.php:1121
 msgid "Post Job"
 msgstr "Job posten"
 
-#: blocks/job-form-simple/render.php:640
-#: blocks/job-form/render.php:1121
+#: blocks/job-form-simple/render.php:641
+#: blocks/job-form/render.php:1124
 msgid "Posting…"
 msgstr "Wird gepostet…"
 
@@ -3681,155 +3683,155 @@ msgstr "Job-Titel ist erforderlich, bevor du fortfahren kannst."
 msgid "Job description is required before you can continue."
 msgstr "Job-Beschreibung ist erforderlich, bevor du fortfahren kannst."
 
-#: blocks/job-form/render.php:413
+#: blocks/job-form/render.php:414
 msgid "Insufficient credits to post on this board."
 msgstr "Unzureichende Credits zum Posten auf diesem Board."
 
-#: blocks/job-form/render.php:417
-#: blocks/job-form/render.php:1118
+#: blocks/job-form/render.php:418
+#: blocks/job-form/render.php:1121
 msgid "Update Job"
 msgstr "Stelle aktualisieren"
 
 #. translators: %s: localized application deadline date.
-#: blocks/job-form/render.php:427
-#: blocks/job-single/render.php:540
+#: blocks/job-form/render.php:428
+#: blocks/job-single/render.php:536
 #, php-format
 msgid "Apply by %s"
 msgstr "Bewerbung bis %s"
 
-#: blocks/job-form/render.php:446
+#: blocks/job-form/render.php:447
 msgid "Basics"
 msgstr "Grundlagen"
 
-#: blocks/job-form/render.php:447
+#: blocks/job-form/render.php:448
 msgid "Details"
 msgstr "Details"
 
-#: blocks/job-form/render.php:448
+#: blocks/job-form/render.php:449
 #: templates/parts/job-category-field.php:82
 msgid "Categories"
 msgstr "Kategorien"
 
 #: admin/class-email-settings.php:220
-#: blocks/job-form/render.php:449
+#: blocks/job-form/render.php:450
 msgid "Preview"
 msgstr "Vorschau"
 
-#: blocks/job-form/render.php:475
+#: blocks/job-form/render.php:476
 msgid "Form progress"
 msgstr "Formularfortschritt"
 
-#: blocks/job-form/render.php:523
+#: blocks/job-form/render.php:524
 msgid "Buy Credits →"
 msgstr "Credits kaufen →"
 
-#: blocks/job-form-simple/render.php:312
-#: blocks/job-form/render.php:533
+#: blocks/job-form-simple/render.php:313
+#: blocks/job-form/render.php:534
 msgid "Job posted successfully!"
 msgstr "Job erfolgreich gepostet!"
 
-#: blocks/job-form-simple/render.php:314
-#: blocks/job-form/render.php:537
+#: blocks/job-form-simple/render.php:315
+#: blocks/job-form/render.php:538
 msgid "Job submitted for review. You'll be notified once it's approved."
 msgstr "Job eingereicht zur Überprüfung. Du wirst benachrichtigt, sobald er genehmigt wurde."
 
-#: blocks/job-form-simple/render.php:324
-#: blocks/job-form/render.php:547
+#: blocks/job-form-simple/render.php:325
+#: blocks/job-form/render.php:548
 msgid "View your job listing →"
 msgstr "Öffne deine Jobliste →"
 
-#: blocks/job-form-simple/render.php:331
-#: blocks/job-form/render.php:555
+#: blocks/job-form-simple/render.php:332
+#: blocks/job-form/render.php:556
 msgid "Post another job"
 msgstr "Poste einen weiteren Job"
 
-#: blocks/job-form/render.php:567
+#: blocks/job-form/render.php:568
 msgid "Job Basics"
 msgstr "Job-Grundlagen"
 
-#: blocks/job-form/render.php:681
+#: blocks/job-form/render.php:682
 msgid "Next: Details"
 msgstr "Weiter: Details"
 
-#: blocks/job-form/render.php:827
+#: blocks/job-form/render.php:830
 msgid "Link to your external ATS or application form."
 msgstr "Link zu deinem externen ATS oder Bewerbungsformular."
 
-#: blocks/job-form/render.php:846
+#: blocks/job-form/render.php:849
 msgid "Candidates can apply directly by email."
 msgstr "Kandidaten können sich direkt per E-Mail bewerben."
 
-#: blocks/job-form/render.php:862
-#: blocks/job-form/render.php:1000
-#: blocks/job-form/render.php:1109
+#: blocks/job-form/render.php:865
+#: blocks/job-form/render.php:1003
+#: blocks/job-form/render.php:1112
 msgid "← Back"
 msgstr "← Zurück"
 
-#: blocks/job-form/render.php:865
+#: blocks/job-form/render.php:868
 msgid "Next: Categories"
 msgstr "Weiter: Kategorien"
 
-#: blocks/job-form/render.php:874
+#: blocks/job-form/render.php:877
 msgid "Classify Your Job"
 msgstr "Klassifiziere deine Stellenausschreibung"
 
-#: blocks/job-form/render.php:946
+#: blocks/job-form/render.php:949
 #: modules/jobs/class-jobs-module.php:424
 msgid "Experience Level"
 msgstr "Erfahrungsstufe"
 
-#: blocks/job-form/render.php:980
+#: blocks/job-form/render.php:983
 msgid "Comma-separated. Helps candidates find your job via keyword search."
 msgstr "Durch Kommas getrennt. Hilft Kandidaten, deine Stelle durch Schlüsselwortsuche zu finden."
 
-#: blocks/job-form/render.php:1003
+#: blocks/job-form/render.php:1006
 msgid "Preview Job"
 msgstr "Vorschau der Stelle"
 
-#: blocks/job-form/render.php:1012
+#: blocks/job-form/render.php:1015
 msgid "Preview & Submit"
 msgstr "Vorschau und Absenden"
 
-#: blocks/job-form/render.php:1080
+#: blocks/job-form/render.php:1083
 msgid "Review the details above. Go back to make changes before submitting."
 msgstr "Überprüfe die obigen Details. Gehe zurück, um Änderungen vor dem Absenden vorzunehmen."
 
-#: blocks/job-listings/render.php:496
-#: blocks/job-listings/render.php:858
-#: blocks/job-single/render.php:379
+#: blocks/job-listings/render.php:493
+#: blocks/job-listings/render.php:855
+#: blocks/job-single/render.php:375
+#: blocks/job-single/render.php:550
 #: blocks/job-single/render.php:554
-#: blocks/job-single/render.php:558
 msgid "Save job"
 msgstr "Stelle speichern"
 
-#: blocks/job-listings/render.php:499
+#: blocks/job-listings/render.php:496
 msgid "Any"
 msgstr "Beliebig"
 
-#: blocks/job-listings/render.php:539
+#: blocks/job-listings/render.php:536
 msgid "Sort jobs"
 msgstr "Stellen sortieren"
 
-#: blocks/job-listings/render.php:571
+#: blocks/job-listings/render.php:568
 msgid "Filter jobs"
 msgstr "Stellen filtern"
 
 #: blocks/job-filters/render.php:81
-#: blocks/job-form-simple/render.php:461
-#: blocks/job-form/render.php:887
-#: blocks/job-listings/render.php:596
+#: blocks/job-form-simple/render.php:462
+#: blocks/job-form/render.php:890
+#: blocks/job-listings/render.php:593
 #: blocks/job-search-hero/render.php:101
-#: blocks/job-single/render.php:715
+#: blocks/job-single/render.php:711
 #: blocks/job-listings/index.js:18
 msgid "Job type"
 msgstr "Stellentyp"
 
-#: blocks/job-listings/render.php:666
+#: blocks/job-listings/render.php:663
 #: blocks/job-listings/index.js:21
 msgid "Tags"
 msgstr "Tags"
 
-#: blocks/job-listings/render.php:703
+#: blocks/job-listings/render.php:700
 #: modules/boards/class-boards-module.php:68
 #: blocks/job-listings/index.js:23
 #: blocks/job-listings/index.js:136
@@ -3837,37 +3839,37 @@ msgid "Job board"
 msgstr "Stellenboard"
 
 #: admin/class-admin-import.php:80
-#: blocks/job-listings/render.php:734
-#: blocks/job-single/render.php:743
+#: blocks/job-listings/render.php:731
+#: blocks/job-single/render.php:739
 #: modules/jobs/class-jobs-module.php:253
 #: blocks/job-listings/index.js:24
 msgid "Salary"
 msgstr "Gehalt"
 
-#: blocks/job-listings/render.php:737
+#: blocks/job-listings/render.php:734
 msgid "Minimum"
 msgstr "Minimum"
 
-#: blocks/job-listings/render.php:752
+#: blocks/job-listings/render.php:749
 msgid "Maximum"
 msgstr "Maximum"
 
-#: blocks/job-listings/render.php:769
+#: blocks/job-listings/render.php:766
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: blocks/job-listings/render.php:796
+#: blocks/job-listings/render.php:793
 msgid "Remove filter"
 msgstr "Filter entfernen"
 
-#: blocks/employer-dashboard/render.php:866
-#: blocks/job-listings/render.php:867
-#: blocks/job-single/render.php:432
+#: blocks/employer-dashboard/render.php:867
+#: blocks/job-listings/render.php:864
+#: blocks/job-single/render.php:428
 msgid "Featured"
 msgstr "Empfohlen"
 
 #: admin/class-admin-jobs.php:381
-#: blocks/job-listings/render.php:911
+#: blocks/job-listings/render.php:908
 msgid "No jobs match your filters"
 msgstr "Keine Stellen entsprechen deinen Filtern"
 
@@ -3876,205 +3878,205 @@ msgstr "Keine Stellen entsprechen deinen Filtern"
 msgid "Search"
 msgstr "Suchen"
 
-#: blocks/job-single/render.php:380
+#: blocks/job-single/render.php:376
 msgid "Please enter your name and email to apply."
 msgstr "Bitte gib deinen Namen und deine E-Mail-Adresse ein, um dich zu bewerben."
 
-#: blocks/job-single/render.php:381
+#: blocks/job-single/render.php:377
 msgid "Please attach your resume to apply."
 msgstr "Bitte füge deinen Lebenslauf bei, um dich zu bewerben."
 
-#: blocks/job-single/render.php:382
+#: blocks/job-single/render.php:378
 msgid "Application could not be submitted. Please try again."
 msgstr "Bewerbung konnte nicht eingereicht werden. Bitte versuche es erneut."
 
-#: blocks/job-single/render.php:384
+#: blocks/job-single/render.php:380
 msgid "Please choose a reason for reporting."
 msgstr "Bitte wähle einen Grund für die Meldung aus."
 
-#: blocks/job-single/render.php:385
+#: blocks/job-single/render.php:381
 msgid "Could not submit your report. Please try again."
 msgstr "Deine Meldung konnte nicht eingereicht werden. Bitte versuche es erneut."
 
-#: blocks/job-single/render.php:386
+#: blocks/job-single/render.php:382
 msgid "Write with AI"
 msgstr "Mit AI schreiben"
 
-#: blocks/job-single/render.php:387
+#: blocks/job-single/render.php:383
 msgid "Writing…"
 msgstr "Wird geschrieben…"
 
-#: blocks/job-single/render.php:465
+#: blocks/job-single/render.php:461
 msgid "Posted today"
 msgstr "Heute gepostet"
 
-#: blocks/job-single/render.php:467
+#: blocks/job-single/render.php:463
 msgid "Posted yesterday"
 msgstr "Gestern gepostet"
 
 #. translators: %s: number of days since the job was posted, already localised.
-#: blocks/job-single/render.php:474
+#: blocks/job-single/render.php:470
 #, php-format
 msgid "Posted %s day ago"
 msgid_plural "Posted %s days ago"
 msgstr[0] "Vor %s Tag gepostet"
 msgstr[1] "Vor %s Tagen gepostet"
 
-#: blocks/job-single/render.php:488
-#: blocks/job-single/render.php:808
+#: blocks/job-single/render.php:484
+#: blocks/job-single/render.php:804
 #: core/class-abilities.php:240
 msgid "View Applications"
 msgstr "Bewerbungen anzeigen"
 
-#: blocks/job-single/render.php:507
-#: blocks/job-single/render.php:819
+#: blocks/job-single/render.php:503
+#: blocks/job-single/render.php:815
 msgid "Apply on Company Site ↗"
 msgstr "Auf der Website des Unternehmens bewerben ↗"
 
-#: blocks/job-single/render.php:530
+#: blocks/job-single/render.php:526
 msgid "Get notified about similar jobs"
 msgstr "Benachrichtigungen über ähnliche Jobs erhalten"
 
-#: blocks/job-single/render.php:532
+#: blocks/job-single/render.php:528
 msgid "You will be notified about similar jobs"
 msgstr "Du wirst über ähnliche Jobs benachrichtigt"
 
-#: blocks/job-single/render.php:555
+#: blocks/job-single/render.php:551
 msgid "Save this job"
 msgstr "Diesen Job speichern"
 
-#: blocks/job-single/render.php:582
+#: blocks/job-single/render.php:578
 msgid "About This Role"
 msgstr "Über diese Stelle"
 
-#: blocks/job-single/render.php:674
+#: blocks/job-single/render.php:670
 msgid "Skills & Tags"
 msgstr "Fähigkeiten & Tags"
 
-#: blocks/job-single/render.php:735
+#: blocks/job-single/render.php:731
 msgid "Work Mode"
 msgstr "Arbeitsform"
 
-#: blocks/job-single/render.php:737
+#: blocks/job-single/render.php:733
 msgid "On-site"
 msgstr "Vor Ort"
 
 #. translators: %s: job title
-#: blocks/job-single/render.php:762
+#: blocks/job-single/render.php:758
 #, php-format
 msgid "Application for %s"
 msgstr "Bewerbung für %s"
 
-#: blocks/job-single/render.php:770
+#: blocks/job-single/render.php:766
 msgid "Apply Via"
 msgstr "Bewerbung über"
 
 #. translators: %s: website hostname, or "External site" when the URL has no host. The ↗ marks a link that opens in a new tab; move it before the hostname for RTL locales.
-#: blocks/job-single/render.php:784
-#: blocks/job-single/render.php:974
+#: blocks/job-single/render.php:780
+#: blocks/job-single/render.php:970
 #, php-format
 msgid "%s ↗"
 msgstr "%s ↗"
 
-#: blocks/job-single/render.php:785
+#: blocks/job-single/render.php:781
 msgid "External site"
 msgstr "Externe Website"
 
-#: blocks/job-single/render.php:853
+#: blocks/job-single/render.php:849
 msgid "Share"
 msgstr "Teilen"
 
-#: blocks/job-single/render.php:861
+#: blocks/job-single/render.php:857
 msgid "Share on X"
 msgstr "Auf X teilen"
 
-#: blocks/job-single/render.php:870
+#: blocks/job-single/render.php:866
 msgid "Share on LinkedIn"
 msgstr "Auf LinkedIn teilen"
 
-#: blocks/job-single/render.php:878
+#: blocks/job-single/render.php:874
 msgid "Copy link"
 msgstr "Link kopieren"
 
 #. translators: The → is a "go to" affordance. Flip it to ← (or drop it) for RTL locales.
-#: blocks/job-single/render.php:959
+#: blocks/job-single/render.php:955
 msgid "View Company Profile →"
 msgstr "Unternehmensprofil anzeigen →"
 
-#: blocks/job-single/render.php:997
+#: blocks/job-single/render.php:993
 msgid "Report this job"
 msgstr "Diesen Job melden"
 
-#: blocks/job-single/render.php:1002
+#: blocks/job-single/render.php:998
 msgid "Why are you reporting this job?"
 msgstr "Warum meldest du diesen Job?"
 
-#: blocks/job-single/render.php:1009
+#: blocks/job-single/render.php:1005
 msgid "- Select a reason -"
 msgstr "- Wähle einen Grund aus -"
 
-#: blocks/job-single/render.php:1025
+#: blocks/job-single/render.php:1021
 msgid "Submit report"
 msgstr "Meldung einreichen"
 
-#: blocks/job-single/render.php:1032
+#: blocks/job-single/render.php:1028
 msgid "Thanks - this job has been reported for review."
 msgstr "Danke - dieser Job wurde zur Überprüfung gemeldet."
 
-#: blocks/job-single/render.php:1057
+#: blocks/job-single/render.php:1053
 msgid "Close application panel"
 msgstr "Bewerbungsbereich schließen"
 
-#: blocks/job-single/render.php:1061
+#: blocks/job-single/render.php:1057
 msgid "Apply for this job"
 msgstr "Bewirb dich auf diese Stelle"
 
-#: blocks/job-single/render.php:1075
+#: blocks/job-single/render.php:1071
 msgid "Your Name"
 msgstr "Dein Name"
 
-#: blocks/job-single/render.php:1087
+#: blocks/job-single/render.php:1083
 msgid "Your Email"
 msgstr "Deine E-Mail"
 
-#: blocks/job-single/render.php:1106
+#: blocks/job-single/render.php:1102
 msgid "Select Resume"
 msgstr "Lebenslauf auswählen"
 
-#: blocks/job-single/render.php:1125
+#: blocks/job-single/render.php:1121
 msgid "Upload a different file instead"
 msgstr "Lade stattdessen eine andere Datei hoch"
 
-#: blocks/job-single/render.php:1130
+#: blocks/job-single/render.php:1126
 msgid "No saved resume yet."
 msgstr "Noch kein Lebenslauf gespeichert."
 
-#: blocks/job-single/render.php:1134
+#: blocks/job-single/render.php:1130
 msgid "Build a resume →"
 msgstr "Lebenslauf erstellen →"
 
-#: blocks/job-single/render.php:1147
-#: blocks/job-single/render.php:1176
+#: blocks/job-single/render.php:1143
+#: blocks/job-single/render.php:1172
 msgid "(optional)"
 msgstr "(optional)"
 
-#: blocks/job-single/render.php:1154
+#: blocks/job-single/render.php:1150
 msgid "Click to upload resume"
 msgstr "Zum Hochladen des Lebenslaufs klicken"
 
 #. translators: %s: max upload size in MB, already localised.
-#: blocks/job-single/render.php:1158
+#: blocks/job-single/render.php:1154
 #, php-format
 msgid "PDF, DOC or DOCX  -  max %s MB"
 msgstr "PDF, DOC oder DOCX  -  max %s MB"
 
-#: blocks/job-single/render.php:1187
+#: blocks/job-single/render.php:1183
 msgid "Tell the employer why you are a great fit for this role…"
 msgstr "Erzähle dem Arbeitgeber, warum du perfekt für diese Rolle passt…"
 
-#: blocks/employer-dashboard/render.php:1052
-#: blocks/job-single/render.php:1175
-#: blocks/job-single/render.php:1194
+#: blocks/employer-dashboard/render.php:1053
+#: blocks/job-single/render.php:1171
+#: blocks/job-single/render.php:1190
 #: core/class-applications-csv.php:63
 #: modules/applications/widgets/class-cover-letter.php:43
 #: modules/applications/widgets/class-cover-letter.php:77
@@ -4082,11 +4084,11 @@ msgstr "Erzähle dem Arbeitgeber, warum du perfekt für diese Rolle passt…"
 msgid "Cover letter"
 msgstr "Anschreiben"
 
-#: blocks/job-single/render.php:1277
+#: blocks/job-single/render.php:1273
 msgid "Submit Application"
 msgstr "Bewerbung einreichen"
 
-#: blocks/job-single/render.php:1278
+#: blocks/job-single/render.php:1274
 msgid "Submitting…"
 msgstr "Wird eingereicht…"
 
@@ -4094,7 +4096,7 @@ msgstr "Wird eingereicht…"
 msgid "No recent jobs to display."
 msgstr "Keine aktuellen Stellen zum Anzeigen."
 
-#: blocks/recent-jobs/render.php:72
+#: blocks/recent-jobs/render.php:64
 msgid "Recent Jobs"
 msgstr "Aktuelle Stellen"
 
@@ -4557,7 +4559,7 @@ msgstr "Gast-Bewerber"
 msgid "Applied"
 msgstr "Beworben"
 
-#: blocks/employer-dashboard/render.php:1054
+#: blocks/employer-dashboard/render.php:1055
 #: modules/applications/widgets/class-cover-letter.php:79
 msgid "No cover letter submitted."
 msgstr "Kein Anschreiben eingereicht."
@@ -4683,13 +4685,13 @@ msgid_plural "Closed <span class=\"count\">(%s)</span>"
 msgstr[0] "Geschlossen <span class=\"count\">(%s)</span>"
 msgstr[1] "Geschlossen <span class=\"count\">(%s)</span>"
 
-#: blocks/job-listings/render.php:887
-#: blocks/job-single/render.php:750
+#: blocks/job-listings/render.php:884
+#: blocks/job-single/render.php:746
 #: modules/jobs/class-jobs-module.php:258
 msgid "Apply by"
 msgstr "Bewerbung über"
 
-#: blocks/job-form/render.php:465
+#: blocks/job-form/render.php:466
 #: modules/jobs/class-jobs-module.php:330
 msgid "Edit Job"
 msgstr "Stelle bearbeiten"
@@ -4754,8 +4756,8 @@ msgstr "Bewerbungsbestätigung (Kandidat)"
 msgid "Application submitted successfully"
 msgstr "Bewerbung erfolgreich eingereicht"
 
-#: blocks/job-single/render.php:519
-#: blocks/job-single/render.php:831
+#: blocks/job-single/render.php:515
+#: blocks/job-single/render.php:827
 #: modules/notifications/emails/class-email-app-confirmation.php:68
 msgid "Application submitted"
 msgstr "Bewerbung eingereicht"
@@ -4783,8 +4785,8 @@ msgstr "Meine Bewerbungen ansehen"
 msgid "Candidate name"
 msgstr "Name des Kandidaten"
 
-#: blocks/job-form-simple/render.php:400
-#: blocks/job-form/render.php:611
+#: blocks/job-form-simple/render.php:401
+#: blocks/job-form/render.php:612
 #: core/class-applications-csv.php:58
 #: modules/notifications/emails/class-email-app-confirmation.php:87
 #: modules/notifications/emails/class-email-app-guest.php:87
@@ -4903,8 +4905,8 @@ msgstr "Bewerbungsfrist nähert sich für {job_title}"
 msgid "Your saved job is closing soon"
 msgstr "Dein gespeicherter Job schließt bald"
 
-#: blocks/job-single/render.php:516
-#: blocks/job-single/render.php:828
+#: blocks/job-single/render.php:512
+#: blocks/job-single/render.php:824
 #: modules/notifications/emails/class-email-deadline-reminder.php:80
 msgid "Apply now"
 msgstr "Jetzt bewerben"
@@ -5077,7 +5079,7 @@ msgstr "Job-Angebot-Einstellungen"
 msgid "Show only jobs assigned to this board. \"All boards\" shows every job."
 msgstr "Zeige nur Jobs an, die diesem Board zugewiesen sind. \"Alle Boards\" zeigen jeden Job."
 
-#: blocks/employer-dashboard/render.php:929
+#: blocks/employer-dashboard/render.php:930
 #: blocks/job-listings/index.js:143
 #: blocks/job-search-hero/index.js:29
 #: blocks/job-search-hero/index.js:31
@@ -5545,7 +5547,7 @@ msgstr "Alle Treffer als CSV exportieren"
 
 #: admin/class-admin-applications.php:595
 #: admin/class-admin-candidates.php:383
-#: blocks/employer-dashboard/render.php:1068
+#: blocks/employer-dashboard/render.php:1069
 #: modules/applications/widgets/class-applicant-card.php:128
 #: modules/candidates/class-candidates-module.php:241
 msgid "View resume"
@@ -5566,7 +5568,7 @@ msgid "Suspended"
 msgstr "Gesperrt"
 
 #: admin/class-admin-candidates.php:433
-#: blocks/candidate-dashboard/render.php:1020
+#: blocks/candidate-dashboard/render.php:1022
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -5619,7 +5621,7 @@ msgstr "Jobtitel oder Unternehmen…"
 
 #: admin/class-admin-jobs.php:361
 #: admin/class-admin-jobs.php:614
-#: blocks/employer-dashboard/render.php:461
+#: blocks/employer-dashboard/render.php:462
 msgid "Awaiting payment"
 msgstr "Wartet auf Zahlung"
 
@@ -5639,11 +5641,11 @@ msgstr "Nicht in Google for Jobs: füge einen Standort hinzu oder markiere den J
 msgid "No location"
 msgstr "Kein Standort"
 
-#: admin/class-admin-meta-boxes.php:331
+#: admin/class-admin-meta-boxes.php:333
 msgid "Leave empty to use the board's listing length."
 msgstr "Lass leer, um die Anzeigedauer des Boards zu verwenden."
 
-#: admin/class-admin-meta-boxes.php:334
+#: admin/class-admin-meta-boxes.php:336
 msgid "No expiry (stays open until closed)"
 msgstr "Kein Ablauf (bleibt offen, bis geschlossen)"
 
@@ -5734,12 +5736,12 @@ msgid "Default order"
 msgstr "Standard-Reihenfolge"
 
 #: admin/class-admin-settings.php:757
-#: blocks/job-listings/render.php:544
+#: blocks/job-listings/render.php:541
 msgid "Closing soonest"
 msgstr "Bald schließend"
 
 #: admin/class-admin-settings.php:758
-#: blocks/job-listings/render.php:545
+#: blocks/job-listings/render.php:542
 msgid "Highest salary"
 msgstr "Höchstes Gehalt"
 
@@ -6618,35 +6620,27 @@ msgid_plural "Choose up to %s categories for this job."
 msgstr[0] "Wähle bis zu %s Kategorie für diesen Job."
 msgstr[1] "Wähle bis zu %s Kategorien für diesen Job."
 
-#: api/endpoints/class-jobs-endpoint.php:2017
-msgid "Minimum salary must be a positive number."
-msgstr "Das Mindestgehalt muss eine positive Zahl sein."
-
-#: api/endpoints/class-jobs-endpoint.php:2020
-msgid "Maximum salary must be a positive number."
-msgstr "Das Höchstgehalt muss eine positive Zahl sein."
-
-#: api/endpoints/class-jobs-endpoint.php:2023
+#: api/endpoints/class-jobs-endpoint.php:2027
 msgid "Unknown salary currency."
 msgstr "Unbekannte Gehaltswährung."
 
-#: api/endpoints/class-jobs-endpoint.php:2030
+#: api/endpoints/class-jobs-endpoint.php:2034
 msgid "Deadline must be a date in YYYY-MM-DD format."
 msgstr "Die Frist muss ein Datum im Format YYYY-MM-DD sein."
 
-#: api/endpoints/class-jobs-endpoint.php:2033
+#: api/endpoints/class-jobs-endpoint.php:2037
 msgid "Unknown job board."
 msgstr "Unbekanntes Job-Board."
 
-#: api/endpoints/class-jobs-endpoint.php:2037
+#: api/endpoints/class-jobs-endpoint.php:2041
 msgid "Unknown company."
 msgstr "Unbekanntes Unternehmen."
 
-#: api/endpoints/class-jobs-endpoint.php:2040
+#: api/endpoints/class-jobs-endpoint.php:2044
 msgid "Apply email is not a valid email address."
 msgstr "Die Bewerbungs-E-Mail ist keine gültige E-Mail-Adresse."
 
-#: api/endpoints/class-jobs-endpoint.php:2093
+#: api/endpoints/class-jobs-endpoint.php:2097
 msgid "relevance (keyword searches), newest (featured first), oldest, salary, closing. Default: relevance with a keyword, else the Settings default."
 msgstr "Relevanz (Stichwortsuchen), neueste (Empfohlene zuerst), älteste, Gehalt, Schließung. Standard: Relevanz mit Stichwort, sonst der Standard aus den Einstellungen."
 
@@ -6715,139 +6709,139 @@ msgid "Resumes: %1$s of %2$s"
 msgstr "Lebensläufe: %1$s von %2$s"
 
 #. translators: %s: name of the item the menu acts on (a job, resume or company).
-#: blocks/candidate-dashboard/render.php:245
-#: blocks/employer-dashboard/render.php:392
+#: blocks/candidate-dashboard/render.php:247
+#: blocks/employer-dashboard/render.php:393
 #, php-format
 msgid "More actions for %s"
 msgstr "Weitere Aktionen für %s"
 
-#: blocks/candidate-dashboard/render.php:449
+#: blocks/candidate-dashboard/render.php:451
 msgid "My activity"
 msgstr "Meine Aktivität"
 
-#: blocks/candidate-dashboard/render.php:513
-#: blocks/employer-dashboard/render.php:612
+#: blocks/candidate-dashboard/render.php:515
+#: blocks/employer-dashboard/render.php:613
 msgctxt "saved items menu: saved jobs"
 msgid "Jobs"
 msgstr "Jobs"
 
-#: blocks/candidate-dashboard/render.php:517
-#: blocks/employer-dashboard/render.php:616
+#: blocks/candidate-dashboard/render.php:519
+#: blocks/employer-dashboard/render.php:617
 msgctxt "saved items menu: saved companies"
 msgid "Companies"
 msgstr "Unternehmen"
 
-#: blocks/candidate-dashboard/render.php:522
-#: blocks/employer-dashboard/render.php:622
+#: blocks/candidate-dashboard/render.php:524
+#: blocks/employer-dashboard/render.php:623
 msgctxt "saved items menu: saved resumes"
 msgid "Resumes"
 msgstr "Lebensläufe"
 
-#: blocks/candidate-dashboard/render.php:531
+#: blocks/candidate-dashboard/render.php:533
 msgid "Moderation"
 msgstr "Moderation"
 
-#: blocks/candidate-dashboard/render.php:533
+#: blocks/candidate-dashboard/render.php:535
 #: blocks/employer-dashboard/render.php:56
 #: templates/parts/post-job-gate.php:53
 msgid "Review jobs"
 msgstr "Jobs prüfen"
 
-#: blocks/candidate-dashboard/render.php:539
-#: blocks/employer-dashboard/render.php:630
+#: blocks/candidate-dashboard/render.php:541
+#: blocks/employer-dashboard/render.php:631
 msgid "Account"
 msgstr "Konto"
 
 #. translators: %s: candidate's first name
-#: blocks/candidate-dashboard/render.php:585
+#: blocks/candidate-dashboard/render.php:587
 #, php-format
 msgid "Welcome, %s"
 msgstr "Willkommen, %s"
 
-#: blocks/candidate-dashboard/render.php:670
+#: blocks/candidate-dashboard/render.php:672
 msgid "Jobs you apply to show up here with their status."
 msgstr "Jobs, auf die du dich bewirbst, erscheinen hier mit ihrem Status."
 
-#: blocks/candidate-dashboard/render.php:775
+#: blocks/candidate-dashboard/render.php:777
 msgid "Load more applications"
 msgstr "Mehr Bewerbungen laden"
 
-#: blocks/candidate-dashboard/render.php:783
+#: blocks/candidate-dashboard/render.php:785
 msgid "Apply to a job and follow its progress here."
 msgstr "Bewerbe dich auf einen Job und verfolge den Fortschritt hier."
 
-#: blocks/candidate-dashboard/render.php:838
-#: blocks/employer-dashboard/render.php:1386
+#: blocks/candidate-dashboard/render.php:840
+#: blocks/employer-dashboard/render.php:1387
 msgid "No saved jobs"
 msgstr "Keine gespeicherten Jobs"
 
-#: blocks/candidate-dashboard/render.php:839
-#: blocks/employer-dashboard/render.php:1387
+#: blocks/candidate-dashboard/render.php:841
+#: blocks/employer-dashboard/render.php:1388
 msgid "Bookmark a job to find it here."
 msgstr "Merke dir einen Job, um ihn hier zu finden."
 
-#: blocks/candidate-dashboard/render.php:895
-#: blocks/employer-dashboard/render.php:1430
+#: blocks/candidate-dashboard/render.php:897
+#: blocks/employer-dashboard/render.php:1431
 msgid "No saved companies"
 msgstr "Keine gespeicherten Unternehmen"
 
-#: blocks/candidate-dashboard/render.php:896
-#: blocks/employer-dashboard/render.php:1431
+#: blocks/candidate-dashboard/render.php:898
+#: blocks/employer-dashboard/render.php:1432
 msgid "Bookmark a company to find it here."
 msgstr "Merke dir ein Unternehmen, um es hier zu finden."
 
-#: blocks/candidate-dashboard/render.php:953
-#: blocks/employer-dashboard/render.php:1477
+#: blocks/candidate-dashboard/render.php:955
+#: blocks/employer-dashboard/render.php:1478
 msgid "No saved resumes"
 msgstr "Keine gespeicherten Lebensläufe"
 
-#: blocks/candidate-dashboard/render.php:954
-#: blocks/employer-dashboard/render.php:1478
+#: blocks/candidate-dashboard/render.php:956
+#: blocks/employer-dashboard/render.php:1479
 msgid "Bookmark a candidate to find it here."
 msgstr "Merke dir einen Kandidaten, um ihn hier zu finden."
 
-#: blocks/candidate-dashboard/render.php:1088
+#: blocks/candidate-dashboard/render.php:1090
 msgid "No resumes yet"
 msgstr "Noch keine Lebensläufe"
 
-#: blocks/candidate-dashboard/render.php:1090
+#: blocks/candidate-dashboard/render.php:1092
 msgid "Build a resume here or upload a CV you already have, using the buttons above."
 msgstr "Erstelle hier einen Lebenslauf oder lade einen vorhandenen CV hoch – mit den Schaltflächen oben."
 
-#: blocks/candidate-dashboard/render.php:1158
+#: blocks/candidate-dashboard/render.php:1160
 msgid "No job alerts yet"
 msgstr "Noch keine Job-Benachrichtigungen"
 
-#: blocks/candidate-dashboard/render.php:1159
+#: blocks/candidate-dashboard/render.php:1161
 msgid "Search for jobs and click \"Alert me\" to hear when matching jobs are posted."
 msgstr "Suche nach Jobs und klicke auf „Benachrichtige mich“, um zu erfahren, wenn passende Jobs veröffentlicht werden."
 
-#: blocks/candidate-dashboard/render.php:1178
+#: blocks/candidate-dashboard/render.php:1180
 msgid "Change email in Settings"
 msgstr "E-Mail in den Einstellungen ändern"
 
-#: blocks/candidate-dashboard/render.php:1178
+#: blocks/candidate-dashboard/render.php:1180
 msgid "Change"
 msgstr "Ändern"
 
-#: blocks/candidate-dashboard/render.php:1183
+#: blocks/candidate-dashboard/render.php:1185
 msgid "Employers see your photo, skills and experience from your resume."
 msgstr "Arbeitgeber sehen dein Foto, deine Fähigkeiten und deine Erfahrung aus deinem Lebenslauf."
 
-#: blocks/candidate-dashboard/render.php:1184
+#: blocks/candidate-dashboard/render.php:1186
 msgid "Edit my resume"
 msgstr "Meinen Lebenslauf bearbeiten"
 
-#: blocks/candidate-dashboard/render.php:1268
-#: blocks/candidate-dashboard/render.php:1285
-#: blocks/employer-dashboard/render.php:1505
-#: blocks/employer-dashboard/render.php:1522
+#: blocks/candidate-dashboard/render.php:1270
+#: blocks/candidate-dashboard/render.php:1287
+#: blocks/employer-dashboard/render.php:1506
+#: blocks/employer-dashboard/render.php:1523
 #: modules/account/class-credential-guard.php:94
 msgid "Current password"
 msgstr "Aktuelles Passwort"
 
-#: blocks/candidate-dashboard/render.php:1270
-#: blocks/employer-dashboard/render.php:1507
+#: blocks/candidate-dashboard/render.php:1272
+#: blocks/employer-dashboard/render.php:1508
 msgid "Needed only if you change your email."
 msgstr "Nur nötig, wenn du deine E-Mail änderst."
 
@@ -6898,244 +6892,244 @@ msgid_plural "%d stars"
 msgstr[0] "%d Stern"
 msgstr[1] "%d Sterne"
 
-#: blocks/employer-dashboard/render.php:387
+#: blocks/employer-dashboard/render.php:388
 msgid "It leaves the job listings and stops taking applications. Applicants you have not hired or rejected are told the position is closed."
 msgstr "Er verlässt die Joblisten und nimmt keine Bewerbungen mehr an. Bewerber, die du nicht eingestellt oder abgelehnt hast, erfahren, dass die Stelle geschlossen ist."
 
 #. translators: %s: a date, already formatted for the site.
-#: blocks/employer-dashboard/render.php:395
+#: blocks/employer-dashboard/render.php:396
 #, php-format
 msgid "Closes %s"
 msgstr "Schließt %s"
 
-#: blocks/employer-dashboard/render.php:396
-#: blocks/employer-dashboard/render.php:979
+#: blocks/employer-dashboard/render.php:397
+#: blocks/employer-dashboard/render.php:980
 msgid "No applications with this status."
 msgstr "Keine Bewerbungen mit diesem Status."
 
-#: blocks/employer-dashboard/render.php:397
+#: blocks/employer-dashboard/render.php:398
 msgid "No applications this week."
 msgstr "Keine Bewerbungen in dieser Woche."
 
-#: blocks/employer-dashboard/render.php:398
+#: blocks/employer-dashboard/render.php:399
 msgid "Remove this company?"
 msgstr "Dieses Unternehmen entfernen?"
 
-#: blocks/employer-dashboard/render.php:399
+#: blocks/employer-dashboard/render.php:400
 msgid "Its page goes offline and its live jobs close; their applicants are told. Jobs waiting for review go back to draft. A site admin can restore the company, but closed jobs stay closed until you reopen them."
 msgstr "Die Seite geht offline und laufende Jobs werden geschlossen; ihre Bewerber werden informiert. Jobs, die auf Prüfung warten, gehen zurück in den Entwurf. Ein Website-Admin kann das Unternehmen wiederherstellen, geschlossene Jobs bleiben jedoch geschlossen, bis du sie wieder öffnest."
 
-#: blocks/employer-dashboard/render.php:400
+#: blocks/employer-dashboard/render.php:401
 msgid "Remove company"
 msgstr "Unternehmen entfernen"
 
-#: blocks/employer-dashboard/render.php:443
+#: blocks/employer-dashboard/render.php:444
 msgid "Not scored"
 msgstr "Nicht bewertet"
 
 #. translators: %s: number of applications.
-#: blocks/employer-dashboard/render.php:448
+#: blocks/employer-dashboard/render.php:449
 #, php-format
 msgid "Not on the board (closed, withdrawn or removed): %s"
 msgstr "Nicht auf dem Board (geschlossen, zurückgezogen oder entfernt): %s"
 
 #. translators: %s: number of credits. Label form: the number is filled in on the page, so one string must fit every count.
-#: blocks/employer-dashboard/render.php:463
+#: blocks/employer-dashboard/render.php:464
 #, php-format
 msgid "Featured jobs list first. Credits this uses from your balance: %s."
 msgstr "Empfohlene Jobs stehen zuerst. Credits, die das von deinem Guthaben verbraucht: %s."
 
-#: blocks/employer-dashboard/render.php:464
+#: blocks/employer-dashboard/render.php:465
 msgid "Feature this job?"
 msgstr "Diesen Job hervorheben?"
 
-#: blocks/employer-dashboard/render.php:465
+#: blocks/employer-dashboard/render.php:466
 msgid "Feature job"
 msgstr "Job hervorheben"
 
-#: blocks/employer-dashboard/render.php:469
+#: blocks/employer-dashboard/render.php:470
 msgid "No change. The candidate was not notified."
 msgstr "Keine Änderung. Der Kandidat wurde nicht benachrichtigt."
 
-#: blocks/employer-dashboard/render.php:470
+#: blocks/employer-dashboard/render.php:471
 msgid "Status updated. This applicant left no email address, so they were not notified."
 msgstr "Status aktualisiert. Dieser Bewerber hat keine E-Mail hinterlassen und wurde daher nicht benachrichtigt."
 
 #: blocks/candidate-dashboard/render.php:202
-#: blocks/candidate-dashboard/render.php:907
-#: blocks/employer-dashboard/render.php:413
-#: blocks/employer-dashboard/render.php:622
-#: blocks/employer-dashboard/render.php:1442
+#: blocks/candidate-dashboard/render.php:909
+#: blocks/employer-dashboard/render.php:414
+#: blocks/employer-dashboard/render.php:623
+#: blocks/employer-dashboard/render.php:1443
 #: modules/gdpr/class-gdpr-module.php:452
 msgid "Saved resumes"
 msgstr "Gespeicherte Lebensläufe"
 
-#: blocks/employer-dashboard/render.php:729
+#: blocks/employer-dashboard/render.php:730
 msgid "Needs attention"
 msgstr "Braucht Aufmerksamkeit"
 
-#: blocks/employer-dashboard/render.php:734
+#: blocks/employer-dashboard/render.php:735
 msgid "Review"
 msgstr "Prüfen"
 
-#: blocks/employer-dashboard/render.php:739
+#: blocks/employer-dashboard/render.php:740
 msgid "Manage"
 msgstr "Verwalten"
 
-#: blocks/employer-dashboard/render.php:743
+#: blocks/employer-dashboard/render.php:744
 msgid "Nothing needs your attention right now."
 msgstr "Gerade braucht nichts deine Aufmerksamkeit."
 
-#: blocks/employer-dashboard/render.php:795
+#: blocks/employer-dashboard/render.php:796
 msgid "Filter by company"
 msgstr "Nach Unternehmen filtern"
 
-#: blocks/employer-dashboard/render.php:796
+#: blocks/employer-dashboard/render.php:797
 msgid "All companies"
 msgstr "Alle Unternehmen"
 
-#: blocks/employer-dashboard/render.php:833
+#: blocks/employer-dashboard/render.php:834
 msgid "Set up your company"
 msgstr "Richte dein Unternehmen ein"
 
-#: blocks/employer-dashboard/render.php:834
+#: blocks/employer-dashboard/render.php:835
 msgid "Add your company profile before posting jobs."
 msgstr "Füge dein Unternehmensprofil hinzu, bevor du Jobs veröffentlichst."
 
 #: admin/class-admin-jobs.php:387
-#: blocks/employer-dashboard/render.php:843
+#: blocks/employer-dashboard/render.php:844
 msgid "No jobs yet"
 msgstr "Noch keine Jobs"
 
-#: blocks/employer-dashboard/render.php:844
+#: blocks/employer-dashboard/render.php:845
 msgid "Post your first job and it will appear here."
 msgstr "Veröffentliche deinen ersten Job, dann erscheint er hier."
 
-#: blocks/employer-dashboard/render.php:881
+#: blocks/employer-dashboard/render.php:882
 msgid "Feature"
 msgstr "Hervorheben"
 
-#: blocks/employer-dashboard/render.php:933
+#: blocks/employer-dashboard/render.php:934
 msgid "Export CSV"
 msgstr "CSV exportieren"
 
-#: blocks/employer-dashboard/render.php:960
+#: blocks/employer-dashboard/render.php:961
 msgid "Remove filter: this week"
 msgstr "Filter entfernen: diese Woche"
 
-#: blocks/employer-dashboard/render.php:961
+#: blocks/employer-dashboard/render.php:962
 msgid "This week"
 msgstr "Diese Woche"
 
-#: blocks/employer-dashboard/render.php:975
+#: blocks/employer-dashboard/render.php:976
 msgid "Applications to your jobs arrive here, newest first."
 msgstr "Bewerbungen auf deine Jobs kommen hier an, die neuesten zuerst."
 
-#: blocks/employer-dashboard/render.php:1005
+#: blocks/employer-dashboard/render.php:1006
 msgid "Pick an applicant"
 msgstr "Bewerber wählen"
 
-#: blocks/employer-dashboard/render.php:1006
+#: blocks/employer-dashboard/render.php:1007
 msgid "Their answers, resume and your team notes open here."
 msgstr "Antworten, Lebenslauf und eure Team-Notizen öffnen sich hier."
 
-#: blocks/employer-dashboard/render.php:1030
+#: blocks/employer-dashboard/render.php:1031
 msgid "Rating and notes"
 msgstr "Bewertung und Notizen"
 
-#: blocks/employer-dashboard/render.php:1031
+#: blocks/employer-dashboard/render.php:1032
 msgid "Only your hiring team sees these."
 msgstr "Nur euer Hiring-Team sieht das."
 
-#: blocks/employer-dashboard/render.php:1032
+#: blocks/employer-dashboard/render.php:1033
 msgid "Rating"
 msgstr "Bewertung"
 
-#: blocks/employer-dashboard/render.php:1036
+#: blocks/employer-dashboard/render.php:1037
 msgid "Not rated"
 msgstr "Nicht bewertet"
 
-#: blocks/employer-dashboard/render.php:1043
+#: blocks/employer-dashboard/render.php:1044
 msgid "Delete note"
 msgstr "Notiz löschen"
 
-#: blocks/employer-dashboard/render.php:1047
+#: blocks/employer-dashboard/render.php:1048
 msgid "Add a note"
 msgstr "Notiz hinzufügen"
 
-#: blocks/employer-dashboard/render.php:1048
+#: blocks/employer-dashboard/render.php:1049
 msgid "Add a note for your team…"
 msgstr "Notiz für dein Team hinzufügen…"
 
-#: blocks/employer-dashboard/render.php:1049
+#: blocks/employer-dashboard/render.php:1050
 msgid "Add note"
 msgstr "Notiz hinzufügen"
 
-#: blocks/employer-dashboard/render.php:1057
+#: blocks/employer-dashboard/render.php:1058
 #: modules/applications/widgets/class-custom-answers.php:43
 #: modules/applications/widgets/class-custom-answers.php:92
 msgid "Application answers"
 msgstr "Bewerbungsantworten"
 
-#: blocks/employer-dashboard/render.php:1092
+#: blocks/employer-dashboard/render.php:1093
 msgid "Move to"
 msgstr "Verschieben nach"
 
-#: blocks/employer-dashboard/render.php:1106
+#: blocks/employer-dashboard/render.php:1107
 msgid "Load more applicants"
 msgstr "Mehr Bewerber laden"
 
 #: admin/class-admin-companies.php:370
-#: blocks/employer-dashboard/render.php:1117
-#: blocks/employer-dashboard/render.php:1125
+#: blocks/employer-dashboard/render.php:1118
+#: blocks/employer-dashboard/render.php:1126
 msgid "Add company"
 msgstr "Unternehmen hinzufügen"
 
-#: blocks/employer-dashboard/render.php:1119
+#: blocks/employer-dashboard/render.php:1120
 msgid "Every company you hire for. Post a Job, My Jobs and Applications cover all of them; your main company is the one Post a Job picks first."
 msgstr "Jedes Unternehmen, für das du einstellst. Job veröffentlichen, Meine Jobs und Bewerbungen gelten für alle; dein Hauptunternehmen ist das, das Job veröffentlichen zuerst wählt."
 
-#: blocks/employer-dashboard/render.php:1123
+#: blocks/employer-dashboard/render.php:1124
 msgid "No company yet"
 msgstr "Noch kein Unternehmen"
 
-#: blocks/employer-dashboard/render.php:1124
+#: blocks/employer-dashboard/render.php:1125
 msgid "Add the company you hire for. Candidates see its name, logo and profile on every job."
 msgstr "Füge das Unternehmen hinzu, für das du einstellst. Kandidaten sehen Name, Logo und Profil auf jedem Job."
 
-#: blocks/employer-dashboard/render.php:1138
+#: blocks/employer-dashboard/render.php:1139
 msgid "Main company"
 msgstr "Hauptunternehmen"
 
-#: blocks/employer-dashboard/render.php:1145
+#: blocks/employer-dashboard/render.php:1146
 msgid "Edit profile"
 msgstr "Profil bearbeiten"
 
-#: blocks/employer-dashboard/render.php:1152
+#: blocks/employer-dashboard/render.php:1153
 msgid "Make main"
 msgstr "Zum Hauptunternehmen machen"
 
-#: blocks/employer-dashboard/render.php:1164
+#: blocks/employer-dashboard/render.php:1165
 msgid "Add a company"
 msgstr "Unternehmen hinzufügen"
 
-#: blocks/employer-dashboard/render.php:1166
+#: blocks/employer-dashboard/render.php:1167
 msgid "← All companies"
 msgstr "← Alle Unternehmen"
 
 #. translators: %s: company name
-#: blocks/employer-dashboard/render.php:1175
+#: blocks/employer-dashboard/render.php:1176
 #, php-format
 msgid "Editing %s, your main company."
 msgstr "Bearbeite %s, dein Hauptunternehmen."
 
 #. translators: %s: company name
-#: blocks/employer-dashboard/render.php:1177
+#: blocks/employer-dashboard/render.php:1178
 #, php-format
 msgid "Editing %s."
 msgstr "Bearbeite %s."
 
-#: blocks/employer-dashboard/render.php:1182
+#: blocks/employer-dashboard/render.php:1183
 msgid "Your main company stays the same. After saving you can add the logo."
 msgstr "Dein Hauptunternehmen bleibt gleich. Nach dem Speichern kannst du das Logo hinzufügen."
 
@@ -7160,20 +7154,20 @@ msgstr "Dieses Board erfordert %1$s. Dein Guthaben: %2$s. Wende dich an die Webs
 
 #. translators: %s: latest allowed deadline date.
 #: blocks/job-form-simple/render.php:251
-#: blocks/job-form/render.php:423
+#: blocks/job-form/render.php:424
 #, php-format
 msgid "Pick any date up to %s, the longest this board allows."
 msgstr "Wähle ein beliebiges Datum bis %s, die längste Frist, die dieses Board erlaubt."
 
-#: blocks/employer-dashboard/render.php:839
-#: blocks/job-form-simple/render.php:342
-#: blocks/job-form/render.php:1100
+#: blocks/employer-dashboard/render.php:840
+#: blocks/job-form-simple/render.php:343
+#: blocks/job-form/render.php:1103
 msgid "Buy credits"
 msgstr "Credits kaufen"
 
 #. translators: 1: number of days, 2: number of credits
-#: blocks/job-form-simple/render.php:622
-#: blocks/job-form/render.php:1090
+#: blocks/job-form-simple/render.php:623
+#: blocks/job-form/render.php:1093
 #, php-format
 msgid "Feature this job: it lists first for %1$d days (%2$s credit)."
 msgid_plural "Feature this job: it lists first for %1$d days (%2$s credits)."
@@ -7221,89 +7215,89 @@ msgstr "Linkadresse"
 msgid "Add link"
 msgstr "Link hinzufügen"
 
-#: blocks/job-form/render.php:428
+#: blocks/job-form/render.php:429
 #: templates/parts/job-category-field.php:50
 msgctxt "separator between category names"
 msgid ", "
 msgstr ", "
 
-#: blocks/job-form/render.php:534
+#: blocks/job-form/render.php:535
 msgid "Job updated."
 msgstr "Job aktualisiert."
 
-#: blocks/job-form/render.php:665
+#: blocks/job-form/render.php:666
 msgid "Format with the toolbar above. For headings and quotes, use the + beside a line."
 msgstr "Formatiere mit der Leiste oben. Für Überschriften und Zitate nutze das + neben einer Zeile."
 
-#: blocks/job-form/render.php:909
+#: blocks/job-form/render.php:912
 msgid "(required unless the job is remote)"
 msgstr "(erforderlich, außer der Job ist Remote)"
 
 #. translators: %d: number of hidden filter options.
-#: blocks/job-listings/render.php:311
+#: blocks/job-listings/render.php:308
 #, php-format
 msgid "Show %d more"
 msgid_plural "Show %d more"
 msgstr[0] "%d weitere anzeigen"
 msgstr[1] "%d weitere anzeigen"
 
-#: blocks/job-listings/render.php:312
+#: blocks/job-listings/render.php:309
 msgid "Show less"
 msgstr "Weniger anzeigen"
 
 #. translators: %s: the filter's label, e.g. "Full-time".
-#: blocks/job-listings/render.php:504
+#: blocks/job-listings/render.php:501
 #, php-format
 msgid "Remove filter: %s"
 msgstr "Filter entfernen: %s"
 
-#: blocks/job-listings/render.php:542
+#: blocks/job-listings/render.php:539
 msgid "Recommended"
 msgstr "Empfohlen"
 
-#: blocks/job-listings/render.php:640
+#: blocks/job-listings/render.php:637
 #: templates/parts/category-picker.php:99
 #: templates/parts/job-category-field.php:95
 #: templates/parts/job-category-field.php:100
 msgid "Search categories"
 msgstr "Kategorien durchsuchen"
 
-#: blocks/job-single/render.php:186
+#: blocks/job-single/render.php:182
 msgid "This job is no longer taking applications"
 msgstr "Dieser Job nimmt keine Bewerbungen mehr an"
 
 #. translators: %s: the date applications closed.
-#: blocks/job-single/render.php:188
+#: blocks/job-single/render.php:184
 #, php-format
 msgid "Applications closed on %s"
 msgstr "Bewerbungen geschlossen am %s"
 
-#: blocks/job-single/render.php:497
-#: blocks/job-single/render.php:1069
+#: blocks/job-single/render.php:493
+#: blocks/job-single/render.php:1065
 msgid "Sign in to apply"
 msgstr "Anmelden zum Bewerben"
 
-#: blocks/job-single/render.php:575
+#: blocks/job-single/render.php:571
 msgid "This job is closed and no longer taking applications."
 msgstr "Dieser Job ist geschlossen und nimmt keine Bewerbungen mehr an."
 
-#: blocks/job-single/render.php:576
+#: blocks/job-single/render.php:572
 msgid "This job has expired and is no longer taking applications."
 msgstr "Dieser Job ist abgelaufen und nimmt keine Bewerbungen mehr an."
 
-#: blocks/job-single/render.php:629
+#: blocks/job-single/render.php:625
 msgid "No description has been provided for this role yet."
 msgstr "Für diese Stelle wurde noch keine Beschreibung hinterlegt."
 
-#: blocks/job-single/render.php:687
+#: blocks/job-single/render.php:683
 msgid "Open roles you might like"
 msgstr "Offene Stellen, die dir gefallen könnten"
 
-#: blocks/job-single/render.php:887
+#: blocks/job-single/render.php:883
 msgid "Copy this link"
 msgstr "Diesen Link kopieren"
 
-#: blocks/job-single/render.php:1140
+#: blocks/job-single/render.php:1136
 msgid "or upload a file"
 msgstr "oder eine Datei hochladen"
 
@@ -7798,19 +7792,19 @@ msgid "Profile resume"
 msgstr "Profil-Lebenslauf"
 
 #: blocks/candidate-dashboard/render.php:200
-#: blocks/candidate-dashboard/render.php:633
-#: blocks/candidate-dashboard/render.php:677
-#: blocks/candidate-dashboard/render.php:793
-#: blocks/employer-dashboard/render.php:411
-#: blocks/employer-dashboard/render.php:1352
+#: blocks/candidate-dashboard/render.php:635
+#: blocks/candidate-dashboard/render.php:679
+#: blocks/candidate-dashboard/render.php:795
+#: blocks/employer-dashboard/render.php:412
+#: blocks/employer-dashboard/render.php:1353
 #: modules/gdpr/class-gdpr-module.php:450
 msgid "Saved jobs"
 msgstr "Gespeicherte Jobs"
 
 #: blocks/candidate-dashboard/render.php:201
-#: blocks/candidate-dashboard/render.php:849
-#: blocks/employer-dashboard/render.php:412
-#: blocks/employer-dashboard/render.php:1395
+#: blocks/candidate-dashboard/render.php:851
+#: blocks/employer-dashboard/render.php:413
+#: blocks/employer-dashboard/render.php:1396
 #: modules/gdpr/class-gdpr-module.php:451
 msgid "Saved companies"
 msgstr "Gespeicherte Unternehmen"
@@ -8305,7 +8299,7 @@ msgstr[1] "%s Kategorien"
 msgid "Job category:"
 msgstr "Job-Kategorie:"
 
-#: blocks/job-single/render.php:662
+#: blocks/job-single/render.php:658
 #: templates/parts/category-picker.php:102
 msgid "Job categories"
 msgstr "Job-Kategorien"
@@ -8359,9 +8353,9 @@ msgid "Chosen categories"
 msgstr "Gewählte Kategorien"
 
 #: admin/class-admin.php:722
-#: blocks/employer-dashboard/render.php:408
-#: blocks/employer-dashboard/render.php:555
-#: blocks/employer-dashboard/render.php:650
+#: blocks/employer-dashboard/render.php:409
+#: blocks/employer-dashboard/render.php:556
+#: blocks/employer-dashboard/render.php:651
 #: templates/parts/post-job-gate.php:23
 msgid "Post a job"
 msgstr "Job veröffentlichen"
@@ -8445,16 +8439,16 @@ msgid "Employer Dashboard"
 msgstr "Arbeitgeber-Dashboard"
 
 #: admin/class-pages.php:80
-#: blocks/job-form-simple/render.php:288
-#: blocks/job-form/render.php:465
+#: blocks/job-form-simple/render.php:289
+#: blocks/job-form/render.php:466
 msgctxt "page title"
 msgid "Post a Job"
 msgstr "Job veröffentlichen"
 
 #: blocks/candidate-dashboard/render.php:204
-#: blocks/candidate-dashboard/render.php:495
-#: blocks/candidate-dashboard/render.php:644
-#: blocks/candidate-dashboard/render.php:1124
+#: blocks/candidate-dashboard/render.php:497
+#: blocks/candidate-dashboard/render.php:646
+#: blocks/candidate-dashboard/render.php:1126
 msgid "Job alerts"
 msgstr "Job-Benachrichtigungen"
 
@@ -8484,10 +8478,10 @@ msgstr "Alle Kandidaten anzeigen"
 
 #: admin/class-admin-applications.php:516
 #: admin/class-admin.php:672
-#: blocks/candidate-dashboard/render.php:669
-#: blocks/candidate-dashboard/render.php:782
-#: blocks/employer-dashboard/render.php:764
-#: blocks/employer-dashboard/render.php:974
+#: blocks/candidate-dashboard/render.php:671
+#: blocks/candidate-dashboard/render.php:784
+#: blocks/employer-dashboard/render.php:765
+#: blocks/employer-dashboard/render.php:975
 msgid "No applications yet"
 msgstr "Noch keine Bewerbungen"
 
@@ -8595,30 +8589,30 @@ msgid "Minimum salary cannot be more than the maximum."
 msgstr "Das Mindestgehalt darf nicht höher sein als das Höchstgehalt."
 
 #. translators: %s: job title.
-#: blocks/candidate-dashboard/render.php:247
+#: blocks/candidate-dashboard/render.php:249
 #, php-format
 msgid "Withdraw application for %s"
 msgstr "Bewerbung für %s zurückziehen"
 
 #. translators: %s: job title.
-#: blocks/candidate-dashboard/render.php:249
+#: blocks/candidate-dashboard/render.php:251
 #, php-format
 msgid "Remove application for %s"
 msgstr "Bewerbung für %s entfernen"
 
-#: blocks/candidate-dashboard/render.php:693
+#: blocks/candidate-dashboard/render.php:695
 msgid "No saved jobs yet."
 msgstr "Noch keine gespeicherten Jobs."
 
-#: blocks/candidate-dashboard/render.php:694
+#: blocks/candidate-dashboard/render.php:696
 msgid "Save jobs to find them here."
 msgstr "Speichere Jobs, um sie hier zu finden."
 
-#: blocks/candidate-dashboard/render.php:1032
+#: blocks/candidate-dashboard/render.php:1034
 msgid "Open CV"
 msgstr "Lebenslauf öffnen"
 
-#: blocks/candidate-dashboard/render.php:1053
+#: blocks/candidate-dashboard/render.php:1055
 msgid "Replace CV"
 msgstr "Lebenslauf ersetzen"
 
@@ -8626,15 +8620,15 @@ msgstr "Lebenslauf ersetzen"
 msgid "Companies appear here once employers set up their profiles."
 msgstr "Unternehmen erscheinen hier, sobald Arbeitgeber ihre Profile einrichten."
 
-#: blocks/employer-dashboard/render.php:812
+#: blocks/employer-dashboard/render.php:813
 msgid "Filter by status"
 msgstr "Nach Status filtern"
 
-#: blocks/employer-dashboard/render.php:850
+#: blocks/employer-dashboard/render.php:851
 msgid "No jobs match these filters"
 msgstr "Keine Jobs entsprechen diesen Filtern"
 
-#: blocks/employer-dashboard/render.php:851
+#: blocks/employer-dashboard/render.php:852
 msgid "Try another status or clear the search."
 msgstr "Probiere einen anderen Status oder lösche die Suche."
 
@@ -8704,7 +8698,7 @@ msgstr "Wenn du fortfährst, stimmst du unserer %1$sDatenschutzerklärung%2$s zu
 
 #. translators: %1$s: localised expiry date, e.g. "June 12, 2026".
 #: blocks/job-form-simple/render.php:249
-#: blocks/job-form/render.php:421
+#: blocks/job-form/render.php:422
 #, php-format
 msgid "Your listing stays live until %1$s. You can renew it from your dashboard."
 msgstr "Deine Anzeige bleibt bis zum %1$s online. Du kannst sie in deinem Dashboard verlängern."
@@ -8714,44 +8708,44 @@ msgstr "Deine Anzeige bleibt bis zum %1$s online. Du kannst sie in deinem Dashbo
 msgid "The minimum salary is more than the maximum."
 msgstr "Das Mindestgehalt ist höher als das Höchstgehalt."
 
-#: blocks/job-form-simple/render.php:328
-#: blocks/job-form/render.php:552
+#: blocks/job-form-simple/render.php:329
+#: blocks/job-form/render.php:553
 msgid "View my jobs"
 msgstr "Meine Jobs ansehen"
 
 #. translators: 1: current step number, 2: number of steps, 3: step name.
-#: blocks/job-form/render.php:502
+#: blocks/job-form/render.php:503
 #, php-format
 msgid "Step %1$s of %2$s: %3$s"
 msgstr "Schritt %1$s von %2$s: %3$s"
 
-#: blocks/job-form/render.php:1064
+#: blocks/job-form/render.php:1067
 msgid "Description"
 msgstr "Beschreibung"
 
 #. translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies when a salary range is set.
-#: blocks/job-listings/render.php:256
+#: blocks/job-listings/render.php:253
 #, php-format
 msgid "Paid in other currencies. Your salary range is in %s, so it does not apply to these jobs."
 msgstr "In anderen Währungen bezahlt. Dein Gehaltsbereich ist in %s angegeben, daher gilt er nicht für diese Jobs."
 
 #. translators: %s: the site's currency code, e.g. USD. Note above the jobs paid in other currencies under the "Highest salary" sort.
-#: blocks/job-listings/render.php:261
+#: blocks/job-listings/render.php:258
 #, php-format
 msgid "Paid in other currencies. These follow the %s jobs, highest first within each currency."
 msgstr "In anderen Währungen bezahlt. Diese folgen auf die %s-Jobs, innerhalb jeder Währung mit dem höchsten Gehalt zuerst."
 
 #. translators: %s: the search keyword, shown as a removable pill.
-#: blocks/job-listings/render.php:506
+#: blocks/job-listings/render.php:503
 #, php-format
 msgid "\"%s\""
 msgstr "„%s“"
 
-#: blocks/job-listings/render.php:916
+#: blocks/job-listings/render.php:913
 msgid "No jobs posted yet"
 msgstr "Noch keine Jobs veröffentlicht"
 
-#: blocks/job-listings/render.php:917
+#: blocks/job-listings/render.php:914
 msgid "New openings appear here as soon as employers post them."
 msgstr "Neue Stellen erscheinen hier, sobald Arbeitgeber sie veröffentlichen."
 
@@ -8875,7 +8869,7 @@ msgstr "Stellen veröffentlichen, Bewerber prüfen und Einstellungen verwalten"
 msgid "Your account has been suspended by the site administrator, so this page is not available. Contact the site administrator if you think this is a mistake."
 msgstr "Ihr Konto wurde vom Website-Administrator gesperrt, daher ist diese Seite nicht verfügbar. Wenden Sie sich an den Website-Administrator, wenn Sie dies für einen Fehler halten."
 
-#: blocks/job-form-simple/render.php:261
+#: blocks/job-form-simple/render.php:262
 #: blocks/job-form/render.php:402
 msgid "You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page."
 msgstr "Sie wurden abgemeldet. Melden Sie sich in einem neuen Tab wieder an und senden Sie dann hier erneut ab. Ihre Jobangaben bleiben auf dieser Seite erhalten."
@@ -8914,13 +8908,13 @@ msgstr "Ein Jobs-Menü mit Jobs finden, Firmen und Job ausschreiben erstellen"
 msgid "It is placed in your main menu location only if that location is empty. Otherwise assign it in Appearance > Menus."
 msgstr "Es wird nur dann in deinen Hauptmenü-Bereich gesetzt, wenn dieser leer ist. Andernfalls weise es unter Design > Menüs zu."
 
-#: blocks/job-form-simple/render.php:293
-#: blocks/job-form/render.php:470
+#: blocks/job-form-simple/render.php:294
+#: blocks/job-form/render.php:471
 msgid "We kept the job you were writing on this device."
 msgstr "Wir haben den Job, den du geschrieben hast, auf diesem Gerät gespeichert."
 
-#: blocks/job-form-simple/render.php:294
-#: blocks/job-form/render.php:471
+#: blocks/job-form-simple/render.php:295
+#: blocks/job-form/render.php:472
 msgid "Start over"
 msgstr "Neu beginnen"
 
@@ -8933,9 +8927,38 @@ msgstr "Career Board-Rollen"
 msgid "Added on top of the Role above, so the member keeps it."
 msgstr "Wird zusätzlich zur obigen Rolle vergeben, sodass das Mitglied sie behält."
 
-#: blocks/employer-dashboard/render.php:1265
-#: blocks/employer-dashboard/render.php:1294
-#: blocks/employer-dashboard/render.php:1299
+#: api/endpoints/class-jobs-endpoint.php:2024
+#: blocks/employer-dashboard/render.php:373
+#: blocks/employer-dashboard/render.php:1266
+#: blocks/employer-dashboard/render.php:1295
+#: blocks/employer-dashboard/render.php:1300
 #: core/class-form-custom-fields.php:571
 msgid "Enter a full web address, like https://example.com"
 msgstr "Gib eine vollständige Webadresse ein, z. B. https://example.com"
+
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: api/endpoints/class-jobs-endpoint.php:2017
+#, php-format
+msgid "Minimum salary must be a number from 0 to %s."
+msgstr "Das Mindestgehalt muss eine Zahl von 0 bis %s sein."
+
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: api/endpoints/class-jobs-endpoint.php:2020
+#, php-format
+msgid "Maximum salary must be a number from 0 to %s."
+msgstr "Das Höchstgehalt muss eine Zahl von 0 bis %s sein."
+
+#: blocks/candidate-dashboard/render.php:212
+msgid "Delete a resume to add another."
+msgstr "Lösche einen Lebenslauf, um einen neuen anzulegen."
+
+#: blocks/candidate-dashboard/render.php:213
+msgid "Give the resume a title first."
+msgstr "Gib dem Lebenslauf zuerst einen Titel."
+
+#. translators: %s: the largest salary accepted, e.g. 1,000,000,000
+#: blocks/job-form-simple/render.php:260
+#: blocks/job-form/render.php:409
+#, php-format
+msgid "Enter a salary from 0 to %s."
+msgstr "Gib ein Gehalt von 0 bis %s ein."
