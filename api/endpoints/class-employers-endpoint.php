@@ -818,7 +818,8 @@ final class EmployersEndpoint extends RestController {
 					'closedNote'       => self::closed_note( $p ),
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
-					'permalink'        => get_permalink( $p->ID ),
+					// Core 404s a pending or draft job, even for its author: no link.
+					'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
 					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
 					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
 					'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
@@ -931,7 +932,8 @@ final class EmployersEndpoint extends RestController {
 					'closedNote'       => self::closed_note( $p ),
 					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
 					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
-					'permalink'        => get_permalink( $p->ID ),
+					// Core 404s a pending or draft job, even for its author: no link.
+					'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
 					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
 					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
 					'appCount'         => $app_count,

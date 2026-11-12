@@ -32,7 +32,7 @@ The pills at the top narrow the list: **All**, **Live**, **Draft**, **Pending**,
 
 The buttons on each row change with the job's status:
 
-- **View ↗** - opens the public job page in a new tab.
+- **View ↗** - opens the public job page in a new tab. Pending, draft and rejected jobs have no public page yet, so they show no **View** item.
 - **Edit** - opens the job in the job form.
 - **Pipeline** - with Pro's Application Pipeline, opens that job's applicants in the pipeline. Hidden otherwise.
 - **Feature** - features a job so it lists first. It appears only when the site sells featured placement and the job is live and not already featured. You confirm the credit cost first. See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).

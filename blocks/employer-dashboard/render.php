@@ -876,7 +876,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 									<span aria-hidden="true">&#8943;</span>
 								</summary>
 								<div class="wcb-row-menu__list" data-wp-on--click="actions.closeRowMenu">
-									<a class="wcb-row-menu__item" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
+									<a class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.permalink" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
 									<a class="wcb-row-menu__item wcb-hidden" data-wp-bind--href="context.job.editUrl" data-wp-class--wcb-hidden="!context.job.pipelineUrl"><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
 									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.canFeature" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.featureJob"><?php esc_html_e( 'Feature', 'wp-career-board' ); ?></button>
 									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.isDraft" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Publish', 'wp-career-board' ); ?></button>

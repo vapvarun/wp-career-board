@@ -102,6 +102,24 @@ foreach ( array( 'job-form', 'job-form-simple' ) as $wcb_block ) {
 	wcb_jfs_assert( str_contains( $wcb_view, "jobStatus === 'pending'" ), "{$wcb_block}: treats pending as held for review" );
 }
 
+// 4. My Jobs offers "View" only for a job that has a page (live, closed or expired).
+$wcb_live_id = (int) wp_insert_post(
+	array(
+		'post_type'   => 'wcb_job',
+		'post_status' => 'publish',
+		'post_title'  => 'Lead Frontend Engineer',
+		'post_author' => $wcb_employer,
+	)
+);
+wp_set_current_user( $wcb_employer );
+$wcb_rows = (array) rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/employers/me/jobs' ) )->get_data();
+$wcb_rows = array_column( (array) ( $wcb_rows['jobs'] ?? $wcb_rows ), 'permalink', 'id' );
+wcb_jfs_assert( isset( $wcb_rows[ $wcb_job_id ] ) && '' === $wcb_rows[ $wcb_job_id ], 'My Jobs: a pending job has no page link' );
+wcb_jfs_assert( ! empty( $wcb_rows[ $wcb_live_id ] ), 'My Jobs: a live job keeps its page link' );
+$wcb_dash = (string) file_get_contents( $wcb_dir . 'employer-dashboard/render.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+wcb_jfs_assert( str_contains( $wcb_dash, 'data-wp-class--wcb-hidden="!context.job.permalink" data-wp-bind--href="context.job.permalink"' ), 'My Jobs: the View item hides when there is no page' );
+wp_delete_post( $wcb_live_id, true );
+
 if ( $wcb_job_id ) {
 	wp_delete_post( $wcb_job_id, true );
 }
