@@ -209,6 +209,8 @@ wp_interactivity_state(
 					'tabNotifications'       => __( 'Notifications', 'wp-career-board' ),
 					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. Label form, so one string fits every count. */
 					'resumeCap'              => __( 'Resumes: %1$s of %2$s', 'wp-career-board' ),
+					'resumeCapReached'       => __( 'Delete a resume to add another.', 'wp-career-board' ),
+					'errorResumeTitleRequired' => __( 'Give the resume a title first.', 'wp-career-board' ),
 					/* translators: %1$s: match score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
 					'scoreFormat'            => __( '%1$s%', 'wp-career-board' ),
 					'filterRemote'           => __( 'Remote', 'wp-career-board' ),

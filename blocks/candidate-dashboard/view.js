@@ -219,9 +219,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				return '';
 			}
 			// Label form: one string fits every count in every locale.
-			return t( 'resumeCap', 'Resumes: %1$s of %2$s' )
+			const label = t( 'resumeCap', 'Resumes: %1$s of %2$s' )
 				.replace( '%1$s', formatNumber( state.resumeCount ) )
 				.replace( '%2$s', formatNumber( state.maxResumes ) );
+			// At the limit the buttons are off: say why and what frees a slot.
+			return state.isAtResumesCap ? label + '. ' + t( 'resumeCapReached', 'Delete a resume to add another.' ) : label;
 		},
 
 		// Sidebar display.
@@ -940,6 +942,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 		setNewResumeTitle( event ) {
 			state.newResumeTitle = event.target.value;
+			if ( state.newResumeTitle.trim() ) {
+				state.error = '';
+			}
 		},
 
 		*switchToResumes() {
@@ -1058,6 +1063,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*createResume() {
 			const title = state.newResumeTitle.trim();
 			if ( ! title ) {
+				state.error = t( 'errorResumeTitleRequired', 'Give the resume a title first.' );
+				document.getElementById( 'wcb-new-resume-title' )?.focus();
 				return;
 			}
 			state.showNewResumeForm = false;
