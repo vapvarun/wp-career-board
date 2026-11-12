@@ -563,6 +563,7 @@ final class FormCustomFields {
 				. ( 'url' === $input_type ? ' aria-describedby="' . esc_attr( $dom_id . '-error' ) . '"' : '' )
 				. $placeholder_attr . $required_attr . ' />';
 			if ( 'url' === $input_type ) {
+				wp_enqueue_script_module( '@wcb/fields' ); // Sets aria-invalid with the error below.
 				// Shown by CSS (:user-invalid) once the browser finds the address unusable; the save drops it.
 				echo '<p class="wcb-field-error wcb-field-error--url" id="' . esc_attr( $dom_id . '-error' ) . '">' . esc_html__( 'Enter a full web address, like https://example.com', 'wp-career-board' ) . '</p>';
 			}

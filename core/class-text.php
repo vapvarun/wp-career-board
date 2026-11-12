@@ -119,9 +119,9 @@ final class Text {
 	/**
 	 * A web address someone typed, as a usable http(s) URL, or '' when it is not one.
 	 *
-	 * A bare domain gets core's default scheme; plain words ("my site") and
-	 * other schemes give ''. Every save path and every display uses it, so a
-	 * value stored before 1.8.4 shows no dead link without a data rewrite.
+	 * A bare domain gets https (core would add http); plain words ("my site")
+	 * and other schemes give ''. Every save path and every display uses it, so
+	 * a value stored before 1.8.4 shows no dead link without a data rewrite.
 	 *
 	 * @since 1.8.4
 	 *
@@ -129,7 +129,12 @@ final class Text {
 	 * @return string
 	 */
 	public static function web_url( string $raw ): string {
-		$url  = esc_url_raw( trim( $raw ), array( 'http', 'https' ) );
+		$raw = trim( $raw );
+		$url = esc_url_raw( $raw, array( 'http', 'https' ) );
+		// esc_url_raw() added http:// to a bare domain; nearly every site serves https.
+		if ( str_starts_with( $url, 'http://' ) && 0 !== stripos( $raw, 'http://' ) ) {
+			$url = 'https://' . substr( $url, 7 );
+		}
 		$host = (string) wp_parse_url( $url, PHP_URL_HOST );
 		// A host is dot-separated labels; esc_url_raw() turns a space into %20, which no host has.
 		return preg_match( '/^[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?(?:\.[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?)+$/i', $host ) ? $url : '';

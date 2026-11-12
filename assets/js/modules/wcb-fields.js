@@ -12,6 +12,26 @@
  * @module @wcb/fields
  */
 
+/*
+ * Web-address inputs: aria-invalid follows the browser's own check, at the
+ * moment the CSS (:user-invalid) shows the inline .wcb-field-error--url, so
+ * screen readers hear the same thing people see. Marked on leaving the
+ * field, cleared as soon as the typed address becomes usable.
+ */
+const markWebAddress = ( event ) => {
+	const el = event.target;
+	if ( ! el.matches?.( 'input[type="url"]' ) || ! el.nextElementSibling?.classList.contains( 'wcb-field-error--url' ) ) {
+		return;
+	}
+	if ( el.validity.valid ) {
+		el.removeAttribute( 'aria-invalid' );
+	} else if ( 'focusout' === event.type ) {
+		el.setAttribute( 'aria-invalid', 'true' );
+	}
+};
+document.addEventListener( 'focusout', markWebAddress );
+document.addEventListener( 'input', markWebAddress );
+
 /**
  * Read a custom field's value from the element that changed.
  *

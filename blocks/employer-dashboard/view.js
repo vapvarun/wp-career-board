@@ -2016,6 +2016,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					window.location.assign( url.toString() + '#company' );
 					return;
 				}
+				// Show the links as stored: one that is not a web address saves empty.
+				state.companySite     = data.website ?? state.companySite;
+				state.companyLinkedin = data.linkedin ?? state.companyLinkedin;
+				state.companyTwitter  = data.twitter ?? state.companyTwitter;
 				if ( state.companyId === state.mainCompanyId ) {
 					state.mainCompanyName = state.companyName;
 				}

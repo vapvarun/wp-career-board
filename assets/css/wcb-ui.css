@@ -2489,12 +2489,13 @@ html[data-wcb-tab-pending] .wcb-dashboard .wcb-main {
 	display: none;
 }
 
-/* Custom-field URL input: the error shows once the browser finds the address unusable. */
+/* Web-address inputs: the error shows once the browser finds the address unusable. */
 .wcb-field-error--url {
 	display: none;
 }
 
-.wcb-field:user-invalid ~ .wcb-field-error--url {
+.wcb-field:user-invalid ~ .wcb-field-error--url,
+.wcb-field-input:user-invalid ~ .wcb-field-error--url {
 	display: block;
 }
 

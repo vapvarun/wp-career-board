@@ -52,7 +52,8 @@ wcb_wu_assert( $wcb_has_helper, 'Text::web_url() exists' );
 if ( $wcb_has_helper ) {
 	$wcb_cases = array(
 		'https://acme.example/careers' => 'https://acme.example/careers',
-		'acme.example'                 => 'http://acme.example',
+		'acme.example'                 => 'https://acme.example',
+		'http://legacy.acme.example'   => 'http://legacy.acme.example',
 		'my site'                      => '',
 		'portfolio'                    => '',
 		'javascript:alert(1)'          => '',
@@ -148,6 +149,23 @@ foreach ( array( 'company-profile', 'job-single' ) as $wcb_block ) {
 	wcb_wu_assert( (bool) preg_match( "/Text::web_url\\( \\(string\\) get_post_meta\\( [^)]*'_wcb_website'/", $wcb_src ), "{$wcb_block}: the company website goes through the rule" );
 }
 
+// Company profile form: the link inputs show the inline error, and the form shows what was stored.
+$wcb_dash      = (string) file_get_contents( $wcb_blocks . 'employer-dashboard/render.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+$wcb_dash_view = (string) file_get_contents( $wcb_blocks . 'employer-dashboard/view.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+foreach ( array( 'site', 'linkedin', 'twitter' ) as $wcb_link ) {
+	wcb_wu_assert( (bool) preg_match( '/id="wcb-company-' . $wcb_link . '"[^>]*aria-describedby="wcb-company-' . $wcb_link . '-error"[^>]*\/>\s*<p class="wcb-field-error wcb-field-error--url" id="wcb-company-' . $wcb_link . '-error"/', $wcb_dash ), "company form: {$wcb_link} input has the inline web-address error" );
+}
+wcb_wu_assert( (bool) preg_match( '/state\.companySite\s*=\s*data\.website/', $wcb_dash_view ), 'company form shows the stored website after a save' );
+
+// aria-invalid follows the browser's check on every URL input.
+$wcb_fields_js = (string) file_get_contents( dirname( __DIR__ ) . '/assets/js/modules/wcb-fields.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+wcb_wu_assert( str_contains( $wcb_fields_js, "'aria-invalid'" ) && str_contains( $wcb_fields_js, 'input[type="url"]' ), 'URL inputs get aria-invalid while the address is unusable' );
+wcb_wu_assert( str_contains( $wcb_html, "wp_enqueue_script_module" ) || str_contains( (string) file_get_contents( dirname( __DIR__ ) . '/core/class-form-custom-fields.php' ), "wp_enqueue_script_module( '@wcb/fields' )" ), 'a custom URL input loads the module that sets aria-invalid' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+
+// Custom URL answers on the job page read as links.
+$wcb_single_css = (string) file_get_contents( $wcb_blocks . 'job-single/style.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+wcb_wu_assert( (bool) preg_match( '/\.wcb-job-details__row dd a\s*\{[^}]*color:\s*var\(--wcb-primary-text\)[^}]*text-decoration:\s*underline/', $wcb_single_css ), 'job page detail links use the link colour and underline' );
+
 // Candidate profile links on save.
 $wcb_cand = (int) wp_insert_user(
 	array(
@@ -171,7 +189,7 @@ $wcb_res  = rest_do_request( $wcb_req );
 $wcb_data = (array) get_user_meta( $wcb_cand, '_wcb_resume_data', true );
 wcb_wu_assert( 200 === $wcb_res->get_status(), 'candidate save with a bad link still succeeds (got ' . $wcb_res->get_status() . ')' );
 wcb_wu_assert( '' === ( $wcb_data['website'] ?? 'missing' ), 'candidate website that is not a web address is stored empty' );
-wcb_wu_assert( 'http://github.com/ada' === ( $wcb_data['github'] ?? '' ), 'candidate bare domain gets a scheme' );
+wcb_wu_assert( 'https://github.com/ada' === ( $wcb_data['github'] ?? '' ), 'candidate bare domain gets https' );
 wcb_wu_assert( 'Lisbon, Portugal' === ( $wcb_data['location'] ?? '' ), 'candidate non-link fields are kept as text' );
 
 wp_delete_post( $wcb_company, true );

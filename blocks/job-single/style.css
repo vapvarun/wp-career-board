@@ -1102,6 +1102,12 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	overflow-wrap: anywhere;
 }
 
+/* A link answer reads as a link, like the description's links. */
+.wcb-job-details__row dd a {
+	color: var(--wcb-primary-text);
+	text-decoration: underline;
+}
+
 @media (max-width: 640px) {
 	.wcb-job-details__row {
 		grid-template-columns: minmax(0, 1fr);
