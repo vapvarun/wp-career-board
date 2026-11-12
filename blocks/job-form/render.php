@@ -181,6 +181,12 @@ if ( ! $wcb_edit_job && empty( $attributes['boardId'] ) && ( $wcb_board_credit_c
 	}
 }
 
+// Latest deadline per board, as JobDeadline::cap() enforces it on save.
+$wcb_deadline_max = \WCB\Core\JobDeadline::max_days(
+	array_merge( array( $wcb_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ),
+	$wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : ''
+);
+
 /**
  * Pluralised credit noun, resolved with the real count.
  *
@@ -275,8 +281,12 @@ $wcb_initial_state = apply_filters(
 		// (owner decision, 1.8.1); REST clamps to the same maximum on save.
 		// Picker values are days in the site's timezone; the save stores the
 		// end of that day in UTC (JobsMeta::sanitize_deadline).
+		// The picker clamps to the same per-board maximum (boardDeadlineMax,
+		// empty for moderators) so a date is never cut silently.
 		'deadline'          => $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
-		'deadlineMax'       => max( $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : '', \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ) ),
+		'deadlineMax'       => $wcb_deadline_max[ $wcb_board_id ],
+		'boardDeadlineMax'  => (object) $wcb_deadline_max,
+		'deadlineClamped'   => false,
 		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
 		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
@@ -793,7 +803,8 @@ $wcb_step_labels = array(
 					data-wp-on--change="actions.setDeadline"
 					aria-describedby="wcb-deadline-help"
 				/>
-				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-text="state.deadlineHelp"></p>
+				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-class--wcb-hidden="!state.deadlineMax" data-wp-text="state.deadlineHelp"></p>
+				<p class="wcb-sr-only" role="status" data-wp-text="state.deadlineNotice"></p>
 				<?php // Beside the date it describes, not above the first field before a board is picked (Basecamp 10439851754). ?>
 				<p class="wcb-form-help" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></p>
 			</div>

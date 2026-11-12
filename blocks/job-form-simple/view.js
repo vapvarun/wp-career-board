@@ -12,7 +12,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -95,7 +95,8 @@ const clearForm = () => {
 	state.description   = '';
 	state.salaryMin     = '';
 	state.salaryMax     = '';
-	state.deadline      = state.deadlineMax;
+	state.deadline      = state.deadlineMax || state.deadline;
+	state.deadlineClamped = false;
 	state.applyUrl      = '';
 	state.applyEmail    = '';
 	state.locationSlug  = '';
@@ -169,8 +170,16 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		},
 
 		get deadlineHelp() {
+			if ( ! state.deadlineMax ) {
+				return '';
+			}
 			return t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' )
 				.replace( '%s', formatSiteDate( state.deadlineMax, state.locale ) );
+		},
+
+		// Announced when a picked date was moved into range.
+		get deadlineNotice() {
+			return state.deadlineClamped ? state.deadlineHelp : '';
 		},
 
 		get locationIsCustom() {
@@ -180,7 +189,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 	actions: {
 		setDeadline( event ) {
-			state.deadline = event.target.value;
+			// Write back too: an unchanged state value would not re-render the field.
+			event.target.value = fitDeadline( state, event.target.value );
 		},
 
 		updateField( event ) {
@@ -206,6 +216,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					if ( curMap[ boardKey ] ) {
 						state.currencyCode = curMap[ boardKey ];
 					}
+					fitDeadline( state );
 				}
 			}
 		},
@@ -373,6 +384,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 				const json = yield response.json();
 				state.jobUrl    = json && json.permalink ? json.permalink : '';
+				// Show the day the server saved, not the one typed.
+				state.deadline  = ( json && json.deadline_day ) || state.deadline;
 				state.featureError = ( json && json.feature_error ) || '';
 				state.submitted = true;
 				// The job is saved: drop the draft and its notice together.
@@ -417,6 +430,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				}
 			} );
 			state.companyName   = ( state.companyNames || {} )[ state.companyId ] || '';
+			fitDeadline( state );
 			state.draftRestored = true;
 			showDescription( state.description || '' );
 		},

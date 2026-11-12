@@ -84,3 +84,34 @@ export function salaryInverted( min, max ) {
 export function groupOnBoard( groupBoards, boardId ) {
 	return groupBoards.includes( Number( boardId ) );
 }
+
+/**
+ * Hold a job form's deadline inside the range the server keeps on save.
+ *
+ * Reads the selected board's maximum from the per-board map seeded by
+ * JobDeadline::max_days() (empty for moderators: no maximum), then clamps the
+ * day to [deadlineMin, deadlineMax]. Days are `Y-m-d` in the site's timezone,
+ * so they compare as strings. Sets deadlineClamped when the day was moved so
+ * the form can say why.
+ *
+ * @param {Object} state Job form state (deadline, deadlineMin, deadlineMax, boardDeadlineMax, boardId).
+ * @param {string} day   Picked day; defaults to the current deadline.
+ * @return {string} The day kept.
+ */
+export function fitDeadline( state, day = state.deadline ) {
+	const maxes = state.boardDeadlineMax || {};
+	const board = String( state.boardId || 0 );
+	if ( board in maxes ) {
+		state.deadlineMax = maxes[ board ];
+	}
+	let kept = day;
+	if ( kept && state.deadlineMin && kept < state.deadlineMin ) {
+		kept = state.deadlineMin;
+	}
+	if ( kept && state.deadlineMax && kept > state.deadlineMax ) {
+		kept = state.deadlineMax;
+	}
+	state.deadlineClamped = kept !== day;
+	state.deadline = kept;
+	return kept;
+}

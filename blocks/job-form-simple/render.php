@@ -138,7 +138,8 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_bcost ) {
 // ── Deadline ───────────────────────────────────────────────────────────────
 // Default from the board's listing length; the employer may pick any date up to
 // it (owner decision, 1.8.1) and REST caps it at the same maximum.
-$wcb_deadline = \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id ) );
+$wcb_deadline     = \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id ) );
+$wcb_deadline_max = \WCB\Core\JobDeadline::max_days( array_merge( array( $wcb_resolved_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ) );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -161,7 +162,11 @@ $wcb_state = apply_filters(
 		'salaryType'        => 'yearly',
 		'remote'            => false,
 		'deadline'          => $wcb_deadline,
-		'deadlineMax'       => $wcb_deadline,
+		// The picker clamps to the same per-board maximum JobDeadline::cap()
+		// applies on save (empty for moderators), so a date is never cut silently.
+		'deadlineMax'       => $wcb_deadline_max[ $wcb_resolved_board_id ],
+		'boardDeadlineMax'  => (object) $wcb_deadline_max,
+		'deadlineClamped'   => false,
 		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
 		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
 		// it is a locale tag, not a translatable string. view.js hands it to
@@ -538,7 +543,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<div class="wcb-form-field wcb-form-field--deadline">
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
 				<input id="wcb-simple-deadline" type="date" aria-describedby="wcb-simple-deadline-help" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
-				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
+				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-class--wcb-hidden="!state.deadlineMax" data-wp-text="state.deadlineHelp"></span>
+				<span class="wcb-sr-only" role="status" data-wp-text="state.deadlineNotice"></span>
 				<?php // Beside the date it describes (Basecamp 10439851754). ?>
 				<span class="wcb-form-hint" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></span>
 			</div>

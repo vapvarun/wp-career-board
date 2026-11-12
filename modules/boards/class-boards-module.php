@@ -213,7 +213,6 @@ final class BoardsModule {
 					'posts_per_page'         => 100,
 					'paged'                  => $page++,
 					'no_found_rows'          => true,
-					'update_post_meta_cache' => false,
 					'update_post_term_cache' => false,
 					'orderby'                => array(
 						'date' => 'DESC',

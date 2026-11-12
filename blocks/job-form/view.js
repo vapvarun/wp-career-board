@@ -4,7 +4,7 @@
  * Actions:
  *   updateField  — generic field updater via data-wcb-field attribute.
  *   toggleRemote — flip the remote boolean.
- *   setDeadline  — employer-picked deadline (REST caps it at the board maximum).
+ *   setDeadline  — employer-picked deadline, clamped to the board maximum REST keeps.
  *   nextStep     — advance step; validates title on step 1.
  *   prevStep     — go back one step.
  *   submitJob    — POST job data to /wcb/v1/jobs.
@@ -24,7 +24,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 
 /**
@@ -473,11 +473,20 @@ const { state } = store(
 
 			get deadlineHelp() {
 				const { state } = store( 'wcb-job-form' );
+				if ( ! state.deadlineMax ) {
+					return '';
+				}
 				return fill(
 					t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' ),
 					'%s',
 					formatSiteDate( state.deadlineMax, state.locale )
 				);
+			},
+
+			// Announced when a picked date was moved into range.
+			get deadlineNotice() {
+				const { state } = store( 'wcb-job-form' );
+				return state.deadlineClamped ? state.deadlineHelp : '';
 			},
 
 			get hasListingWindow() {
@@ -526,7 +535,8 @@ const { state } = store(
 		actions: {
 			setDeadline( event ) {
 				const { state } = store( 'wcb-job-form' );
-				state.deadline  = event.target.value;
+				// Write back too: an unchanged state value would not re-render the field.
+				event.target.value = fitDeadline( state, event.target.value );
 			},
 
 			updateField( event ) {
@@ -555,6 +565,7 @@ const { state } = store(
 						if ( cur ) {
 							state.currencyCode = cur;
 						}
+						fitDeadline( state );
 					}
 				}
 			},
@@ -797,6 +808,8 @@ const { state } = store(
 
 					const data      = yield response.json();
 					state.jobUrl    = data.permalink || '';
+					// Show the day the server saved, not the one typed.
+					state.deadline  = data.deadline_day || state.deadline;
 					state.featureError = data.feature_error || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
@@ -883,6 +896,7 @@ const { state } = store(
 					}
 				} );
 				state.companyName   = ( state.companyNames || {} )[ state.companyId ] || '';
+				fitDeadline( state );
 				state.draftRestored = true;
 				showDescription( state.description || '' );
 			},
