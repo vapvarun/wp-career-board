@@ -948,11 +948,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.navOpen = false;
 			tabs.go( 'resumes' );
 
-			if ( state.resumes.length ) {
-				return;
-			}
-
-			state.loading = true;
+			// Always re-read: a change made in the resume builder (title,
+			// public/private) shows without a reload. Rows already on screen
+			// stay put while it loads, and stay if the refresh fails.
+			const refreshing = state.resumes.length > 0;
+			state.loading    = ! refreshing;
 
 			try {
 				const response = yield wcbFetch(
@@ -961,14 +961,18 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = t( 'errLoadResumes', 'Could not load your resumes.' );
+					if ( ! refreshing ) {
+						state.error = t( 'errLoadResumes', 'Could not load your resumes.' );
+					}
 					return;
 				}
 
 				state.resumes = yield response.json();
 				state.resumesLoaded = true;
 			} catch {
-				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+				if ( ! refreshing ) {
+					state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+				}
 			} finally {
 				state.loading = false;
 			}

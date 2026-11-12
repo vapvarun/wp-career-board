@@ -1015,7 +1015,11 @@ wp_interactivity_config( 'wcb-candidate-dashboard', array( 'tabs' => $wcb_tabs )
 				<div class="wcb-resume-card" data-wp-context='{"confirmingDelete": false}'>
 					<div class="wcb-resume-card-info">
 						<span class="wcb-resume-card-title" data-wp-text="context.resume.title"></span>
-						<span class="wcb-resume-card-date" data-wp-text="context.resume.dateLabel"></span>
+						<span class="wcb-resume-card-meta">
+							<span class="wcb-resume-card-date" data-wp-text="context.resume.dateLabel"></span>
+							<span class="wcb-badge wcb-badge--success" data-wp-class--wcb-hidden="!context.resume.isPublic"><?php esc_html_e( 'Public', 'wp-career-board' ); ?></span>
+							<span class="wcb-badge wcb-badge--neutral" data-wp-class--wcb-hidden="context.resume.isPublic"><?php esc_html_e( 'Private', 'wp-career-board' ); ?></span>
+						</span>
 					</div>
 					<?php // One main action (Open CV for an uploaded file, Edit for a built resume) and the rest in a menu, like My Jobs. ?>
 					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">

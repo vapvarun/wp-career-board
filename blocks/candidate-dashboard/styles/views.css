@@ -281,6 +281,14 @@
 	text-overflow: ellipsis;
 }
 
+/* Date and the Public / Private badge on one line, wrapping on narrow rows. */
+.wcb-resume-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wcb-space-xs) var(--wcb-space-sm);
+}
+
 .wcb-resume-card-date {
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
