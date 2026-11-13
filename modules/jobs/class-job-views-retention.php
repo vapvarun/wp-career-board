@@ -100,4 +100,38 @@ final class JobViewsRetention {
 			wp_schedule_single_event( time() + MINUTE_IN_SECONDS, self::HOOK );
 		}
 	}
+
+	/**
+	 * Views in the last N days for a page of jobs, in ONE grouped query.
+	 *
+	 * The employer dashboard shows this next to the applicant count. The
+	 * job_id and viewed_at indexes serve it; never call it per job.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int[] $job_ids Job IDs on the page.
+	 * @param int   $days    Window in days; kept inside the retention window.
+	 * @return array<int,int> Job ID => views (jobs with none are absent).
+	 */
+	public static function counts( array $job_ids, int $days = 30 ): array {
+		$job_ids = array_values( array_filter( array_map( 'intval', $job_ids ) ) );
+		if ( ! $job_ids ) {
+			return array();
+		}
+		global $wpdb;
+		$placeholders = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one grouped read of a plugin-owned table; placeholders are generated.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT job_id, COUNT(*) AS cnt FROM {$wpdb->prefix}wcb_job_views WHERE job_id IN ({$placeholders}) AND viewed_at > %s GROUP BY job_id",
+				...array_merge( $job_ids, array( gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ) ) )
+			)
+		);
+		// phpcs:enable
+		$counts = array();
+		foreach ( (array) $rows as $row ) {
+			$counts[ (int) $row->job_id ] = (int) $row->cnt;
+		}
+		return $counts;
+	}
 }

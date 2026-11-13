@@ -795,8 +795,11 @@ final class EmployersEndpoint extends RestController {
 			}
 		}
 
+		// Views in the last 30 days, also one query for the page (the owner's own jobs only).
+		$wcb_view_counts = \WCB\Modules\Jobs\JobViewsRetention::counts( $wcb_job_ids );
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts ): array {
+			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts ): array {
 				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
@@ -836,6 +839,11 @@ final class EmployersEndpoint extends RestController {
 							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
 						)
 						: __( 'No applicants', 'wp-career-board' ),
+					'viewLabel'        => sprintf(
+						/* translators: %s: number of views in the last 30 days, already localised. */
+						_n( '%s view in 30 days', '%s views in 30 days', $wcb_view_counts[ $p->ID ] ?? 0, 'wp-career-board' ),
+						number_format_i18n( $wcb_view_counts[ $p->ID ] ?? 0 )
+					),
 					'location'         => implode( ', ', $location_terms ),
 					'type'             => implode( ', ', $type_terms ),
 					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,

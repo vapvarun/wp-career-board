@@ -865,6 +865,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 						<div class="wcb-job-facts">
 							<span class="wcb-status-badge" role="status" data-wp-text="context.job.statusLabel" data-wp-bind--data-status="context.job.status"></span>
 							<span class="wcb-status-badge wcb-status-badge--featured" data-wp-class--wcb-hidden="!context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
+							<span class="wcb-job-meta wcb-job-views" data-wp-text="context.job.viewLabel"></span>
 							<button type="button" class="wcb-apps-chip" data-wp-class--wcb-hidden="!context.job.appCount" data-wp-text="context.job.appLabel" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob"></button>
 							<span class="wcb-apps-chip wcb-apps-chip--empty" data-wp-class--wcb-hidden="context.job.appCount" data-wp-text="context.job.appLabel"></span>
 						</div>
