@@ -10,26 +10,28 @@
  * @package WP_Career_Board
  */
 
-// A hidden input's value and defaultValue move together, so its value as drawn
-// is kept when the visitor first touches the form, before the category picker changes it.
+// A hidden input's value and defaultValue move together, and a select whose
+// "All" option is drawn without a selected attribute reads as changed. So each
+// value as drawn is kept and compared on submit. Selects are kept at load; the
+// category picker's hidden input only when the visitor first touches the form,
+// because the picker may set it while the page starts up.
 const drawn = new WeakMap();
+const keep = ( form, selector ) => form.querySelectorAll( selector ).forEach( ( f ) => drawn.has( f ) || drawn.set( f, f.value ) );
+const FORM = 'form.wcb-search-hero__form';
+document.querySelectorAll( FORM ).forEach( ( form ) => keep( form, 'select' ) );
 document.addEventListener( 'focusin', ( event ) => {
-	const form = event.target instanceof Element ? event.target.closest( 'form.wcb-search-hero__form' ) : null;
-	if ( form && ! drawn.has( form ) ) {
-		drawn.set( form, new Map( Array.from( form.querySelectorAll( 'input[type="hidden"]' ), ( f ) => [ f, f.value ] ) ) );
+	const form = event.target instanceof Element ? event.target.closest( FORM ) : null;
+	if ( form ) {
+		keep( form, 'input[type="hidden"]' );
 	}
 } );
 
-const isUntouched = ( field, form ) => {
-	if ( field.type === 'hidden' ) {
-		const before = drawn.get( form );
-		return ! before || before.get( field ) === field.value;
+const isUntouched = ( field ) => {
+	if ( field.type === 'hidden' || field.tagName === 'SELECT' ) {
+		return ! drawn.has( field ) || drawn.get( field ) === field.value;
 	}
 	if ( field.type === 'checkbox' ) {
 		return field.checked === field.defaultChecked;
-	}
-	if ( field.tagName === 'SELECT' ) {
-		return Array.from( field.options ).every( ( o ) => o.selected === o.defaultSelected );
 	}
 	return field.value === field.defaultValue;
 };
@@ -55,7 +57,7 @@ export function bindHeroSearch( scope, fields ) {
 
 		for ( const { name, param, aliases = [] } of fields ) {
 			const field = form.elements.namedItem( name );
-			if ( ! field || ( sameListing && isUntouched( field, form ) ) ) {
+			if ( ! field || ( sameListing && isUntouched( field ) ) ) {
 				continue;
 			}
 			[ param, ...aliases ].forEach( ( key ) => params.delete( key ) );
