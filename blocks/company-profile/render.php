@@ -341,8 +341,8 @@ wp_interactivity_state(
 
 		$wcb_cp_jobs_state = array();
 		foreach ( $wcb_open_jobs as $wcb_jpost ) {
-			$wcb_jloc            = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_jpost->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-			$wcb_jtype           = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_jpost->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+			$wcb_jloc            = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_jpost->ID, 'wcb_location' ) );
+			$wcb_jtype           = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_jpost->ID, 'wcb_job_type' ) );
 			$wcb_cp_jobs_state[] = array(
 				'id'        => $wcb_jpost->ID,
 				'title'     => $wcb_jpost->post_title,

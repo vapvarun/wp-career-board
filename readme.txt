@@ -67,7 +67,8 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 A fix release for 1.8.3.
 
 * New      - My Resumes rows show whether each resume is Public or Private.
-* New      - The employer dashboard shows each job's views in the last 30 days.
+* New      - The employer dashboard shows each job's views in the last 30 days, counting one view per visitor per day.
+* Improve  - My Jobs, the job list and the company page read job locations and types without a query per row.
 * Improve  - Open Graph and Twitter tags step aside when Yoast SEO, Rank Math, All in One SEO or SEOPress is active; the wcb_social_tags_enabled filter overrides it.
 * Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.
 * Fix      - Logging out clears the unsent job form draft saved in the browser.

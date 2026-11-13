@@ -29,6 +29,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class JobViewsRetention {
 
 	/**
+	 * SQL for "views": one per visitor per day, so reloads do not inflate it.
+	 * Every reader of wcb_job_views (employer dashboard, Pro analytics) uses it.
+	 *
+	 * @since 1.8.4
+	 */
+	public const VISITS_SQL = 'COUNT(DISTINCT DATE(viewed_at), COALESCE(ip_hash, id))';
+
+	/**
 	 * Cron hook name.
 	 *
 	 * @since 1.2.9
@@ -120,10 +128,11 @@ final class JobViewsRetention {
 		}
 		global $wpdb;
 		$placeholders = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
+		$visits       = self::VISITS_SQL;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one grouped read of a plugin-owned table; placeholders are generated.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT job_id, COUNT(*) AS cnt FROM {$wpdb->prefix}wcb_job_views WHERE job_id IN ({$placeholders}) AND viewed_at > %s GROUP BY job_id",
+				"SELECT job_id, {$visits} AS cnt FROM {$wpdb->prefix}wcb_job_views WHERE job_id IN ({$placeholders}) AND viewed_at > %s GROUP BY job_id",
 				...array_merge( $job_ids, array( gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ) ) )
 			)
 		);

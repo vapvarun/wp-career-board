@@ -800,8 +800,8 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts ): array {
-				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+				$location_terms = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_location' ) );
+				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 				$status_labels  = self::job_status_labels();
 				// Mirror the public-facing 'closed' / 'expired' status used by
@@ -918,8 +918,8 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $app_counts, $wcb_job_form_url ): array {
-				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+				$location_terms = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_location' ) );
+				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 

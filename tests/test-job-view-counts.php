@@ -32,19 +32,25 @@ for ( $i = 0; $i < 30; $i++ ) {
 	$wcb_jobs[] = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'View count probe ' . $i ) );
 }
 $wcb_table = $wpdb->prefix . 'wcb_job_views';
-$wcb_ins   = static function ( int $job, int $days_ago ) use ( $wpdb, $wcb_table ): void {
-	$wpdb->insert( $wcb_table, array( 'job_id' => $job, 'viewed_at' => gmdate( 'Y-m-d H:i:s', time() - $days_ago * DAY_IN_SECONDS ), 'ip_hash' => hash( 'sha256', (string) wp_rand() ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wcb_ins   = static function ( int $job, int $days_ago, string $who = '' ) use ( $wpdb, $wcb_table ): void {
+	$wpdb->insert( $wcb_table, array( 'job_id' => $job, 'viewed_at' => gmdate( 'Y-m-d H:i:s', time() - $days_ago * DAY_IN_SECONDS ), 'ip_hash' => hash( 'sha256', '' !== $who ? $who : (string) wp_rand() ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 };
 $wcb_ins( $wcb_jobs[0], 1 );
 $wcb_ins( $wcb_jobs[0], 2 );
 $wcb_ins( $wcb_jobs[0], 40 ); // Outside the 30 day window.
 $wcb_ins( $wcb_jobs[1], 5 );
+// One visitor reloading 4 times on one day is one view; coming back on another day is a second.
+for ( $i = 0; $i < 4; $i++ ) {
+	$wcb_ins( $wcb_jobs[3], 0, 'same-visitor' );
+}
+$wcb_ins( $wcb_jobs[3], 3, 'same-visitor' );
 
 $wcb_before = $wpdb->num_queries;
 $wcb_counts = \WCB\Modules\Jobs\JobViewsRetention::counts( $wcb_jobs );
 $wcb_chk( 1 === $wpdb->num_queries - $wcb_before, '30 jobs are counted in ONE query' );
 $wcb_chk( 2 === ( $wcb_counts[ $wcb_jobs[0] ] ?? 0 ), 'a job counts its views in the window only (3 stored, 1 is 40 days old)' );
 $wcb_chk( 1 === ( $wcb_counts[ $wcb_jobs[1] ] ?? 0 ), 'another job counts its own view' );
+$wcb_chk( 2 === ( $wcb_counts[ $wcb_jobs[3] ] ?? 0 ), 'four reloads by one visitor in a day plus a return visit next days = 2 views' );
 $wcb_chk( ! isset( $wcb_counts[ $wcb_jobs[2] ] ), 'a job with no views is left out' );
 $wcb_chk( array() === \WCB\Modules\Jobs\JobViewsRetention::counts( array() ), 'no jobs: no query, empty result' );
 
