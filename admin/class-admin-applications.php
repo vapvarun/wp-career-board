@@ -305,15 +305,20 @@ class AdminApplications extends \WP_List_Table {
 			$job_ids  = array();
 			$user_ids = array();
 
-			// Job half - reuse the FULLTEXT clause the public listing searches
-			// already use (Install migration 1.2.6 indexes wp_posts.post_title).
-			$title_clause = \WCB\Core\TitleSearch::title_clause( $search );
-			if ( '' !== $title_clause ) {
-				// $title_clause is already prepared (preparing it again would mangle its
-				// LIKE escapes); the cap is an int constant.
-				$sql     = "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'wcb_job' AND {$title_clause} LIMIT " . self::SEARCH_ID_CAP;
-				$job_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- $sql is built from the prepared title clause and an int constant.
-			}
+			// Job half - core title search, capped (this screen finds one application).
+			$job_ids = get_posts(
+				array(
+					'post_type'        => 'wcb_job',
+					'post_status'      => 'any',
+					's'                => $search,
+					'search_columns'   => array( 'post_title' ),
+					'fields'           => 'ids',
+					'posts_per_page'   => self::SEARCH_ID_CAP,
+					'orderby'          => 'none',
+					'no_found_rows'    => true,
+					'suppress_filters' => false,
+				)
+			);
 
 			// Candidate half - wp_users has no FULLTEXT index, so the cap is what
 			// bounds both the scan and the IN (...) the meta_query builds. This

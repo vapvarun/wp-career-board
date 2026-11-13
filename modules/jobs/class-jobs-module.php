@@ -54,11 +54,20 @@ final class JobsModule {
 		// Any job save (REST, wp-admin, cron, CLI) invalidates the cached REST
 		// job lists. Registered here, not with the REST routes, which only
 		// load on REST requests.
+		$bump_jobs_cache = static function (): void {
+			update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
+		};
+		add_action( 'save_post_wcb_job', $bump_jobs_cache );
+		// A permanent delete fires no save_post, so a deleted job would linger in cached lists.
 		add_action(
-			'save_post_wcb_job',
-			static function (): void {
-				update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
-			}
+			'deleted_post',
+			static function ( $post_id, $post ) use ( $bump_jobs_cache ): void {
+				if ( $post instanceof \WP_Post && 'wcb_job' === $post->post_type ) {
+					$bump_jobs_cache();
+				}
+			},
+			10,
+			2
 		);
 		// Member blocking on the SSR frontend. REST already excludes blocked
 		// authors (class-jobs-endpoint.php author__not_in / is_hidden); mirror it
