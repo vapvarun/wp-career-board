@@ -18,12 +18,12 @@ msgstr ""
 #: wp-career-board.php
 #: admin/class-admin-settings.php:616
 #: admin/class-admin.php:191
-#: admin/class-admin.php:507
-#: admin/class-admin.php:513
+#: admin/class-admin.php:500
+#: admin/class-admin.php:506
 #: admin/views/setup-wizard-complete.php:21
 #: admin/views/setup-wizard.php:24
 #: core/class-abilities.php:178
-#: core/class-plugin.php:719
+#: core/class-plugin.php:720
 #: core/class-template-version-check.php:188
 #: modules/gdpr/class-gdpr-module.php:96
 #: modules/gdpr/class-gdpr-module.php:111
@@ -61,11 +61,12 @@ msgstr "지원서"
 #: admin/class-admin-applications.php:92
 #: admin/class-admin-applications.php:97
 #: admin/class-admin-candidates.php:115
+#: admin/class-admin-jobs.php:133
 #: admin/class-admin-settings.php:302
 #: admin/class-admin-settings.php:869
 #: admin/class-admin.php:215
 #: admin/class-admin.php:216
-#: admin/class-admin.php:594
+#: admin/class-admin.php:587
 #: blocks/candidate-dashboard/render.php:627
 #: blocks/employer-dashboard/render.php:407
 #: blocks/employer-dashboard/render.php:559
@@ -115,7 +116,7 @@ msgstr[0] "채용 공고"
 #: admin/class-admin-candidates.php:113
 #: admin/class-admin-companies.php:128
 #: admin/class-admin-employers.php:132
-#: admin/class-admin-jobs.php:122
+#: admin/class-admin-jobs.php:130
 #: admin/class-admin-meta-boxes.php:136
 #: admin/class-email-settings.php:275
 #: admin/class-email-settings.php:297
@@ -130,7 +131,7 @@ msgstr "상태"
 
 #: admin/class-admin-applications.php:162
 #: admin/class-admin-companies.php:129
-#: admin/class-admin-jobs.php:126
+#: admin/class-admin-jobs.php:135
 #: admin/class-admin-settings.php:1595
 msgid "Date"
 msgstr "날짜"
@@ -157,13 +158,13 @@ msgstr "CSV 내보내기"
 
 #: admin/class-admin-applications.php:198
 #: admin/class-admin-companies.php:160
-#: admin/class-admin-jobs.php:171
+#: admin/class-admin-jobs.php:180
 msgid "Move to Trash"
 msgstr "휴지통으로 이동"
 
 #: admin/class-admin-applications.php:457
 #: admin/class-admin-companies.php:322
-#: admin/class-admin-jobs.php:292
+#: admin/class-admin-jobs.php:302
 #: admin/class-reported-members.php:161
 #: blocks/employer-dashboard/render.php:814
 #: blocks/employer-dashboard/render.php:939
@@ -176,7 +177,7 @@ msgstr "지원서 선택"
 
 #: admin/class-admin-applications.php:564
 #: admin/class-admin-companies.php:426
-#: admin/class-admin-jobs.php:454
+#: admin/class-admin-jobs.php:464
 msgid "View"
 msgstr "보기"
 
@@ -185,7 +186,7 @@ msgid "(unknown)"
 msgstr "(알 수 없음)"
 
 #: admin/class-admin-applications.php:570
-#: admin/class-admin.php:688
+#: admin/class-admin.php:681
 #: admin/class-email-settings.php:164
 #: modules/notifications/emails/class-email-app-guest.php:129
 #: modules/notifications/emails/class-email-app-received.php:126
@@ -197,7 +198,7 @@ msgid "Email Guest"
 msgstr "비회원에게 이메일"
 
 #: admin/class-admin-applications.php:660
-#: admin/class-admin.php:681
+#: admin/class-admin.php:674
 #: modules/applications/class-applications-meta.php:111
 msgid "(deleted)"
 msgstr "(삭제됨)"
@@ -211,9 +212,9 @@ msgstr "지원자에게 이메일"
 #: admin/class-admin-companies.php:329
 #: admin/class-admin-companies.php:436
 #: admin/class-admin-companies.php:526
-#: admin/class-admin-jobs.php:302
-#: admin/class-admin-jobs.php:521
-#: admin/class-admin-jobs.php:609
+#: admin/class-admin-jobs.php:312
+#: admin/class-admin-jobs.php:531
+#: admin/class-admin-jobs.php:619
 msgid "Trash"
 msgstr "휴지통"
 
@@ -223,8 +224,8 @@ msgstr "휴지통"
 #: admin/class-admin-candidates.php:394
 #: admin/class-admin-companies.php:155
 #: admin/class-admin-companies.php:447
-#: admin/class-admin-jobs.php:154
-#: admin/class-admin-jobs.php:532
+#: admin/class-admin-jobs.php:163
+#: admin/class-admin-jobs.php:542
 msgid "Restore"
 msgstr "복원"
 
@@ -268,7 +269,7 @@ msgstr "후보자들"
 #: admin/class-admin-candidates.php:76
 #: admin/class-admin.php:226
 #: admin/class-admin.php:227
-#: admin/class-admin.php:604
+#: admin/class-admin.php:597
 #: integrations/buddypress/class-bp-integration.php:97
 msgid "Candidates"
 msgstr "후보자"
@@ -280,7 +281,7 @@ msgstr "등록된 후보자, 지원 내역, 프로필 공개 여부를 확인할
 #: admin/class-admin-candidates.php:83
 #: admin/class-admin-companies.php:91
 #: admin/class-admin-employers.php:99
-#: admin/class-admin-jobs.php:78
+#: admin/class-admin-jobs.php:86
 msgid "Add New"
 msgstr "새로 추가"
 
@@ -314,7 +315,7 @@ msgstr "가입일"
 #: admin/class-admin-candidates.php:144
 #: blocks/candidate-dashboard/render.php:1067
 #: blocks/candidate-dashboard/render.php:1151
-#: core/class-plugin.php:1235
+#: core/class-plugin.php:1236
 msgid "Delete"
 msgstr "삭제"
 
@@ -332,8 +333,8 @@ msgstr "후보자 선택"
 
 #: admin/class-admin-candidates.php:376
 #: admin/class-admin-companies.php:418
-#: admin/class-admin-employers.php:552
-#: admin/class-admin-jobs.php:446
+#: admin/class-admin-employers.php:577
+#: admin/class-admin-jobs.php:456
 #: admin/class-email-settings.php:189
 #: blocks/candidate-dashboard/render.php:1040
 #: blocks/employer-dashboard/render.php:875
@@ -395,20 +396,20 @@ msgstr "웹사이트"
 
 #: admin/class-admin-companies.php:126
 #: admin/class-admin-employers.php:131
-#: admin/class-admin.php:589
+#: admin/class-admin.php:582
 #: blocks/employer-dashboard/render.php:770
 msgid "Active Jobs"
 msgstr "활성 채용공고"
 
 #: admin/class-admin-companies.php:127
-#: admin/class-admin-meta-boxes.php:577
+#: admin/class-admin-meta-boxes.php:585
 msgid "Trust Level"
 msgstr "신뢰 수준"
 
 #: admin/class-admin-companies.php:327
 #: admin/class-admin-companies.php:524
-#: admin/class-admin-jobs.php:297
-#: admin/class-admin-jobs.php:604
+#: admin/class-admin-jobs.php:307
+#: admin/class-admin-jobs.php:614
 #: api/endpoints/class-employers-endpoint.php:1580
 #: blocks/employer-dashboard/render.php:458
 msgid "Published"
@@ -416,8 +417,8 @@ msgstr "게시됨"
 
 #: admin/class-admin-companies.php:328
 #: admin/class-admin-companies.php:525
-#: admin/class-admin-jobs.php:299
-#: admin/class-admin-jobs.php:606
+#: admin/class-admin-jobs.php:309
+#: admin/class-admin-jobs.php:616
 #: api/endpoints/class-employers-endpoint.php:1581
 #: blocks/employer-dashboard/render.php:459
 #: blocks/employer-dashboard/render.php:816
@@ -440,8 +441,8 @@ msgstr "회사 선택"
 #: admin/class-admin-applications.php:188
 #: admin/class-admin-companies.php:156
 #: admin/class-admin-companies.php:454
-#: admin/class-admin-jobs.php:155
-#: admin/class-admin-jobs.php:539
+#: admin/class-admin-jobs.php:164
+#: admin/class-admin-jobs.php:549
 msgid "Delete Permanently"
 msgstr "영구 삭제"
 
@@ -497,7 +498,7 @@ msgstr "고용주"
 #: admin/class-admin-employers.php:92
 #: admin/class-admin.php:248
 #: admin/class-admin.php:249
-#: admin/class-admin.php:599
+#: admin/class-admin.php:592
 #: integrations/buddypress/class-bp-integration.php:87
 msgid "Employers"
 msgstr "고용주"
@@ -519,8 +520,8 @@ msgid "Select all employers"
 msgstr "모든 고용주 선택"
 
 #: admin/class-admin-employers.php:129
-#: admin/class-admin-jobs.php:124
-#: admin/class-admin-meta-boxes.php:348
+#: admin/class-admin-jobs.php:132
+#: admin/class-admin-meta-boxes.php:356
 #: blocks/employer-dashboard/render.php:566
 #: blocks/job-form-simple/render.php:381
 #: blocks/job-form/render.php:594
@@ -532,13 +533,13 @@ msgid_plural "Companies"
 msgstr[0] "기업"
 
 #: admin/class-admin-employers.php:158
-#: admin/class-admin-employers.php:573
-#: admin/class-admin.php:881
+#: admin/class-admin-employers.php:598
+#: admin/class-admin.php:874
 msgid "Ban"
 msgstr "차단"
 
 #: admin/class-admin-employers.php:159
-#: admin/class-admin-employers.php:573
+#: admin/class-admin-employers.php:598
 msgid "Unban"
 msgstr "차단 해제"
 
@@ -564,7 +565,7 @@ msgstr "고용주는 고용주 역할을 가진 사용자예요. 위의 새로 �
 msgid "Add Employer"
 msgstr "고용주 추가"
 
-#: admin/class-admin-employers.php:528
+#: admin/class-admin-employers.php:553
 msgid "Select employer"
 msgstr "고용주 선택"
 
@@ -746,7 +747,7 @@ msgstr "WP Job Manager Resumes에서 이력서를 찾을 수 없어요."
 #: admin/class-admin-settings.php:649
 #: admin/class-admin-settings.php:662
 #: admin/class-admin-settings.php:663
-#: admin/class-admin.php:516
+#: admin/class-admin.php:509
 msgid "Pro"
 msgstr "Pro"
 
@@ -778,16 +779,16 @@ msgstr "채용공고 설명"
 msgid "Use the inline toolbar (select text) and the block menu (+) to format - headings, lists, links, quotes."
 msgstr "인라인 툴바(텍스트 선택)와 블록 메뉴(+)를 사용하여 서식을 지정하세요 - 제목, 목록, 링크, 인용구."
 
-#: admin/class-admin-jobs.php:43
+#: admin/class-admin-jobs.php:51
 msgid "job"
 msgstr "채용공고"
 
-#: admin/class-admin-jobs.php:44
+#: admin/class-admin-jobs.php:52
 msgid "jobs"
 msgstr "채용공고"
 
-#: admin/class-admin-jobs.php:65
-#: admin/class-admin-jobs.php:70
+#: admin/class-admin-jobs.php:73
+#: admin/class-admin-jobs.php:78
 #: admin/class-admin-settings.php:301
 #: admin/class-admin-settings.php:708
 #: admin/class-admin.php:203
@@ -799,11 +800,11 @@ msgstr "채용공고"
 msgid "Jobs"
 msgstr "채용공고"
 
-#: admin/class-admin-jobs.php:72
+#: admin/class-admin-jobs.php:80
 msgid "Manage job listings, approve pending submissions, and track active postings."
 msgstr "채용공고를 관리하고, 대기 중인 제출물을 승인하며, 활성 게시물을 추적하세요."
 
-#: admin/class-admin-jobs.php:101
+#: admin/class-admin-jobs.php:109
 #: blocks/job-listings/render.php:534
 #: blocks/job-search-hero/render.php:57
 #: blocks/job-search-hero/render.php:64
@@ -813,50 +814,50 @@ msgstr "채용공고를 관리하고, 대기 중인 제출물을 승인하며, �
 msgid "Search jobs"
 msgstr "채용공고 검색"
 
-#: admin/class-admin-jobs.php:120
+#: admin/class-admin-jobs.php:128
 msgid "Select all jobs"
 msgstr "모든 채용공고 선택"
 
-#: admin/class-admin-jobs.php:121
+#: admin/class-admin-jobs.php:129
 #: blocks/job-alert-card/index.js:22
 #: blocks/similar-companies-card/index.js:45
 msgid "Title"
 msgstr "제목"
 
-#: admin/class-admin-jobs.php:123
+#: admin/class-admin-jobs.php:131
 msgid "Flags"
 msgstr "신고"
 
-#: admin/class-admin-jobs.php:125
+#: admin/class-admin-jobs.php:134
 msgid "Author"
 msgstr "작성자"
 
-#: admin/class-admin-jobs.php:161
-#: admin/class-admin-jobs.php:462
-#: admin/class-admin.php:644
-#: admin/class-admin.php:859
+#: admin/class-admin-jobs.php:170
+#: admin/class-admin-jobs.php:472
+#: admin/class-admin.php:637
+#: admin/class-admin.php:852
 msgid "Approve"
 msgstr "승인"
 
-#: admin/class-admin-jobs.php:165
+#: admin/class-admin-jobs.php:174
 msgid "Dismiss flags"
 msgstr "신고 해제"
 
-#: admin/class-admin-jobs.php:298
-#: admin/class-admin.php:609
-#: admin/class-admin.php:619
+#: admin/class-admin-jobs.php:308
+#: admin/class-admin.php:602
+#: admin/class-admin.php:612
 msgid "Pending Review"
 msgstr "검토 대기 중"
 
-#: admin/class-admin-jobs.php:300
-#: admin/class-admin-jobs.php:607
+#: admin/class-admin-jobs.php:310
+#: admin/class-admin-jobs.php:617
 #: api/endpoints/class-employers-endpoint.php:1585
 #: blocks/employer-dashboard/render.php:460
 msgid "Expired"
 msgstr "만료됨"
 
-#: admin/class-admin-jobs.php:301
-#: admin/class-admin-jobs.php:608
+#: admin/class-admin-jobs.php:311
+#: admin/class-admin-jobs.php:618
 #: api/endpoints/class-employers-endpoint.php:1584
 #: blocks/employer-dashboard/render.php:456
 #: blocks/employer-dashboard/render.php:818
@@ -864,35 +865,35 @@ msgstr "만료됨"
 msgid "Closed"
 msgstr "마감됨"
 
-#: admin/class-admin-jobs.php:338
+#: admin/class-admin-jobs.php:348
 msgid "Flagged"
 msgstr "신고됨"
 
-#: admin/class-admin-jobs.php:390
+#: admin/class-admin-jobs.php:400
 #: modules/jobs/class-jobs-module.php:338
 msgid "Add New Job"
 msgstr "새 채용 공고 추가"
 
-#: admin/class-admin-jobs.php:412
+#: admin/class-admin-jobs.php:422
 msgid "Select job"
 msgstr "채용 공고 선택"
 
-#: admin/class-admin-jobs.php:467
-#: admin/class-admin.php:645
-#: admin/class-admin.php:862
+#: admin/class-admin-jobs.php:477
+#: admin/class-admin.php:638
+#: admin/class-admin.php:855
 #: modules/applications/widgets/class-quick-actions.php:110
 msgid "Reject"
 msgstr "거부"
 
-#: admin/class-admin-jobs.php:490
+#: admin/class-admin-jobs.php:500
 msgid "Dismiss flag"
 msgstr "신고 해제"
 
-#: admin/class-admin-jobs.php:507
+#: admin/class-admin-jobs.php:517
 msgid "Unpublish"
 msgstr "게시 취소"
 
-#: admin/class-admin-jobs.php:605
+#: admin/class-admin-jobs.php:615
 #: api/endpoints/class-employers-endpoint.php:1582
 #: blocks/employer-dashboard/render.php:457
 #: blocks/employer-dashboard/render.php:817
@@ -900,7 +901,7 @@ msgid "Pending"
 msgstr "대기 중"
 
 #. translators: %d: number of reports.
-#: admin/class-admin-jobs.php:681
+#: admin/class-admin-jobs.php:691
 #: admin/class-reported-members.php:203
 #, php-format
 msgid "%d report"
@@ -931,138 +932,138 @@ msgstr "신뢰 &amp; 가시성"
 msgid "Application"
 msgstr "지원서"
 
-#: admin/class-admin-meta-boxes.php:199
+#: admin/class-admin-meta-boxes.php:207
 msgid "No rejection reason recorded."
 msgstr "거부 사유가 기록되어 있지 않아요."
 
-#: admin/class-admin-meta-boxes.php:275
+#: admin/class-admin-meta-boxes.php:283
 #: blocks/job-form-simple/render.php:525
 #: blocks/job-form/render.php:702
 msgid "Currency"
 msgstr "통화"
 
 #. translators: 1: currency code, for example USD. 2: currency symbol, for example the dollar sign.
-#: admin/class-admin-meta-boxes.php:282
+#: admin/class-admin-meta-boxes.php:290
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
-#: admin/class-admin-meta-boxes.php:292
+#: admin/class-admin-meta-boxes.php:300
 #: blocks/job-form/render.php:762
 msgid "Per"
 msgstr "기준"
 
-#: admin/class-admin-meta-boxes.php:294
+#: admin/class-admin-meta-boxes.php:302
 #: blocks/job-form-simple/render.php:543
 #: blocks/job-form/render.php:771
 msgid "Year"
 msgstr "년"
 
-#: admin/class-admin-meta-boxes.php:295
+#: admin/class-admin-meta-boxes.php:303
 #: blocks/job-form-simple/render.php:544
 #: blocks/job-form/render.php:772
 msgid "Month"
 msgstr "월"
 
-#: admin/class-admin-meta-boxes.php:296
+#: admin/class-admin-meta-boxes.php:304
 #: blocks/job-form-simple/render.php:545
 #: blocks/job-form/render.php:773
 msgid "Hour"
 msgstr "시간"
 
-#: admin/class-admin-meta-boxes.php:300
+#: admin/class-admin-meta-boxes.php:308
 msgid "Salary Min"
 msgstr "최소 급여"
 
-#: admin/class-admin-meta-boxes.php:313
+#: admin/class-admin-meta-boxes.php:321
 msgid "Salary Max"
 msgstr "최대 급여"
 
-#: admin/class-admin-meta-boxes.php:326
+#: admin/class-admin-meta-boxes.php:334
 #: blocks/job-form-simple/render.php:558
 #: blocks/job-form/render.php:797
 msgid "Application Deadline"
 msgstr "지원 마감일"
 
-#: admin/class-admin-meta-boxes.php:351
+#: admin/class-admin-meta-boxes.php:359
 msgid " -  Select a company  - "
 msgstr " -  회사 선택  - "
 
 #. translators: %s: URL to add a new company
-#: admin/class-admin-meta-boxes.php:363
+#: admin/class-admin-meta-boxes.php:371
 #, php-format
 msgid "No companies yet. %s"
 msgstr "아직 등록된 회사가 없어요. %s"
 
-#: admin/class-admin-meta-boxes.php:364
+#: admin/class-admin-meta-boxes.php:372
 msgid "Add one"
 msgstr "추가하기"
 
 #: admin/class-admin-companies.php:123
-#: admin/class-admin-meta-boxes.php:368
+#: admin/class-admin-meta-boxes.php:376
 #: blocks/employer-dashboard/render.php:1203
 #: blocks/employer-registration/render.php:310
 #: modules/notifications/emails/class-email-deadline-reminder.php:91
 msgid "Company name"
 msgstr "회사명"
 
-#: admin/class-admin-meta-boxes.php:368
+#: admin/class-admin-meta-boxes.php:376
 msgid "Company name (displayed on listing)"
 msgstr "회사명 (채용 공고에 표시됨)"
 
-#: admin/class-admin-meta-boxes.php:379
+#: admin/class-admin-meta-boxes.php:387
 #: blocks/job-form-simple/render.php:554
 #: blocks/job-form/render.php:791
 msgid "Remote-friendly position"
 msgstr "원격 근무 가능 직위"
 
-#: admin/class-admin-meta-boxes.php:390
+#: admin/class-admin-meta-boxes.php:398
 msgid "Featured listing"
 msgstr "추천 공고"
 
-#: admin/class-admin-meta-boxes.php:421
+#: admin/class-admin-meta-boxes.php:429
 #: blocks/employer-dashboard/render.php:188
 #: blocks/employer-registration/render.php:100
 #: core/class-company-meta-shape.php:198
 msgid "1-10 employees"
 msgstr "직원 1~10명"
 
-#: admin/class-admin-meta-boxes.php:422
+#: admin/class-admin-meta-boxes.php:430
 #: blocks/employer-dashboard/render.php:189
 #: blocks/employer-registration/render.php:101
 #: core/class-company-meta-shape.php:199
 msgid "11-50 employees"
 msgstr "11-50명의 직원"
 
-#: admin/class-admin-meta-boxes.php:423
+#: admin/class-admin-meta-boxes.php:431
 #: blocks/employer-dashboard/render.php:190
 #: blocks/employer-registration/render.php:102
 #: core/class-company-meta-shape.php:200
 msgid "51-200 employees"
 msgstr "51-200명의 직원"
 
-#: admin/class-admin-meta-boxes.php:424
+#: admin/class-admin-meta-boxes.php:432
 #: blocks/employer-dashboard/render.php:191
 #: blocks/employer-registration/render.php:103
 #: core/class-company-meta-shape.php:201
 msgid "201-500 employees"
 msgstr "201-500명의 직원"
 
-#: admin/class-admin-meta-boxes.php:425
+#: admin/class-admin-meta-boxes.php:433
 #: blocks/employer-dashboard/render.php:192
 #: blocks/employer-registration/render.php:104
 #: core/class-company-meta-shape.php:202
 msgid "501-1,000 employees"
 msgstr "501-1,000명의 직원"
 
-#: admin/class-admin-meta-boxes.php:426
+#: admin/class-admin-meta-boxes.php:434
 #: blocks/employer-dashboard/render.php:193
 #: blocks/employer-registration/render.php:105
 #: core/class-company-meta-shape.php:203
 msgid "1,001-5,000 employees"
 msgstr "1,001-5,000명의 직원"
 
-#: admin/class-admin-meta-boxes.php:427
+#: admin/class-admin-meta-boxes.php:435
 #: core/class-company-meta-shape.php:212
 msgid "5,001+ employees"
 msgstr "5,001명 이상의 직원"
@@ -1095,27 +1096,27 @@ msgstr "교육 기관"
 msgid "Partnership"
 msgstr "파트너십"
 
-#: admin/class-admin-meta-boxes.php:441
+#: admin/class-admin-meta-boxes.php:449
 msgid "Featured company"
 msgstr "추천 기업"
 
-#: admin/class-admin-meta-boxes.php:446
+#: admin/class-admin-meta-boxes.php:454
 msgid "Tagline / Slogan"
 msgstr "태그라인 / 슬로건"
 
-#: admin/class-admin-meta-boxes.php:452
+#: admin/class-admin-meta-boxes.php:460
 msgid "e.g. Building a better future, one product at a time"
 msgstr "예: 한 번에 하나의 제품으로 더 나은 미래를 만들어요"
 
-#: admin/class-admin-meta-boxes.php:454
+#: admin/class-admin-meta-boxes.php:462
 msgid "Short company motto shown below the name."
 msgstr "이름 아래에 표시되는 짧은 회사 슬로건이에요."
 
-#: admin/class-admin-meta-boxes.php:458
+#: admin/class-admin-meta-boxes.php:466
 msgid "Website URL"
 msgstr "웹사이트 URL"
 
-#: admin/class-admin-meta-boxes.php:469
+#: admin/class-admin-meta-boxes.php:477
 #: blocks/company-archive/render.php:292
 #: blocks/company-profile/render.php:271
 #: blocks/employer-dashboard/render.php:1231
@@ -1124,49 +1125,49 @@ msgstr "웹사이트 URL"
 msgid "Industry"
 msgstr "업종"
 
-#: admin/class-admin-meta-boxes.php:480
+#: admin/class-admin-meta-boxes.php:488
 #: blocks/employer-dashboard/render.php:1272
 msgid "Company Type"
 msgstr "기업 유형"
 
-#: admin/class-admin-meta-boxes.php:502
+#: admin/class-admin-meta-boxes.php:510
 #: blocks/employer-dashboard/render.php:1288
 msgid "Founded Year"
 msgstr "설립 연도"
 
-#: admin/class-admin-meta-boxes.php:515
+#: admin/class-admin-meta-boxes.php:523
 msgid "Headquarters Location"
 msgstr "본사 위치"
 
-#: admin/class-admin-meta-boxes.php:521
+#: admin/class-admin-meta-boxes.php:529
 msgid "e.g. San Francisco, CA, USA"
 msgstr "예: 미국, 캘리포니아주, 샌프란시스코"
 
-#: admin/class-admin-meta-boxes.php:544
+#: admin/class-admin-meta-boxes.php:552
 msgid "LinkedIn URL"
 msgstr "LinkedIn URL"
 
-#: admin/class-admin-meta-boxes.php:551
+#: admin/class-admin-meta-boxes.php:559
 msgid "X (Twitter) URL"
 msgstr "X (Twitter) URL"
 
-#: admin/class-admin-meta-boxes.php:570
+#: admin/class-admin-meta-boxes.php:578
 msgid "None"
 msgstr "없음"
 
-#: admin/class-admin-meta-boxes.php:571
+#: admin/class-admin-meta-boxes.php:579
 msgid "Verified ✓"
 msgstr "인증됨 ✓"
 
-#: admin/class-admin-meta-boxes.php:572
+#: admin/class-admin-meta-boxes.php:580
 msgid "Trusted ★"
 msgstr "신뢰됨 ★"
 
-#: admin/class-admin-meta-boxes.php:573
+#: admin/class-admin-meta-boxes.php:581
 msgid "Premium ◆"
 msgstr "프리미엄 ◆"
 
-#: admin/class-admin-meta-boxes.php:585
+#: admin/class-admin-meta-boxes.php:593
 msgid "\"Verified\" shows the checkmark badge on job listings."
 msgstr "\"인증됨\"은 채용 공고에 체크마크 배지를 표시해요."
 
@@ -1177,12 +1178,12 @@ msgstr "이 작업을 수행할 권한이 없어요."
 
 #: admin/class-pages.php:50
 #: admin/class-pages.php:53
-#: core/class-plugin.php:737
+#: core/class-plugin.php:738
 msgid "Find Jobs"
 msgstr "일자리 찾기"
 
 #: admin/class-pages.php:65
-#: core/class-plugin.php:755
+#: core/class-plugin.php:756
 msgid "Candidate Dashboard"
 msgstr "지원자 대시보드"
 
@@ -1202,13 +1203,13 @@ msgid "Notifications"
 msgstr "알림"
 
 #: admin/class-admin-settings.php:308
-#: admin/class-admin.php:812
+#: admin/class-admin.php:805
 #: admin/class-setup-wizard.php:231
 msgid "Emails"
 msgstr "이메일"
 
 #: admin/class-admin-settings.php:304
-#: admin/class-admin.php:868
+#: admin/class-admin.php:861
 msgid "Import"
 msgstr "가져오기"
 
@@ -1255,43 +1256,43 @@ msgid "Remove demo jobs, companies, candidates, and unused taxonomy terms create
 msgstr "설치 마법사가 만들었거나 샘플로 표시된 데모 채용공고, 회사, 지원자 및 사용하지 않는 분류 항목을 삭제해요."
 
 #: admin/class-admin-settings.php:503
-#: admin/class-admin.php:933
+#: admin/class-admin.php:926
 msgid "Remove Sample Data"
 msgstr "샘플 데이터 제거"
 
-#: admin/class-admin.php:932
+#: admin/class-admin.php:925
 msgid "Removing…"
 msgstr "삭제 중…"
 
-#: admin/class-admin.php:934
+#: admin/class-admin.php:927
 msgid "Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone."
 msgstr "모든 데모 채용공고, 회사, 지원자 및 사용하지 않는 분류 항목을 영구적으로 삭제할까요? 이 작업은 취소할 수 없어요."
 
-#: admin/class-admin.php:935
+#: admin/class-admin.php:928
 msgid "Delete Sample Data"
 msgstr "샘플 데이터 삭제"
 
-#: admin/class-admin.php:865
-#: admin/class-admin.php:936
+#: admin/class-admin.php:858
+#: admin/class-admin.php:929
 #: blocks/candidate-dashboard/render.php:1000
 #: blocks/candidate-dashboard/render.php:1082
 #: blocks/job-form/editor-toolbar.php:30
 #: blocks/job-single/render.php:1011
-#: core/class-plugin.php:1340
+#: core/class-plugin.php:1341
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
 msgid "Cancel"
 msgstr "취소"
 
-#: admin/class-admin.php:937
+#: admin/class-admin.php:930
 msgid "Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms."
 msgstr "%JOBS%개의 샘플 채용공고, %COMPANIES%개의 샘플 회사, %CANDIDATES%개의 샘플 지원자, %TERMS%개의 분류 항목을 삭제했어요."
 
-#: admin/class-admin.php:938
+#: admin/class-admin.php:931
 msgid "Nothing to remove - no sample data was found."
 msgstr "삭제할 항목이 없어요 - 샘플 데이터를 찾을 수 없어요."
 
-#: admin/class-admin.php:939
+#: admin/class-admin.php:932
 msgid "Could not remove sample data. Please try again."
 msgstr "샘플 데이터를 삭제할 수 없어요. 다시 시도해 주세요."
 
@@ -1544,8 +1545,8 @@ msgstr "공고 태그"
 
 #: admin/class-admin.php:382
 #: admin/class-admin.php:383
-#: admin/class-admin.php:528
-#: admin/class-admin.php:730
+#: admin/class-admin.php:521
+#: admin/class-admin.php:723
 #: blocks/candidate-dashboard/render.php:208
 #: blocks/candidate-dashboard/render.php:552
 #: blocks/employer-dashboard/render.php:415
@@ -1556,47 +1557,47 @@ msgstr "공고 태그"
 msgid "Settings"
 msgstr "설정"
 
-#: admin/class-admin.php:519
+#: admin/class-admin.php:512
 msgid "Manage your job board, applications, and hiring pipeline."
 msgstr "채용 게시판, 지원서, 채용 파이프라인을 관리해요."
 
-#: admin/class-admin.php:523
+#: admin/class-admin.php:516
 msgid "Visit Site"
 msgstr "사이트 방문"
 
-#: admin/class-admin.php:542
+#: admin/class-admin.php:535
 msgid "Plugin activated"
 msgstr "플러그인 활성화됨"
 
 #. translators: 1: pages created count, 2: total pages count
-#: admin/class-admin.php:551
+#: admin/class-admin.php:544
 #, php-format
 msgid "Pages created (%1$d/%2$d)"
 msgstr "페이지 생성됨 (%1$d/%2$d)"
 
-#: admin/class-admin.php:558
+#: admin/class-admin.php:551
 msgid "Run Wizard"
 msgstr "마법사 실행"
 
-#: admin/class-admin.php:565
+#: admin/class-admin.php:558
 msgid "Add your first job"
 msgstr "첫 공고 추가하기"
 
-#: admin/class-admin.php:567
+#: admin/class-admin.php:560
 msgid "+ Add Job"
 msgstr "+ 공고 추가"
 
-#: admin/class-admin.php:574
+#: admin/class-admin.php:567
 msgid "Invite an employer"
 msgstr "고용주 초대하기"
 
-#: admin/class-admin.php:576
+#: admin/class-admin.php:569
 msgid "+ Add User"
 msgstr "+ 사용자 추가"
 
 #. translators: link to the full jobs archive. The trailing arrow is part of the string so RTL locales can flip its glyph in translation.
-#: admin/class-admin.php:622
-#: admin/class-admin.php:663
+#: admin/class-admin.php:615
+#: admin/class-admin.php:656
 #: blocks/candidate-dashboard/render.php:656
 #: blocks/candidate-dashboard/render.php:680
 #: blocks/employer-dashboard/render.php:751
@@ -1604,85 +1605,85 @@ msgstr "+ 사용자 추가"
 msgid "View all →"
 msgstr "모두 보기 →"
 
-#: admin/class-admin.php:624
-#: admin/class-admin.php:665
+#: admin/class-admin.php:617
+#: admin/class-admin.php:658
 msgid "Toggle panel"
 msgstr "패널 전환"
 
-#: admin/class-admin.php:631
+#: admin/class-admin.php:624
 msgid "No jobs pending review."
 msgstr "검토 대기 중인 공고가 없어요."
 
-#: admin/class-admin.php:660
+#: admin/class-admin.php:653
 #: blocks/candidate-dashboard/render.php:655
 #: blocks/employer-dashboard/render.php:750
 msgid "Recent Applications"
 msgstr "최근 지원서"
 
-#: admin/class-admin.php:726
+#: admin/class-admin.php:719
 msgid "Add User"
 msgstr "사용자 추가"
 
-#: admin/class-admin.php:751
+#: admin/class-admin.php:744
 #: blocks/employer-dashboard/render.php:690
 msgid "Dismiss"
 msgstr "닫기"
 
-#: admin/class-admin.php:759
+#: admin/class-admin.php:752
 msgid "Application Pipeline  -  Drag-and-drop Kanban hiring stages"
 msgstr "지원 파이프라인  -  드래그 앤 드롭 칸반 채용 단계"
 
-#: admin/class-admin.php:763
+#: admin/class-admin.php:756
 msgid "Resume Builder  -  Candidate resume profiles with rich fields"
 msgstr "이력서 빌더  -  다양한 필드를 갖춘 후보자 이력서 프로필"
 
-#: admin/class-admin.php:767
+#: admin/class-admin.php:760
 msgid "AI Job Descriptions  -  Auto-generate job posts with AI"
 msgstr "AI 공고 설명  -  AI로 공고 게시물 자동 생성"
 
-#: admin/class-admin.php:771
+#: admin/class-admin.php:764
 msgid "Credits System  -  Sell job post credits via Stripe"
 msgstr "크레딧 시스템  -  Stripe 로 채용공고 크레딧을 판매해요"
 
-#: admin/class-admin.php:778
+#: admin/class-admin.php:771
 msgid "Upgrade to Pro"
 msgstr "Pro 업그레이드"
 
-#: admin/class-admin.php:857
+#: admin/class-admin.php:850
 msgid "Approve Job"
 msgstr "채용공고 승인"
 
-#: admin/class-admin.php:858
+#: admin/class-admin.php:851
 msgid "This job will be published and the employer will be notified."
 msgstr "이 채용공고가 게시되고 고용주에게 알림이 전송돼요."
 
-#: admin/class-admin.php:860
+#: admin/class-admin.php:853
 msgid "Reject Job"
 msgstr "채용공고 거부"
 
-#: admin/class-admin.php:861
+#: admin/class-admin.php:854
 msgid "This job will be moved to Draft and the employer will be notified."
 msgstr "이 채용공고가 임시글로 이동되고 고용주에게 알림이 전송돼요."
 
-#: admin/class-admin.php:863
+#: admin/class-admin.php:856
 msgid "Reason (optional):"
 msgstr "사유 (선택 사항):"
 
-#: admin/class-admin.php:864
+#: admin/class-admin.php:857
 #: blocks/candidate-dashboard/render.php:1077
-#: core/class-plugin.php:1339
+#: core/class-plugin.php:1340
 msgid "Confirm"
 msgstr "확인"
 
-#: admin/class-admin.php:866
+#: admin/class-admin.php:859
 msgid "Could not update. Please try again."
 msgstr "업데이트할 수 없어요. 다시 시도해 주세요."
 
-#: admin/class-admin.php:867
+#: admin/class-admin.php:860
 msgid "Importing…"
 msgstr "가져오는 중…"
 
-#: admin/class-admin.php:965
+#: admin/class-admin.php:958
 #: blocks/company-profile/render.php:122
 #: blocks/job-single/render.php:371
 #: core/widgets/class-widget-shortcode.php:119
@@ -1721,7 +1722,7 @@ msgid "Choose Image"
 msgstr "이미지 선택"
 
 #: admin/class-admin-settings.php:1139
-#: admin/class-admin.php:906
+#: admin/class-admin.php:899
 #: blocks/candidate-dashboard/render.php:769
 #: blocks/candidate-dashboard/render.php:830
 #: blocks/candidate-dashboard/render.php:887
@@ -1815,7 +1816,7 @@ msgstr "비워두면 준비된 기본값을 사용해요. 브랜드 헤더와 �
 msgid "Test sends are dispatched to your admin email (%s) and recorded in the activity log below."
 msgstr "테스트 발송은 관리자 이메일(%s)로 전송되며 아래 활동 로그에 기록돼요."
 
-#: admin/class-admin.php:891
+#: admin/class-admin.php:884
 msgid "Select Logo"
 msgstr "로고 선택"
 
@@ -1940,7 +1941,7 @@ msgstr "위의 모든 제품은 독립 Wbcom 플러그인이에요. WP Career Bo
 msgid "WP Career Board Setup"
 msgstr "WP Career Board 설정"
 
-#: admin/class-admin.php:735
+#: admin/class-admin.php:728
 #: admin/class-setup-wizard.php:186
 #: admin/class-setup-wizard.php:187
 #: admin/views/setup-wizard-complete.php:23
@@ -2636,14 +2637,14 @@ msgstr "자기소개"
 msgid "Save Profile"
 msgstr "프로필 저장"
 
-#: admin/class-admin.php:915
+#: admin/class-admin.php:908
 #: blocks/candidate-dashboard/render.php:1244
 #: blocks/employer-dashboard/render.php:1320
 #: blocks/employer-registration/render.php:391
 msgid "Saving…"
 msgstr "저장 중…"
 
-#: admin/class-admin.php:964
+#: admin/class-admin.php:957
 #: blocks/candidate-dashboard/render.php:513
 #: blocks/candidate-dashboard/render.php:1246
 #: blocks/company-profile/render.php:103
@@ -2769,7 +2770,7 @@ msgstr "회사 필터"
 msgid "Filters"
 msgstr "필터"
 
-#: admin/class-admin-meta-boxes.php:491
+#: admin/class-admin-meta-boxes.php:499
 #: blocks/company-archive/render.php:307
 #: blocks/company-profile/render.php:277
 #: blocks/employer-dashboard/render.php:1241
@@ -3111,7 +3112,7 @@ msgid "No jobs match your search."
 msgstr "검색과 일치하는 채용 공고가 없어요."
 
 #: blocks/employer-dashboard/render.php:932
-#: core/class-plugin.php:1212
+#: core/class-plugin.php:1213
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
@@ -3166,7 +3167,7 @@ msgstr "회사는 어떤 일을 하나요? 미션, 제품, 문화…"
 msgid "About the company"
 msgstr "회사 소개"
 
-#: admin/class-admin-meta-boxes.php:420
+#: admin/class-admin-meta-boxes.php:428
 #: blocks/employer-dashboard/render.php:1243
 msgid " -  Select size  - "
 msgstr " -  크기 선택  - "
@@ -3180,7 +3181,7 @@ msgstr "본사 위치"
 msgid "e.g. San Francisco, CA"
 msgstr "예: San Francisco, CA"
 
-#: admin/class-admin-meta-boxes.php:430
+#: admin/class-admin-meta-boxes.php:438
 #: blocks/employer-dashboard/render.php:1274
 msgid " -  Select type  - "
 msgstr " -  유형 선택  - "
@@ -3618,7 +3619,7 @@ msgstr "지원자에게 급여를 숨기려면 비워 두세요."
 msgid "How candidates apply"
 msgstr "지원자 지원 방법"
 
-#: admin/class-admin-meta-boxes.php:340
+#: admin/class-admin-meta-boxes.php:348
 #: blocks/job-form-simple/render.php:573
 #: blocks/job-form/render.php:818
 msgid "Apply URL"
@@ -3628,7 +3629,7 @@ msgstr "지원 URL"
 msgid "https://yourcompany.com/careers/apply"
 msgstr "https://yourcompany.com/careers/apply"
 
-#: admin/class-admin-meta-boxes.php:344
+#: admin/class-admin-meta-boxes.php:352
 #: blocks/job-form-simple/render.php:577
 #: blocks/job-form/render.php:837
 #: blocks/job-single/render.php:751
@@ -3855,7 +3856,7 @@ msgstr "필터 제거"
 msgid "Featured"
 msgstr "추천"
 
-#: admin/class-admin-jobs.php:381
+#: admin/class-admin-jobs.php:391
 #: blocks/job-listings/render.php:908
 msgid "No jobs match your filters"
 msgstr "필터에 맞는 채용 공고가 없어요"
@@ -4284,35 +4285,35 @@ msgstr "WP Career Board 에는 PHP 8.1 이상과 WordPress 6.9 이상이 필요�
 msgid "Plugin Activation Error"
 msgstr "플러그인 활성화 오류"
 
-#: core/class-plugin.php:725
+#: core/class-plugin.php:726
 msgid "Full Job Board"
 msgstr "전체 채용 게시판"
 
-#: core/class-plugin.php:726
+#: core/class-plugin.php:727
 msgid "Search bar, filters, and job listings grid  -  the complete job board page."
 msgstr "검색 바, 필터, 채용 목록 그리드  -  완전한 채용 게시판 페이지예요."
 
-#: core/class-plugin.php:741
+#: core/class-plugin.php:742
 msgid "Post a Job Form"
 msgstr "채용 공고 등록 폼"
 
-#: core/class-plugin.php:742
+#: core/class-plugin.php:743
 msgid "Multi-step job posting form for employers."
 msgstr "고용주를 위한 다단계 채용 공고 등록 폼이에요."
 
-#: core/class-plugin.php:749
+#: core/class-plugin.php:750
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr "고용주가 채용 공고와 지원서를 관리하는 탭형 대시보드예요."
 
-#: core/class-plugin.php:756
+#: core/class-plugin.php:757
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr "지원자가 지원 현황과 저장된 채용 공고를 추적하는 탭형 대시보드예요."
 
-#: core/class-plugin.php:762
+#: core/class-plugin.php:763
 msgid "Company Directory"
 msgstr "회사 디렉터리"
 
-#: core/class-plugin.php:763
+#: core/class-plugin.php:764
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr "업종 및 규모 필터가 있는 고용주 회사 프로필 대화형 그리드예요."
 
@@ -4550,7 +4551,7 @@ msgstr "지원함"
 msgid "No cover letter submitted."
 msgstr "자기소개서가 제출되지 않았어요."
 
-#: admin/class-admin.php:717
+#: admin/class-admin.php:710
 #: modules/applications/widgets/class-quick-actions.php:43
 #: modules/applications/widgets/class-quick-actions.php:101
 msgid "Quick actions"
@@ -5122,12 +5123,12 @@ msgstr "필터 사이드바"
 msgid "Reorder filters with the arrows, or hide ones you do not need."
 msgstr "화살표로 필터 순서를 변경하거나 필요 없는 필터를 숨기세요."
 
-#: core/class-plugin.php:1239
+#: core/class-plugin.php:1240
 #: blocks/job-listings/index.js:191
 msgid "Move up"
 msgstr "위로 이동"
 
-#: core/class-plugin.php:1242
+#: core/class-plugin.php:1243
 #: blocks/job-listings/index.js:192
 msgid "Move down"
 msgstr "아래로 이동"
@@ -5556,12 +5557,12 @@ msgstr "정지됨"
 msgid "Public"
 msgstr "공개"
 
-#: admin/class-admin-employers.php:560
+#: admin/class-admin-employers.php:585
 #: modules/employers/class-employers-module.php:638
 msgid "View company"
 msgstr "회사 보기"
 
-#: admin/class-admin-employers.php:604
+#: admin/class-admin-employers.php:629
 msgid "main"
 msgstr "메인"
 
@@ -5599,37 +5600,37 @@ msgstr "가져온 채용공고로 지원서를 옮기고 상태(신규, 면접, 
 msgid "Import All Applications"
 msgstr "모든 지원서 가져오기"
 
-#: admin/class-admin-jobs.php:101
+#: admin/class-admin-jobs.php:109
 msgid "Job title or company…"
 msgstr "채용공고 제목 또는 회사…"
 
-#: admin/class-admin-jobs.php:361
-#: admin/class-admin-jobs.php:614
+#: admin/class-admin-jobs.php:371
+#: admin/class-admin-jobs.php:624
 #: blocks/employer-dashboard/render.php:462
 msgid "Awaiting payment"
 msgstr "결제 대기"
 
-#: admin/class-admin-jobs.php:618
+#: admin/class-admin-jobs.php:628
 msgid "Hidden: employer banned"
 msgstr "숨김: 고용주 차단됨"
 
-#: admin/class-admin-jobs.php:620
+#: admin/class-admin-jobs.php:630
 msgid "Hidden: reported"
 msgstr "숨김: 신고됨"
 
-#: admin/class-admin-jobs.php:645
+#: admin/class-admin-jobs.php:655
 msgid "Not in Google for Jobs: add a location or mark the job as remote."
 msgstr "Google for Jobs 에 없음: 위치를 추가하거나 원격 근무로 표시하세요."
 
-#: admin/class-admin-jobs.php:646
+#: admin/class-admin-jobs.php:656
 msgid "No location"
 msgstr "위치 없음"
 
-#: admin/class-admin-meta-boxes.php:333
+#: admin/class-admin-meta-boxes.php:341
 msgid "Leave empty to use the board's listing length."
 msgstr "비워 두면 보드의 게시 기간을 써요."
 
-#: admin/class-admin-meta-boxes.php:336
+#: admin/class-admin-meta-boxes.php:344
 msgid "No expiry (stays open until closed)"
 msgstr "만료 없음(마감할 때까지 열려 있어요)"
 
@@ -6120,100 +6121,100 @@ msgstr "설정 열기"
 msgid "Got it"
 msgstr "확인"
 
-#: admin/class-admin.php:537
+#: admin/class-admin.php:530
 msgid "Getting started"
 msgstr "시작하기"
 
-#: admin/class-admin.php:750
+#: admin/class-admin.php:743
 msgid "Unlock Pro features"
 msgstr "Pro 기능 잠금 해제"
 
 #. translators: 1: percent complete, 2: rows imported so far, 3: rows skipped so far. %% is a literal percent sign.
-#: admin/class-admin.php:870
+#: admin/class-admin.php:863
 #, php-format
 msgid "%1$s%% - imported: %2$s, skipped: %3$s"
 msgstr "%1$s%% - 가져옴: %2$s, 건너뜀: %3$s"
 
 #. translators: 1: rows imported, 2: rows skipped, 3: rows that failed.
-#: admin/class-admin.php:872
+#: admin/class-admin.php:865
 #, php-format
 msgid "Done. Imported: %1$s, skipped: %2$s, errors: %3$s"
 msgstr "완료. 가져옴: %1$s, 건너뜀: %2$s, 오류: %3$s"
 
-#: admin/class-admin.php:873
+#: admin/class-admin.php:866
 msgid "Import complete."
 msgstr "가져오기가 끝났어요."
 
 #. translators: %1$s: error message.
-#: admin/class-admin.php:875
+#: admin/class-admin.php:868
 #, php-format
 msgid "Error: %1$s"
 msgstr "오류: %1$s"
 
-#: admin/class-admin.php:876
+#: admin/class-admin.php:869
 msgid "Request failed."
 msgstr "요청에 실패했어요."
 
 #. translators: %d: number of companies using this industry. Label form, so one string fits every count.
-#: admin/class-admin.php:904
+#: admin/class-admin.php:897
 #, php-format
 msgid "Companies: %d"
 msgstr "회사: %d"
 
-#: admin/class-admin.php:905
+#: admin/class-admin.php:898
 msgid "not in use"
 msgstr "사용 중 아님"
 
 #. translators: %s: name of the item being removed (an industry or a category).
-#: admin/class-admin.php:908
+#: admin/class-admin.php:901
 #: templates/parts/job-category-field.php:47
 #, php-format
 msgid "Remove %s"
 msgstr "%s 제거"
 
-#: admin/class-admin.php:909
+#: admin/class-admin.php:902
 msgid "Keep"
 msgstr "유지"
 
-#: admin/class-admin.php:910
+#: admin/class-admin.php:903
 msgid "Move those companies to:"
 msgstr "해당 회사를 다음으로 이동:"
 
-#: admin/class-admin.php:911
+#: admin/class-admin.php:904
 msgid "Clear the industry"
 msgstr "업종 비우기"
 
-#: admin/class-admin.php:912
+#: admin/class-admin.php:905
 msgid "Will be removed on save."
 msgstr "저장하면 제거돼요."
 
-#: admin/class-admin.php:913
+#: admin/class-admin.php:906
 msgid "Enter a name first."
 msgstr "먼저 이름을 입력하세요."
 
-#: admin/class-admin.php:914
+#: admin/class-admin.php:907
 msgid "That industry already exists."
 msgstr "그 업종은 이미 있어요."
 
-#: admin/class-admin.php:916
+#: admin/class-admin.php:909
 msgid "Industries saved."
 msgstr "업종을 저장했어요."
 
 #. translators: %d: number of companies moved to another industry.
-#: admin/class-admin.php:918
+#: admin/class-admin.php:911
 #, php-format
 msgid "Industries saved. %d companies updated."
 msgstr "업종을 저장했어요. 회사 %d곳이 업데이트됐어요."
 
-#: admin/class-admin.php:919
+#: admin/class-admin.php:912
 msgid "Could not save industries. Please try again."
 msgstr "업종을 저장할 수 없어요. 다시 시도해 주세요."
 
-#: admin/class-admin.php:920
+#: admin/class-admin.php:913
 msgid "Could not load industries."
 msgstr "업종을 불러올 수 없어요."
 
-#: admin/class-admin.php:921
+#: admin/class-admin.php:914
 msgid "Keep at least one industry."
 msgstr "업종을 하나 이상 남겨 두세요."
 
@@ -6838,7 +6839,7 @@ msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
-#: core/class-plugin.php:748
+#: core/class-plugin.php:749
 msgid "Employer dashboard"
 msgstr "고용주 대시보드"
 
@@ -6972,7 +6973,7 @@ msgstr "회사 설정하기"
 msgid "Add your company profile before posting jobs."
 msgstr "채용공고를 올리기 전에 회사 프로필을 추가하세요."
 
-#: admin/class-admin-jobs.php:387
+#: admin/class-admin-jobs.php:397
 #: blocks/employer-dashboard/render.php:844
 msgid "No jobs yet"
 msgstr "아직 채용공고가 없어요"
@@ -7154,7 +7155,7 @@ msgid "Text formatting"
 msgstr "텍스트 서식"
 
 #: blocks/job-form/editor-toolbar.php:19
-#: core/class-plugin.php:1218
+#: core/class-plugin.php:1219
 msgid "Bold"
 msgstr "굵게"
 
@@ -7164,7 +7165,7 @@ msgid "B"
 msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
-#: core/class-plugin.php:1219
+#: core/class-plugin.php:1220
 msgid "Italic"
 msgstr "기울임"
 
@@ -7178,7 +7179,7 @@ msgid "Bulleted list"
 msgstr "글머리 목록"
 
 #: blocks/job-form/editor-toolbar.php:22
-#: core/class-plugin.php:1217
+#: core/class-plugin.php:1218
 msgid "Link"
 msgstr "링크"
 
@@ -7300,100 +7301,100 @@ msgstr "JPEG, PNG, WebP 또는 GIF 이미지를 업로드해 주세요."
 msgid "Applications closed"
 msgstr "지원 마감"
 
-#: core/class-plugin.php:555
+#: core/class-plugin.php:556
 msgid "Job Archive"
 msgstr "채용공고 보관함"
 
-#: core/class-plugin.php:556
+#: core/class-plugin.php:557
 msgid "Company Archive"
 msgstr "회사 보관함"
 
-#: core/class-plugin.php:562
+#: core/class-plugin.php:563
 msgid "Job Category Archive"
 msgstr "직무 카테고리 보관함"
 
-#: core/class-plugin.php:563
+#: core/class-plugin.php:564
 msgid "Job Type Archive"
 msgstr "직무 유형 보관함"
 
-#: core/class-plugin.php:564
+#: core/class-plugin.php:565
 msgid "Job Tag Archive"
 msgstr "직무 태그 보관함"
 
-#: core/class-plugin.php:565
+#: core/class-plugin.php:566
 msgid "Job Location Archive"
 msgstr "근무지 보관함"
 
-#: core/class-plugin.php:566
+#: core/class-plugin.php:567
 msgid "Experience Level Archive"
 msgstr "경력 수준 보관함"
 
-#: core/class-plugin.php:1189
+#: core/class-plugin.php:1190
 msgid "Click to tune"
 msgstr "클릭해서 조정"
 
-#: core/class-plugin.php:1190
+#: core/class-plugin.php:1191
 msgid "or drag to move"
 msgstr "또는 드래그해서 이동"
 
-#: core/class-plugin.php:1195
-#: core/class-plugin.php:1206
+#: core/class-plugin.php:1196
+#: core/class-plugin.php:1207
 msgid "Convert to"
 msgstr "다음으로 변환"
 
-#: core/class-plugin.php:1200
+#: core/class-plugin.php:1201
 msgid "Add"
 msgstr "추가"
 
-#: core/class-plugin.php:1204
+#: core/class-plugin.php:1205
 msgid "Filter"
 msgstr "필터"
 
-#: core/class-plugin.php:1205
+#: core/class-plugin.php:1206
 msgid "Nothing found"
 msgstr "찾을 수 없음"
 
-#: core/class-plugin.php:1210
+#: core/class-plugin.php:1211
 msgid "Text"
 msgstr "텍스트"
 
-#: core/class-plugin.php:1211
+#: core/class-plugin.php:1212
 msgid "Heading"
 msgstr "제목"
 
-#: core/class-plugin.php:1213
+#: core/class-plugin.php:1214
 msgid "Quote"
 msgstr "인용"
 
-#: core/class-plugin.php:1214
+#: core/class-plugin.php:1215
 msgid "Delimiter"
 msgstr "구분선"
 
-#: core/class-plugin.php:1215
+#: core/class-plugin.php:1216
 msgid "Marker"
 msgstr "마커"
 
-#: core/class-plugin.php:1216
+#: core/class-plugin.php:1217
 msgid "Inline code"
 msgstr "인라인 코드"
 
-#: core/class-plugin.php:1223
+#: core/class-plugin.php:1224
 msgid "Add a link"
 msgstr "링크 추가"
 
-#: core/class-plugin.php:1226
+#: core/class-plugin.php:1227
 msgid "Numbered"
 msgstr "번호 목록"
 
-#: core/class-plugin.php:1227
+#: core/class-plugin.php:1228
 msgid "Bulleted"
 msgstr "글머리 목록"
 
-#: core/class-plugin.php:1230
+#: core/class-plugin.php:1231
 msgid "This block cannot be displayed correctly."
 msgstr "이 블록을 올바르게 표시할 수 없어요."
 
-#: core/class-plugin.php:1236
+#: core/class-plugin.php:1237
 msgid "Click to delete"
 msgstr "클릭해서 삭제"
 
@@ -8319,7 +8320,7 @@ msgstr "이 채용공고는 지금 %s 아래에 있어요. 여기에서 카테�
 msgid "Chosen categories"
 msgstr "선택한 카테고리"
 
-#: admin/class-admin.php:722
+#: admin/class-admin.php:715
 #: blocks/employer-dashboard/render.php:409
 #: blocks/employer-dashboard/render.php:556
 #: blocks/employer-dashboard/render.php:651
@@ -8443,7 +8444,7 @@ msgid "Show all candidates"
 msgstr "모든 후보자 보기"
 
 #: admin/class-admin-applications.php:522
-#: admin/class-admin.php:672
+#: admin/class-admin.php:665
 #: blocks/candidate-dashboard/render.php:671
 #: blocks/candidate-dashboard/render.php:784
 #: blocks/employer-dashboard/render.php:765
@@ -8456,16 +8457,16 @@ msgid "Applications appear here once candidates apply to your jobs."
 msgstr "후보자가 채용공고에 지원하면 여기에 지원서가 표시돼요."
 
 #. translators: %s: employer display name
-#: admin/class-admin-jobs.php:91
+#: admin/class-admin-jobs.php:99
 #, php-format
 msgid "Employer: %s"
 msgstr "고용주: %s"
 
-#: admin/class-admin-jobs.php:93
+#: admin/class-admin-jobs.php:101
 msgid "Show all employers"
 msgstr "모든 고용주 보기"
 
-#: admin/class-admin-jobs.php:388
+#: admin/class-admin-jobs.php:398
 msgid "Post your first job listing to get started."
 msgstr "첫 채용공고를 등록해서 시작해 보세요."
 
@@ -8809,17 +8810,17 @@ msgctxt "page title"
 msgid "Employer Registration"
 msgstr "고용주 등록"
 
-#: admin/class-admin.php:877
+#: admin/class-admin.php:870
 msgid "Ban employer"
 msgstr "고용주 차단"
 
 #. translators: %s: employer name.
-#: admin/class-admin.php:879
+#: admin/class-admin.php:872
 #, php-format
 msgid "Ban %s? Their jobs and company page are hidden and they can no longer post jobs or use their dashboard. You can unban them later."
 msgstr "%s 님을 차단할까요? 해당 채용 공고와 회사 페이지가 숨겨지며 더 이상 채용 공고를 게시하거나 대시보드를 사용할 수 없습니다. 나중에 차단을 해제할 수 있습니다."
 
-#: admin/class-admin.php:880
+#: admin/class-admin.php:873
 msgid "Ban the selected employers? Their jobs and company pages are hidden and they can no longer post jobs or use their dashboard. You can unban them later."
 msgstr "선택한 고용주를 차단할까요? 해당 채용 공고와 회사 페이지가 숨겨지며 더 이상 채용 공고를 게시하거나 대시보드를 사용할 수 없습니다. 나중에 차단을 해제할 수 있습니다."
 
@@ -8939,3 +8940,28 @@ msgstr "채용 공고 이미지 또는 회사 로고를 사용합니다. Yoast S
 msgid "%s view in 30 days"
 msgid_plural "%s views in 30 days"
 msgstr[0] "30일간 조회 %s회"
+
+#: core/class-cron-registry.php:87
+#: core/class-cron-registry.php:107
+msgid "Career Board scheduled jobs are running"
+msgstr "Career Board 예약 작업이 실행 중입니다"
+
+#: core/class-cron-registry.php:110
+msgid "Performance"
+msgstr "성능"
+
+#: core/class-cron-registry.php:113
+msgid "Jobs expire, deadline reminders go out and job alerts are sent by scheduled tasks, and they are running on time."
+msgstr "채용 공고 만료, 마감 알림, 채용 알림 발송은 예약 작업으로 처리되며, 제시간에 실행되고 있습니다."
+
+#: core/class-cron-registry.php:123
+msgid "Career Board scheduled jobs are not running on time"
+msgstr "Career Board 예약 작업이 제시간에 실행되지 않습니다"
+
+#: core/class-cron-registry.php:126
+msgid "WP-Cron is switched off here and the hourly job-expiry check is overdue, so no real cron is calling it. Expired jobs stay live and job alerts and reminders are not sent until you set up a server cron that runs wp-cron.php."
+msgstr "여기서는 WP-Cron이 꺼져 있고 시간별 공고 만료 확인이 지연되어 있어 실제 크론이 호출하지 않습니다. wp-cron.php를 실행하는 서버 크론을 설정하기 전까지 만료된 공고가 계속 노출되고 알림과 리마인더가 발송되지 않습니다."
+
+#: core/class-cron-registry.php:127
+msgid "The hourly job-expiry check is missing or overdue. Expired jobs stay live and job alerts and reminders are not sent. Check that your host allows WP-Cron requests to this site, or deactivate and reactivate Career Board."
+msgstr "시간별 공고 만료 확인이 없거나 지연되고 있습니다. 만료된 공고가 계속 노출되고 알림과 리마인더가 발송되지 않습니다. 호스트가 이 사이트에 대한 WP-Cron 요청을 허용하는지 확인하거나 Career Board 플러그인을 비활성화했다가 다시 활성화하세요."

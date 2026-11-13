@@ -18,12 +18,12 @@ msgstr ""
 #: wp-career-board.php
 #: admin/class-admin-settings.php:616
 #: admin/class-admin.php:191
-#: admin/class-admin.php:507
-#: admin/class-admin.php:513
+#: admin/class-admin.php:500
+#: admin/class-admin.php:506
 #: admin/views/setup-wizard-complete.php:21
 #: admin/views/setup-wizard.php:24
 #: core/class-abilities.php:178
-#: core/class-plugin.php:719
+#: core/class-plugin.php:720
 #: core/class-template-version-check.php:188
 #: modules/gdpr/class-gdpr-module.php:96
 #: modules/gdpr/class-gdpr-module.php:111
@@ -61,11 +61,12 @@ msgstr "candidatures"
 #: admin/class-admin-applications.php:92
 #: admin/class-admin-applications.php:97
 #: admin/class-admin-candidates.php:115
+#: admin/class-admin-jobs.php:133
 #: admin/class-admin-settings.php:302
 #: admin/class-admin-settings.php:869
 #: admin/class-admin.php:215
 #: admin/class-admin.php:216
-#: admin/class-admin.php:594
+#: admin/class-admin.php:587
 #: blocks/candidate-dashboard/render.php:627
 #: blocks/employer-dashboard/render.php:407
 #: blocks/employer-dashboard/render.php:559
@@ -117,7 +118,7 @@ msgstr[1] "Postes"
 #: admin/class-admin-candidates.php:113
 #: admin/class-admin-companies.php:128
 #: admin/class-admin-employers.php:132
-#: admin/class-admin-jobs.php:122
+#: admin/class-admin-jobs.php:130
 #: admin/class-admin-meta-boxes.php:136
 #: admin/class-email-settings.php:275
 #: admin/class-email-settings.php:297
@@ -132,7 +133,7 @@ msgstr "Statut"
 
 #: admin/class-admin-applications.php:162
 #: admin/class-admin-companies.php:129
-#: admin/class-admin-jobs.php:126
+#: admin/class-admin-jobs.php:135
 #: admin/class-admin-settings.php:1595
 msgid "Date"
 msgstr "Date"
@@ -159,13 +160,13 @@ msgstr "Exporter en CSV"
 
 #: admin/class-admin-applications.php:198
 #: admin/class-admin-companies.php:160
-#: admin/class-admin-jobs.php:171
+#: admin/class-admin-jobs.php:180
 msgid "Move to Trash"
 msgstr "Placer dans la corbeille"
 
 #: admin/class-admin-applications.php:457
 #: admin/class-admin-companies.php:322
-#: admin/class-admin-jobs.php:292
+#: admin/class-admin-jobs.php:302
 #: admin/class-reported-members.php:161
 #: blocks/employer-dashboard/render.php:814
 #: blocks/employer-dashboard/render.php:939
@@ -178,7 +179,7 @@ msgstr "Sélectionner une candidature"
 
 #: admin/class-admin-applications.php:564
 #: admin/class-admin-companies.php:426
-#: admin/class-admin-jobs.php:454
+#: admin/class-admin-jobs.php:464
 msgid "View"
 msgstr "Afficher"
 
@@ -187,7 +188,7 @@ msgid "(unknown)"
 msgstr "(inconnu)"
 
 #: admin/class-admin-applications.php:570
-#: admin/class-admin.php:688
+#: admin/class-admin.php:681
 #: admin/class-email-settings.php:164
 #: modules/notifications/emails/class-email-app-guest.php:129
 #: modules/notifications/emails/class-email-app-received.php:126
@@ -199,7 +200,7 @@ msgid "Email Guest"
 msgstr "E-mail invité"
 
 #: admin/class-admin-applications.php:660
-#: admin/class-admin.php:681
+#: admin/class-admin.php:674
 #: modules/applications/class-applications-meta.php:111
 msgid "(deleted)"
 msgstr "(supprimé)"
@@ -213,9 +214,9 @@ msgstr "E-mail candidat"
 #: admin/class-admin-companies.php:329
 #: admin/class-admin-companies.php:436
 #: admin/class-admin-companies.php:526
-#: admin/class-admin-jobs.php:302
-#: admin/class-admin-jobs.php:521
-#: admin/class-admin-jobs.php:609
+#: admin/class-admin-jobs.php:312
+#: admin/class-admin-jobs.php:531
+#: admin/class-admin-jobs.php:619
 msgid "Trash"
 msgstr "Corbeille"
 
@@ -225,8 +226,8 @@ msgstr "Corbeille"
 #: admin/class-admin-candidates.php:394
 #: admin/class-admin-companies.php:155
 #: admin/class-admin-companies.php:447
-#: admin/class-admin-jobs.php:154
-#: admin/class-admin-jobs.php:532
+#: admin/class-admin-jobs.php:163
+#: admin/class-admin-jobs.php:542
 msgid "Restore"
 msgstr "Restaurer"
 
@@ -270,7 +271,7 @@ msgstr "candidats"
 #: admin/class-admin-candidates.php:76
 #: admin/class-admin.php:226
 #: admin/class-admin.php:227
-#: admin/class-admin.php:604
+#: admin/class-admin.php:597
 #: integrations/buddypress/class-bp-integration.php:97
 msgid "Candidates"
 msgstr "Candidats"
@@ -282,7 +283,7 @@ msgstr "Affiche les candidats inscrits, leurs candidatures et la visibilité de 
 #: admin/class-admin-candidates.php:83
 #: admin/class-admin-companies.php:91
 #: admin/class-admin-employers.php:99
-#: admin/class-admin-jobs.php:78
+#: admin/class-admin-jobs.php:86
 msgid "Add New"
 msgstr "Ajouter"
 
@@ -316,7 +317,7 @@ msgstr "Inscrit"
 #: admin/class-admin-candidates.php:144
 #: blocks/candidate-dashboard/render.php:1067
 #: blocks/candidate-dashboard/render.php:1151
-#: core/class-plugin.php:1235
+#: core/class-plugin.php:1236
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -334,8 +335,8 @@ msgstr "Sélectionner un candidat"
 
 #: admin/class-admin-candidates.php:376
 #: admin/class-admin-companies.php:418
-#: admin/class-admin-employers.php:552
-#: admin/class-admin-jobs.php:446
+#: admin/class-admin-employers.php:577
+#: admin/class-admin-jobs.php:456
 #: admin/class-email-settings.php:189
 #: blocks/candidate-dashboard/render.php:1040
 #: blocks/employer-dashboard/render.php:875
@@ -397,20 +398,20 @@ msgstr "Site web"
 
 #: admin/class-admin-companies.php:126
 #: admin/class-admin-employers.php:131
-#: admin/class-admin.php:589
+#: admin/class-admin.php:582
 #: blocks/employer-dashboard/render.php:770
 msgid "Active Jobs"
 msgstr "Offres d'emploi actives"
 
 #: admin/class-admin-companies.php:127
-#: admin/class-admin-meta-boxes.php:577
+#: admin/class-admin-meta-boxes.php:585
 msgid "Trust Level"
 msgstr "Niveau de confiance"
 
 #: admin/class-admin-companies.php:327
 #: admin/class-admin-companies.php:524
-#: admin/class-admin-jobs.php:297
-#: admin/class-admin-jobs.php:604
+#: admin/class-admin-jobs.php:307
+#: admin/class-admin-jobs.php:614
 #: api/endpoints/class-employers-endpoint.php:1580
 #: blocks/employer-dashboard/render.php:458
 msgid "Published"
@@ -418,8 +419,8 @@ msgstr "Publié"
 
 #: admin/class-admin-companies.php:328
 #: admin/class-admin-companies.php:525
-#: admin/class-admin-jobs.php:299
-#: admin/class-admin-jobs.php:606
+#: admin/class-admin-jobs.php:309
+#: admin/class-admin-jobs.php:616
 #: api/endpoints/class-employers-endpoint.php:1581
 #: blocks/employer-dashboard/render.php:459
 #: blocks/employer-dashboard/render.php:816
@@ -442,8 +443,8 @@ msgstr "Sélectionner une entreprise"
 #: admin/class-admin-applications.php:188
 #: admin/class-admin-companies.php:156
 #: admin/class-admin-companies.php:454
-#: admin/class-admin-jobs.php:155
-#: admin/class-admin-jobs.php:539
+#: admin/class-admin-jobs.php:164
+#: admin/class-admin-jobs.php:549
 msgid "Delete Permanently"
 msgstr "Supprimer définitivement"
 
@@ -499,7 +500,7 @@ msgstr "employeurs"
 #: admin/class-admin-employers.php:92
 #: admin/class-admin.php:248
 #: admin/class-admin.php:249
-#: admin/class-admin.php:599
+#: admin/class-admin.php:592
 #: integrations/buddypress/class-bp-integration.php:87
 msgid "Employers"
 msgstr "Employeurs"
@@ -521,8 +522,8 @@ msgid "Select all employers"
 msgstr "Sélectionner tous les employeurs"
 
 #: admin/class-admin-employers.php:129
-#: admin/class-admin-jobs.php:124
-#: admin/class-admin-meta-boxes.php:348
+#: admin/class-admin-jobs.php:132
+#: admin/class-admin-meta-boxes.php:356
 #: blocks/employer-dashboard/render.php:566
 #: blocks/job-form-simple/render.php:381
 #: blocks/job-form/render.php:594
@@ -535,13 +536,13 @@ msgstr[0] "Entreprise"
 msgstr[1] "Entreprises"
 
 #: admin/class-admin-employers.php:158
-#: admin/class-admin-employers.php:573
-#: admin/class-admin.php:881
+#: admin/class-admin-employers.php:598
+#: admin/class-admin.php:874
 msgid "Ban"
 msgstr "Bannir"
 
 #: admin/class-admin-employers.php:159
-#: admin/class-admin-employers.php:573
+#: admin/class-admin-employers.php:598
 msgid "Unban"
 msgstr "Débannir"
 
@@ -567,7 +568,7 @@ msgstr "Les employeurs sont des utilisateurs ayant le rôle Employeur. Invitez-l
 msgid "Add Employer"
 msgstr "Ajouter un employeur"
 
-#: admin/class-admin-employers.php:528
+#: admin/class-admin-employers.php:553
 msgid "Select employer"
 msgstr "Sélectionner un employeur"
 
@@ -749,7 +750,7 @@ msgstr "Aucun CV trouvé dans WP Job Manager Resumes."
 #: admin/class-admin-settings.php:649
 #: admin/class-admin-settings.php:662
 #: admin/class-admin-settings.php:663
-#: admin/class-admin.php:516
+#: admin/class-admin.php:509
 msgid "Pro"
 msgstr "Pro"
 
@@ -781,16 +782,16 @@ msgstr "Description du poste"
 msgid "Use the inline toolbar (select text) and the block menu (+) to format - headings, lists, links, quotes."
 msgstr "Utilise la barre d'outils en ligne (sélectionne du texte) et le menu des blocs (+) pour formater - en-têtes, listes, liens, citations."
 
-#: admin/class-admin-jobs.php:43
+#: admin/class-admin-jobs.php:51
 msgid "job"
 msgstr "poste"
 
-#: admin/class-admin-jobs.php:44
+#: admin/class-admin-jobs.php:52
 msgid "jobs"
 msgstr "postes"
 
-#: admin/class-admin-jobs.php:65
-#: admin/class-admin-jobs.php:70
+#: admin/class-admin-jobs.php:73
+#: admin/class-admin-jobs.php:78
 #: admin/class-admin-settings.php:301
 #: admin/class-admin-settings.php:708
 #: admin/class-admin.php:203
@@ -802,11 +803,11 @@ msgstr "postes"
 msgid "Jobs"
 msgstr "Postes"
 
-#: admin/class-admin-jobs.php:72
+#: admin/class-admin-jobs.php:80
 msgid "Manage job listings, approve pending submissions, and track active postings."
 msgstr "Gère les annonces de poste, approuve les soumissions en attente et suis les publications actives."
 
-#: admin/class-admin-jobs.php:101
+#: admin/class-admin-jobs.php:109
 #: blocks/job-listings/render.php:534
 #: blocks/job-search-hero/render.php:57
 #: blocks/job-search-hero/render.php:64
@@ -816,50 +817,50 @@ msgstr "Gère les annonces de poste, approuve les soumissions en attente et suis
 msgid "Search jobs"
 msgstr "Cherche les postes"
 
-#: admin/class-admin-jobs.php:120
+#: admin/class-admin-jobs.php:128
 msgid "Select all jobs"
 msgstr "Sélectionne tous les postes"
 
-#: admin/class-admin-jobs.php:121
+#: admin/class-admin-jobs.php:129
 #: blocks/job-alert-card/index.js:22
 #: blocks/similar-companies-card/index.js:45
 msgid "Title"
 msgstr "Titre"
 
-#: admin/class-admin-jobs.php:123
+#: admin/class-admin-jobs.php:131
 msgid "Flags"
 msgstr "Signalements"
 
-#: admin/class-admin-jobs.php:125
+#: admin/class-admin-jobs.php:134
 msgid "Author"
 msgstr "Auteur"
 
-#: admin/class-admin-jobs.php:161
-#: admin/class-admin-jobs.php:462
-#: admin/class-admin.php:644
-#: admin/class-admin.php:859
+#: admin/class-admin-jobs.php:170
+#: admin/class-admin-jobs.php:472
+#: admin/class-admin.php:637
+#: admin/class-admin.php:852
 msgid "Approve"
 msgstr "Approuver"
 
-#: admin/class-admin-jobs.php:165
+#: admin/class-admin-jobs.php:174
 msgid "Dismiss flags"
 msgstr "Ignorer les signalements"
 
-#: admin/class-admin-jobs.php:298
-#: admin/class-admin.php:609
-#: admin/class-admin.php:619
+#: admin/class-admin-jobs.php:308
+#: admin/class-admin.php:602
+#: admin/class-admin.php:612
 msgid "Pending Review"
 msgstr "En attente d'examen"
 
-#: admin/class-admin-jobs.php:300
-#: admin/class-admin-jobs.php:607
+#: admin/class-admin-jobs.php:310
+#: admin/class-admin-jobs.php:617
 #: api/endpoints/class-employers-endpoint.php:1585
 #: blocks/employer-dashboard/render.php:460
 msgid "Expired"
 msgstr "Expiré"
 
-#: admin/class-admin-jobs.php:301
-#: admin/class-admin-jobs.php:608
+#: admin/class-admin-jobs.php:311
+#: admin/class-admin-jobs.php:618
 #: api/endpoints/class-employers-endpoint.php:1584
 #: blocks/employer-dashboard/render.php:456
 #: blocks/employer-dashboard/render.php:818
@@ -867,35 +868,35 @@ msgstr "Expiré"
 msgid "Closed"
 msgstr "Fermé"
 
-#: admin/class-admin-jobs.php:338
+#: admin/class-admin-jobs.php:348
 msgid "Flagged"
 msgstr "Signalé"
 
-#: admin/class-admin-jobs.php:390
+#: admin/class-admin-jobs.php:400
 #: modules/jobs/class-jobs-module.php:338
 msgid "Add New Job"
 msgstr "Ajouter un nouvel emploi"
 
-#: admin/class-admin-jobs.php:412
+#: admin/class-admin-jobs.php:422
 msgid "Select job"
 msgstr "Sélectionner un emploi"
 
-#: admin/class-admin-jobs.php:467
-#: admin/class-admin.php:645
-#: admin/class-admin.php:862
+#: admin/class-admin-jobs.php:477
+#: admin/class-admin.php:638
+#: admin/class-admin.php:855
 #: modules/applications/widgets/class-quick-actions.php:110
 msgid "Reject"
 msgstr "Rejeter"
 
-#: admin/class-admin-jobs.php:490
+#: admin/class-admin-jobs.php:500
 msgid "Dismiss flag"
 msgstr "Ignorer le signalement"
 
-#: admin/class-admin-jobs.php:507
+#: admin/class-admin-jobs.php:517
 msgid "Unpublish"
 msgstr "Dépublier"
 
-#: admin/class-admin-jobs.php:605
+#: admin/class-admin-jobs.php:615
 #: api/endpoints/class-employers-endpoint.php:1582
 #: blocks/employer-dashboard/render.php:457
 #: blocks/employer-dashboard/render.php:817
@@ -903,7 +904,7 @@ msgid "Pending"
 msgstr "En attente"
 
 #. translators: %d: number of reports.
-#: admin/class-admin-jobs.php:681
+#: admin/class-admin-jobs.php:691
 #: admin/class-reported-members.php:203
 #, php-format
 msgid "%d report"
@@ -935,138 +936,138 @@ msgstr "Confiance &amp; Visibilité"
 msgid "Application"
 msgstr "Candidature"
 
-#: admin/class-admin-meta-boxes.php:199
+#: admin/class-admin-meta-boxes.php:207
 msgid "No rejection reason recorded."
 msgstr "Aucun motif de rejet enregistré."
 
-#: admin/class-admin-meta-boxes.php:275
+#: admin/class-admin-meta-boxes.php:283
 #: blocks/job-form-simple/render.php:525
 #: blocks/job-form/render.php:702
 msgid "Currency"
 msgstr "Devise"
 
 #. translators: 1: currency code, for example USD. 2: currency symbol, for example the dollar sign.
-#: admin/class-admin-meta-boxes.php:282
+#: admin/class-admin-meta-boxes.php:290
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"
 
-#: admin/class-admin-meta-boxes.php:292
+#: admin/class-admin-meta-boxes.php:300
 #: blocks/job-form/render.php:762
 msgid "Per"
 msgstr "Par"
 
-#: admin/class-admin-meta-boxes.php:294
+#: admin/class-admin-meta-boxes.php:302
 #: blocks/job-form-simple/render.php:543
 #: blocks/job-form/render.php:771
 msgid "Year"
 msgstr "Année"
 
-#: admin/class-admin-meta-boxes.php:295
+#: admin/class-admin-meta-boxes.php:303
 #: blocks/job-form-simple/render.php:544
 #: blocks/job-form/render.php:772
 msgid "Month"
 msgstr "Mois"
 
-#: admin/class-admin-meta-boxes.php:296
+#: admin/class-admin-meta-boxes.php:304
 #: blocks/job-form-simple/render.php:545
 #: blocks/job-form/render.php:773
 msgid "Hour"
 msgstr "Heure"
 
-#: admin/class-admin-meta-boxes.php:300
+#: admin/class-admin-meta-boxes.php:308
 msgid "Salary Min"
 msgstr "Salaire minimum"
 
-#: admin/class-admin-meta-boxes.php:313
+#: admin/class-admin-meta-boxes.php:321
 msgid "Salary Max"
 msgstr "Salaire maximum"
 
-#: admin/class-admin-meta-boxes.php:326
+#: admin/class-admin-meta-boxes.php:334
 #: blocks/job-form-simple/render.php:558
 #: blocks/job-form/render.php:797
 msgid "Application Deadline"
 msgstr "Date limite de candidature"
 
-#: admin/class-admin-meta-boxes.php:351
+#: admin/class-admin-meta-boxes.php:359
 msgid " -  Select a company  - "
 msgstr " -  Sélectionner une entreprise  - "
 
 #. translators: %s: URL to add a new company
-#: admin/class-admin-meta-boxes.php:363
+#: admin/class-admin-meta-boxes.php:371
 #, php-format
 msgid "No companies yet. %s"
 msgstr "Pas encore d'entreprises. %s"
 
-#: admin/class-admin-meta-boxes.php:364
+#: admin/class-admin-meta-boxes.php:372
 msgid "Add one"
 msgstr "En ajouter une"
 
 #: admin/class-admin-companies.php:123
-#: admin/class-admin-meta-boxes.php:368
+#: admin/class-admin-meta-boxes.php:376
 #: blocks/employer-dashboard/render.php:1203
 #: blocks/employer-registration/render.php:310
 #: modules/notifications/emails/class-email-deadline-reminder.php:91
 msgid "Company name"
 msgstr "Nom de l'entreprise"
 
-#: admin/class-admin-meta-boxes.php:368
+#: admin/class-admin-meta-boxes.php:376
 msgid "Company name (displayed on listing)"
 msgstr "Nom de l'entreprise (affiché sur l'annonce)"
 
-#: admin/class-admin-meta-boxes.php:379
+#: admin/class-admin-meta-boxes.php:387
 #: blocks/job-form-simple/render.php:554
 #: blocks/job-form/render.php:791
 msgid "Remote-friendly position"
 msgstr "Poste compatible avec le télétravail"
 
-#: admin/class-admin-meta-boxes.php:390
+#: admin/class-admin-meta-boxes.php:398
 msgid "Featured listing"
 msgstr "Annonce en vedette"
 
-#: admin/class-admin-meta-boxes.php:421
+#: admin/class-admin-meta-boxes.php:429
 #: blocks/employer-dashboard/render.php:188
 #: blocks/employer-registration/render.php:100
 #: core/class-company-meta-shape.php:198
 msgid "1-10 employees"
 msgstr "1-10 employés"
 
-#: admin/class-admin-meta-boxes.php:422
+#: admin/class-admin-meta-boxes.php:430
 #: blocks/employer-dashboard/render.php:189
 #: blocks/employer-registration/render.php:101
 #: core/class-company-meta-shape.php:199
 msgid "11-50 employees"
 msgstr "11-50 employés"
 
-#: admin/class-admin-meta-boxes.php:423
+#: admin/class-admin-meta-boxes.php:431
 #: blocks/employer-dashboard/render.php:190
 #: blocks/employer-registration/render.php:102
 #: core/class-company-meta-shape.php:200
 msgid "51-200 employees"
 msgstr "51-200 employés"
 
-#: admin/class-admin-meta-boxes.php:424
+#: admin/class-admin-meta-boxes.php:432
 #: blocks/employer-dashboard/render.php:191
 #: blocks/employer-registration/render.php:103
 #: core/class-company-meta-shape.php:201
 msgid "201-500 employees"
 msgstr "201-500 employés"
 
-#: admin/class-admin-meta-boxes.php:425
+#: admin/class-admin-meta-boxes.php:433
 #: blocks/employer-dashboard/render.php:192
 #: blocks/employer-registration/render.php:104
 #: core/class-company-meta-shape.php:202
 msgid "501-1,000 employees"
 msgstr "501-1 000 employés"
 
-#: admin/class-admin-meta-boxes.php:426
+#: admin/class-admin-meta-boxes.php:434
 #: blocks/employer-dashboard/render.php:193
 #: blocks/employer-registration/render.php:105
 #: core/class-company-meta-shape.php:203
 msgid "1,001-5,000 employees"
 msgstr "1 001-5 000 employés"
 
-#: admin/class-admin-meta-boxes.php:427
+#: admin/class-admin-meta-boxes.php:435
 #: core/class-company-meta-shape.php:212
 msgid "5,001+ employees"
 msgstr "5 001+ employés"
@@ -1099,27 +1100,27 @@ msgstr "Institution éducative"
 msgid "Partnership"
 msgstr "Partenariat"
 
-#: admin/class-admin-meta-boxes.php:441
+#: admin/class-admin-meta-boxes.php:449
 msgid "Featured company"
 msgstr "Entreprise vedette"
 
-#: admin/class-admin-meta-boxes.php:446
+#: admin/class-admin-meta-boxes.php:454
 msgid "Tagline / Slogan"
 msgstr "Slogan / Devise"
 
-#: admin/class-admin-meta-boxes.php:452
+#: admin/class-admin-meta-boxes.php:460
 msgid "e.g. Building a better future, one product at a time"
 msgstr "ex. Construire un meilleur avenir, un produit à la fois"
 
-#: admin/class-admin-meta-boxes.php:454
+#: admin/class-admin-meta-boxes.php:462
 msgid "Short company motto shown below the name."
 msgstr "Courte devise de l'entreprise affichée sous le nom."
 
-#: admin/class-admin-meta-boxes.php:458
+#: admin/class-admin-meta-boxes.php:466
 msgid "Website URL"
 msgstr "URL du site Web"
 
-#: admin/class-admin-meta-boxes.php:469
+#: admin/class-admin-meta-boxes.php:477
 #: blocks/company-archive/render.php:292
 #: blocks/company-profile/render.php:271
 #: blocks/employer-dashboard/render.php:1231
@@ -1128,49 +1129,49 @@ msgstr "URL du site Web"
 msgid "Industry"
 msgstr "Secteur d'activité"
 
-#: admin/class-admin-meta-boxes.php:480
+#: admin/class-admin-meta-boxes.php:488
 #: blocks/employer-dashboard/render.php:1272
 msgid "Company Type"
 msgstr "Type d'entreprise"
 
-#: admin/class-admin-meta-boxes.php:502
+#: admin/class-admin-meta-boxes.php:510
 #: blocks/employer-dashboard/render.php:1288
 msgid "Founded Year"
 msgstr "Année de fondation"
 
-#: admin/class-admin-meta-boxes.php:515
+#: admin/class-admin-meta-boxes.php:523
 msgid "Headquarters Location"
 msgstr "Siège social"
 
-#: admin/class-admin-meta-boxes.php:521
+#: admin/class-admin-meta-boxes.php:529
 msgid "e.g. San Francisco, CA, USA"
 msgstr "ex. San Francisco, CA, USA"
 
-#: admin/class-admin-meta-boxes.php:544
+#: admin/class-admin-meta-boxes.php:552
 msgid "LinkedIn URL"
 msgstr "URL LinkedIn"
 
-#: admin/class-admin-meta-boxes.php:551
+#: admin/class-admin-meta-boxes.php:559
 msgid "X (Twitter) URL"
 msgstr "URL X (Twitter)"
 
-#: admin/class-admin-meta-boxes.php:570
+#: admin/class-admin-meta-boxes.php:578
 msgid "None"
 msgstr "Aucun"
 
-#: admin/class-admin-meta-boxes.php:571
+#: admin/class-admin-meta-boxes.php:579
 msgid "Verified ✓"
 msgstr "Vérifié ✓"
 
-#: admin/class-admin-meta-boxes.php:572
+#: admin/class-admin-meta-boxes.php:580
 msgid "Trusted ★"
 msgstr "De confiance ★"
 
-#: admin/class-admin-meta-boxes.php:573
+#: admin/class-admin-meta-boxes.php:581
 msgid "Premium ◆"
 msgstr "Premium ◆"
 
-#: admin/class-admin-meta-boxes.php:585
+#: admin/class-admin-meta-boxes.php:593
 msgid "\"Verified\" shows the checkmark badge on job listings."
 msgstr "« Vérifié » affiche un badge de coche sur les annonces d'emploi."
 
@@ -1181,12 +1182,12 @@ msgstr "Tu n'as pas la permission de faire cela."
 
 #: admin/class-pages.php:50
 #: admin/class-pages.php:53
-#: core/class-plugin.php:737
+#: core/class-plugin.php:738
 msgid "Find Jobs"
 msgstr "Trouver des emplois"
 
 #: admin/class-pages.php:65
-#: core/class-plugin.php:755
+#: core/class-plugin.php:756
 msgid "Candidate Dashboard"
 msgstr "Tableau de bord candidat"
 
@@ -1206,13 +1207,13 @@ msgid "Notifications"
 msgstr "Notifications"
 
 #: admin/class-admin-settings.php:308
-#: admin/class-admin.php:812
+#: admin/class-admin.php:805
 #: admin/class-setup-wizard.php:231
 msgid "Emails"
 msgstr "E-mails"
 
 #: admin/class-admin-settings.php:304
-#: admin/class-admin.php:868
+#: admin/class-admin.php:861
 msgid "Import"
 msgstr "Importer"
 
@@ -1259,43 +1260,43 @@ msgid "Remove demo jobs, companies, candidates, and unused taxonomy terms create
 msgstr "Supprime les emplois, entreprises, candidats de démonstration et les termes de taxonomie inutilisés créés par l'assistant de configuration ou marqués comme exemple."
 
 #: admin/class-admin-settings.php:503
-#: admin/class-admin.php:933
+#: admin/class-admin.php:926
 msgid "Remove Sample Data"
 msgstr "Supprimer les données d'exemple"
 
-#: admin/class-admin.php:932
+#: admin/class-admin.php:925
 msgid "Removing…"
 msgstr "Suppression…"
 
-#: admin/class-admin.php:934
+#: admin/class-admin.php:927
 msgid "Permanently delete all demo jobs, companies, candidates, and unused taxonomy terms? This cannot be undone."
 msgstr "Supprimer définitivement tous les emplois, entreprises, candidats de démonstration et les termes de taxonomie inutilisés ? Cette action ne peut pas être annulée."
 
-#: admin/class-admin.php:935
+#: admin/class-admin.php:928
 msgid "Delete Sample Data"
 msgstr "Supprimer les données d'exemple"
 
-#: admin/class-admin.php:865
-#: admin/class-admin.php:936
+#: admin/class-admin.php:858
+#: admin/class-admin.php:929
 #: blocks/candidate-dashboard/render.php:1000
 #: blocks/candidate-dashboard/render.php:1082
 #: blocks/job-form/editor-toolbar.php:30
 #: blocks/job-single/render.php:1011
-#: core/class-plugin.php:1340
+#: core/class-plugin.php:1341
 #: modules/antispam/class-turnstile-driver.php:105
 #: templates/parts/privacy-settings.php:131
 msgid "Cancel"
 msgstr "Annuler"
 
-#: admin/class-admin.php:937
+#: admin/class-admin.php:930
 msgid "Removed %JOBS% sample jobs, %COMPANIES% sample companies, %CANDIDATES% sample candidates, %TERMS% taxonomy terms."
 msgstr "Supprimé %JOBS% emplois d'exemple, %COMPANIES% entreprises d'exemple, %CANDIDATES% candidats d'exemple, %TERMS% termes de taxonomie."
 
-#: admin/class-admin.php:938
+#: admin/class-admin.php:931
 msgid "Nothing to remove - no sample data was found."
 msgstr "Rien à supprimer - aucune donnée d'exemple n'a été trouvée."
 
-#: admin/class-admin.php:939
+#: admin/class-admin.php:932
 msgid "Could not remove sample data. Please try again."
 msgstr "Impossible de supprimer les données d'exemple. Réessaye."
 
@@ -1548,8 +1549,8 @@ msgstr "Étiquettes d'emploi"
 
 #: admin/class-admin.php:382
 #: admin/class-admin.php:383
-#: admin/class-admin.php:528
-#: admin/class-admin.php:730
+#: admin/class-admin.php:521
+#: admin/class-admin.php:723
 #: blocks/candidate-dashboard/render.php:208
 #: blocks/candidate-dashboard/render.php:552
 #: blocks/employer-dashboard/render.php:415
@@ -1560,47 +1561,47 @@ msgstr "Étiquettes d'emploi"
 msgid "Settings"
 msgstr "Paramètres"
 
-#: admin/class-admin.php:519
+#: admin/class-admin.php:512
 msgid "Manage your job board, applications, and hiring pipeline."
 msgstr "Gère ton tableau d'emplois, tes candidatures et ton pipeline d'embauche."
 
-#: admin/class-admin.php:523
+#: admin/class-admin.php:516
 msgid "Visit Site"
 msgstr "Visiter le site"
 
-#: admin/class-admin.php:542
+#: admin/class-admin.php:535
 msgid "Plugin activated"
 msgstr "Plugin activé"
 
 #. translators: 1: pages created count, 2: total pages count
-#: admin/class-admin.php:551
+#: admin/class-admin.php:544
 #, php-format
 msgid "Pages created (%1$d/%2$d)"
 msgstr "Pages créées (%1$d/%2$d)"
 
-#: admin/class-admin.php:558
+#: admin/class-admin.php:551
 msgid "Run Wizard"
 msgstr "Lancer l'assistant"
 
-#: admin/class-admin.php:565
+#: admin/class-admin.php:558
 msgid "Add your first job"
 msgstr "Ajoute ton premier emploi"
 
-#: admin/class-admin.php:567
+#: admin/class-admin.php:560
 msgid "+ Add Job"
 msgstr "+ Ajouter un emploi"
 
-#: admin/class-admin.php:574
+#: admin/class-admin.php:567
 msgid "Invite an employer"
 msgstr "Invite un employeur"
 
-#: admin/class-admin.php:576
+#: admin/class-admin.php:569
 msgid "+ Add User"
 msgstr "+ Ajouter un utilisateur"
 
 #. translators: link to the full jobs archive. The trailing arrow is part of the string so RTL locales can flip its glyph in translation.
-#: admin/class-admin.php:622
-#: admin/class-admin.php:663
+#: admin/class-admin.php:615
+#: admin/class-admin.php:656
 #: blocks/candidate-dashboard/render.php:656
 #: blocks/candidate-dashboard/render.php:680
 #: blocks/employer-dashboard/render.php:751
@@ -1608,85 +1609,85 @@ msgstr "+ Ajouter un utilisateur"
 msgid "View all →"
 msgstr "Voir tout →"
 
-#: admin/class-admin.php:624
-#: admin/class-admin.php:665
+#: admin/class-admin.php:617
+#: admin/class-admin.php:658
 msgid "Toggle panel"
 msgstr "Basculer le panneau"
 
-#: admin/class-admin.php:631
+#: admin/class-admin.php:624
 msgid "No jobs pending review."
 msgstr "Aucun emploi en attente d'examen."
 
-#: admin/class-admin.php:660
+#: admin/class-admin.php:653
 #: blocks/candidate-dashboard/render.php:655
 #: blocks/employer-dashboard/render.php:750
 msgid "Recent Applications"
 msgstr "Candidatures récentes"
 
-#: admin/class-admin.php:726
+#: admin/class-admin.php:719
 msgid "Add User"
 msgstr "Ajouter un utilisateur"
 
-#: admin/class-admin.php:751
+#: admin/class-admin.php:744
 #: blocks/employer-dashboard/render.php:690
 msgid "Dismiss"
 msgstr "Fermer"
 
-#: admin/class-admin.php:759
+#: admin/class-admin.php:752
 msgid "Application Pipeline  -  Drag-and-drop Kanban hiring stages"
 msgstr "Pipeline de candidature  -  Étapes d'embauche Kanban par glisser-déposer"
 
-#: admin/class-admin.php:763
+#: admin/class-admin.php:756
 msgid "Resume Builder  -  Candidate resume profiles with rich fields"
 msgstr "Générateur de CV  -  Profils de CV de candidats avec des champs riches"
 
-#: admin/class-admin.php:767
+#: admin/class-admin.php:760
 msgid "AI Job Descriptions  -  Auto-generate job posts with AI"
 msgstr "Descriptions d'emploi AI  -  Générer automatiquement les offres d'emploi avec AI"
 
-#: admin/class-admin.php:771
+#: admin/class-admin.php:764
 msgid "Credits System  -  Sell job post credits via Stripe"
 msgstr "Système de crédits  -  Vendre des crédits d'offre d'emploi via Stripe"
 
-#: admin/class-admin.php:778
+#: admin/class-admin.php:771
 msgid "Upgrade to Pro"
 msgstr "Passer à Pro"
 
-#: admin/class-admin.php:857
+#: admin/class-admin.php:850
 msgid "Approve Job"
 msgstr "Approuver l'offre"
 
-#: admin/class-admin.php:858
+#: admin/class-admin.php:851
 msgid "This job will be published and the employer will be notified."
 msgstr "Cette offre sera publiée et l'employeur sera notifié."
 
-#: admin/class-admin.php:860
+#: admin/class-admin.php:853
 msgid "Reject Job"
 msgstr "Rejeter l'offre"
 
-#: admin/class-admin.php:861
+#: admin/class-admin.php:854
 msgid "This job will be moved to Draft and the employer will be notified."
 msgstr "Cette offre sera déplacée en Brouillon et l'employeur sera notifié."
 
-#: admin/class-admin.php:863
+#: admin/class-admin.php:856
 msgid "Reason (optional):"
 msgstr "Raison (optionnel) :"
 
-#: admin/class-admin.php:864
+#: admin/class-admin.php:857
 #: blocks/candidate-dashboard/render.php:1077
-#: core/class-plugin.php:1339
+#: core/class-plugin.php:1340
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: admin/class-admin.php:866
+#: admin/class-admin.php:859
 msgid "Could not update. Please try again."
 msgstr "Impossible de mettre à jour. Réessaye."
 
-#: admin/class-admin.php:867
+#: admin/class-admin.php:860
 msgid "Importing…"
 msgstr "Importation en cours…"
 
-#: admin/class-admin.php:965
+#: admin/class-admin.php:958
 #: blocks/company-profile/render.php:122
 #: blocks/job-single/render.php:371
 #: core/widgets/class-widget-shortcode.php:119
@@ -1725,7 +1726,7 @@ msgid "Choose Image"
 msgstr "Choisir une image"
 
 #: admin/class-admin-settings.php:1139
-#: admin/class-admin.php:906
+#: admin/class-admin.php:899
 #: blocks/candidate-dashboard/render.php:769
 #: blocks/candidate-dashboard/render.php:830
 #: blocks/candidate-dashboard/render.php:887
@@ -1819,7 +1820,7 @@ msgstr "Laisse ce champ vide pour utiliser le défaut préconfiguré. L'en-tête
 msgid "Test sends are dispatched to your admin email (%s) and recorded in the activity log below."
 msgstr "Les tests sont envoyés à ton adresse e-mail d'administrateur (%s) et enregistrés dans le journal d'activité ci-dessous."
 
-#: admin/class-admin.php:891
+#: admin/class-admin.php:884
 msgid "Select Logo"
 msgstr "Sélectionner le logo"
 
@@ -1944,7 +1945,7 @@ msgstr "Chaque produit ci-dessus est un plugin Wbcom autonome. WP Career Board d
 msgid "WP Career Board Setup"
 msgstr "Configuration de WP Career Board"
 
-#: admin/class-admin.php:735
+#: admin/class-admin.php:728
 #: admin/class-setup-wizard.php:186
 #: admin/class-setup-wizard.php:187
 #: admin/views/setup-wizard-complete.php:23
@@ -2644,14 +2645,14 @@ msgstr "Bio / À propos de moi"
 msgid "Save Profile"
 msgstr "Enregistrer le profil"
 
-#: admin/class-admin.php:915
+#: admin/class-admin.php:908
 #: blocks/candidate-dashboard/render.php:1244
 #: blocks/employer-dashboard/render.php:1320
 #: blocks/employer-registration/render.php:391
 msgid "Saving…"
 msgstr "Enregistrement en cours…"
 
-#: admin/class-admin.php:964
+#: admin/class-admin.php:957
 #: blocks/candidate-dashboard/render.php:513
 #: blocks/candidate-dashboard/render.php:1246
 #: blocks/company-profile/render.php:103
@@ -2777,7 +2778,7 @@ msgstr "Filtrer les entreprises"
 msgid "Filters"
 msgstr "Filtres"
 
-#: admin/class-admin-meta-boxes.php:491
+#: admin/class-admin-meta-boxes.php:499
 #: blocks/company-archive/render.php:307
 #: blocks/company-profile/render.php:277
 #: blocks/employer-dashboard/render.php:1241
@@ -3123,7 +3124,7 @@ msgid "No jobs match your search."
 msgstr "Aucun emploi ne correspond à ta recherche."
 
 #: blocks/employer-dashboard/render.php:932
-#: core/class-plugin.php:1212
+#: core/class-plugin.php:1213
 #: blocks/job-listings/index.js:63
 #: blocks/job-listings/index.js:147
 msgid "List"
@@ -3178,7 +3179,7 @@ msgstr "Que fait ton entreprise ? Mission, produits, culture…"
 msgid "About the company"
 msgstr "À propos de l'entreprise"
 
-#: admin/class-admin-meta-boxes.php:420
+#: admin/class-admin-meta-boxes.php:428
 #: blocks/employer-dashboard/render.php:1243
 msgid " -  Select size  - "
 msgstr " -  Sélectionne la taille  - "
@@ -3192,7 +3193,7 @@ msgstr "Siège social"
 msgid "e.g. San Francisco, CA"
 msgstr "p. ex. San Francisco, CA"
 
-#: admin/class-admin-meta-boxes.php:430
+#: admin/class-admin-meta-boxes.php:438
 #: blocks/employer-dashboard/render.php:1274
 msgid " -  Select type  - "
 msgstr " -  Sélectionne le type  - "
@@ -3631,7 +3632,7 @@ msgstr "Laisse vide pour masquer le salaire aux candidats."
 msgid "How candidates apply"
 msgstr "Comment les candidats postulent"
 
-#: admin/class-admin-meta-boxes.php:340
+#: admin/class-admin-meta-boxes.php:348
 #: blocks/job-form-simple/render.php:573
 #: blocks/job-form/render.php:818
 msgid "Apply URL"
@@ -3641,7 +3642,7 @@ msgstr "URL de candidature"
 msgid "https://yourcompany.com/careers/apply"
 msgstr "https://yourcompany.com/careers/apply"
 
-#: admin/class-admin-meta-boxes.php:344
+#: admin/class-admin-meta-boxes.php:352
 #: blocks/job-form-simple/render.php:577
 #: blocks/job-form/render.php:837
 #: blocks/job-single/render.php:751
@@ -3868,7 +3869,7 @@ msgstr "Retirer le filtre"
 msgid "Featured"
 msgstr "À la Une"
 
-#: admin/class-admin-jobs.php:381
+#: admin/class-admin-jobs.php:391
 #: blocks/job-listings/render.php:908
 msgid "No jobs match your filters"
 msgstr "Aucune offre ne correspond à tes filtres"
@@ -4298,35 +4299,35 @@ msgstr "WP Career Board nécessite PHP 8.1+ et WordPress 6.9+."
 msgid "Plugin Activation Error"
 msgstr "Erreur d'activation du plugin"
 
-#: core/class-plugin.php:725
+#: core/class-plugin.php:726
 msgid "Full Job Board"
 msgstr "Tableau d'emplois complet"
 
-#: core/class-plugin.php:726
+#: core/class-plugin.php:727
 msgid "Search bar, filters, and job listings grid  -  the complete job board page."
 msgstr "Barre de recherche, filtres et grille d'offres d'emploi  -  la page complète du tableau d'emplois."
 
-#: core/class-plugin.php:741
+#: core/class-plugin.php:742
 msgid "Post a Job Form"
 msgstr "Formulaire de publication d'emploi"
 
-#: core/class-plugin.php:742
+#: core/class-plugin.php:743
 msgid "Multi-step job posting form for employers."
 msgstr "Formulaire de publication d'emploi multi-étapes pour les employeurs."
 
-#: core/class-plugin.php:749
+#: core/class-plugin.php:750
 msgid "Tabbed dashboard for employers to manage jobs and applications."
 msgstr "Tableau de bord à onglets pour que les employeurs gèrent les emplois et les candidatures."
 
-#: core/class-plugin.php:756
+#: core/class-plugin.php:757
 msgid "Tabbed dashboard for candidates to track applications and saved jobs."
 msgstr "Tableau de bord à onglets pour que les candidats suivent les candidatures et les emplois enregistrés."
 
-#: core/class-plugin.php:762
+#: core/class-plugin.php:763
 msgid "Company Directory"
 msgstr "Répertoire des entreprises"
 
-#: core/class-plugin.php:763
+#: core/class-plugin.php:764
 msgid "Interactive grid of employer company profiles with industry and size filters."
 msgstr "Grille interactive des profils d'entreprises d'employeurs avec filtres d'industrie et de taille."
 
@@ -4564,7 +4565,7 @@ msgstr "Candidature soumise"
 msgid "No cover letter submitted."
 msgstr "Aucune lettre de motivation soumise."
 
-#: admin/class-admin.php:717
+#: admin/class-admin.php:710
 #: modules/applications/widgets/class-quick-actions.php:43
 #: modules/applications/widgets/class-quick-actions.php:101
 msgid "Quick actions"
@@ -5138,12 +5139,12 @@ msgstr "Barre latérale de filtrage"
 msgid "Reorder filters with the arrows, or hide ones you do not need."
 msgstr "Réorganise les filtres avec les flèches, ou masque ceux dont tu n'as pas besoin."
 
-#: core/class-plugin.php:1239
+#: core/class-plugin.php:1240
 #: blocks/job-listings/index.js:191
 msgid "Move up"
 msgstr "Déplacer vers le haut"
 
-#: core/class-plugin.php:1242
+#: core/class-plugin.php:1243
 #: blocks/job-listings/index.js:192
 msgid "Move down"
 msgstr "Déplacer vers le bas"
@@ -5572,12 +5573,12 @@ msgstr "Suspendu"
 msgid "Public"
 msgstr "Public"
 
-#: admin/class-admin-employers.php:560
+#: admin/class-admin-employers.php:585
 #: modules/employers/class-employers-module.php:638
 msgid "View company"
 msgstr "Afficher l'entreprise"
 
-#: admin/class-admin-employers.php:604
+#: admin/class-admin-employers.php:629
 msgid "main"
 msgstr "principal"
 
@@ -5615,37 +5616,37 @@ msgstr "Déplace les candidatures vers les postes importés avec leur statut (no
 msgid "Import All Applications"
 msgstr "Importer toutes les candidatures"
 
-#: admin/class-admin-jobs.php:101
+#: admin/class-admin-jobs.php:109
 msgid "Job title or company…"
 msgstr "Titre du poste ou entreprise…"
 
-#: admin/class-admin-jobs.php:361
-#: admin/class-admin-jobs.php:614
+#: admin/class-admin-jobs.php:371
+#: admin/class-admin-jobs.php:624
 #: blocks/employer-dashboard/render.php:462
 msgid "Awaiting payment"
 msgstr "En attente de paiement"
 
-#: admin/class-admin-jobs.php:618
+#: admin/class-admin-jobs.php:628
 msgid "Hidden: employer banned"
 msgstr "Masqué : employeur banni"
 
-#: admin/class-admin-jobs.php:620
+#: admin/class-admin-jobs.php:630
 msgid "Hidden: reported"
 msgstr "Masqué : signalé"
 
-#: admin/class-admin-jobs.php:645
+#: admin/class-admin-jobs.php:655
 msgid "Not in Google for Jobs: add a location or mark the job as remote."
 msgstr "Absent de Google for Jobs : ajoute une localisation ou marque le poste comme à distance."
 
-#: admin/class-admin-jobs.php:646
+#: admin/class-admin-jobs.php:656
 msgid "No location"
 msgstr "Aucune localisation"
 
-#: admin/class-admin-meta-boxes.php:333
+#: admin/class-admin-meta-boxes.php:341
 msgid "Leave empty to use the board's listing length."
 msgstr "Laisse vide pour utiliser la durée d'annonce du tableau."
 
-#: admin/class-admin-meta-boxes.php:336
+#: admin/class-admin-meta-boxes.php:344
 msgid "No expiry (stays open until closed)"
 msgstr "Sans expiration (reste ouvert jusqu'à fermeture)"
 
@@ -6137,100 +6138,100 @@ msgstr "Ouvrir le réglage"
 msgid "Got it"
 msgstr "Compris"
 
-#: admin/class-admin.php:537
+#: admin/class-admin.php:530
 msgid "Getting started"
 msgstr "Premiers pas"
 
-#: admin/class-admin.php:750
+#: admin/class-admin.php:743
 msgid "Unlock Pro features"
 msgstr "Débloquer les fonctionnalités Pro"
 
 #. translators: 1: percent complete, 2: rows imported so far, 3: rows skipped so far. %% is a literal percent sign.
-#: admin/class-admin.php:870
+#: admin/class-admin.php:863
 #, php-format
 msgid "%1$s%% - imported: %2$s, skipped: %3$s"
 msgstr "%1$s %% — importés : %2$s, ignorés : %3$s"
 
 #. translators: 1: rows imported, 2: rows skipped, 3: rows that failed.
-#: admin/class-admin.php:872
+#: admin/class-admin.php:865
 #, php-format
 msgid "Done. Imported: %1$s, skipped: %2$s, errors: %3$s"
 msgstr "Terminé. Importés : %1$s, ignorés : %2$s, erreurs : %3$s"
 
-#: admin/class-admin.php:873
+#: admin/class-admin.php:866
 msgid "Import complete."
 msgstr "Import terminé."
 
 #. translators: %1$s: error message.
-#: admin/class-admin.php:875
+#: admin/class-admin.php:868
 #, php-format
 msgid "Error: %1$s"
 msgstr "Erreur : %1$s"
 
-#: admin/class-admin.php:876
+#: admin/class-admin.php:869
 msgid "Request failed."
 msgstr "La demande a échoué."
 
 #. translators: %d: number of companies using this industry. Label form, so one string fits every count.
-#: admin/class-admin.php:904
+#: admin/class-admin.php:897
 #, php-format
 msgid "Companies: %d"
 msgstr "Entreprises : %d"
 
-#: admin/class-admin.php:905
+#: admin/class-admin.php:898
 msgid "not in use"
 msgstr "non utilisé"
 
 #. translators: %s: name of the item being removed (an industry or a category).
-#: admin/class-admin.php:908
+#: admin/class-admin.php:901
 #: templates/parts/job-category-field.php:47
 #, php-format
 msgid "Remove %s"
 msgstr "Retirer %s"
 
-#: admin/class-admin.php:909
+#: admin/class-admin.php:902
 msgid "Keep"
 msgstr "Conserver"
 
-#: admin/class-admin.php:910
+#: admin/class-admin.php:903
 msgid "Move those companies to:"
 msgstr "Déplacer ces entreprises vers :"
 
-#: admin/class-admin.php:911
+#: admin/class-admin.php:904
 msgid "Clear the industry"
 msgstr "Effacer le secteur"
 
-#: admin/class-admin.php:912
+#: admin/class-admin.php:905
 msgid "Will be removed on save."
 msgstr "Sera retiré à l'enregistrement."
 
-#: admin/class-admin.php:913
+#: admin/class-admin.php:906
 msgid "Enter a name first."
 msgstr "Saisis d'abord un nom."
 
-#: admin/class-admin.php:914
+#: admin/class-admin.php:907
 msgid "That industry already exists."
 msgstr "Ce secteur existe déjà."
 
-#: admin/class-admin.php:916
+#: admin/class-admin.php:909
 msgid "Industries saved."
 msgstr "Secteurs enregistrés."
 
 #. translators: %d: number of companies moved to another industry.
-#: admin/class-admin.php:918
+#: admin/class-admin.php:911
 #, php-format
 msgid "Industries saved. %d companies updated."
 msgstr "Secteurs enregistrés. %d entreprises mises à jour."
 
-#: admin/class-admin.php:919
+#: admin/class-admin.php:912
 msgid "Could not save industries. Please try again."
 msgstr "Impossible d'enregistrer les secteurs. Réessaie."
 
-#: admin/class-admin.php:920
+#: admin/class-admin.php:913
 msgid "Could not load industries."
 msgstr "Impossible de charger les secteurs."
 
-#: admin/class-admin.php:921
+#: admin/class-admin.php:914
 msgid "Keep at least one industry."
 msgstr "Garde au moins un secteur."
 
@@ -6856,7 +6857,7 @@ msgstr "%1$s · %2$s"
 
 #: blocks/employer-dashboard/render.php:24
 #: blocks/employer-dashboard/render.php:46
-#: core/class-plugin.php:748
+#: core/class-plugin.php:749
 msgid "Employer dashboard"
 msgstr "Tableau de bord employeur"
 
@@ -6992,7 +6993,7 @@ msgstr "Configure ton entreprise"
 msgid "Add your company profile before posting jobs."
 msgstr "Ajoute le profil de ton entreprise avant de publier des postes."
 
-#: admin/class-admin-jobs.php:387
+#: admin/class-admin-jobs.php:397
 #: blocks/employer-dashboard/render.php:844
 msgid "No jobs yet"
 msgstr "Aucun poste pour l'instant"
@@ -7175,7 +7176,7 @@ msgid "Text formatting"
 msgstr "Mise en forme du texte"
 
 #: blocks/job-form/editor-toolbar.php:19
-#: core/class-plugin.php:1218
+#: core/class-plugin.php:1219
 msgid "Bold"
 msgstr "Gras"
 
@@ -7185,7 +7186,7 @@ msgid "B"
 msgstr "B"
 
 #: blocks/job-form/editor-toolbar.php:20
-#: core/class-plugin.php:1219
+#: core/class-plugin.php:1220
 msgid "Italic"
 msgstr "Italique"
 
@@ -7199,7 +7200,7 @@ msgid "Bulleted list"
 msgstr "Liste à puces"
 
 #: blocks/job-form/editor-toolbar.php:22
-#: core/class-plugin.php:1217
+#: core/class-plugin.php:1218
 msgid "Link"
 msgstr "Lien"
 
@@ -7323,100 +7324,100 @@ msgstr "Téléverse une image JPEG, PNG, WebP ou GIF."
 msgid "Applications closed"
 msgstr "Candidatures closes"
 
-#: core/class-plugin.php:555
+#: core/class-plugin.php:556
 msgid "Job Archive"
 msgstr "Archive des postes"
 
-#: core/class-plugin.php:556
+#: core/class-plugin.php:557
 msgid "Company Archive"
 msgstr "Archive des entreprises"
 
-#: core/class-plugin.php:562
+#: core/class-plugin.php:563
 msgid "Job Category Archive"
 msgstr "Archive des catégories de poste"
 
-#: core/class-plugin.php:563
+#: core/class-plugin.php:564
 msgid "Job Type Archive"
 msgstr "Archive des types de poste"
 
-#: core/class-plugin.php:564
+#: core/class-plugin.php:565
 msgid "Job Tag Archive"
 msgstr "Archive des étiquettes de poste"
 
-#: core/class-plugin.php:565
+#: core/class-plugin.php:566
 msgid "Job Location Archive"
 msgstr "Archive des lieux de poste"
 
-#: core/class-plugin.php:566
+#: core/class-plugin.php:567
 msgid "Experience Level Archive"
 msgstr "Archive des niveaux d'expérience"
 
-#: core/class-plugin.php:1189
+#: core/class-plugin.php:1190
 msgid "Click to tune"
 msgstr "Cliquer pour régler"
 
-#: core/class-plugin.php:1190
+#: core/class-plugin.php:1191
 msgid "or drag to move"
 msgstr "ou glisser pour déplacer"
 
-#: core/class-plugin.php:1195
-#: core/class-plugin.php:1206
+#: core/class-plugin.php:1196
+#: core/class-plugin.php:1207
 msgid "Convert to"
 msgstr "Convertir en"
 
-#: core/class-plugin.php:1200
+#: core/class-plugin.php:1201
 msgid "Add"
 msgstr "Ajouter"
 
-#: core/class-plugin.php:1204
+#: core/class-plugin.php:1205
 msgid "Filter"
 msgstr "Filtrer"
 
-#: core/class-plugin.php:1205
+#: core/class-plugin.php:1206
 msgid "Nothing found"
 msgstr "Aucun résultat"
 
-#: core/class-plugin.php:1210
+#: core/class-plugin.php:1211
 msgid "Text"
 msgstr "Texte"
 
-#: core/class-plugin.php:1211
+#: core/class-plugin.php:1212
 msgid "Heading"
 msgstr "Titre"
 
-#: core/class-plugin.php:1213
+#: core/class-plugin.php:1214
 msgid "Quote"
 msgstr "Citation"
 
-#: core/class-plugin.php:1214
+#: core/class-plugin.php:1215
 msgid "Delimiter"
 msgstr "Séparateur"
 
-#: core/class-plugin.php:1215
+#: core/class-plugin.php:1216
 msgid "Marker"
 msgstr "Marqueur"
 
-#: core/class-plugin.php:1216
+#: core/class-plugin.php:1217
 msgid "Inline code"
 msgstr "Code en ligne"
 
-#: core/class-plugin.php:1223
+#: core/class-plugin.php:1224
 msgid "Add a link"
 msgstr "Ajouter un lien"
 
-#: core/class-plugin.php:1226
+#: core/class-plugin.php:1227
 msgid "Numbered"
 msgstr "Numérotée"
 
-#: core/class-plugin.php:1227
+#: core/class-plugin.php:1228
 msgid "Bulleted"
 msgstr "À puces"
 
-#: core/class-plugin.php:1230
+#: core/class-plugin.php:1231
 msgid "This block cannot be displayed correctly."
 msgstr "Ce bloc ne peut pas s'afficher correctement."
 
-#: core/class-plugin.php:1236
+#: core/class-plugin.php:1237
 msgid "Click to delete"
 msgstr "Cliquer pour supprimer"
 
@@ -8348,7 +8349,7 @@ msgstr "Ce poste est classé sous %s. Choisir une catégorie ici les remplace."
 msgid "Chosen categories"
 msgstr "Catégories choisies"
 
-#: admin/class-admin.php:722
+#: admin/class-admin.php:715
 #: blocks/employer-dashboard/render.php:409
 #: blocks/employer-dashboard/render.php:556
 #: blocks/employer-dashboard/render.php:651
@@ -8473,7 +8474,7 @@ msgid "Show all candidates"
 msgstr "Afficher tous les candidats"
 
 #: admin/class-admin-applications.php:522
-#: admin/class-admin.php:672
+#: admin/class-admin.php:665
 #: blocks/candidate-dashboard/render.php:671
 #: blocks/candidate-dashboard/render.php:784
 #: blocks/employer-dashboard/render.php:765
@@ -8486,16 +8487,16 @@ msgid "Applications appear here once candidates apply to your jobs."
 msgstr "Les candidatures apparaissent ici dès que des candidats postulent à tes offres."
 
 #. translators: %s: employer display name
-#: admin/class-admin-jobs.php:91
+#: admin/class-admin-jobs.php:99
 #, php-format
 msgid "Employer: %s"
 msgstr "Employeur : %s"
 
-#: admin/class-admin-jobs.php:93
+#: admin/class-admin-jobs.php:101
 msgid "Show all employers"
 msgstr "Afficher tous les employeurs"
 
-#: admin/class-admin-jobs.php:388
+#: admin/class-admin-jobs.php:398
 msgid "Post your first job listing to get started."
 msgstr "Publie ta première offre d'emploi pour commencer."
 
@@ -8839,17 +8840,17 @@ msgctxt "page title"
 msgid "Employer Registration"
 msgstr "Inscription de l'employeur"
 
-#: admin/class-admin.php:877
+#: admin/class-admin.php:870
 msgid "Ban employer"
 msgstr "Bannir l’employeur"
 
 #. translators: %s: employer name.
-#: admin/class-admin.php:879
+#: admin/class-admin.php:872
 #, php-format
 msgid "Ban %s? Their jobs and company page are hidden and they can no longer post jobs or use their dashboard. You can unban them later."
 msgstr "Bannir %s ? Ses offres et sa page entreprise sont masquées et il ne peut plus publier d’offres ni utiliser son tableau de bord. Vous pourrez le débannir plus tard."
 
-#: admin/class-admin.php:880
+#: admin/class-admin.php:873
 msgid "Ban the selected employers? Their jobs and company pages are hidden and they can no longer post jobs or use their dashboard. You can unban them later."
 msgstr "Bannir les employeurs sélectionnés ? Leurs offres et leurs pages entreprise sont masquées et ils ne peuvent plus publier d’offres ni utiliser leur tableau de bord. Vous pourrez les débannir plus tard."
 
@@ -8970,3 +8971,28 @@ msgid "%s view in 30 days"
 msgid_plural "%s views in 30 days"
 msgstr[0] "%s vue en 30 jours"
 msgstr[1] "%s vues en 30 jours"
+
+#: core/class-cron-registry.php:87
+#: core/class-cron-registry.php:107
+msgid "Career Board scheduled jobs are running"
+msgstr "Les tâches planifiées de Career Board s'exécutent"
+
+#: core/class-cron-registry.php:110
+msgid "Performance"
+msgstr "Performance"
+
+#: core/class-cron-registry.php:113
+msgid "Jobs expire, deadline reminders go out and job alerts are sent by scheduled tasks, and they are running on time."
+msgstr "Les offres expirent, les rappels de date limite partent et les alertes emploi sont envoyées par des tâches planifiées, et elles s'exécutent à l'heure."
+
+#: core/class-cron-registry.php:123
+msgid "Career Board scheduled jobs are not running on time"
+msgstr "Les tâches planifiées de Career Board ne s'exécutent pas à l'heure"
+
+#: core/class-cron-registry.php:126
+msgid "WP-Cron is switched off here and the hourly job-expiry check is overdue, so no real cron is calling it. Expired jobs stay live and job alerts and reminders are not sent until you set up a server cron that runs wp-cron.php."
+msgstr "WP-Cron est désactivé ici et la vérification horaire des offres expirées est en retard, donc aucun vrai cron ne l'appelle. Les offres expirées restent en ligne et les alertes et rappels ne sont pas envoyés tant que vous n'avez pas configuré un cron serveur qui exécute wp-cron.php."
+
+#: core/class-cron-registry.php:127
+msgid "The hourly job-expiry check is missing or overdue. Expired jobs stay live and job alerts and reminders are not sent. Check that your host allows WP-Cron requests to this site, or deactivate and reactivate Career Board."
+msgstr "La vérification horaire des offres expirées est absente ou en retard. Les offres expirées restent en ligne et les alertes et rappels ne sont pas envoyés. Vérifiez que votre hébergeur autorise les requêtes WP-Cron vers ce site, ou désactivez puis réactivez Career Board."
