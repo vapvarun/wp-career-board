@@ -848,7 +848,7 @@ class AdminSettings {
 												</span>
 												<?php esc_html_e( 'Add title, description and image when a job or company is shared', 'wp-career-board' ); ?>
 											</label>
-											<span class="description"><?php esc_html_e( 'Uses the job image or the company logo. Skipped automatically when Yoast SEO or Rank Math is active, since they add their own.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Uses the job image or the company logo. Skipped automatically when Yoast SEO, Rank Math, All in One SEO or SEOPress is active, since they add their own.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 								</div>

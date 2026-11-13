@@ -380,14 +380,23 @@ class SeoModule {
 	/**
 	 * Output Open Graph and Twitter tags on job and company pages.
 	 *
-	 * Skipped when Yoast SEO or Rank Math is active: they print their own,
-	 * and two sets of og:title confuse every share preview.
+	 * Skipped when Yoast SEO, Rank Math, All in One SEO or SEOPress is active:
+	 * they print their own, and two sets of og:title confuse every share
+	 * preview. The `wcb_social_tags_enabled` filter can switch it off for any
+	 * other plugin that does the same.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function inject_og_tags(): void {
-		if ( ! Settings::bool( 'social_tags_enabled', true ) || defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+		$seo_plugin = defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || defined( 'AIOSEO_VERSION' ) || defined( 'SEOPRESS_VERSION' );
+		/**
+		 * Whether the plugin prints its own Open Graph and Twitter tags.
+		 *
+		 * @since 1.8.4
+		 * @param bool $enabled The Social sharing tags setting, off when an SEO plugin prints its own.
+		 */
+		if ( ! apply_filters( 'wcb_social_tags_enabled', Settings::bool( 'social_tags_enabled', true ) && ! $seo_plugin ) ) {
 			return;
 		}
 		$post = get_post();
