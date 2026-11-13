@@ -177,6 +177,7 @@ final class Plugin {
 		// Candidate files (resumes, generated CVs) live in private storage and
 		// download only through the gated handler.
 		\WCB\Core\PrivateFiles::boot();
+		\WCB\Core\CronRegistry::boot();
 
 		// Generated -rtl stylesheets: on RTL sites, each style of ours switches to
 		// its build-generated twin when one exists.

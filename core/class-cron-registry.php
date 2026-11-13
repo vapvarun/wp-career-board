@@ -72,4 +72,60 @@ final class CronRegistry {
 			Roles::REPAIR_HOOK,
 		);
 	}
+
+	/**
+	 * Add the "scheduled jobs are running" Site Health test.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function boot(): void {
+		add_filter(
+			'site_status_tests',
+			static function ( array $tests ): array {
+				$tests['direct']['wcb_scheduled_jobs'] = array(
+					'label' => __( 'Career Board scheduled jobs are running', 'wp-career-board' ),
+					'test'  => array( self::class, 'health_test' ),
+				);
+				return $tests;
+			}
+		);
+	}
+
+	/**
+	 * Site Health: is the hourly job-expiry sweep scheduled and on time?
+	 *
+	 * Expired jobs staying live, deadline reminders and alert emails all depend on
+	 * WP-Cron (or a real cron calling it) running. A sweep that is missing or more
+	 * than two hours late means it is not.
+	 *
+	 * @since 1.8.4
+	 * @return array<string,mixed>
+	 */
+	public static function health_test(): array {
+		$result = array(
+			'label'       => __( 'Career Board scheduled jobs are running', 'wp-career-board' ),
+			'status'      => 'good',
+			'badge'       => array(
+				'label' => __( 'Performance', 'wp-career-board' ),
+				'color' => 'blue',
+			),
+			'description' => '<p>' . esc_html__( 'Jobs expire, deadline reminders go out and job alerts are sent by scheduled tasks, and they are running on time.', 'wp-career-board' ) . '</p>',
+			'test'        => 'wcb_scheduled_jobs',
+		);
+
+		$next = wp_next_scheduled( 'wcb_check_job_expiry' );
+		if ( false !== $next && $next > time() - 2 * HOUR_IN_SECONDS ) {
+			return $result;
+		}
+
+		$result['status']      = 'recommended';
+		$result['label']       = __( 'Career Board scheduled jobs are not running on time', 'wp-career-board' );
+		$result['description'] = '<p>' . esc_html(
+			defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON
+				? __( 'WP-Cron is switched off here and the hourly job-expiry check is overdue, so no real cron is calling it. Expired jobs stay live and job alerts and reminders are not sent until you set up a server cron that runs wp-cron.php.', 'wp-career-board' )
+				: __( 'The hourly job-expiry check is missing or overdue. Expired jobs stay live and job alerts and reminders are not sent. Check that your host allows WP-Cron requests to this site, or deactivate and reactivate Career Board.', 'wp-career-board' )
+		) . '</p>';
+		return $result;
+	}
 }

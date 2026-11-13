@@ -446,6 +446,31 @@ class AdminEmployers extends \WP_List_Table {
 	}
 
 	/**
+	 * How many employers there are: the same set as employer_user_ids() (role
+	 * holders plus job authors) counted in SQL, so the dashboard tile and the
+	 * list's "All" count agree without loading every ID.
+	 *
+	 * @since 1.8.4
+	 * @return int
+	 */
+	public static function count_employers(): int {
+		global $wpdb;
+		$caps_key = $wpdb->get_blog_prefix() . 'capabilities';
+		$like     = '%' . $wpdb->esc_like( '"wcb_employer"' ) . '%';
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->users} u
+				 WHERE EXISTS ( SELECT 1 FROM {$wpdb->usermeta} m WHERE m.user_id = u.ID AND m.meta_key = %s AND m.meta_value LIKE %s )
+				    OR EXISTS ( SELECT 1 FROM {$wpdb->posts} p WHERE p.post_author = u.ID AND p.post_type = 'wcb_job' AND p.post_status NOT IN ( 'trash', 'auto-draft' ) )",
+				$caps_key,
+				$like
+			)
+		);
+		// phpcs:enable
+	}
+
+	/**
 	 * Return employer user IDs whose company name matches the search term.
 	 *
 	 * @since 1.0.0

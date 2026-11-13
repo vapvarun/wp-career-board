@@ -478,7 +478,7 @@ class Admin {
 				'count_total' => true,
 			)
 		) )->get_total();
-		$total_emp  = $count_role( 'wcb_employer' );
+		$total_emp  = AdminEmployers::count_employers();
 		$total_cand = $count_role( 'wcb_candidate' );
 
 		// Pending jobs for inline moderation queue.
