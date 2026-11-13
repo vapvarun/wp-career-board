@@ -306,6 +306,7 @@ Job listing sidebar chips for custom fields toggle `meta_<key>` in the listing's
 | Filter | Args | Purpose |
 |---|---|---|
 | `wcb_job_posting_schema` | `array $schema, WP_Post $job, array $data` | Change a job's JobPosting (built from the job's REST data `$data`), or return `[]` to leave the job out of Google for Jobs. |
+| `wcb_social_tags_enabled` | `bool $enabled` | Switch the Open Graph and Twitter tags on a job or company page on or off. The default is the Social sharing tags setting, off when Yoast SEO, Rank Math, All in One SEO or SEOPress is active. |
 
 `WCB\Modules\Seo\SeoModule::job_posting( $job )` and `::organization( $company_id )` return the markup arrays. Location country is term meta `_wcb_country` on `wcb_location` (REST-visible).
 

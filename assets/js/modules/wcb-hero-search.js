@@ -10,7 +10,21 @@
  * @package WP_Career_Board
  */
 
-const isUntouched = ( field ) => {
+// A hidden input's value and defaultValue move together, so its value as drawn
+// is kept when the visitor first touches the form, before the category picker changes it.
+const drawn = new WeakMap();
+document.addEventListener( 'focusin', ( event ) => {
+	const form = event.target instanceof Element ? event.target.closest( 'form.wcb-search-hero__form' ) : null;
+	if ( form && ! drawn.has( form ) ) {
+		drawn.set( form, new Map( Array.from( form.querySelectorAll( 'input[type="hidden"]' ), ( f ) => [ f, f.value ] ) ) );
+	}
+} );
+
+const isUntouched = ( field, form ) => {
+	if ( field.type === 'hidden' ) {
+		const before = drawn.get( form );
+		return ! before || before.get( field ) === field.value;
+	}
 	if ( field.type === 'checkbox' ) {
 		return field.checked === field.defaultChecked;
 	}
@@ -41,7 +55,7 @@ export function bindHeroSearch( scope, fields ) {
 
 		for ( const { name, param, aliases = [] } of fields ) {
 			const field = form.elements.namedItem( name );
-			if ( ! field || ( sameListing && isUntouched( field ) ) ) {
+			if ( ! field || ( sameListing && isUntouched( field, form ) ) ) {
 				continue;
 			}
 			[ param, ...aliases ].forEach( ( key ) => params.delete( key ) );

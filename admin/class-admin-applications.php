@@ -309,7 +309,8 @@ class AdminApplications extends \WP_List_Table {
 			$job_ids = get_posts(
 				array(
 					'post_type'        => 'wcb_job',
-					'post_status'      => 'any',
+					// 'any' would skip the expired and closed statuses (they are excluded from search).
+					'post_status'      => array_values( get_post_stati() ),
 					's'                => $search,
 					'search_columns'   => array( 'post_title' ),
 					'fields'           => 'ids',
