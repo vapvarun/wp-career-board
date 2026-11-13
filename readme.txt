@@ -67,6 +67,8 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 A fix release for 1.8.3.
 
 * New      - My Resumes rows show whether each resume is Public or Private.
+* New      - The employer dashboard shows each job's views in the last 30 days.
+* Improve  - Open Graph and Twitter tags step aside when Yoast SEO, Rank Math, All in One SEO or SEOPress is active; the wcb_social_tags_enabled filter overrides it.
 * Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.
 * Fix      - Logging out clears the unsent job form draft saved in the browser.
 * Fix      - The job form's board list shows every board, not only the first 50, and Free-only sites no longer show a board picker.
@@ -77,6 +79,10 @@ A fix release for 1.8.3.
 * Fix      - Custom field, company and candidate profile links keep only real web addresses, a bare domain is saved as https, the form shows an inline error, and invalid stored links no longer show as dead links.
 * Fix      - Links in the job page's Additional details are underlined and use the link colour.
 * Fix      - Plugin Check prepared-SQL findings in the Applications admin search.
+* Fix      - A job whose Apply URL is not a real web address now shows on-site Apply instead of a dead link, in the job page, the REST API, the RSS feed, the job form and imports.
+* Fix      - Searching Applications by job title also finds applications to expired, closed and draft jobs.
+* Fix      - Deleting a job refreshes the job counts on the archive and company pages at once.
+* Fix      - The job search hero keeps the sidebar filters already chosen when a keyword is submitted.
 * Dev      - New \WCB\Core\Text::web_url(), BoardsModule::options_for_employer() and JobDeadline::max_days() helpers.
 * Dev      - The wcb_board_options_for_employer filter runs only while Pro is active.
 * Dev      - The REST permalink field is empty for jobs without a public page.
