@@ -337,6 +337,12 @@ final class Plugin {
 				WCB_VERSION
 			);
 			wp_register_script_module(
+				'@wcb/hero-search',
+				WCB_URL . 'assets/js/modules/wcb-hero-search.js',
+				array(),
+				WCB_VERSION
+			);
+			wp_register_script_module(
 				'@wcb/ui',
 				WCB_URL . 'assets/js/modules/wcb-ui.js',
 				array(),
