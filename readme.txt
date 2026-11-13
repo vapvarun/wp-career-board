@@ -69,9 +69,11 @@ A fix release for 1.8.3.
 * New      - My Resumes rows show whether each resume is Public or Private.
 * New      - The employer dashboard shows each job's views in the last 30 days, counting one view per visitor per day.
 * New      - The Jobs list has an Applications column that links to that job's applications.
+* Improve  - The application edit screen shows only the hiring status, without core's Publish, Slug, Discussion and Custom Fields boxes.
 * Improve  - Site Health warns when the hourly job-expiry check is missing or overdue, for example when WP-Cron is off with no server cron.
 * Improve  - My Jobs, the job list and the company page read job locations and types without a query per row.
 * Improve  - Open Graph and Twitter tags step aside when Yoast SEO, Rank Math, All in One SEO or SEOPress is active; the wcb_social_tags_enabled filter overrides it.
+* Fix      - The dashboard setup checklist counts the same pages as the Missing pages notice and the setup wizard.
 * Fix      - The dashboard Employers count matches the Employers list, which includes people who only posted a job.
 * Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.
 * Fix      - Logging out clears the unsent job form draft saved in the browser.

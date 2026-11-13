@@ -139,6 +139,14 @@ class AdminMetaBoxes {
 			'side',
 			'high'
 		);
+
+		// An application is never published: its one status is the hiring status
+		// above. Core's Publish (Status, Visibility), Slug, Discussion and Custom
+		// Fields boxes only add a second status and controls that do nothing here.
+		foreach ( array( 'submitdiv', 'slugdiv', 'commentstatusdiv', 'commentsdiv', 'postcustom' ) as $core_box ) {
+			remove_meta_box( $core_box, 'wcb_application', 'normal' );
+			remove_meta_box( $core_box, 'wcb_application', 'side' );
+		}
 	}
 
 	/**

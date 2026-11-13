@@ -459,16 +459,9 @@ class Admin {
 		$wcb_show_gs    = ! ( $wcb_setup_done && $total_jobs > 0 );
 
 		if ( $wcb_show_gs ) {
-			$wcb_page_keys     = array(
-				'employer_registration_page',
-				'employer_dashboard_page',
-				'candidate_dashboard_page',
-				'jobs_archive_page',
-				'company_archive_page',
-				'post_job_page',
-			);
-			$wcb_pages_created = count( array_filter( array_map( static fn( string $k ): int => \WCB\Admin\Settings::int( $k, 0 ), $wcb_page_keys ) ) );
-			$wcb_total_pages   = count( $wcb_page_keys );
+			// The same page set the Missing pages notice and the wizard use.
+			$wcb_total_pages   = count( Pages::known_keys() );
+			$wcb_pages_created = $wcb_total_pages - count( Pages::missing() );
 		}
 		$count_role = static fn ( string $role ): int => ( new \WP_User_Query(
 			array(
