@@ -288,7 +288,7 @@ $wcb_initial_state = apply_filters(
 		'boardDeadlineMax'  => (object) $wcb_deadline_max,
 		'deadlineClamped'   => false,
 		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
-		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
+		'applyUrl'          => $wcb_edit_job ? \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
 		// Manual override path for jobs whose location isn't an existing term —

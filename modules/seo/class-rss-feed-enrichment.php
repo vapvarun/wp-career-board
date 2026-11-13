@@ -73,7 +73,7 @@ final class RssFeedEnrichment {
 		}
 
 		$company     = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
-		$apply_url   = (string) get_post_meta( $post->ID, '_wcb_apply_url', true );
+		$apply_url   = \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_apply_url', true ) );
 		$apply_email = (string) get_post_meta( $post->ID, '_wcb_apply_email', true );
 		$min         = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$max         = (string) get_post_meta( $post->ID, '_wcb_salary_max', true );

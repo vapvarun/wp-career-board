@@ -117,7 +117,7 @@ class WpjmImporter {
 		if ( '' === $name ) {
 			return 0;
 		}
-		$website  = esc_url_raw( (string) get_post_meta( $source->ID, '_company_website', true ) );
+		$website  = \WCB\Core\Text::web_url( (string) get_post_meta( $source->ID, '_company_website', true ) );
 		$existing = '' !== $website ? get_posts(
 			array(
 				'post_type'      => 'wcb_company',
@@ -395,7 +395,7 @@ class WpjmImporter {
 			if ( is_email( $application ) ) {
 				update_post_meta( $new_id, '_wcb_apply_email', $application );
 			} else {
-				update_post_meta( $new_id, '_wcb_apply_url', $application );
+				update_post_meta( $new_id, '_wcb_apply_url', \WCB\Core\Text::web_url( (string) $application ) );
 			}
 		}
 

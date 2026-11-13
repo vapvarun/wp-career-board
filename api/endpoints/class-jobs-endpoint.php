@@ -1877,7 +1877,7 @@ final class JobsEndpoint extends RestController {
 			'experience_slugs'       => $exp_slugs,
 			'tags'                   => $tag_slugs,
 			'thumbnail'              => false !== $thumbnail_url ? (string) $thumbnail_url : '',
-			'apply_url'              => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
+			'apply_url'              => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_apply_url', true ) ),
 			// apply_email intentionally NOT exposed via REST. Anonymous scrapers
 			// were harvesting recruiter inboxes in bulk (F-1 in
 			// plan/role-data-baseline-2026-05-07.md). The apply submission

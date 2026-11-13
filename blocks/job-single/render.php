@@ -69,11 +69,9 @@ $wcb_deadline_formatted = \WCB\Core\JobDeadline::label( $wcb_job_id );
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
 // External apply routing — URL wins (ATS redirect), email is a passive contact channel.
-// Strict URL validation runs at save-time in Jobs_Endpoint; here we only confirm a usable http(s) scheme.
-$wcb_apply_url      = (string) get_post_meta( $wcb_job_id, '_wcb_apply_url', true );
+// Text::web_url() is the one web-address rule; a value saved before it existed is re-checked here.
+$wcb_apply_url      = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_job_id, '_wcb_apply_url', true ) );
 $wcb_apply_email    = sanitize_email( (string) get_post_meta( $wcb_job_id, '_wcb_apply_email', true ) );
-$wcb_apply_scheme   = $wcb_apply_url ? strtolower( (string) wp_parse_url( $wcb_apply_url, PHP_URL_SCHEME ) ) : '';
-$wcb_apply_url      = in_array( $wcb_apply_scheme, array( 'http', 'https' ), true ) ? esc_url_raw( $wcb_apply_url ) : '';
 $wcb_apply_external = '' !== $wcb_apply_url;
 
 // ── Salary display ────────────────────────────────────────────────────────────
