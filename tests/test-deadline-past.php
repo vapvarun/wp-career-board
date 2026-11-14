@@ -42,7 +42,41 @@ $wcb_chk( strtotime( (string) get_post_meta( $wcb_job, '_wcb_deadline', true ) )
 $res = $wcb_patch( gmdate( 'Y-m-d', time() + 10 * DAY_IN_SECONDS ) );
 $wcb_chk( 200 === $res->get_status(), 'PATCH with a later day still works (' . $res->get_status() . ')' );
 
-wp_delete_post( $wcb_job, true );
+// A refused request writes nothing: no job left behind on create, no half-applied update.
+$wcb_all    = static fn (): int => (int) ( new WP_Query( array( 'post_type' => 'wcb_job', 'post_status' => 'any', 'fields' => 'ids', 'posts_per_page' => 1, 'no_found_rows' => false ) ) )->found_posts;
+wp_set_current_user( 1 ); // An administrator passes the other create checks, so the deadline is what decides.
+$wcb_before = $wcb_all();
+$req = new WP_REST_Request( 'POST', '/wcb/v1/jobs' );
+foreach ( array( 'title' => 'Deadline refused create', 'description' => 'x', 'remote' => true, 'deadline' => '2020-01-01' ) as $k => $v ) {
+	$req->set_param( $k, $v );
+}
+$res = rest_do_request( $req );
+$wcb_chk( 400 === $res->get_status() && 'wcb_deadline_past' === ( $res->get_data()['code'] ?? '' ), 'POST with a past deadline returns 400 wcb_deadline_past' );
+$wcb_chk( $wcb_all() === $wcb_before, 'a refused create leaves no Pending job behind' );
+wp_set_current_user( $wcb_user );
+$req = new WP_REST_Request( 'PATCH', '/wcb/v1/jobs/' . $wcb_job );
+$req->set_param( 'title', 'Renamed with a past date' );
+$req->set_param( 'deadline', '2020-01-01' );
+rest_do_request( $req );
+$wcb_chk( 'Deadline probe' === get_the_title( $wcb_job ), 'a refused update does not apply the title either' );
+
+// The admin editor refuses a new past date too and keeps the stored deadline.
+( new \WCB\Admin\AdminMetaBoxes() )->boot();
+wp_set_current_user( 1 );
+$_POST['wcb_job_meta_nonce'] = wp_create_nonce( 'wcb_job_meta_boxes' );
+$_POST['wcb_deadline']       = '2020-01-01';
+$wcb_kept                    = (string) get_post_meta( $wcb_job, '_wcb_deadline', true );
+wp_update_post( array( 'ID' => $wcb_job, 'post_title' => 'Deadline probe' ) );
+$wcb_chk( (string) get_post_meta( $wcb_job, '_wcb_deadline', true ) === $wcb_kept, 'the admin editor keeps the stored deadline when given a new past date' );
+$_POST['wcb_deadline'] = gmdate( 'Y-m-d', time() + 20 * DAY_IN_SECONDS );
+wp_update_post( array( 'ID' => $wcb_job, 'post_title' => 'Deadline probe' ) );
+$wcb_chk( \WCB\Core\JobDeadline::day( $wcb_job ) === $_POST['wcb_deadline'], 'the admin editor saves a later day' );
+unset( $_POST['wcb_job_meta_nonce'], $_POST['wcb_deadline'] );
+wp_set_current_user( $wcb_user );
+
+foreach ( get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'any', 'author' => $wcb_user, 'fields' => 'ids', 'posts_per_page' => 50 ) ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
 wp_delete_user( $wcb_user );
 
 WP_CLI::log( "  Total: {$wcb_pass}+{$wcb_fail}  Pass: {$wcb_pass}  Fail: {$wcb_fail}" );

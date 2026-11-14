@@ -66,6 +66,14 @@ class AdminMetaBoxes {
 	private int $held_job = 0;
 
 	/**
+	 * Whether a past deadline was refused during this request.
+	 *
+	 * @since 1.8.4
+	 * @var bool
+	 */
+	private bool $past_deadline = false;
+
+	/**
 	 * Boot the meta box module.
 	 *
 	 * @since 1.0.0
@@ -348,6 +356,7 @@ class AdminMetaBoxes {
 					id="wcb_deadline"
 					name="wcb_deadline"
 					value="<?php echo esc_attr( $wcb_deadline ); ?>"
+					<?php echo '' === $wcb_deadline || $wcb_deadline >= \WCB\Core\Time::today() ? 'min="' . esc_attr( \WCB\Core\Time::today() ) . '"' : ''; ?>
 				/>
 				<p class="description"><?php esc_html_e( 'Leave empty to use the board\'s listing length.', 'wp-career-board' ); ?></p>
 				<label>
@@ -655,7 +664,13 @@ class AdminMetaBoxes {
 		} elseif ( '' === $deadline ) {
 			$deadline = \WCB\Core\JobDeadline::default_end_for_board( (int) get_post_meta( $post_id, '_wcb_board_id', true ) );
 		}
-		update_post_meta( $post_id, '_wcb_deadline', $deadline );
+		// A new past date is refused, as REST and the front form do; the job keeps
+		// the deadline it had, so an ended job stays editable.
+		if ( \WCB\Core\JobDeadline::is_new_past( $deadline, (string) get_post_meta( $post_id, '_wcb_deadline', true ) ) ) {
+			$this->past_deadline = true;
+		} else {
+			update_post_meta( $post_id, '_wcb_deadline', $deadline );
+		}
 
 		// Company — prefer the select dropdown; fall back to the text input shown when no companies exist.
 		$company_id = isset( $_POST['wcb_company_id'] ) ? absint( $_POST['wcb_company_id'] ) : 0;
@@ -746,7 +761,7 @@ class AdminMetaBoxes {
 	}
 
 	/**
-	 * Swap the "Job published" message for the held-back notice.
+	 * Flag the redirect when a job was held back or a past deadline was refused.
 	 *
 	 * @since 1.8.4
 	 *
@@ -754,7 +769,10 @@ class AdminMetaBoxes {
 	 * @return string
 	 */
 	public function flag_held_job( string $location ): string {
-		return $this->held_job > 0 ? add_query_arg( 'wcb_location_required', 1, remove_query_arg( 'message', $location ) ) : $location;
+		if ( $this->held_job > 0 ) {
+			$location = add_query_arg( 'wcb_location_required', 1, $location );
+		}
+		return $this->past_deadline ? add_query_arg( 'wcb_deadline_past', 1, $location ) : $location;
 	}
 
 	/**
@@ -766,10 +784,17 @@ class AdminMetaBoxes {
 	 */
 	public function render_held_job_notice(): void {
 		$screen = get_current_screen();
-		if ( ! $screen || 'wcb_job' !== $screen->post_type || ! isset( $_GET['wcb_location_required'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display flag only.
+		if ( ! $screen || 'wcb_job' !== $screen->post_type ) {
 			return;
 		}
-		echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'Saved as a draft. Add a location, or tick Remote, before publishing this job.', 'wp-career-board' ) . '</p></div>';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- display flags only.
+		if ( isset( $_GET['wcb_location_required'] ) ) {
+			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'Saved as a draft. Add a location, or tick Remote, before publishing this job.', 'wp-career-board' ) . '</p></div>';
+		}
+		if ( isset( $_GET['wcb_deadline_past'] ) ) {
+			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The deadline is in the past, so it was not saved. Choose today or a later date.', 'wp-career-board' ) . '</p></div>';
+		}
+		// phpcs:enable
 	}
 
 	/**

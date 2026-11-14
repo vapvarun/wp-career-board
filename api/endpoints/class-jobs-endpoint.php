@@ -544,6 +544,11 @@ final class JobsEndpoint extends RestController {
 			return $wcb_location_error;
 		}
 
+		$wcb_deadline_error = $this->deadline_error( $request );
+		if ( $wcb_deadline_error ) {
+			return $wcb_deadline_error;
+		}
+
 		$wcb_category_error = $this->category_limit_error( $request );
 		if ( $wcb_category_error ) {
 			return $wcb_category_error;
@@ -633,9 +638,6 @@ final class JobsEndpoint extends RestController {
 		if ( empty( $wcb_deadline_raw ) ) {
 			$wcb_deadline_raw = \WCB\Core\JobDeadline::default_end( $request );
 		} else {
-			if ( \WCB\Core\JobDeadline::is_new_past( (string) $wcb_deadline_raw ) ) {
-				return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
-			}
 			$wcb_deadline_raw = \WCB\Core\JobDeadline::cap( (string) $wcb_deadline_raw, (int) $request->get_param( 'board_id' ) );
 		}
 		// Values are validated by the route args and normalised by the meta
@@ -764,6 +766,11 @@ final class JobsEndpoint extends RestController {
 		$wcb_location_error = $this->location_error( $request, $post );
 		if ( $wcb_location_error ) {
 			return $wcb_location_error;
+		}
+
+		$wcb_deadline_error = $this->deadline_error( $request, $post );
+		if ( $wcb_deadline_error ) {
+			return $wcb_deadline_error;
 		}
 
 		$wcb_category_error = $this->category_limit_error( $request, $post );
@@ -963,9 +970,6 @@ final class JobsEndpoint extends RestController {
 		}
 
 		if ( null !== $request->get_param( 'deadline' ) ) {
-			if ( \WCB\Core\JobDeadline::is_new_past( (string) $request->get_param( 'deadline' ), (string) get_post_meta( $post->ID, '_wcb_deadline', true ) ) ) {
-				return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
-			}
 			$request->set_param(
 				'deadline',
 				\WCB\Core\JobDeadline::cap(
@@ -1604,6 +1608,27 @@ final class JobsEndpoint extends RestController {
 	}
 
 	// --- Helpers ----------------------------------------------------------------
+
+	/**
+	 * Refuse a new deadline that has already passed.
+	 *
+	 * Checked before anything is written, so a refused request leaves no job
+	 * behind and no half-applied update. A job keeping the deadline it already
+	 * has passes, so an ended job stays editable.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @param \WP_Post|null    $job     Job being updated, null on create.
+	 * @return \WP_Error|null
+	 */
+	private function deadline_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		$deadline = $request->get_param( 'deadline' );
+		if ( empty( $deadline ) || ! \WCB\Core\JobDeadline::is_new_past( (string) $deadline, $job ? (string) get_post_meta( $job->ID, '_wcb_deadline', true ) : '' ) ) {
+			return null;
+		}
+		return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
+	}
 
 	/**
 	 * Settings > Jobs "Require a location": a job needs a location or Remote.
