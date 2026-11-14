@@ -41,11 +41,12 @@ $wcb_chk( 1 === $wcb_tags(), 'a job page prints og:title once' );
 add_filter( 'wcb_social_tags_enabled', '__return_false' );
 $wcb_chk( 0 === $wcb_tags(), 'the wcb_social_tags_enabled filter can switch the tags off' );
 remove_filter( 'wcb_social_tags_enabled', '__return_false' );
-foreach ( array( 'AIOSEO_VERSION', 'SEOPRESS_VERSION' ) as $wcb_const ) {
+// Each SEO plugin that prints its own tags is read the same way; check them in turn.
+foreach ( array( 'THE_SEO_FRAMEWORK_VERSION', 'SLIM_SEO_VER', 'AIOSEO_VERSION', 'SEOPRESS_VERSION' ) as $wcb_const ) {
 	if ( ! defined( $wcb_const ) ) {
 		define( $wcb_const, '1' );
 		$wcb_chk( 0 === $wcb_tags(), "the tags are skipped when {$wcb_const} is defined" );
-		break; // One constant is enough to prove the branch; the other is read the same way.
+		break; // A defined constant stays defined, so one proof per run.
 	}
 }
 
