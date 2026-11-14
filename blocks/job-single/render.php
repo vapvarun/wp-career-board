@@ -609,7 +609,8 @@ wp_interactivity_state(
 					<?php
 					// Convert common markdown patterns (bold, italic, headings, lists) that users
 					// naturally type in the frontend textarea to HTML before rendering.
-					$wcb_job_desc     = \WCB\Core\Text::dash_lists( (string) $wcb_job->post_content );
+					// Block-editor descriptions carry <!-- wp:* --> comments; wpautop turns each into an empty paragraph.
+					$wcb_job_desc     = \WCB\Core\Text::dash_lists( (string) preg_replace( '/<!--\s*\/?wp:.*?-->\s*/s', '', (string) $wcb_job->post_content ) );
 					$wcb_job_desc     = (string) preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/(?<!\*)\*(?![\*\s])(.+?)(?<!\s)\*(?!\*)/m', '<em>$1</em>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/^## (.+)$/m', '<h4>$1</h4>', $wcb_job_desc );
