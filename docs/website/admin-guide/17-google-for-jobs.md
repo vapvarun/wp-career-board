@@ -21,7 +21,7 @@ You can get your open jobs into Google for Jobs and control how jobs and compani
 | Setting | Default | What it does |
 |---|---|---|
 | Google for Jobs | On | Adds the job and company markup. It stays on with Yoast SEO or Rank Math, which do not add job markup. Turn off only if another plugin already adds JobPosting. |
-| Require a location | On for new installs, off for existing sites | The job form asks for a location unless the job is marked Remote. Google for Jobs leaves out jobs with no location unless they are remote. |
+| Require a location | On for new installs, off for existing sites | The job form asks for a location unless the job is marked Remote. In the admin editor a job without one is saved as a draft with a notice instead of being published; jobs already published stay editable. Google for Jobs leaves out jobs with no location unless they are remote. |
 | Default country | The country of your site language (for example US for English (United States)) | Used in job addresses and as the country remote applicants may live in. A country name or 2-letter code both work. |
 | Social sharing tags | On | Adds sharing tags. Skipped automatically when Yoast SEO, Rank Math, All in One SEO or SEOPress is active, since they add their own. |
 

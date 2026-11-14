@@ -10,6 +10,7 @@ You can use this page to see recent changes that affect how you set up and run y
 * **My Resumes.** Each row shows whether the resume is Public or Private.
 * **Links.** Custom field, company and candidate profile links keep only real web addresses. A bare domain is saved as https, and the form shows an error for anything else.
 * **Job page.** Links in Additional details are underlined and use the link colour.
+* **Require a location.** The admin job editor now follows it: a job without a location or Remote is saved as a draft with a notice. The Apply URL field refuses an email address, and the overview Getting started checklist no longer counts the sample jobs as your first job.
 * **For developers.** New helpers `Text::web_url()`, `BoardsModule::options_for_employer()` and `JobDeadline::max_days()`. The REST `permalink` is empty for a job without a public page. See [Hooks reference](../developer-guide/02-hooks-reference.md).
 
 ## In 1.8.3

@@ -1633,18 +1633,7 @@ final class JobsEndpoint extends RestController {
 			$custom    = $custom ?? get_post_meta( $job->ID, '_wcb_location_custom', true );
 		}
 		$locations = is_array( $locations ) ? array_filter( array_map( 'strval', $locations ) ) : ( is_string( $locations ) && '' !== $locations ? array( $locations ) : array() );
-		$remote    = rest_sanitize_boolean( $remote );
-		// A location that counts: Remote, or a term that exists. The reserved
-		// Other only stands for a typed location, and an unknown slug is nothing.
-		$usable = false;
-		foreach ( $locations as $slug ) {
-			if ( 'remote' === $slug ) {
-				$remote = true;
-			} elseif ( 'other' !== $slug && term_exists( $slug, 'wcb_location' ) ) {
-				$usable = true;
-			}
-		}
-		if ( $remote || $usable || '' !== trim( (string) $custom ) ) {
+		if ( \WCB\Core\Locations::has_usable_location( rest_sanitize_boolean( $remote ), $locations, (string) $custom ) ) {
 			return null;
 		}
 		return new \WP_Error(

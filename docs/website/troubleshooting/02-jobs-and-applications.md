@@ -65,4 +65,4 @@ If Site Health says candidate files can be fetched directly, your server ignores
 
 **Cause.** Google leaves out a job with no location unless it is remote, and a job that has ended gets no markup.
 
-**Fix.** Turn on **Require a location** under **Settings > Jobs**, give the job a location or mark it Remote, and check that the job has not passed its deadline. See [Google for Jobs and social sharing](../admin-guide/17-google-for-jobs.md).
+**Fix.** Turn on **Require a location** under **Settings > Jobs**, give the job a location or mark it Remote (a job saved from the admin editor without one stays a draft), and check that the job has not passed its deadline. See [Google for Jobs and social sharing](../admin-guide/17-google-for-jobs.md).

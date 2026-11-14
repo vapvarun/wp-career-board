@@ -58,6 +58,14 @@ class AdminMetaBoxes {
 	const COMPANY_NONCE_NAME = 'wcb_company_meta_nonce';
 
 	/**
+	 * Job held back as a draft during this request, 0 when none.
+	 *
+	 * @since 1.8.4
+	 * @var int
+	 */
+	private int $held_job = 0;
+
+	/**
 	 * Boot the meta box module.
 	 *
 	 * @since 1.0.0
@@ -66,6 +74,9 @@ class AdminMetaBoxes {
 	public function boot(): void {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ) );
 		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
+		add_action( 'wp_after_insert_post', array( $this, 'hold_job_without_location' ), 10, 4 );
+		add_filter( 'redirect_post_location', array( $this, 'flag_held_job' ) );
+		add_action( 'admin_notices', array( $this, 'render_held_job_notice' ) );
 		add_action( 'save_post_wcb_company', array( $this, 'save_company_meta' ), 10, 2 );
 		// wcb_application is managed via REST; no save_post hook needed.
 	}
@@ -694,6 +705,71 @@ class AdminMetaBoxes {
 		// Featured flag.
 		$featured = isset( $_POST['wcb_featured'] ) && '1' === $_POST['wcb_featured'] ? '1' : '0';
 		update_post_meta( $post_id, '_wcb_featured', $featured );
+	}
+
+	/**
+	 * Hold a job back as a draft when "Require a location" is on and it has none.
+	 *
+	 * Mirrors the REST and frontend rule for the admin editor. Runs once the
+	 * location terms and meta are saved, and only for a job moving into
+	 * Published, so older published jobs without a location stay editable.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int           $post_id     Post ID.
+	 * @param \WP_Post      $post        Post as saved.
+	 * @param bool          $update      Whether this updated an existing post.
+	 * @param \WP_Post|null $post_before Post before the save, null on create.
+	 * @return void
+	 */
+	public function hold_job_without_location( int $post_id, \WP_Post $post, bool $update, ?\WP_Post $post_before ): void {
+		if ( 'wcb_job' !== $post->post_type || 'publish' !== $post->post_status || ( $update && $post_before && 'publish' === $post_before->post_status ) ) {
+			return;
+		}
+		$nonce = isset( $_POST[ self::NONCE_NAME ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) || ! Settings::bool( 'require_job_location', false ) ) {
+			return;
+		}
+		$slugs = wp_get_object_terms( $post_id, 'wcb_location', array( 'fields' => 'slugs' ) );
+		if ( \WCB\Core\Locations::has_usable_location( '1' === get_post_meta( $post_id, '_wcb_remote', true ), is_array( $slugs ) ? $slugs : array(), (string) get_post_meta( $post_id, '_wcb_location_custom', true ) ) ) {
+			return;
+		}
+		remove_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10 );
+		wp_update_post(
+			array(
+				'ID'          => $post_id,
+				'post_status' => 'draft',
+			)
+		);
+		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
+		$this->held_job = $post_id;
+	}
+
+	/**
+	 * Swap the "Job published" message for the held-back notice.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $location Redirect URL after the save.
+	 * @return string
+	 */
+	public function flag_held_job( string $location ): string {
+		return $this->held_job > 0 ? add_query_arg( 'wcb_location_required', 1, remove_query_arg( 'message', $location ) ) : $location;
+	}
+
+	/**
+	 * Tell the admin why the job was saved as a draft.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @return void
+	 */
+	public function render_held_job_notice(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || 'wcb_job' !== $screen->post_type || ! isset( $_GET['wcb_location_required'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display flag only.
+			return;
+		}
+		echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'Saved as a draft. Add a location, or tick Remote, before publishing this job.', 'wp-career-board' ) . '</p></div>';
 	}
 
 	/**

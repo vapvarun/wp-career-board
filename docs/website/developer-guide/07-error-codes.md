@@ -39,7 +39,7 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | `wcb_missing_title` | 400 | `POST /jobs` without a title, or `PATCH /jobs/{id}` with an empty one. Also the block editor's answer when a job, company, resume or board is published untitled |
 | `wcb_missing_name` | 400 | `PATCH /employers/{id}` with an empty company name |
 | `wcb_salary_range` | 400 | The minimum salary is above the maximum, after the request. A `PATCH` of one side is checked against the saved other side |
-| `wcb_location_required` | 400 | **Require a location** is on and the job has neither a location nor the remote flag |
+| `wcb_location_required` | 400 | **Require a location** is on and the job has neither a location nor the remote flag. The admin editor does not return this error: it saves the job as a draft with a notice |
 | `wcb_active_job_limit` | 403 | The employer is at the cap set with `wcb_employer_active_job_limit`. `data.limit` and `data.count` carry the numbers |
 | `wcb_insufficient_credits` | 402 | The board charges credits and the balance is too low (Pro). `data` carries `cost`, `balance` and `purchase_url` |
 | `wcb_awaiting_payment` | 402 | A moderator approved a job whose employer cannot pay yet; the job stays pending |

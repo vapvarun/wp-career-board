@@ -76,6 +76,32 @@ final class Locations {
 	}
 
 	/**
+	 * Whether a job has a location that satisfies "Require a location".
+	 *
+	 * One rule for REST, the frontend forms and the admin editor: Remote, a
+	 * term that exists, or a typed location. The reserved Other term only
+	 * stands for a typed location, and an unknown slug counts for nothing.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param bool     $remote    Remote flag.
+	 * @param string[] $slugs     wcb_location term slugs.
+	 * @param string   $custom    Typed "Other" location.
+	 * @return bool
+	 */
+	public static function has_usable_location( bool $remote, array $slugs, string $custom ): bool {
+		if ( $remote || '' !== trim( $custom ) ) {
+			return true;
+		}
+		foreach ( $slugs as $slug ) {
+			if ( 'remote' === $slug || ( 'other' !== $slug && term_exists( $slug, 'wcb_location' ) ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Refuse to store "not remote" on a job located Remote.
 	 *
 	 * Forms and the admin editor write the checkbox after the terms, so an
