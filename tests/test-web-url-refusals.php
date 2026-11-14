@@ -81,6 +81,22 @@ $req->set_body( wp_json_encode( array( 'resume_data' => array( 'linkedin' => 'na
 $res = rest_do_request( $req );
 $ok( 400 === $res->get_status(), 'candidate profile refuses a link that is not a web address' );
 
+// The block editor saves meta boxes without a page load, so each web-address box checks the value as it is typed.
+$render = static function ( string $method, int $id ): string {
+	ob_start();
+	( new \WCB\Admin\AdminMetaBoxes() )->$method( get_post( $id ) );
+	return (string) ob_get_clean();
+};
+$job_html     = $render( 'render_job_details_box', $job );
+$company_html = $render( 'render_company_details_box', $company ) . $render( 'render_company_social_box', $company );
+foreach ( array( 'wcb_apply_url' => $job_html, 'wcb_website' => $company_html, 'wcb_linkedin' => $company_html, 'wcb_twitter' => $company_html ) as $field => $html ) {
+	$ok(
+		str_contains( $html, 'id="' . $field . '"' ) && str_contains( $html, 'inputmode="url"' ) && str_contains( $html, 'id="' . $field . '-error"' ),
+		$field . ' is checked as typed (inputmode=url with an error element)'
+	);
+}
+$ok( str_contains( $job_html, 'For an email address, use Apply Email.' ), 'Apply URL error carries the Apply Email hint' );
+
 unset( $_POST['wcb_apply_url'], $_POST['wcb_website'], $_POST['wcb_job_meta_nonce'], $_POST['wcb_company_meta_nonce'] );
 wp_delete_post( $job, true );
 wp_delete_post( $company, true );
