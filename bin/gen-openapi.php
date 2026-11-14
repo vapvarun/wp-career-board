@@ -208,6 +208,20 @@ foreach ( $owned as $route => $handlers ) {
 				}
 			}
 
+			// Documentation-only bodies for routes whose handlers read the request
+			// directly: typed route args would add runtime validation.
+			$doc_body = $config['request_bodies'][ $oapi_path ] ?? null;
+			if ( $doc_body && in_array( $method, $doc_body['methods'], true ) ) {
+				foreach ( $doc_body['properties'] as $pname => $pdef ) {
+					if ( ! isset( $body_args[ $pname ] ) ) {
+						$body_args[ $pname ] = $pdef + array( 'doc_only' => true );
+					}
+				}
+				foreach ( $doc_body['required'] ?? array() as $pname ) {
+					$body_args[ $pname ]['required'] = true;
+				}
+			}
+
 			if ( $body_args ) {
 				$props    = array();
 				$required = array();
