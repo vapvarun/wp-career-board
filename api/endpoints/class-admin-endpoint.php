@@ -194,47 +194,18 @@ final class AdminEndpoint extends RestController {
 	}
 
 	/**
-	 * Fire a test-send for one registered email template, addressed to the current admin user.
+	 * Sample values for every merge tag any registered email uses, so the preview
+	 * and Send test never show a raw {tag}. One list: a new tag is added here.
 	 *
-	 * Used by the Emails settings page so site admins can verify SMTP / template
-	 * rendering without triggering a real candidate or employer flow. Reuses the
-	 * email's send() path so the wcb_notifications_log row gets written too.
+	 * @since 1.8.4
 	 *
-	 * @since 1.1.1
-	 *
-	 * @param  \WP_REST_Request $request Full REST request.
-	 * @return \WP_REST_Response|\WP_Error
+	 * @param \WP_User $user       Admin the test is addressed to.
+	 * @param bool     $is_preview True for the preview pane (no "(test send)" marks).
+	 * @return array<string, mixed>
 	 */
-	public function test_send_email( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
-		$email_id = (string) $request->get_param( 'email_id' );
-		$emails   = (array) apply_filters( 'wcb_registered_emails', array() );
-
-		$target = null;
-		foreach ( $emails as $email ) {
-			if ( $email instanceof \WCB\Modules\Notifications\AbstractEmail && $email->get_id() === $email_id ) {
-				$target = $email;
-				break;
-			}
-		}
-
-		if ( null === $target ) {
-			return new \WP_Error(
-				'wcb_email_not_found',
-				/* translators: %s: requested email id */
-				sprintf( __( 'No registered email matches id "%s".', 'wp-career-board' ), $email_id ),
-				array( 'status' => 404 )
-			);
-		}
-
-		$user_id = get_current_user_id();
-		$user    = get_userdata( $user_id );
-		if ( ! $user instanceof \WP_User ) {
-			return $this->permission_error();
-		}
-
+	public static function sample_vars( \WP_User $user, bool $is_preview ): array {
 		// "(test send)" flags a sent test in the inbox; the preview pane needs no flag.
-		$is_preview = (bool) $request->get_param( 'preview' );
-		$mark       = static fn( string $text ): string => $is_preview
+		$mark = static fn( string $text ): string => $is_preview
 			? $text
 			/* translators: %s: sample text in a test email, such as a job title. */
 			: sprintf( __( '%s (test send)', 'wp-career-board' ), $text );
@@ -274,8 +245,66 @@ final class AdminEndpoint extends RestController {
 			'delete_date'    => \WCB\Core\Time::date_label( time() + 7 * DAY_IN_SECONDS ),
 			'credits'        => 5,
 			'refund_message' => $mark( __( '5 credits held for a job listing have been returned to your account.', 'wp-career-board' ) ),
+			'edit_url'       => home_url( '/' ),
+			'jobs_url'       => home_url( '/' ),
+			'display_name'   => $user->display_name,
+			'user_email'     => $user->user_email,
+			'verify_url'     => home_url( '/' ),
+			'confirm_url'    => home_url( '/' ),
+			'review_url'     => admin_url( 'edit.php?post_type=wcb_job' ),
+			'item'           => $mark( __( 'Sample reported listing', 'wp-career-board' ) ),
+			'report_count'   => 3,
+			'hidden_note'    => '',
+			'receipt_number' => 'R-0001',
+			'total'          => '50.00',
+			'receipt_url'    => home_url( '/' ),
 			'is_test'        => true,
 		);
+
+		return $test_vars;
+	}
+
+	/**
+	 * Fire a test-send for one registered email template, addressed to the current admin user.
+	 *
+	 * Used by the Emails settings page so site admins can verify SMTP / template
+	 * rendering without triggering a real candidate or employer flow. Reuses the
+	 * email's send() path so the wcb_notifications_log row gets written too.
+	 *
+	 * @since 1.1.1
+	 *
+	 * @param  \WP_REST_Request $request Full REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function test_send_email( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$email_id = (string) $request->get_param( 'email_id' );
+		$emails   = (array) apply_filters( 'wcb_registered_emails', array() );
+
+		$target = null;
+		foreach ( $emails as $email ) {
+			if ( $email instanceof \WCB\Modules\Notifications\AbstractEmail && $email->get_id() === $email_id ) {
+				$target = $email;
+				break;
+			}
+		}
+
+		if ( null === $target ) {
+			return new \WP_Error(
+				'wcb_email_not_found',
+				/* translators: %s: requested email id */
+				sprintf( __( 'No registered email matches id "%s".', 'wp-career-board' ), $email_id ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$user_id = get_current_user_id();
+		$user    = get_userdata( $user_id );
+		if ( ! $user instanceof \WP_User ) {
+			return $this->permission_error();
+		}
+
+		$is_preview = (bool) $request->get_param( 'preview' );
+		$test_vars  = self::sample_vars( $user, $is_preview );
 
 		if ( $is_preview ) {
 			return rest_ensure_response( $target->preview( $test_vars, (string) $request->get_param( 'subject' ), (string) $request->get_param( 'body' ) ) );
