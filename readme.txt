@@ -73,6 +73,8 @@ A fix release for 1.8.3.
 * Improve  - Site Health warns when the hourly job-expiry check is missing or overdue, for example when WP-Cron is off with no server cron.
 * Improve  - My Jobs, the job list and the company page read job locations and types without a query per row.
 * Improve  - Open Graph and Twitter tags step aside when Yoast SEO, Rank Math, All in One SEO or SEOPress is active; the wcb_social_tags_enabled filter overrides it.
+* Improve  - The setup wizard turns on visitor sign-up by default for a new install, and the sign-up page is titled Join.
+* Improve  - Setting a job deadline in the past through the REST API is refused with a message, and an existing past deadline can stay unchanged.
 * Fix      - The dashboard setup checklist counts the same pages as the Missing pages notice and the setup wizard.
 * Fix      - The dashboard Employers count matches the Employers list, which includes people who only posted a job.
 * Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.
@@ -88,6 +90,10 @@ A fix release for 1.8.3.
 * Fix      - A job whose Apply URL is not a real web address now shows on-site Apply instead of a dead link, in the job page, the REST API, the RSS feed, the job form and imports.
 * Fix      - Searching Applications by job title also finds applications to expired, closed and draft jobs.
 * Fix      - Deleting a job refreshes the job counts on the archive and company pages at once.
+* Fix      - Approving a job from the Pending list removes its row, while approving from other lists keeps the row and updates its status.
+* Fix      - Saved jobs that are expired or closed stay in the candidate's list and open their job page instead of a 404.
+* Fix      - A remote job with no default country is left out of Google for Jobs data, and the Jobs list badge says how to fix it.
+* Fix      - On multisite, the setup wizard no longer offers a sign-up toggle the network controls.
 * Fix      - The job search hero keeps the sidebar filters already chosen when a keyword is submitted.
 * Dev      - New \WCB\Core\Text::web_url(), BoardsModule::options_for_employer() and JobDeadline::max_days() helpers.
 * Dev      - The wcb_board_options_for_employer filter runs only while Pro is active.

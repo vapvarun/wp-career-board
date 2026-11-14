@@ -31,7 +31,7 @@ if ( ! $wcb_job || 'wcb_job' !== $wcb_job->post_type ) {
 $wcb_is_staff = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 if (
 	! empty( $attributes['jobId'] )
-	&& ! in_array( $wcb_job->post_status, array( 'publish', 'wcb_expired', 'wcb_closed' ), true )
+	&& ! in_array( $wcb_job->post_status, \WCB\Modules\Jobs\JobsMeta::VIEWABLE_STATUSES, true )
 	&& ! ( get_current_user_id() > 0 && get_current_user_id() === (int) $wcb_job->post_author )
 	&& ! $wcb_is_staff
 ) {
@@ -94,7 +94,7 @@ $wcb_salary_str = \WCB\Core\SalaryFormat::format(
 // ── Company ───────────────────────────────────────────────────────────────────
 $wcb_company_name = (string) get_post_meta( $wcb_job_id, '_wcb_company_name', true );
 // The job's own company, else the employer's; a trashed or deleted one counts as none.
-$wcb_company_id = \WCB\Core\CompanyMetaShape::for_job( $wcb_job );
+$wcb_company_id   = \WCB\Core\CompanyMetaShape::for_job( $wcb_job );
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 
 if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {

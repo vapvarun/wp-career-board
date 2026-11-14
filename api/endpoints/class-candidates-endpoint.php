@@ -487,7 +487,9 @@ final class CandidatesEndpoint extends RestController {
 
 		foreach ( $bookmark_ids as $job_id ) {
 			$post = get_post( $job_id );
-			if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
+			// A job that went back to pending (or was rejected) has no page to open,
+			// so it is left out of the list until it is live again.
+			if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type || ! in_array( $post->post_status, \WCB\Modules\Jobs\JobsMeta::VIEWABLE_STATUSES, true ) ) {
 				continue;
 			}
 

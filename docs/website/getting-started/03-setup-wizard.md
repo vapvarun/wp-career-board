@@ -18,7 +18,7 @@ Creates the pages your board needs, each with the correct block already placed. 
 |---|---|---|
 | Find Jobs | Heading + Job Search + Job Listings | Main job board browse page |
 | Post a Job | Job Form | Multi-step form for employers to submit listings |
-| Employer Registration | Employer Registration | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
+| Employer Registration | Join | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
 | Employer Dashboard | Employer Dashboard | Employer manages jobs + applications |
 | Candidate Dashboard | Candidate Dashboard | Candidate tracks applications + saved jobs |
 | Find Companies | Company Archive | Browsable company directory |

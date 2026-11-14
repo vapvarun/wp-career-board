@@ -145,6 +145,10 @@ class SeoModule {
 		// location, or Remote. Leave such a job out (owner decision, 1.8.0); the
 		// Jobs list marks it so the owner can fix it.
 		list( $places, $remote ) = self::locations( $job, (bool) $data['remote'] );
+		// Google also requires the countries a remote worker may live in, which is
+		// the default country; without one a remote job has no valid place (owner
+		// decision, 1.8.4), and a job with real places is posted as on-site only.
+		$remote = $remote && '' !== self::default_country();
 		if ( ! $places && ! $remote ) {
 			return array();
 		}
@@ -181,13 +185,11 @@ class SeoModule {
 		);
 
 		if ( $remote ) {
-			$schema['jobLocationType'] = 'TELECOMMUTE';
-			if ( '' !== $default ) {
-				$schema['applicantLocationRequirements'] = array(
-					'@type' => 'Country',
-					'name'  => $default,
-				);
-			}
+			$schema['jobLocationType']               = 'TELECOMMUTE';
+			$schema['applicantLocationRequirements'] = array(
+				'@type' => 'Country',
+				'name'  => $default,
+			);
 		}
 
 		$min = (float) $data['salary_min'];
@@ -297,7 +299,7 @@ class SeoModule {
 	 */
 	public static function has_location( \WP_Post $job ): bool {
 		list( $places, $remote ) = self::job_places( $job );
-		return $places || $remote;
+		return $places || ( $remote && '' !== self::default_country() );
 	}
 
 	/**

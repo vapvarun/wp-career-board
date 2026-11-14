@@ -2,7 +2,7 @@
 
 ## Do I need an account to apply?
 
-Usually not. Most sites let you apply with your name and email. If the site turns on **Require login to apply**, the job page shows **Sign in to apply**. To register, use the site's **Employer Registration** page and choose **Find a Job**.
+Usually not. Most sites let you apply with your name and email. If the site turns on **Require login to apply**, the job page shows **Sign in to apply**. To register, use the site's **Join** page (**Employer Registration** on older sites) and choose **Find a Job**.
 
 ## What do "Not selected" and "Position closed" mean?
 

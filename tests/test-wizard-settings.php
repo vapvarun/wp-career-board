@@ -114,6 +114,20 @@ wcb_wz_assert( 3 === (int) $wcb_wz_after['max_resumes'] && 9 === (int) $wcb_wz_a
 wcb_rest( 'POST', '/wcb/v1/wizard/settings', array( 'settings' => array( 'require_email_verification' => 0 ) ) );
 wcb_wz_assert( false === get_option( 'wcb_settings' )['require_email_verification'], 'checkbox 0 saves as false' );
 
+// First run: the sign-ups toggle starts on so a fresh board can be joined; a re-run shows the real setting.
+$wcb_wz_setup = get_option( 'wcb_setup_complete', null );
+$wcb_wz_view  = static function (): bool {
+	ob_start();
+	require WCB_DIR . 'admin/views/wizard-steps/registration.php';
+	return (bool) preg_match( '/id="wcb-wz-register"[^>]*checked/', (string) ob_get_clean() );
+};
+update_option( 'users_can_register', 0 );
+update_option( 'wcb_setup_complete', false );
+wcb_wz_assert( true === $wcb_wz_view(), 'first run: sign-ups toggle is on by default' );
+update_option( 'wcb_setup_complete', true );
+wcb_wz_assert( false === $wcb_wz_view(), 're-run with sign-ups off: shows off' );
+null === $wcb_wz_setup ? delete_option( 'wcb_setup_complete' ) : update_option( 'wcb_setup_complete', $wcb_wz_setup );
+
 update_option( 'wcb_settings', $wcb_wz_settings );
 update_option( 'users_can_register', $wcb_wz_register );
 \WCB\Admin\Settings::flush_cache();

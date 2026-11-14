@@ -633,6 +633,9 @@ final class JobsEndpoint extends RestController {
 		if ( empty( $wcb_deadline_raw ) ) {
 			$wcb_deadline_raw = \WCB\Core\JobDeadline::default_end( $request );
 		} else {
+			if ( \WCB\Core\JobDeadline::is_new_past( (string) $wcb_deadline_raw ) ) {
+				return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
+			}
 			$wcb_deadline_raw = \WCB\Core\JobDeadline::cap( (string) $wcb_deadline_raw, (int) $request->get_param( 'board_id' ) );
 		}
 		// Values are validated by the route args and normalised by the meta
@@ -960,6 +963,9 @@ final class JobsEndpoint extends RestController {
 		}
 
 		if ( null !== $request->get_param( 'deadline' ) ) {
+			if ( \WCB\Core\JobDeadline::is_new_past( (string) $request->get_param( 'deadline' ), (string) get_post_meta( $post->ID, '_wcb_deadline', true ) ) ) {
+				return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
+			}
 			$request->set_param(
 				'deadline',
 				\WCB\Core\JobDeadline::cap(

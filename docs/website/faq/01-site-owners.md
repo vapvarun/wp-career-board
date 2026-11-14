@@ -6,7 +6,7 @@ The banner at the top of **Career Board > Settings** lists, by name, each page t
 
 ## What is the registration URL?
 
-`/employer-registration/`, the page titled **Employer Registration**. One form serves both roles: visitors choose **Hire Talent** to become employers or **Find a Job** to become candidates. If you moved it, the page assigned under **Settings > Pages > Employer Registration Page** is the one the plugin links to.
+`/employer-registration/`, the page titled **Join** (sites set up before 1.8.4 keep the title **Employer Registration**). One form serves both roles: visitors choose **Hire Talent** to become employers or **Find a Job** to become candidates. If you moved it, the page assigned under **Settings > Pages > Employer Registration Page** is the one the plugin links to.
 
 ## Should I use the setup wizard or settings?
 

@@ -123,12 +123,13 @@ if ( post_type_exists( 'wcb_resume' ) ) {
  * @param array<string,mixed> $state   Default state with maxResumes=0, resumeCount=0.
  * @param int                 $user_id Current candidate user ID.
  */
-// Count what the Saved Jobs list shows: a bookmark whose job was deleted is not listed (see
-// CandidatesEndpoint::get_bookmarks), so the overview must not count it either.
+// Count what the Saved Jobs list shows: a bookmark whose job was deleted, or is not live
+// (pending, draft), is not listed (see CandidatesEndpoint::get_bookmarks), so the overview
+// must not count it either.
 $wcb_saved_jobs_count = count(
 	array_filter(
 		array_map( 'intval', (array) get_user_meta( $wcb_candidate_id, '_wcb_bookmark', false ) ),
-		static fn ( int $wcb_bookmark_id ): bool => 'wcb_job' === get_post_type( $wcb_bookmark_id )
+		static fn ( int $wcb_bookmark_id ): bool => 'wcb_job' === get_post_type( $wcb_bookmark_id ) && in_array( get_post_status( $wcb_bookmark_id ), \WCB\Modules\Jobs\JobsMeta::VIEWABLE_STATUSES, true )
 	)
 );
 
@@ -195,64 +196,64 @@ wp_interactivity_state(
 			'i18n'                    => array_merge(
 				$wcb_money_i18n,
 				array(
-					'tabOverview'            => __( 'Overview', 'wp-career-board' ),
-					'tabApplications'        => __( 'My Applications', 'wp-career-board' ),
-					'tabBookmarks'           => __( 'Saved jobs', 'wp-career-board' ),
-					'tabSavedCompanies'      => __( 'Saved companies', 'wp-career-board' ),
-					'tabSavedResumes'        => __( 'Saved resumes', 'wp-career-board' ),
-					'tabResumes'             => __( 'My Resumes', 'wp-career-board' ),
-					'tabAlerts'              => __( 'Job alerts', 'wp-career-board' ),
-					'tabResumeBuilder'       => __( 'Edit Resume', 'wp-career-board' ),
-					'tabDashboard'           => __( 'Dashboard', 'wp-career-board' ),
-					'tabProfile'             => __( 'Profile', 'wp-career-board' ),
-					'tabSettings'            => __( 'Settings', 'wp-career-board' ),
-					'tabNotifications'       => __( 'Notifications', 'wp-career-board' ),
+					'tabOverview'              => __( 'Overview', 'wp-career-board' ),
+					'tabApplications'          => __( 'My Applications', 'wp-career-board' ),
+					'tabBookmarks'             => __( 'Saved jobs', 'wp-career-board' ),
+					'tabSavedCompanies'        => __( 'Saved companies', 'wp-career-board' ),
+					'tabSavedResumes'          => __( 'Saved resumes', 'wp-career-board' ),
+					'tabResumes'               => __( 'My Resumes', 'wp-career-board' ),
+					'tabAlerts'                => __( 'Job alerts', 'wp-career-board' ),
+					'tabResumeBuilder'         => __( 'Edit Resume', 'wp-career-board' ),
+					'tabDashboard'             => __( 'Dashboard', 'wp-career-board' ),
+					'tabProfile'               => __( 'Profile', 'wp-career-board' ),
+					'tabSettings'              => __( 'Settings', 'wp-career-board' ),
+					'tabNotifications'         => __( 'Notifications', 'wp-career-board' ),
 					/* translators: 1: number of resumes the candidate has created. 2: maximum number of resumes allowed. Label form, so one string fits every count. */
-					'resumeCap'              => __( 'Resumes: %1$s of %2$s', 'wp-career-board' ),
-					'resumeCapReached'       => __( 'Delete a resume to add another.', 'wp-career-board' ),
+					'resumeCap'                => __( 'Resumes: %1$s of %2$s', 'wp-career-board' ),
+					'resumeCapReached'         => __( 'Delete a resume to add another.', 'wp-career-board' ),
 					'errorResumeTitleRequired' => __( 'Give the resume a title first.', 'wp-career-board' ),
 					/* translators: %1$s: match score from 0 to 100, already localised. Move the percent sign, or add a space before it, as your locale requires. */
-					'scoreFormat'            => __( '%1$s%', 'wp-career-board' ),
-					'filterRemote'           => __( 'Remote', 'wp-career-board' ),
+					'scoreFormat'              => __( '%1$s%', 'wp-career-board' ),
+					'filterRemote'             => __( 'Remote', 'wp-career-board' ),
 					/* translators: currency symbol shown on salary pills when the site has no configured currency symbol. */
-					'currencySymbolFallback' => __( '$', 'wp-career-board' ),
-					'alertLabelAllJobs'      => __( 'All jobs', 'wp-career-board' ),
-					'uploadedCvTitle'        => __( 'Uploaded CV', 'wp-career-board' ),
-					'accountUpdated'         => __( 'Account updated.', 'wp-career-board' ),
-					'pwUpdated'              => __( 'Password updated.', 'wp-career-board' ),
-					'errLoadApplications'    => __( 'Could not load your applications.', 'wp-career-board' ),
-					'errLoadBookmarks'       => __( 'Could not load saved jobs.', 'wp-career-board' ),
-					'errLoadSavedCompanies'  => __( 'Could not load saved companies.', 'wp-career-board' ),
-					'errLoadSavedResumes'    => __( 'Could not load saved resumes.', 'wp-career-board' ),
-					'errLoadResumes'         => __( 'Could not load your resumes.', 'wp-career-board' ),
-					'errLoadAlerts'          => __( 'Could not load your alerts.', 'wp-career-board' ),
-					'errRemoveBookmark'      => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
-					'errCreateResume'        => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
-					'errDeleteResume'        => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
-					'errSaveProfile'         => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
-					'errSaveAccount'         => __( 'Could not save your account.', 'wp-career-board' ),
-					'errPwRequired'          => __( 'Enter your current and new password.', 'wp-career-board' ),
-					'errPwMismatch'          => __( 'New password and confirmation do not match.', 'wp-career-board' ),
-					'errPwUpdate'            => __( 'Could not update your password.', 'wp-career-board' ),
-					'errUploadFailed'        => __( 'Upload failed.', 'wp-career-board' ),
-					'errUploadNoAttachment'  => __( 'Upload failed: no attachment returned.', 'wp-career-board' ),
-					'errUploadRetry'         => __( 'Failed to upload resume file. Please try again.', 'wp-career-board' ),
-					'errConnectionFull'      => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
-					'errConnectionRetry'     => __( 'Connection error. Please try again.', 'wp-career-board' ),
-					'errConnectionShort'     => __( 'Connection error.', 'wp-career-board' ),
-					'confirmWithdrawTitle'   => __( 'Withdraw application?', 'wp-career-board' ),
-					'confirmWithdrawMsg'     => __( 'Are you sure you want to withdraw this application? This cannot be undone.', 'wp-career-board' ),
-					'withdraw'               => __( 'Withdraw', 'wp-career-board' ),
+					'currencySymbolFallback'   => __( '$', 'wp-career-board' ),
+					'alertLabelAllJobs'        => __( 'All jobs', 'wp-career-board' ),
+					'uploadedCvTitle'          => __( 'Uploaded CV', 'wp-career-board' ),
+					'accountUpdated'           => __( 'Account updated.', 'wp-career-board' ),
+					'pwUpdated'                => __( 'Password updated.', 'wp-career-board' ),
+					'errLoadApplications'      => __( 'Could not load your applications.', 'wp-career-board' ),
+					'errLoadBookmarks'         => __( 'Could not load saved jobs.', 'wp-career-board' ),
+					'errLoadSavedCompanies'    => __( 'Could not load saved companies.', 'wp-career-board' ),
+					'errLoadSavedResumes'      => __( 'Could not load saved resumes.', 'wp-career-board' ),
+					'errLoadResumes'           => __( 'Could not load your resumes.', 'wp-career-board' ),
+					'errLoadAlerts'            => __( 'Could not load your alerts.', 'wp-career-board' ),
+					'errRemoveBookmark'        => __( 'Could not remove saved job. Please try again.', 'wp-career-board' ),
+					'errCreateResume'          => __( 'Could not create resume. Please try again.', 'wp-career-board' ),
+					'errDeleteResume'          => __( 'Could not delete resume. Please try again.', 'wp-career-board' ),
+					'errSaveProfile'           => __( 'Could not save profile. Please try again.', 'wp-career-board' ),
+					'errSaveAccount'           => __( 'Could not save your account.', 'wp-career-board' ),
+					'errPwRequired'            => __( 'Enter your current and new password.', 'wp-career-board' ),
+					'errPwMismatch'            => __( 'New password and confirmation do not match.', 'wp-career-board' ),
+					'errPwUpdate'              => __( 'Could not update your password.', 'wp-career-board' ),
+					'errUploadFailed'          => __( 'Upload failed.', 'wp-career-board' ),
+					'errUploadNoAttachment'    => __( 'Upload failed: no attachment returned.', 'wp-career-board' ),
+					'errUploadRetry'           => __( 'Failed to upload resume file. Please try again.', 'wp-career-board' ),
+					'errConnectionFull'        => __( 'Connection error. Please check your network and try again.', 'wp-career-board' ),
+					'errConnectionRetry'       => __( 'Connection error. Please try again.', 'wp-career-board' ),
+					'errConnectionShort'       => __( 'Connection error.', 'wp-career-board' ),
+					'confirmWithdrawTitle'     => __( 'Withdraw application?', 'wp-career-board' ),
+					'confirmWithdrawMsg'       => __( 'Are you sure you want to withdraw this application? This cannot be undone.', 'wp-career-board' ),
+					'withdraw'                 => __( 'Withdraw', 'wp-career-board' ),
 					/* translators: %s: name of the item the menu acts on (a job, resume or company). */
-					'moreActionsFor'         => __( 'More actions for %s', 'wp-career-board' ),
+					'moreActionsFor'           => __( 'More actions for %s', 'wp-career-board' ),
 					/* translators: %s: job title. */
-					'withdrawFor'            => __( 'Withdraw application for %s', 'wp-career-board' ),
+					'withdrawFor'              => __( 'Withdraw application for %s', 'wp-career-board' ),
 					/* translators: %s: job title. */
-					'removeFor'              => __( 'Remove application for %s', 'wp-career-board' ),
-					'confirmClearAllTitle'   => __( 'Clear all notifications?', 'wp-career-board' ),
-					'confirmClearAllMsg'     => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
-					'clearAll'               => __( 'Clear all', 'wp-career-board' ),
-					'errWithdraw'            => __( 'Could not withdraw application. Please try again.', 'wp-career-board' ),
+					'removeFor'                => __( 'Remove application for %s', 'wp-career-board' ),
+					'confirmClearAllTitle'     => __( 'Clear all notifications?', 'wp-career-board' ),
+					'confirmClearAllMsg'       => __( 'This permanently removes all of your notifications. This cannot be undone.', 'wp-career-board' ),
+					'clearAll'                 => __( 'Clear all', 'wp-career-board' ),
+					'errWithdraw'              => __( 'Could not withdraw application. Please try again.', 'wp-career-board' ),
 				)
 			),
 			'tab'                     => $wcb_resume_embed_id > 0 && $wcb_resume_builder_embedded ? 'resume-builder' : 'overview',

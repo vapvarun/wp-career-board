@@ -22,6 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class JobsMeta {
 
 	/**
+	 * Statuses whose job page a visitor can open. An ended job keeps its page;
+	 * a pending, draft or rejected one does not (404).
+	 *
+	 * @since 1.8.4
+	 */
+	public const VIEWABLE_STATUSES = array( 'publish', 'wcb_expired', 'wcb_closed' );
+
+	/**
 	 * Boot the meta registration.
 	 *
 	 * @since 1.0.0

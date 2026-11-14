@@ -173,6 +173,25 @@
 			} );
 	}
 
+	// Swap one list row for its freshly rendered copy (status badge, row actions).
+	function refreshRow( row, jobId ) {
+		window.fetch( window.location.href, { credentials: 'same-origin' } )
+			.then( function ( res ) {
+				return res.ok ? res.text() : '';
+			} )
+			.then( function ( html ) {
+				var doc   = new window.DOMParser().parseFromString( html, 'text/html' );
+				var match = doc.querySelector( '#cb-select-' + jobId );
+				var fresh = match ? match.closest( 'tr' ) : null;
+				if ( fresh && row.isConnected ) {
+					row.replaceWith( document.importNode( fresh, true ) );
+				}
+			} )
+			.catch( function () {
+				// The row is corrected on the next page load.
+			} );
+	}
+
 	function initJobModeration() {
 		document.addEventListener( 'click', function ( e ) {
 			var btn = e.target.closest( '.wcb-approve-job, .wcb-reject-job' );
@@ -213,9 +232,14 @@
 				} );
 			} ).then( function () {
 				var row = btn.closest( 'tr' );
-				if ( row ) {
+				// Only the Pending view loses the job; on All or Published it stays
+				// listed, so show its new status instead of making it vanish.
+				var view = new window.URLSearchParams( window.location.search ).get( 'post_status' );
+				if ( row && 'pending' === view ) {
 					row.style.opacity = '0.4';
 					setTimeout( function () { row.remove(); }, 600 );
+				} else if ( row ) {
+					refreshRow( row, jobId );
 				}
 				refreshStatusCounts();
 			} ).catch( function ( err ) {

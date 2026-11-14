@@ -40,7 +40,7 @@ The admin menu is hidden while the wizard runs. Click **Exit setup** at the top 
    - Candidate Dashboard
    - Find Companies
    - Post a Job
-   - Employer Registration
+   - Join (the sign-up page for both employers and candidates)
 
    If a page that already contains the matching Career Board block exists, the wizard reuses it.
 2. **Sign-ups** - turn on **Let people sign up** so candidates and employers can create their own accounts, and turn on **Confirm email addresses** to hold new accounts until they click a link in their inbox.

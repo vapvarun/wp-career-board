@@ -400,7 +400,8 @@ class SetupWizard extends \WCB\Api\RestController {
 	public function settings_handler( \WP_REST_Request $request ): \WP_REST_Response {
 		$input = (array) $request->get_param( 'settings' );
 
-		if ( array_key_exists( 'users_can_register', $input ) ) {
+		// On multisite core reads the network's setting, so a subsite value would only mislead.
+		if ( array_key_exists( 'users_can_register', $input ) && ! is_multisite() ) {
 			update_option( 'users_can_register', rest_sanitize_boolean( $input['users_can_register'] ) ? 1 : 0 );
 		}
 

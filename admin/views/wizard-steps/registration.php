@@ -8,9 +8,19 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$wcb_can_register = (bool) get_option( 'users_can_register' );
+// A board nobody can join is a dead end, so the first run starts with sign-ups on.
+// Re-running the wizard shows the real setting.
+$wcb_can_register = (bool) get_option( 'users_can_register' ) || ! get_option( 'wcb_setup_complete', false );
 $wcb_verify       = \WCB\Admin\Settings::bool( 'require_email_verification', false );
 ?>
+<?php if ( is_multisite() ) : ?>
+<div class="wcb-settings-row">
+	<div class="wcb-settings-row-label"><?php esc_html_e( 'Let people sign up', 'wp-career-board' ); ?></div>
+	<div class="wcb-settings-row-control">
+		<span class="description"><?php esc_html_e( 'On a network, the network administrator decides whether visitors can register (Network Admin > Settings > Network Settings > Registration settings). This site follows that setting.', 'wp-career-board' ); ?></span>
+	</div>
+</div>
+<?php else : ?>
 <div class="wcb-settings-row">
 	<div class="wcb-settings-row-label"><label for="wcb-wz-register"><?php esc_html_e( 'Let people sign up', 'wp-career-board' ); ?></label></div>
 	<div class="wcb-settings-row-control">
@@ -21,6 +31,7 @@ $wcb_verify       = \WCB\Admin\Settings::bool( 'require_email_verification', fal
 		<span class="description"><?php esc_html_e( 'Candidates and employers create their own accounts. Off: only you can add users, and the sign-up forms show a "registration closed" notice. This is WordPress\'s "Anyone can register" setting.', 'wp-career-board' ); ?></span>
 	</div>
 </div>
+<?php endif; ?>
 <div class="wcb-settings-row">
 	<div class="wcb-settings-row-label"><label for="wcb-wz-verify"><?php esc_html_e( 'Confirm email addresses', 'wp-career-board' ); ?></label></div>
 	<div class="wcb-settings-row-control">

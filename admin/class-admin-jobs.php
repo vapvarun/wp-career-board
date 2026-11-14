@@ -652,7 +652,7 @@ class AdminJobs extends \WP_List_Table {
 		if ( 'publish' === $status && '' === $hidden && \WCB\Admin\Settings::bool( 'job_schema_enabled', true ) && ! \WCB\Modules\Seo\SeoModule::has_location( $item ) ) {
 			$badge .= sprintf(
 				' <span class="wcb-badge wcb-badge--warn" title="%s">%s</span>',
-				esc_attr__( 'Not in Google for Jobs: add a location or mark the job as remote.', 'wp-career-board' ),
+				esc_attr__( 'Not in Google for Jobs: add a location, or set a default country in Settings for a remote job.', 'wp-career-board' ),
 				esc_html__( 'No location', 'wp-career-board' )
 			);
 		}
