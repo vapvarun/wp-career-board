@@ -1440,7 +1440,10 @@ final class Plugin {
 		\WP_CLI::add_command( 'wcb job', \WCB\Cli\JobCommands::class );
 		\WP_CLI::add_command( 'wcb application', \WCB\Cli\ApplicationCommands::class );
 		\WP_CLI::add_command( 'wcb migrate', \WCB\Cli\MigrateCommands::class );
-		\WP_CLI::add_command( 'wcb scale', \WCB\Cli\ScaleCommand::class );
+		// The seed and benchmark tool stays in the repo and out of the release zip.
+		if ( class_exists( \WCB\Cli\ScaleCommand::class ) ) {
+			\WP_CLI::add_command( 'wcb scale', \WCB\Cli\ScaleCommand::class );
+		}
 	}
 
 	/**

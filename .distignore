@@ -69,3 +69,4 @@ phpunit.xml*
 /phpstan-buddypress-stubs.php
 /.wbcom-i18n.json
 /.gate-check-allow
+/cli/class-scale-command.php
