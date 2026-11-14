@@ -9,6 +9,7 @@ You can use this page to see recent changes that affect how you set up and run y
 * **Locations.** A remote job shows one Remote chip, the job form lists one Other choice, and an on-site job with no country is left out of Google for Jobs and flagged in the Jobs list.
 * **Apply.** A candidate who has applied before sees "Using your last CV" with a Replace link, so the next application is one click.
 * **Setup wizard.** Skip for now on Sign-ups saves the toggle as shown, and the sample data box starts unticked.
+* **Emails.** You can be emailed when someone signs up: **New Employer** is on, **New Candidate** is off until you switch it on. Both are under Settings > Emails.
 * **My Jobs.** **View** is hidden for a job that has no public page yet.
 * **My Resumes.** Each row shows whether the resume is Public or Private.
 * **Links.** Custom field, company and candidate profile links keep only real web addresses. A bare domain is saved as https, and the form shows an error for anything else.

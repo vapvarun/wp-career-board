@@ -119,6 +119,17 @@ abstract class AbstractEmail {
 	abstract public function boot(): void;
 
 	/**
+	 * Whether this email is on until the owner saves the Emails screen. A
+	 * chatty admin alert overrides this to stay off by default.
+	 *
+	 * @since 1.8.4
+	 * @return bool
+	 */
+	public function default_enabled(): bool {
+		return true;
+	}
+
+	/**
 	 * Returns true when this email type is enabled in wcb_email_settings.
 	 *
 	 * @return bool
@@ -127,7 +138,7 @@ abstract class AbstractEmail {
 		$settings = wcb_get_email_settings();
 		return isset( $settings[ $this->get_id() ]['enabled'] )
 			? (bool) $settings[ $this->get_id() ]['enabled']
-			: true;
+			: $this->default_enabled();
 	}
 
 	/**

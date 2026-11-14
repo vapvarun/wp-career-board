@@ -60,6 +60,8 @@ class NotificationsModule {
 			Emails\EmailDeletionCancelled::class,
 			Emails\EmailDeletionCompleted::class,
 			Emails\EmailReportReceived::class,
+			Emails\EmailNewEmployer::class,
+			Emails\EmailNewCandidate::class,
 		);
 
 		foreach ( $classes as $class ) {
