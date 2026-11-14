@@ -183,6 +183,9 @@ final class Plugin {
 		// its build-generated twin when one exists.
 		\WCB\Core\Rtl::boot();
 
+		// A page whose blocks are gone (Pro deactivated) says so instead of rendering blank.
+		\WCB\Core\MissingBlockNotice::boot();
+
 		// Mobile-app credential acquisition (Wbcom App Auth standard).
 		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
 		// deep-link scheme survives esc_url() there, and a WooCommerce-style
