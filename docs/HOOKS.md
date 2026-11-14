@@ -252,6 +252,7 @@ add_filter( 'wcb_pre_application_submit', function( $err, $request ) {
 |---|---|
 | `wcb_pre_job_submit` | Short-circuit job creation |
 | `wcb_pre_application_submit` | Short-circuit application submission |
+| `wcb_pre_registration` | Short-circuit a candidate or employer sign-up (the built-in anti-spam module hooks all three) |
 
 ## Job fields and terms (1.8.0)
 
