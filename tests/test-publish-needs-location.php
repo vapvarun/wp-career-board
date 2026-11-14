@@ -70,6 +70,30 @@ update_post_meta( $b, '_wcb_remote', '1' );
 $res = rest_do_request( new WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $b . '/approve' ) );
 $ok( 200 === $res->get_status() && 'publish' === $st( $b ) && empty( $res->get_data()['notice'] ), 'a remote job approves with no notice' );
 
+// Core's /wp/v2 route: an API client (app password) is held to the rule; the block editor (cookie) is not.
+if ( ! defined( 'REST_REQUEST' ) ) {
+	define( 'REST_REQUEST', true ); // A live /wp/v2 request has it; the status guard keys off it with the route below.
+}
+$core = static function ( int $id, array $body ) use ( $st ): WP_REST_Response {
+	$GLOBALS['wp']->query_vars['rest_route'] = '/wp/v2/wcb_job/' . $id;
+	$req = new WP_REST_Request( 'POST', '/wp/v2/wcb_job/' . $id );
+	$req->set_header( 'content-type', 'application/json' );
+	$req->set_body( wp_json_encode( $body ) );
+	$res = rest_do_request( $req );
+	unset( $GLOBALS['wp']->query_vars['rest_route'] );
+	return $res;
+};
+$c1 = $mk();
+$GLOBALS['wp_rest_application_password_uuid'] = 'test-uuid';
+$res = $core( $c1, array( 'status' => 'publish' ) );
+$ok( 400 === $res->get_status() && 'draft' === $st( $c1 ), 'an API client publishing through /wp/v2 without a location is refused' );
+$res = $core( $c1, array( 'status' => 'publish', 'meta' => array( '_wcb_remote' => '1' ) ) );
+$ok( 200 === $res->get_status() && 'publish' === $st( $c1 ), 'the same request marked remote publishes' );
+$c2 = $mk();
+unset( $GLOBALS['wp_rest_application_password_uuid'] );
+$res = $core( $c2, array( 'status' => 'publish' ) );
+$ok( 200 === $res->get_status() && 'publish' === $st( $c2 ), 'a cookie session (the block editor) is not blocked' );
+
 // Bulk Edit tells the list why: the redirect carries how many were kept back.
 $ok( str_contains( \WCB\Core\Locations::flag_held_redirect( admin_url( 'edit.php?post_type=wcb_job' ) ), 'wcb_held=' ), 'the Jobs list redirect carries the held count' );
 

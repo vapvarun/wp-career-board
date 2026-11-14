@@ -191,6 +191,39 @@ final class Locations {
 	}
 
 	/**
+	 * Refuse a publish sent to core's /wp/v2 route by an API client (an app
+	 * password), where the request itself carries the location. The block editor
+	 * signs in with cookies and saves its Location box in a second request, so it
+	 * is left alone: reverting a Publish the admin just pressed would read as a bug.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param \stdClass        $prepared Post about to be stored.
+	 * @param \WP_REST_Request $request  Request.
+	 * @return \stdClass|\WP_Error
+	 */
+	public static function guard_core_rest( $prepared, \WP_REST_Request $request ) {
+		$id = (int) ( $prepared->ID ?? 0 );
+		if ( 'publish' !== ( $prepared->post_status ?? '' ) || null === rest_get_authenticated_app_password() || ! \WCB\Admin\Settings::bool( 'require_job_location', false ) || ( $id && 'publish' === get_post_status( $id ) ) ) {
+			return $prepared;
+		}
+		$meta  = (array) ( $request['meta'] ?? array() );
+		$slugs = $id ? wp_get_object_terms( $id, 'wcb_location', array( 'fields' => 'slugs' ) ) : array();
+		if ( isset( $request['wcb_location'] ) ) {
+			$slugs = array();
+			foreach ( wp_parse_id_list( $request['wcb_location'] ) as $term_id ) {
+				$term = get_term( $term_id, 'wcb_location' );
+				if ( $term instanceof \WP_Term ) {
+					$slugs[] = $term->slug;
+				}
+			}
+		}
+		$remote = '1' === (string) ( $meta['_wcb_remote'] ?? get_post_meta( $id, '_wcb_remote', true ) );
+		$custom = (string) ( $meta['_wcb_location_custom'] ?? get_post_meta( $id, '_wcb_location_custom', true ) );
+		return self::has_usable_location( $remote, is_array( $slugs ) ? $slugs : array(), $custom ) ? $prepared : self::required_error();
+	}
+
+	/**
 	 * Hold a freshly imported job as a draft when it has no location.
 	 *
 	 * Importers write the terms after the post, so they call this once the row
