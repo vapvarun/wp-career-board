@@ -4,7 +4,7 @@
  * @package WP_Career_Board
  */
 import { store, getContext, getConfig } from '@wordpress/interactivity';
-import { wcbFetch } from '@wcb/fetch';
+import { wcbFetch, wcbUrl } from '@wcb/fetch';
 import { customFieldValue, isWebAddress } from '@wcb/fields';
 import { flushEditors, formatSiteDate, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
@@ -581,7 +581,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get appsExportUrl() {
 			return state.appsJobId
-				? state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications/export?_wpnonce=' + state.nonce
+				? wcbUrl( state.apiBase + '/jobs/' + String( state.appsJobId ) + '/applications/export', { _wpnonce: state.nonce } )
 				: '';
 		},
 		get isBoardOptSelected() {
@@ -955,7 +955,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				// Translated badge label from the seeded strings, overriding the
 				// REST payload's English statusLabel so the first paint is localised.
 				statusLabel: jobStatusLabel( j ),
-				appsUrl:   j.appCount > 0 ? state.dashboardUrl + '?job_apps=' + String( j.id ) : null,
+				appsUrl:   j.appCount > 0 ? wcbUrl( state.dashboardUrl, { job_apps: j.id } ) : null,
 				isClosed:  j.status === 'closed',
 				isExpired: j.status === 'expired',
 				isRejected: !! j.rejected,
@@ -2068,7 +2068,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		*fetchBellNotifications() {
 			state.bellLoading = true;
 			try {
-				const res = yield wcbFetch( state.apiBase + '/notifications?per_page=20', {
+				const res = yield wcbFetch( wcbUrl( state.apiBase + '/notifications', { per_page: 20 } ), {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 				if ( res.ok ) {

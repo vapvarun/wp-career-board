@@ -15,7 +15,7 @@
  * @package WP_Career_Board
  */
 import { store, getConfig, getContext, withScope } from '@wordpress/interactivity';
-import { wcbFetch } from '@wcb/fetch';
+import { wcbFetch, wcbUrl } from '@wcb/fetch';
 import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
@@ -1019,7 +1019,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 			// When embedded resume builder is active, reload current page with resume_id param.
 			if ( state.resumeBuilderEmbedded ) {
-				window.location.href = state.dashboardUrl + '?resume_id=' + String( ctx.resume.id );
+				window.location.href = wcbUrl( state.dashboardUrl, { resume_id: ctx.resume.id } );
 			}
 		},
 
@@ -1096,7 +1096,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.resumeCount = state.resumeCount + 1;
 
 				if ( state.resumeBuilderEmbedded ) {
-					window.location.href = state.dashboardUrl + '?resume_id=' + String( resume.id );
+					window.location.href = wcbUrl( state.dashboardUrl, { resume_id: resume.id } );
 				}
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
@@ -1213,7 +1213,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*fetchBellNotifications() {
 			state.bellLoading = true;
 			try {
-				const res = yield wcbFetch( state.apiBase + '/notifications?per_page=20', {
+				const res = yield wcbFetch( wcbUrl( state.apiBase + '/notifications', { per_page: 20 } ), {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 				if ( res.ok ) {
