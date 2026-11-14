@@ -6,6 +6,7 @@ You can use this page to see recent changes that affect how you set up and run y
 
 * **Sign-up on multisite.** Candidate and employer sign-up follows the network registration setting, so a subsite whose network closes registration refuses sign-up.
 * **Job forms.** Logging out clears an unsent draft. The board list shows every board. A deadline past the board maximum is moved to the maximum with a notice, and the success screen shows the date that was saved. The single-page form says when a job is held for review. See [Post a Job](../for-employers/02-post-a-job.md).
+* **Locations.** A remote job shows one Remote chip, the job form lists one Other choice, and an on-site job with no country is left out of Google for Jobs and flagged in the Jobs list.
 * **My Jobs.** **View** is hidden for a job that has no public page yet.
 * **My Resumes.** Each row shows whether the resume is Public or Private.
 * **Links.** Custom field, company and candidate profile links keep only real web addresses. A bare domain is saved as https, and the form shows an error for anything else.

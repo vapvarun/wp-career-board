@@ -170,7 +170,7 @@ $wcb_site_currency = \WCB\Modules\Jobs\JobsMeta::default_currency();
 \WCB\Core\CompanyMetaShape::prime_logos( array_map( static fn ( $wcb_p ): int => (int) get_post_meta( $wcb_p->ID, '_wcb_company_id', true ), $wcb_jobs_raw ) );
 
 foreach ( $wcb_jobs_raw as $wcb_job_post ) {
-	$wcb_location_terms   = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_location' ) );
+	$wcb_location_terms   = \WCB\Core\Locations::place_names( get_the_terms( $wcb_job_post->ID, 'wcb_location' ) );
 	$wcb_type_terms       = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_job_type' ) );
 	$wcb_exp_terms        = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_experience' ) );
 	$wcb_cat_terms        = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_category' ) );

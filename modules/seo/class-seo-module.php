@@ -278,11 +278,15 @@ class SeoModule {
 			if ( 'other' === $term->slug ) {
 				continue;
 			}
-			$country                                  = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
-			$places[ self::place_key( $term->name ) ] = self::place( $term->name, '' !== $country ? $country : $default );
+			$country = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
+			$country = '' !== $country ? $country : $default;
+			if ( '' === $country ) {
+				continue; // Google rejects a JobPosting address with no country.
+			}
+			$places[ self::place_key( $term->name ) ] = self::place( $term->name, $country );
 		}
 		$custom = trim( (string) get_post_meta( $job->ID, '_wcb_location_custom', true ) );
-		if ( '' !== $custom && ! isset( $places[ self::place_key( $custom ) ] ) ) {
+		if ( '' !== $custom && '' !== $default && ! isset( $places[ self::place_key( $custom ) ] ) ) {
 			$places[ self::place_key( $custom ) ] = self::place( $custom, $default );
 		}
 		return array( array_values( $places ), $remote );

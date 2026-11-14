@@ -1793,7 +1793,7 @@ final class JobsEndpoint extends RestController {
 		$cat_term_objs  = get_the_terms( $post->ID, 'wcb_category' );
 		$tag_term_objs  = get_the_terms( $post->ID, 'wcb_tag' );
 
-		$loc_names  = \WCB\Core\Taxonomy::names( $loc_term_objs );
+		$loc_names  = \WCB\Core\Locations::place_names( $loc_term_objs );
 		$type_names = \WCB\Core\Taxonomy::names( $type_term_objs );
 		$exp_names  = \WCB\Core\Taxonomy::names( $exp_term_objs );
 		$cat_names  = \WCB\Core\Taxonomy::names( $cat_term_objs );

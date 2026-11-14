@@ -337,6 +337,27 @@ final class Locations {
 	}
 
 	/**
+	 * Place names of a job's location terms for a card: the reserved Remote and
+	 * Other terms are a switch and a placeholder, never a place to print (the
+	 * card shows Remote as its own chip).
+	 *
+	 * @since 1.8.4
+	 * @param mixed $terms get_the_terms() result.
+	 * @return string[]
+	 */
+	public static function place_names( $terms ): array {
+		if ( ! is_array( $terms ) ) {
+			return array();
+		}
+		return Taxonomy::names(
+			array_filter(
+				$terms,
+				static fn( $t ): bool => ! ( $t instanceof \WP_Term ) || ! isset( self::RESERVED[ $t->slug ] )
+			)
+		);
+	}
+
+	/**
 	 * Build the location-dropdown choices for a job-form render.
 	 *
 	 * Returns the terms an employer should see when posting a job:
@@ -386,7 +407,11 @@ final class Locations {
 			}
 		}
 
+		// The forms add their own "Other (enter manually)" choice, so the reserved Other term stays out.
 		foreach ( array_keys( self::RESERVED ) as $slug ) {
+			if ( 'other' === $slug ) {
+				continue;
+			}
 			$reserved = get_term_by( 'slug', $slug, 'wcb_location' );
 			if ( $reserved instanceof \WP_Term && ! isset( $seen_ids[ $reserved->term_id ] ) ) {
 				$terms[]                        = $reserved;
@@ -419,6 +444,13 @@ final class Locations {
 		if ( is_wp_error( $all ) ) {
 			return array();
 		}
-		return Taxonomy::sort( (array) $all );
+		return Taxonomy::sort(
+			array_values(
+				array_filter(
+					(array) $all,
+					static fn( $t ): bool => 'other' !== $t->slug
+				)
+			)
+		);
 	}
 }
