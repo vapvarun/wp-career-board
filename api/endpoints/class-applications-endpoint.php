@@ -695,19 +695,21 @@ final class ApplicationsEndpoint extends RestController {
 			$company_snapshot = (string) get_post_meta( $app->ID, '_wcb_company_name_snapshot', true );
 			$job_exists       = $job instanceof \WP_Post;
 
-			$row = array(
-				'id'           => $app->ID,
-				'jobTitle'     => $job_exists ? $job->post_title : ( $title_snapshot ? $title_snapshot : __( 'Job no longer available', 'wp-career-board' ) ),
-				'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
-				'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
-				'jobRemoved'   => $job_removed || ! $job_exists,
-				// Withdraw is offered until the application has an outcome.
-				'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
-				'created_at'   => $app->post_date_gmt,
-				'updated_at'   => $app->post_modified_gmt,
-				// Legacy `date` key, still rendered by the candidate dashboard.
-				'date'         => \WCB\Core\Time::date_label( $app->post_date_gmt ),
-			) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
+			$row = self::with_snake_keys(
+				array(
+					'id'           => $app->ID,
+					'jobTitle'     => $job_exists ? $job->post_title : ( $title_snapshot ? $title_snapshot : __( 'Job no longer available', 'wp-career-board' ) ),
+					'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
+					'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
+					'jobRemoved'   => $job_removed || ! $job_exists,
+					// Withdraw is offered until the application has an outcome.
+					'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
+					'created_at'   => $app->post_date_gmt,
+					'updated_at'   => $app->post_modified_gmt,
+					// Legacy `date` key, still rendered by the candidate dashboard.
+					'date'         => \WCB\Core\Time::date_label( $app->post_date_gmt ),
+				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE )
+			);
 
 			/** This filter is documented in api/endpoints/class-applications-endpoint.php */
 			$items[] = (array) apply_filters( 'wcb_rest_prepare_application', $row, $app, $request, 'candidate' );

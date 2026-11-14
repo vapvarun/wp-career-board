@@ -33,6 +33,29 @@ abstract class RestController extends \WP_REST_Controller {
 	protected $namespace = 'wcb/v1';
 
 	/**
+	 * Add a snake_case twin for every camelCase key in a response row.
+	 *
+	 * REST keys are snake_case; the camelCase keys predate that and are read by
+	 * the bundled blocks and by existing integrations, so they stay and are
+	 * marked deprecated in the OpenAPI document. Existing keys are never
+	 * overwritten.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, mixed> $row Response row.
+	 * @return array<string, mixed>
+	 */
+	public static function with_snake_keys( array $row ): array {
+		foreach ( $row as $key => $value ) {
+			$snake = strtolower( (string) preg_replace( '/(?<!^)[A-Z]/', '_$0', (string) $key ) );
+			if ( $snake !== $key && ! array_key_exists( $snake, $row ) ) {
+				$row[ $snake ] = $value;
+			}
+		}
+		return $row;
+	}
+
+	/**
 	 * Check an ability via the WordPress Abilities API.
 	 *
 	 * Delegates to wp_is_ability_granted() — provided either by WP core

@@ -2883,6 +2883,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -3014,6 +3017,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -3111,6 +3117,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -3206,6 +3215,9 @@
                                         "type": "string"
                                     },
                                     "salary_max": {
+                                        "type": "string"
+                                    },
+                                    "apply_url": {
                                         "type": "string"
                                     },
                                     "salary_currency": {

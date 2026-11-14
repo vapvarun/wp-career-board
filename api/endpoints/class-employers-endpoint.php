@@ -846,36 +846,39 @@ final class EmployersEndpoint extends RestController {
 				if ( 'publish' === $public_status && \WCB\Core\JobDeadline::has_passed( $p->ID ) ) {
 					$public_status = 'expired';
 				}
-				return array(
-					'id'               => $p->ID,
-					'title'            => $p->post_title,
-					'status'           => $rejected ? 'rejected' : $public_status,
-					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
-					'rejected'         => $rejected,
-					'closedNote'       => self::closed_note( $p ),
-					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
-					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
-					// Core 404s a pending or draft job, even for its author: no link.
-					'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
-					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
-					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
-					'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
-					'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
-						? sprintf(
-							/* translators: %s: number of applicants, already localised. */
-							_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
-							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
-						)
-						: __( 'No applicants', 'wp-career-board' ),
-					'viewLabel'        => sprintf(
-						/* translators: %s: number of views in the last 30 days, already localised. */
-						_n( '%s view in 30 days', '%s views in 30 days', $wcb_view_counts[ $p->ID ] ?? 0, 'wp-career-board' ),
-						number_format_i18n( $wcb_view_counts[ $p->ID ] ?? 0 )
-					),
-					'location'         => implode( ', ', $location_terms ),
-					'type'             => implode( ', ', $type_terms ),
-					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
-					'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
+				return self::with_snake_keys(
+					array(
+						'id'               => $p->ID,
+						'title'            => $p->post_title,
+						'status'           => $rejected ? 'rejected' : $public_status,
+						'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
+						'rejected'         => $rejected,
+						'closedNote'       => self::closed_note( $p ),
+						'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+						'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
+						// Core 404s a pending or draft job, even for its author: no link.
+						'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
+						'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+						'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
+						'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
+						'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
+							? sprintf(
+								/* translators: %s: number of applicants, already localised. */
+								_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
+								number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
+							)
+							: __( 'No applicants', 'wp-career-board' ),
+						'viewLabel'        => sprintf(
+							/* translators: %s: number of views in the last 30 days, already localised. */
+							_n( '%s view in 30 days', '%s views in 30 days', $wcb_view_counts[ $p->ID ] ?? 0, 'wp-career-board' ),
+							number_format_i18n( $wcb_view_counts[ $p->ID ] ?? 0 )
+						),
+						'location'         => implode( ', ', $location_terms ),
+						'type'             => implode( ', ', $type_terms ),
+						'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
+						'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
+
+					)
 				);
 			},
 			$posts
@@ -965,31 +968,34 @@ final class EmployersEndpoint extends RestController {
 					$public_status = 'expired';
 				}
 
-				return array(
-					'id'               => $p->ID,
-					'title'            => $p->post_title,
-					'status'           => $rejected ? 'rejected' : $public_status,
-					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
-					'rejected'         => $rejected,
-					'closedNote'       => self::closed_note( $p ),
-					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
-					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
-					// Core 404s a pending or draft job, even for its author: no link.
-					'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
-					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
-					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
-					'appCount'         => $app_count,
-					'appLabel'         => $app_count > 0
-					? sprintf(
-						/* translators: %s: number of applicants, already localised. */
-						_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
-						number_format_i18n( $app_count )
+				return self::with_snake_keys(
+					array(
+						'id'               => $p->ID,
+						'title'            => $p->post_title,
+						'status'           => $rejected ? 'rejected' : $public_status,
+						'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
+						'rejected'         => $rejected,
+						'closedNote'       => self::closed_note( $p ),
+						'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+						'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
+						// Core 404s a pending or draft job, even for its author: no link.
+						'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
+						'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
+						'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
+						'appCount'         => $app_count,
+						'appLabel'         => $app_count > 0
+						? sprintf(
+							/* translators: %s: number of applicants, already localised. */
+							_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
+							number_format_i18n( $app_count )
+						)
+						: __( 'No applicants', 'wp-career-board' ),
+						'location'         => implode( ', ', $location_terms ),
+						'type'             => implode( ', ', $type_terms ),
+						'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
+						'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
+
 					)
-					: __( 'No applicants', 'wp-career-board' ),
-					'location'         => implode( ', ', $location_terms ),
-					'type'             => implode( ', ', $type_terms ),
-					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
-					'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
 				);
 			},
 			$query->posts
