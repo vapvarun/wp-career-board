@@ -82,11 +82,14 @@ $to_openapi_path = static function ( string $route ): array {
 $arg_to_schema = static function ( array $arg ) use ( &$arg_to_schema ): array {
 	$schema = array();
 	$type   = $arg['type'] ?? null;
+	$union  = null;
 	if ( is_array( $type ) ) {
-		$type = $type[0] ?? 'string';
+		// OpenAPI 3.1 takes a type list, so ["integer","null"] stays nullable in the spec.
+		$union = array_values( $type );
+		$type  = $type[0] ?? 'string';
 	}
 	if ( $type ) {
-		$schema['type'] = $type;
+		$schema['type'] = $union && count( $union ) > 1 ? $union : $type;
 	}
 	foreach ( array( 'format', 'minimum', 'maximum', 'minLength', 'maxLength', 'pattern' ) as $k ) {
 		if ( isset( $arg[ $k ] ) ) {
@@ -99,12 +102,12 @@ $arg_to_schema = static function ( array $arg ) use ( &$arg_to_schema ): array {
 	if ( array_key_exists( 'default', $arg ) ) {
 		$schema['default'] = $arg['default'];
 	}
-	if ( 'array' === ( $schema['type'] ?? '' ) ) {
+	if ( 'array' === $type ) {
 		$schema['items'] = isset( $arg['items'] ) && is_array( $arg['items'] )
 			? $arg_to_schema( $arg['items'] )
 			: array( 'type' => 'string' );
 	}
-	if ( 'object' === ( $schema['type'] ?? '' ) && isset( $arg['properties'] ) && is_array( $arg['properties'] ) ) {
+	if ( 'object' === $type && isset( $arg['properties'] ) && is_array( $arg['properties'] ) ) {
 		$schema['properties'] = array();
 		foreach ( $arg['properties'] as $pname => $pdef ) {
 			$schema['properties'][ $pname ] = is_array( $pdef ) ? $arg_to_schema( $pdef ) : array();

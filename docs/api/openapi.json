@@ -3219,7 +3219,10 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
                                     },
                                     "title": {
@@ -3401,7 +3404,10 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
                                     },
                                     "title": {
@@ -3549,7 +3555,10 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
                                     },
                                     "title": {
@@ -3697,7 +3706,10 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
                                     },
                                     "title": {
