@@ -681,6 +681,11 @@ class AdminMetaBoxes {
 		// the deadline it had, so an ended job stays editable.
 		if ( \WCB\Core\JobDeadline::is_new_past( $deadline, (string) get_post_meta( $post_id, '_wcb_deadline', true ) ) ) {
 			$this->past_deadline = true;
+			// A new job with nothing stored gets the board default, as an empty
+			// field does, so a refused date never leaves a job that cannot expire.
+			if ( ! metadata_exists( 'post', $post_id, '_wcb_deadline' ) ) {
+				update_post_meta( $post_id, '_wcb_deadline', \WCB\Core\JobDeadline::default_end_for_board( (int) get_post_meta( $post_id, '_wcb_board_id', true ) ) );
+			}
 		} else {
 			update_post_meta( $post_id, '_wcb_deadline', $deadline );
 		}

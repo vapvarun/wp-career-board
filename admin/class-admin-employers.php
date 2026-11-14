@@ -433,7 +433,7 @@ class AdminEmployers extends \WP_List_Table {
 			"SELECT DISTINCT p.post_author FROM {$wpdb->posts} p
 			 INNER JOIN {$wpdb->users} u ON u.ID = p.post_author
 			 WHERE p.post_type = 'wcb_job'
-			   AND p.post_status NOT IN ( 'trash', 'auto-draft' )"
+			   AND p.post_status NOT IN ( 'trash', 'auto-draft' )" . SetupWizard::own_job_sql()
 		);
 
 		$this->employer_ids_cache = array_values(
@@ -457,12 +457,13 @@ class AdminEmployers extends \WP_List_Table {
 		global $wpdb;
 		$caps_key = $wpdb->get_blog_prefix() . 'capabilities';
 		$like     = '%' . $wpdb->esc_like( '"wcb_employer"' ) . '%';
+		$own_job  = SetupWizard::own_job_sql();
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->users} u
 				 WHERE EXISTS ( SELECT 1 FROM {$wpdb->usermeta} m WHERE m.user_id = u.ID AND m.meta_key = %s AND m.meta_value LIKE %s )
-				    OR EXISTS ( SELECT 1 FROM {$wpdb->posts} p WHERE p.post_author = u.ID AND p.post_type = 'wcb_job' AND p.post_status NOT IN ( 'trash', 'auto-draft' ) )",
+				    OR EXISTS ( SELECT 1 FROM {$wpdb->posts} p WHERE p.post_author = u.ID AND p.post_type = 'wcb_job' AND p.post_status NOT IN ( 'trash', 'auto-draft' ){$own_job} )",
 				$caps_key,
 				$like
 			)

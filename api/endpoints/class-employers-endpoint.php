@@ -210,6 +210,10 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function register_employer( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$refused = $this->refused_link( $request );
+		if ( $refused ) {
+			return $refused;
+		}
 		$company_name = (string) $request->get_param( 'company_name' );
 
 		// Logged-in user without the employer role: just promote them and create their company.
@@ -828,7 +832,7 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts ): array {
-				$location_terms = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_location' ) );
+				$location_terms = \WCB\Core\Locations::place_names( get_the_terms( $p->ID, 'wcb_location' ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 				$status_labels  = self::job_status_labels();
@@ -949,7 +953,7 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $app_counts, $wcb_job_form_url ): array {
-				$location_terms = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_location' ) );
+				$location_terms = \WCB\Core\Locations::place_names( get_the_terms( $p->ID, 'wcb_location' ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );

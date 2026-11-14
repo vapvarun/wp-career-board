@@ -457,23 +457,7 @@ class Admin {
 		// Getting Started card: hide once setup is complete AND the owner has published a
 		// job of their own. The wizard's sample jobs must not count as that first job.
 		$wcb_setup_done = SetupWizard::is_setup_complete();
-		$wcb_own_jobs   = $total_jobs > 0 ? count(
-			get_posts(
-				array(
-					'post_type'      => 'wcb_job',
-					'post_status'    => 'publish',
-					'posts_per_page' => 1,
-					'fields'         => 'ids',
-					'no_found_rows'  => true,
-					'meta_query'     => array(
-						array(
-							'key'     => '_wcb_sample',
-							'compare' => 'NOT EXISTS',
-						),
-					),
-				)
-			)
-		) : 0;
+		$wcb_own_jobs   = $total_jobs > 0 ? SetupWizard::count_own_published_jobs() : 0;
 		$wcb_show_gs    = ! ( $wcb_setup_done && $wcb_own_jobs > 0 );
 
 		if ( $wcb_show_gs ) {

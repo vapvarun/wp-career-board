@@ -76,6 +76,123 @@ final class Locations {
 	}
 
 	/**
+	 * Job ids whose request already checked the location itself.
+	 *
+	 * @var int[]
+	 */
+	private static array $trusted = array();
+
+	/**
+	 * Whether "Require a location" is on and the job has none stored.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return bool
+	 */
+	public static function job_lacks_location( int $job_id ): bool {
+		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
+			return false;
+		}
+		$slugs = wp_get_object_terms( $job_id, 'wcb_location', array( 'fields' => 'slugs' ) );
+		return ! self::has_usable_location(
+			'1' === get_post_meta( $job_id, '_wcb_remote', true ),
+			is_array( $slugs ) ? $slugs : array(),
+			(string) get_post_meta( $job_id, '_wcb_location_custom', true )
+		);
+	}
+
+	/**
+	 * The one refusal every entry point returns for a job with no location.
+	 *
+	 * @since 1.8.4
+	 * @return \WP_Error
+	 */
+	public static function required_error(): \WP_Error {
+		return new \WP_Error(
+			'wcb_location_required',
+			__( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	/**
+	 * Mark a job whose request validated its own location, so the publish guard
+	 * leaves it alone (the request applies the new terms after the status).
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return void
+	 */
+	public static function trust( int $job_id ): void {
+		self::$trusted[] = $job_id;
+	}
+
+	/**
+	 * Whether this is a core /wp/v2 request, which is how the block editor saves.
+	 * Its location lives in meta boxes saved by a second request, so the guard
+	 * cannot judge the publish step on its own.
+	 *
+	 * @since 1.8.4
+	 * @return bool
+	 */
+	private static function is_core_rest_request(): bool {
+		return defined( 'REST_REQUEST' ) && str_starts_with( (string) ( $GLOBALS['wp']->query_vars['rest_route'] ?? '' ), '/wp/v2/' );
+	}
+
+	/**
+	 * Keep an existing job out of Published while it has no location.
+	 *
+	 * Covers every path that flips a stored job to publish without the editor or
+	 * REST having checked it: Quick Edit, Bulk Edit and other callers of
+	 * wp_update_post(). The wp-admin editor holds its own save later, once its
+	 * terms are written (AdminMetaBoxes::hold_job_without_location).
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, mixed> $data    Slashed post data about to be stored.
+	 * @param array<string, mixed> $postarr Post array as passed in.
+	 * @return array<string, mixed>
+	 */
+	public static function guard_publish( array $data, array $postarr ): array {
+		$id = (int) ( $postarr['ID'] ?? 0 );
+		if ( 'wcb_job' !== ( $data['post_type'] ?? '' ) || 'publish' !== ( $data['post_status'] ?? '' ) || $id <= 0 || isset( $_POST[ \WCB\Admin\AdminMetaBoxes::NONCE_NAME ] ) || in_array( $id, self::$trusted, true ) || self::is_core_rest_request() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only detects the editor request; the editor verifies its own nonce.
+			return $data;
+		}
+		$before = (string) get_post_status( $id );
+		if ( 'publish' === $before || 'auto-draft' === $before || ! self::job_lacks_location( $id ) ) {
+			return $data;
+		}
+		$data['post_status'] = in_array( $before, array( 'pending', 'draft' ), true ) ? $before : 'draft';
+		return $data;
+	}
+
+	/**
+	 * Hold a freshly imported job as a draft when it has no location.
+	 *
+	 * Importers write the terms after the post, so they call this once the row
+	 * is complete.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $job_id Job post ID.
+	 * @return bool True when the job was held.
+	 */
+	public static function hold_if_unlocated( int $job_id ): bool {
+		if ( 'publish' !== get_post_status( $job_id ) || ! self::job_lacks_location( $job_id ) ) {
+			return false;
+		}
+		wp_update_post(
+			array(
+				'ID'          => $job_id,
+				'post_status' => 'draft',
+			)
+		);
+		return true;
+	}
+
+	/**
 	 * Whether a job has a location that satisfies "Require a location".
 	 *
 	 * One rule for REST, the frontend forms and the admin editor: Remote, a
@@ -346,10 +463,21 @@ final class Locations {
 	 * @return string[]
 	 */
 	public static function place_names( $terms ): array {
+		return Taxonomy::names( self::place_terms( $terms ) );
+	}
+
+	/**
+	 * The location terms that are real places, as term objects for links.
+	 *
+	 * @since 1.8.4
+	 * @param mixed $terms get_the_terms() or wp_get_object_terms() result.
+	 * @return \WP_Term[]
+	 */
+	public static function place_terms( $terms ): array {
 		if ( ! is_array( $terms ) ) {
 			return array();
 		}
-		return Taxonomy::names(
+		return array_values(
 			array_filter(
 				$terms,
 				static fn( $t ): bool => ! ( $t instanceof \WP_Term ) || ! isset( self::RESERVED[ $t->slug ] )

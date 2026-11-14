@@ -852,6 +852,41 @@ class SetupWizard extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * SQL condition for a job post (alias `p`) that is the owner's own, not wizard
+	 * sample data: no `_wcb_sample` marker, not a tracked sample id, and not one
+	 * of the `wcb-sample-` slugs older installs created without the marker.
+	 *
+	 * The one definition behind the Getting started checklist and the Employers
+	 * count, so sample jobs never make their author an employer.
+	 *
+	 * @since 1.8.4
+	 * @return string SQL starting with AND.
+	 */
+	public static function own_job_sql(): string {
+		global $wpdb;
+		$sql = $wpdb->prepare(
+			" AND NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} sm WHERE sm.post_id = p.ID AND sm.meta_key = %s AND sm.meta_value = %s ) AND p.post_name NOT LIKE %s",
+			'_wcb_sample',
+			'1',
+			'wcb-sample-%'
+		);
+		$ids = array_filter( array_map( 'absint', (array) get_option( 'wcb_sample_data_ids', array() ) ) );
+		return $ids ? $sql . ' AND p.ID NOT IN ( ' . implode( ',', $ids ) . ' )' : $sql;
+	}
+
+	/**
+	 * How many published jobs are the owner's own (see own_job_sql()).
+	 *
+	 * @since 1.8.4
+	 * @return int
+	 */
+	public static function count_own_published_jobs(): int {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- the fragment is prepared in own_job_sql().
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM ( SELECT 1 FROM {$wpdb->posts} p WHERE p.post_type = 'wcb_job' AND p.post_status = 'publish'" . self::own_job_sql() . ' LIMIT 1 ) t' );
+	}
+
+	/**
 	 * Detect whether wizard sample data still exists on the site.
 	 *
 	 * Considers four signals so the cleanup button never silently
@@ -918,6 +953,36 @@ class SetupWizard extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * Delete one sample company without closing the owner's real jobs.
+	 *
+	 * The job editor pre-selects the only company on a fresh site, which is a
+	 * sample one, so a real job can point at it. Deleting the company closes
+	 * every job attached to it; real ones are detached first and stay live.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $company_id Sample company post ID.
+	 * @return void
+	 */
+	private static function delete_sample_company( int $company_id ): void {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- the own-job fragment is prepared in own_job_sql().
+		$real = (array) $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} cm ON cm.post_id = p.ID AND cm.meta_key = %s AND cm.meta_value = %s WHERE p.post_type = %s",
+				'_wcb_company_id',
+				(string) $company_id,
+				'wcb_job'
+			) . self::own_job_sql()
+		);
+		foreach ( wp_parse_id_list( $real ) as $job_id ) {
+			delete_post_meta( $job_id, '_wcb_company_id' );
+			delete_post_meta( $job_id, '_wcb_company_name' );
+		}
+		wp_delete_post( $company_id, true );
+	}
+
+	/**
 	 * Remove all sample data created by the wizard, plus any wizard-shaped
 	 * orphans (slug prefix `wcb-sample-`, company website containing
 	 * `example.com`) and any post explicitly tagged with `_wcb_sample = 1`
@@ -957,7 +1022,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		foreach ( $ids['companies'] ?? array() as $cid ) {
 			$cid = (int) $cid;
 			if ( $cid && get_post( $cid ) ) {
-				wp_delete_post( $cid, true );
+				self::delete_sample_company( $cid );
 				$deleted['wcb_company'][ $cid ] = true;
 				++$removed['companies'];
 			}
@@ -998,7 +1063,7 @@ class SetupWizard extends \WCB\Api\RestController {
 			if ( ! get_post( $post_id ) ) {
 				continue;
 			}
-			wp_delete_post( $post_id, true );
+			'wcb_company' === $post_type ? self::delete_sample_company( $post_id ) : wp_delete_post( $post_id, true );
 			$deleted[ $post_type ][ $post_id ] = true;
 			$bucket                            = 'wcb_job' === $post_type ? 'jobs' : ( 'wcb_company' === $post_type ? 'companies' : 'candidates' );
 			++$removed[ $bucket ];
@@ -1049,7 +1114,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				continue;
 			}
 			if ( get_post( $wcb_orphan_co_id ) ) {
-				wp_delete_post( $wcb_orphan_co_id, true );
+				self::delete_sample_company( $wcb_orphan_co_id );
 				$deleted['wcb_company'][ $wcb_orphan_co_id ] = true;
 				++$removed['companies'];
 			}

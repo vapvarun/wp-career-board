@@ -245,8 +245,8 @@ final class JobsModule {
 			$meta[] = esc_html__( 'Company', 'wp-career-board' ) . ': ' . esc_html( $company );
 		}
 
-		$location_terms = wp_get_object_terms( (int) $id, 'wcb_location', array( 'fields' => 'names' ) );
-		if ( ! is_wp_error( $location_terms ) && $location_terms ) {
+		$location_terms = \WCB\Core\Locations::place_names( wp_get_object_terms( (int) $id, 'wcb_location' ) );
+		if ( $location_terms ) {
 			$meta[] = esc_html__( 'Location', 'wp-career-board' ) . ': ' . esc_html( implode( ', ', $location_terms ) );
 		}
 

@@ -844,7 +844,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		*init() {
 			state.currentView = views.initial( state.currentView );
 			const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
-			if ( savedJob > 0 && state.currentView === 'applications' ) {
+			// A job_apps link (state.appsJobId seeded by render.php) beats the tab's saved job.
+			if ( savedJob > 0 && ! state.appsJobId && state.currentView === 'applications' ) {
 				state.appsJobId = savedJob;
 			}
 			views.go( state.currentView );

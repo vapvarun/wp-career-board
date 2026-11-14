@@ -335,6 +335,10 @@ class ModerationModule extends \WCB\Api\RestController {
 			);
 		}
 
+		if ( 'publish' !== $job->post_status && \WCB\Core\Locations::job_lacks_location( $job_id ) ) {
+			return \WCB\Core\Locations::required_error();
+		}
+
 		$result = wp_update_post(
 			array(
 				'ID'          => $job_id,

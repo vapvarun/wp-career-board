@@ -81,7 +81,7 @@ final class RssFeedEnrichment {
 		$type        = (string) get_post_meta( $post->ID, '_wcb_salary_type', true );
 		$remote      = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
 		$deadline    = \WCB\Core\JobDeadline::get( $post->ID );
-		$loc_terms   = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
+		$loc_terms   = \WCB\Core\Locations::place_names( wp_get_object_terms( $post->ID, 'wcb_location' ) );
 		$type_terms  = wp_get_object_terms( $post->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 		$cat_terms   = wp_get_object_terms( $post->ID, 'wcb_category', array( 'fields' => 'names' ) );
 		$tag_terms   = wp_get_object_terms( $post->ID, 'wcb_tag', array( 'fields' => 'names' ) );
@@ -117,7 +117,7 @@ final class RssFeedEnrichment {
 			}
 			echo "</wcb:salary>\n";
 		}
-		if ( ! is_wp_error( $loc_terms ) && ! empty( $loc_terms ) ) {
+		if ( ! empty( $loc_terms ) ) {
 			foreach ( $loc_terms as $loc ) {
 				echo "\t<wcb:location>" . esc_html( (string) $loc ) . "</wcb:location>\n";
 			}
@@ -172,7 +172,7 @@ final class RssFeedEnrichment {
 		$min       = (int) get_post_meta( $post->ID, '_wcb_salary_min', true );
 		$max       = (int) get_post_meta( $post->ID, '_wcb_salary_max', true );
 		$currency  = (string) get_post_meta( $post->ID, '_wcb_salary_currency', true );
-		$loc_terms = wp_get_object_terms( $post->ID, 'wcb_location', array( 'fields' => 'names' ) );
+		$loc_terms = \WCB\Core\Locations::place_names( wp_get_object_terms( $post->ID, 'wcb_location' ) );
 		$remote    = '1' === (string) get_post_meta( $post->ID, '_wcb_remote', true );
 
 		if ( '' !== $company ) {
@@ -180,7 +180,7 @@ final class RssFeedEnrichment {
 		}
 		if ( $remote ) {
 			$bits[] = __( 'Remote', 'wp-career-board' );
-		} elseif ( ! is_wp_error( $loc_terms ) && ! empty( $loc_terms ) ) {
+		} elseif ( ! empty( $loc_terms ) ) {
 			$bits[] = (string) $loc_terms[0];
 		}
 		if ( $min || $max ) {

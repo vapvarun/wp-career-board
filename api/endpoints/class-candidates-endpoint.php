@@ -26,6 +26,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 final class CandidatesEndpoint extends RestController {
+	/**
+	 * Profile fields that hold a web address.
+	 *
+	 * @var string[]
+	 */
+	private const LINK_FIELDS = array( 'linkedin', 'github', 'website', 'twitter' );
+
 
 	/**
 	 * Register all candidate routes.
@@ -378,7 +385,7 @@ final class CandidatesEndpoint extends RestController {
 	 * @return string
 	 */
 	private static function resume_value( string $key, mixed $value ): string {
-		return in_array( sanitize_key( $key ), array( 'linkedin', 'github', 'website', 'twitter' ), true )
+		return in_array( sanitize_key( $key ), self::LINK_FIELDS, true )
 			? \WCB\Core\Text::web_url( (string) $value )
 			: sanitize_textarea_field( (string) $value );
 	}
@@ -400,6 +407,15 @@ final class CandidatesEndpoint extends RestController {
 				__( 'Candidate not found.', 'wp-career-board' ),
 				array( 'status' => 404 )
 			);
+		}
+
+		// A profile link that is not a web address is reported, not blanked.
+		foreach ( array( 'resume', 'resume_data' ) as $wcb_param ) {
+			foreach ( (array) $request->get_param( $wcb_param ) as $wcb_key => $wcb_value ) {
+				if ( in_array( sanitize_key( (string) $wcb_key ), self::LINK_FIELDS, true ) && is_string( $wcb_value ) && \WCB\Core\Text::is_refused_url( $wcb_value ) ) {
+					return new \WP_Error( 'rest_invalid_param', \WCB\Core\Text::web_url_error(), array( 'status' => 400 ) );
+				}
+			}
 		}
 
 		$custom = $request->get_param( 'custom_fields' );
@@ -495,7 +511,7 @@ final class CandidatesEndpoint extends RestController {
 
 			$loc_term_objs  = get_the_terms( $post->ID, 'wcb_location' );
 			$type_term_objs = get_the_terms( $post->ID, 'wcb_job_type' );
-			$loc_names      = \WCB\Core\Taxonomy::names( $loc_term_objs );
+			$loc_names      = \WCB\Core\Locations::place_names( $loc_term_objs );
 			$type_names     = \WCB\Core\Taxonomy::names( $type_term_objs );
 
 			$items[] = array(

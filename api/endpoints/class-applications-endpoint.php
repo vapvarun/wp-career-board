@@ -1044,8 +1044,9 @@ final class ApplicationsEndpoint extends RestController {
 		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
 		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$job             = get_post( $job_id );
-		$is_employer     = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $current_user_id, $job );
-		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
+		// Same gate as the job's applications list: owning the job is not enough without wcb/view-applications.
+		$is_employer = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $current_user_id, $job ) && $this->check_ability( 'wcb/view-applications' );
+		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -1278,12 +1279,9 @@ final class ApplicationsEndpoint extends RestController {
 	private function prepare_for_employer( \WP_Post $post ): array {
 		$job_id = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$base   = $this->prepare_for_candidate( $post );
-		// Same applicant fields as the employer's applications lists, and the
-		// same gate: owning the job is not enough without wcb/view-applications.
-		// Keys the candidate shape already sets keep their value.
-		if ( $this->check_ability( 'wcb/view-applications' ) ) {
-			$base += JobsEndpoint::employer_application_item( $post, (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ) );
-		}
+		// Same applicant fields as the employer's applications lists; keys the
+		// candidate shape already sets keep their value.
+		$base += JobsEndpoint::employer_application_item( $post, (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ) );
 		return array_merge(
 			$base,
 			array(

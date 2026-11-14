@@ -39,7 +39,7 @@ if (
 }
 
 // ── Taxonomies — full term objects for link generation ───────────────────────
-$wcb_location_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_location' );
+$wcb_location_terms   = \WCB\Core\Locations::place_terms( wp_get_object_terms( $wcb_job_id, 'wcb_location' ) );
 $wcb_type_terms       = wp_get_object_terms( $wcb_job_id, 'wcb_job_type' );
 $wcb_experience_terms = wp_get_object_terms( $wcb_job_id, 'wcb_experience' );
 $wcb_category_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_category' );
@@ -53,7 +53,6 @@ $wcb_categories = ! is_wp_error( $wcb_category_terms ) ? $wcb_category_terms : a
 $wcb_tags       = ! is_wp_error( $wcb_tag_terms ) ? $wcb_tag_terms : array();
 
 // Normalize to arrays for safe iteration.
-$wcb_location_terms   = is_wp_error( $wcb_location_terms ) ? array() : $wcb_location_terms;
 $wcb_type_terms       = is_wp_error( $wcb_type_terms ) ? array() : $wcb_type_terms;
 $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_experience_terms;
 

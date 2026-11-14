@@ -71,6 +71,12 @@ $wcb_chk( (string) get_post_meta( $wcb_job, '_wcb_deadline', true ) === $wcb_kep
 $_POST['wcb_deadline'] = gmdate( 'Y-m-d', time() + 20 * DAY_IN_SECONDS );
 wp_update_post( array( 'ID' => $wcb_job, 'post_title' => 'Deadline probe' ) );
 $wcb_chk( \WCB\Core\JobDeadline::day( $wcb_job ) === $_POST['wcb_deadline'], 'the admin editor saves a later day' );
+// A new job with a refused past date still gets the board default, not no expiry.
+$wcb_new = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'draft', 'post_title' => 'Deadline new', 'post_author' => $wcb_user ) );
+delete_post_meta( $wcb_new, '_wcb_deadline' );
+$_POST['wcb_deadline'] = '2020-05-05';
+wp_update_post( array( 'ID' => $wcb_new, 'post_title' => 'Deadline new' ) );
+$wcb_chk( '' !== (string) get_post_meta( $wcb_new, '_wcb_deadline', true ) && ! \WCB\Core\JobDeadline::has_passed( $wcb_new ), 'a new job with a refused past date gets the board default deadline' );
 unset( $_POST['wcb_job_meta_nonce'], $_POST['wcb_deadline'] );
 wp_set_current_user( $wcb_user );
 

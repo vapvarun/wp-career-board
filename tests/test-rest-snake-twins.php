@@ -36,18 +36,18 @@ $check = static function ( array $item, array $pairs ) use ( $ok ): void {
 	}
 };
 
-$jobs = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'author__not_in' => array( 0 ), 'posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => true ) );
-if ( $jobs ) {
-	$author = (int) get_post_field( 'post_author', $jobs[0] );
-	wp_set_current_user( $author );
-	$res  = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/employers/me/jobs' ) );
-	$data = $res->get_data();
-	$item = $data['jobs'][0] ?? ( $data[0] ?? array() );
-	$ok( 200 === $res->get_status() && ! empty( $item ), 'employer jobs list returns rows' );
-	if ( $item ) {
-		$check( $item, array( 'statusLabel' => 'status_label', 'closedNote' => 'closed_note', 'editUrl' => 'edit_url', 'pipelineUrl' => 'pipeline_url', 'appCount' => 'app_count', 'appLabel' => 'app_label' ) );
-	}
+$emp  = (int) wp_insert_user( array( 'user_login' => 'snake_emp_' . wp_rand(), 'user_pass' => wp_generate_password(), 'role' => 'wcb_employer' ) );
+$sjob = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'Snake Listed Job', 'post_author' => $emp ) );
+wp_set_current_user( $emp );
+$res  = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/employers/me/jobs' ) );
+$data = $res->get_data();
+$item = $data['jobs'][0] ?? array();
+$ok( 200 === $res->get_status() && ! empty( $item ), 'employer jobs list returns rows' );
+if ( $item ) {
+	$check( $item, array( 'statusLabel' => 'status_label', 'closedNote' => 'closed_note', 'editUrl' => 'edit_url', 'pipelineUrl' => 'pipeline_url', 'appCount' => 'app_count', 'appLabel' => 'app_label' ) );
 }
+wp_delete_post( $sjob, true );
+wp_delete_user( $emp );
 
 $apps = get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'author__not_in' => array( 0 ), 'posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => true ) );
 if ( $apps ) {
@@ -91,7 +91,7 @@ if ( $apps ) {
 	update_post_meta( $tapp, '_wcb_guest_email', 'guest@example.com' );
 	wp_set_current_user( $owner );
 	$gated = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/applications/' . $tapp ) );
-	$ok( 200 === $gated->get_status() && ! array_key_exists( 'applicant_email', (array) $gated->get_data() ), 'applicant_email withheld without wcb/view-applications' );
+	$ok( 403 === $gated->get_status() && ! array_key_exists( 'applicant_email', (array) $gated->get_data() ), 'a job owner without wcb/view-applications is refused, like the list' );
 	wp_delete_post( $tapp, true );
 	wp_delete_post( $tjob, true );
 	wp_delete_user( $owner );

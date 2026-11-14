@@ -67,6 +67,20 @@ wp_update_post( array( 'ID' => $company, 'post_title' => 'WUR Co 2' ) );
 $ok( 'https://harbor.example' === get_post_meta( $company, '_wcb_website', true ), 'company editor keeps the stored website when the typed one is refused' );
 $ok( false !== strpos( $boxes2->flag_held_job( 'post.php?post=1' ), 'wcb_bad_url=wcb_website' ), 'company editor redirect carries the refusal flag' );
 
+// Sign-up and candidate profile links are reported too, not saved empty.
+wp_set_current_user( 0 );
+$req = new WP_REST_Request( 'POST', '/wcb/v1/employers/register' );
+$req->set_header( 'content-type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'first_name' => 'A', 'last_name' => 'B', 'email' => 'wur' . wp_rand() . '@example.com', 'company_name' => 'WUR Signup', 'password' => wp_generate_password(), 'website' => 'mailto:hr@acme.com' ) ) );
+$res = rest_do_request( $req );
+$ok( 400 === $res->get_status() && 'rest_invalid_param' === ( $res->get_data()['code'] ?? '' ), 'employer sign-up refuses a website that is not a web address' );
+wp_set_current_user( 1 );
+$req = new WP_REST_Request( 'PUT', '/wcb/v1/candidates/1' );
+$req->set_header( 'content-type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'resume_data' => array( 'linkedin' => 'name@company.com' ) ) ) );
+$res = rest_do_request( $req );
+$ok( 400 === $res->get_status(), 'candidate profile refuses a link that is not a web address' );
+
 unset( $_POST['wcb_apply_url'], $_POST['wcb_website'], $_POST['wcb_job_meta_nonce'], $_POST['wcb_company_meta_nonce'] );
 wp_delete_post( $job, true );
 wp_delete_post( $company, true );

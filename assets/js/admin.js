@@ -164,6 +164,18 @@
 					return;
 				}
 				var doc = new window.DOMParser().parseFromString( html, 'text/html' );
+
+				// The last row of a later page was actioned: that page no longer
+				// exists, so go to the one before instead of an empty state.
+				var url   = new window.URL( window.location.href );
+				var paged = parseInt( url.searchParams.get( 'paged' ) || '1', 10 );
+				var next  = doc.querySelector( '#the-list' );
+				if ( paged > 1 && next && ! next.querySelector( 'tr:not(.no-items)' ) ) {
+					url.searchParams.set( 'paged', String( paged - 1 ) );
+					window.location.replace( url.toString() );
+					return;
+				}
+
 				var swap = function ( selector, dropWhenGone ) {
 					var now   = document.querySelectorAll( selector );
 					var fresh = doc.querySelectorAll( selector );

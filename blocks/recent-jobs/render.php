@@ -53,7 +53,7 @@ if ( empty( $wcb_jobs ) ) {
 // rows that pre-date the postmeta convention; read-only, no self-healing write.
 $wcb_company_map = array(); // Maps job ID to company thumbnail URL (empty string when absent).
 foreach ( $wcb_jobs as $wcb_job_row ) {
-	$wcb_cid = \WCB\Core\CompanyMetaShape::for_job( $wcb_job_row );
+	$wcb_cid                             = \WCB\Core\CompanyMetaShape::for_job( $wcb_job_row );
 	$wcb_company_map[ $wcb_job_row->ID ] = $wcb_cid ? (string) get_the_post_thumbnail_url( $wcb_cid, 'thumbnail' ) : '';
 }
 ?>
@@ -87,8 +87,7 @@ foreach ( $wcb_jobs as $wcb_job_row ) {
 			$wcb_thumb_url    = $wcb_company_map[ $wcb_job->ID ] ?? '';
 			// First initial of the company, or of the job title when it has none.
 			$wcb_initial    = mb_substr( \WCB\Core\CompanyMetaShape::initials( $wcb_company_name, $wcb_job->post_title ), 0, 1 );
-			$wcb_loc_terms  = wp_get_object_terms( $wcb_job->ID, 'wcb_location', array( 'fields' => 'names' ) );
-			$wcb_location   = is_wp_error( $wcb_loc_terms ) ? '' : implode( $wcb_separator, $wcb_loc_terms );
+			$wcb_location   = implode( $wcb_separator, \WCB\Core\Locations::place_names( get_the_terms( $wcb_job->ID, 'wcb_location' ) ) );
 			$wcb_type_terms = wp_get_object_terms( $wcb_job->ID, 'wcb_job_type', array( 'fields' => 'names' ) );
 			$wcb_job_type   = is_wp_error( $wcb_type_terms ) ? '' : ( $wcb_type_terms[0] ?? '' );
 			$wcb_posted_ago = human_time_diff( (int) get_post_time( 'U', true, $wcb_job ), time() );

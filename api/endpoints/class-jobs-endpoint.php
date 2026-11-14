@@ -1649,7 +1649,9 @@ final class JobsEndpoint extends RestController {
 		$remote    = $request->get_param( 'remote' );
 		$locations = $request->get_param( 'locations' );
 		$custom    = $request->get_param( 'location_custom' );
-		if ( $job && null === $remote && null === $locations && null === $custom ) {
+		// An update only checks the location when it touches it or publishes the job.
+		$publishes = $job && 'publish' === $request->get_param( 'status' ) && 'publish' !== $job->post_status;
+		if ( $job && null === $remote && null === $locations && null === $custom && ! $publishes ) {
 			return null;
 		}
 		if ( $job ) {
@@ -1659,13 +1661,11 @@ final class JobsEndpoint extends RestController {
 		}
 		$locations = is_array( $locations ) ? array_filter( array_map( 'strval', $locations ) ) : ( is_string( $locations ) && '' !== $locations ? array( $locations ) : array() );
 		if ( \WCB\Core\Locations::has_usable_location( rest_sanitize_boolean( $remote ), $locations, (string) $custom ) ) {
+			// The request applies these values after the status, so the publish guard trusts it.
+			$job && \WCB\Core\Locations::trust( $job->ID );
 			return null;
 		}
-		return new \WP_Error(
-			'wcb_location_required',
-			__( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
-			array( 'status' => 400 )
-		);
+		return \WCB\Core\Locations::required_error();
 	}
 
 	/**
