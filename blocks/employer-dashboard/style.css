@@ -105,3 +105,8 @@
 		animation: none;
 	}
 }
+
+.wcb-app-stage {
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}

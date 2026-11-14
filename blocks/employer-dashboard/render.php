@@ -992,6 +992,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 								<span class="wcb-app-job" data-wp-class--wcb-hidden="!state.isAllApps" data-wp-text="context.app.job_title"></span>
 								<span class="wcb-ai-summary" data-wp-class--wcb-hidden="!context.app.aiSummary" data-wp-text="context.app.aiSummary"></span>
 								<span class="wcb-app-date" data-wp-text="context.app.submitted_at_label"></span>
+								<span class="wcb-app-stage wcb-hidden" data-wp-class--wcb-hidden="!context.app.stage_label" data-wp-text="context.app.stage_label"></span>
 							</div>
 							<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
 							<span class="wcb-status-badge wcb-hidden" data-wp-class--wcb-hidden="!state.isAppClosed" data-wp-bind--data-status="context.app.status" data-wp-text="context.app.statusLabel"></span>
