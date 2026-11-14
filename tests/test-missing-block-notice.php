@@ -48,6 +48,24 @@ $ok( false === strpos( wcb_mbn_render( $live ), 'wcb-missing-block' ), 'an ordin
 wp_set_current_user( 1 );
 $ok( false !== strpos( wcb_mbn_render( $gone ), 'needs WP Career Board Pro' ), 'site owner is told what to do' );
 
+// An empty page is thin content: noindex, and out of the pages sitemap.
+$robots_for = static function ( int $page_id ): array {
+	$q                       = new WP_Query( array( 'page_id' => $page_id ) );
+	$GLOBALS['wp_the_query'] = $q;
+	$GLOBALS['wp_query']     = $q;
+	$q->get_posts();
+	return (array) apply_filters( 'wp_robots', array( 'max-image-preview' => 'large' ) );
+};
+$r = $robots_for( $gone );
+$ok( ! empty( $r['noindex'] ), 'an empty page sends noindex' );
+$r = $robots_for( $live );
+$ok( empty( $r['noindex'] ), 'an ordinary page stays indexable' );
+
+$args = apply_filters( 'wp_sitemaps_posts_query_args', array( 'post_type' => 'page' ), 'page' );
+$ok( in_array( $gone, $args['post__not_in'] ?? array(), true ), 'an empty page is left out of the pages sitemap' );
+$ok( ! in_array( $live, $args['post__not_in'] ?? array(), true ), 'an ordinary page stays in the sitemap' );
+$ok( array( 'post_type' => 'post' ) === apply_filters( 'wp_sitemaps_posts_query_args', array( 'post_type' => 'post' ), 'post' ), 'other post types are untouched' );
+
 wp_delete_post( $gone, true );
 wp_delete_post( $live, true );
 

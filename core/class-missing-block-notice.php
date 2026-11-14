@@ -19,20 +19,81 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Appends a short notice to a page that holds an unregistered Career Board block.
+ * Appends a short notice to a page that holds an unregistered Career Board block,
+ * and keeps that empty page out of search engines and the sitemap.
  *
  * @since 1.8.4
  */
 class MissingBlockNotice {
 
 	/**
-	 * Hook the content filter.
+	 * Hook the content, robots and sitemap filters.
 	 *
 	 * @since 1.8.4
 	 * @return void
 	 */
 	public static function boot(): void {
 		add_filter( 'the_content', array( self::class, 'append' ), 20 );
+		add_filter( 'wp_robots', array( self::class, 'robots' ) );
+		add_filter( 'wp_sitemaps_posts_query_args', array( self::class, 'sitemap_args' ), 10, 2 );
+	}
+
+	/**
+	 * Whether a page holds a Career Board block that is no longer registered.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $post_id Page ID.
+	 * @return bool
+	 */
+	public static function page_is_empty( int $post_id ): bool {
+		// By the_content priority 20 do_blocks() has already turned an unregistered block into
+		// nothing, so the blocks are read from the stored content.
+		$stored = (string) get_post_field( 'post_content', $post_id );
+		return has_blocks( $stored ) && self::has_missing_block( parse_blocks( $stored ) );
+	}
+
+	/**
+	 * Ask search engines to skip an empty page: it is thin content, not a listing.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, bool|string> $robots Robots directives.
+	 * @return array<string, bool|string>
+	 */
+	public static function robots( array $robots ): array {
+		return is_page() && self::page_is_empty( (int) get_queried_object_id() ) ? wp_robots_no_robots( $robots ) : $robots;
+	}
+
+	/**
+	 * Leave empty pages out of the pages sitemap.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, mixed> $args      WP_Query args for the sitemap page.
+	 * @param string               $post_type Post type being listed.
+	 * @return array<string, mixed>
+	 */
+	public static function sitemap_args( array $args, string $post_type ): array {
+		if ( 'page' !== $post_type ) {
+			return $args;
+		}
+		// Only pages that mention one of our blocks can be affected, so the search keeps this small.
+		$candidates = get_posts(
+			array(
+				'post_type'      => 'page',
+				'post_status'    => 'publish',
+				's'              => 'wp:wcb/',
+				'fields'         => 'ids',
+				'posts_per_page' => 100,
+				'no_found_rows'  => true,
+			)
+		);
+		$empty      = array_values( array_filter( $candidates, array( self::class, 'page_is_empty' ) ) );
+		if ( $empty ) {
+			$args['post__not_in'] = array_merge( (array) ( $args['post__not_in'] ?? array() ), $empty );
+		}
+		return $args;
 	}
 
 	/**
@@ -48,10 +109,7 @@ class MissingBlockNotice {
 			return $content;
 		}
 
-		// By priority 20 do_blocks() has already turned an unregistered block into
-		// nothing, so the blocks are read from the stored content.
-		$stored = (string) get_post_field( 'post_content', (int) get_the_ID() );
-		if ( ! has_blocks( $stored ) || ! self::has_missing_block( parse_blocks( $stored ) ) ) {
+		if ( ! self::page_is_empty( (int) get_the_ID() ) ) {
 			return $content;
 		}
 
