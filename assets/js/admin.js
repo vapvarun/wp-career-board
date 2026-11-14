@@ -151,21 +151,59 @@
 	// Job moderation — T22a: styled modal + rejection reason
 	// -------------------------------------------------------------------------
 
-	// The status links (All / Pending / Published ...) are counted by PHP; take
-	// them from a fresh copy of this screen so they never drift from the server.
-	function refreshStatusCounts() {
-		var current = document.querySelector( '.wrap .subsubsub' );
-		if ( ! current ) {
-			return;
-		}
+	// Everything the server counts or words after a moderation action (status
+	// links, the "n items" line, the admin-bar badge, the Overview tiles and the
+	// empty states) is taken from one fresh copy of this screen, so it never drifts.
+	function refreshScreen() {
 		window.fetch( window.location.href, { credentials: 'same-origin' } )
 			.then( function ( res ) {
 				return res.ok ? res.text() : '';
 			} )
 			.then( function ( html ) {
-				var fresh = new window.DOMParser().parseFromString( html, 'text/html' ).querySelector( '.wrap .subsubsub' );
-				if ( fresh ) {
-					current.replaceWith( fresh );
+				if ( ! html ) {
+					return;
+				}
+				var doc = new window.DOMParser().parseFromString( html, 'text/html' );
+				var swap = function ( selector, dropWhenGone ) {
+					var now   = document.querySelectorAll( selector );
+					var fresh = doc.querySelectorAll( selector );
+					now.forEach( function ( el, i ) {
+						if ( fresh[ i ] ) {
+							el.replaceWith( document.importNode( fresh[ i ], true ) );
+						} else if ( dropWhenGone ) {
+							el.remove(); // WordPress omits it when the list is empty.
+						}
+					} );
+				};
+				swap( '.wrap .subsubsub' );
+				swap( '.tablenav .displaying-num', true );
+				swap( '#wp-admin-bar-wcb-moderation' );
+
+				// Overview tiles: numbers and the alert state, not the icons.
+				var tiles      = document.querySelectorAll( '.wcb-stats-grid .wcb-stat-box' );
+				var freshTiles = doc.querySelectorAll( '.wcb-stats-grid .wcb-stat-box' );
+				tiles.forEach( function ( tile, i ) {
+					var number = tile.querySelector( '.wcb-stat-number' );
+					var latest = freshTiles[ i ];
+					if ( number && latest ) {
+						number.textContent = latest.querySelector( '.wcb-stat-number' ).textContent;
+						tile.classList.toggle( 'wcb-stat-alert', latest.classList.contains( 'wcb-stat-alert' ) );
+					}
+				} );
+
+				// An emptied list or Pending Review widget shows the server's empty state.
+				var list = document.querySelector( '#the-list' );
+				if ( list && ! list.querySelector( 'tr:not(.no-items)' ) && doc.querySelector( '#the-list' ) ) {
+					list.replaceWith( document.importNode( doc.querySelector( '#the-list' ), true ) );
+				}
+				var panel = document.querySelector( '[data-panel="pending_review"]' );
+				var body  = panel && panel.closest( '.wcb-dashboard-panel' ).querySelector( '.wcb-panel-body' );
+				if ( body && ! body.querySelector( '.wcb-approve-job, .wcb-reject-job' ) ) {
+					var freshPanel = doc.querySelector( '[data-panel="pending_review"]' );
+					var freshBody  = freshPanel && freshPanel.closest( '.wcb-dashboard-panel' ).querySelector( '.wcb-panel-body' );
+					if ( freshBody ) {
+						body.replaceWith( document.importNode( freshBody, true ) );
+					}
 				}
 			} )
 			.catch( function () {
@@ -232,16 +270,22 @@
 				} );
 			} ).then( function () {
 				var row = btn.closest( 'tr' );
-				// Only the Pending view loses the job; on All or Published it stays
-				// listed, so show its new status instead of making it vanish.
-				var view = new window.URLSearchParams( window.location.search ).get( 'post_status' );
-				if ( row && 'pending' === view ) {
+				// A job leaves the Pending view and the Overview widget; on All or
+				// Published it stays listed, so show its new status instead.
+				var view   = new window.URLSearchParams( window.location.search ).get( 'post_status' );
+				var inList = row && row.closest( '#the-list' );
+				if ( row && ( 'pending' === view || ! inList ) ) {
 					row.style.opacity = '0.4';
-					setTimeout( function () { row.remove(); }, 600 );
-				} else if ( row ) {
+					setTimeout( function () {
+						row.remove();
+						refreshScreen();
+					}, 600 );
+					return;
+				}
+				if ( row ) {
 					refreshRow( row, jobId );
 				}
-				refreshStatusCounts();
+				refreshScreen();
 			} ).catch( function ( err ) {
 				if ( err === undefined ) {
 					return; // User cancelled.
