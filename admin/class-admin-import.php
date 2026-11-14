@@ -111,14 +111,7 @@ class AdminImport {
 					<?php if ( $preview ) : ?>
 						<p class="description">
 							<?php
-							printf(
-								/* translators: 1: jobs to import, 2: filled jobs that will be closed, 3: new company pages, 4: applications to import. */
-								esc_html__( 'Preview: %1$s jobs to import, %2$s filled jobs will be closed, %3$s new company pages, %4$s applications (import them after the jobs).', 'wp-career-board' ),
-								esc_html( number_format_i18n( $preview['jobs'] ) ),
-								esc_html( number_format_i18n( $preview['filled'] ) ),
-								esc_html( number_format_i18n( $preview['companies_new'] ) ),
-								esc_html( number_format_i18n( $preview['applications'] ) )
-							);
+							echo esc_html( self::preview_sentence( $preview ) );
 							?>
 						</p>
 					<?php endif; ?>
@@ -365,5 +358,28 @@ class AdminImport {
 
 		</div><!-- .wcb-admin-import -->
 		<?php
+	}
+
+	/**
+	 * The preview line for a source, with each count in its own plural form.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, int> $preview Counts: jobs, filled, companies_new, applications.
+	 * @return string
+	 */
+	public static function preview_sentence( array $preview ): string {
+		$parts = array(
+			/* translators: %s: number of jobs that will be imported. */
+			sprintf( _n( '%s job to import', '%s jobs to import', (int) $preview['jobs'], 'wp-career-board' ), number_format_i18n( $preview['jobs'] ) ),
+			/* translators: %s: number of filled jobs that will be closed. */
+			sprintf( _n( '%s filled job will be closed', '%s filled jobs will be closed', (int) $preview['filled'], 'wp-career-board' ), number_format_i18n( $preview['filled'] ) ),
+			/* translators: %s: number of new company pages. */
+			sprintf( _n( '%s new company page', '%s new company pages', (int) $preview['companies_new'], 'wp-career-board' ), number_format_i18n( $preview['companies_new'] ) ),
+			/* translators: %s: number of applications to import. */
+			sprintf( _n( '%s application', '%s applications', (int) $preview['applications'], 'wp-career-board' ), number_format_i18n( $preview['applications'] ) ),
+		);
+		/* translators: %s: list of counts, for example "3 jobs to import, 1 filled job will be closed, 2 new company pages, and 5 applications". */
+		return sprintf( __( 'Preview: %s. Import the applications after the jobs.', 'wp-career-board' ), wp_sprintf( '%l', $parts ) );
 	}
 }

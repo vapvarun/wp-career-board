@@ -563,8 +563,29 @@ final class AdminEndpoint extends RestController {
 		$payload          = $this->industries_payload();
 		$payload['moved'] = $moved;
 		$payload['saved'] = true;
+		// The plural form is chosen here, against the real count, as every other count sentence is.
+		$payload['message'] = self::industries_saved_message( $moved );
 
 		return rest_ensure_response( $payload );
+	}
+
+	/**
+	 * The toast after saving industries, with the number of companies it moved.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $moved Companies moved to another industry.
+	 * @return string
+	 */
+	public static function industries_saved_message( int $moved ): string {
+		if ( $moved < 1 ) {
+			return __( 'Industries saved.', 'wp-career-board' );
+		}
+		return sprintf(
+			/* translators: %s: number of companies moved to another industry. */
+			_n( 'Industries saved. %s company updated.', 'Industries saved. %s companies updated.', $moved, 'wp-career-board' ),
+			number_format_i18n( $moved )
+		);
 	}
 
 	/**

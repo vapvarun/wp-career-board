@@ -203,7 +203,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				removals = {};
 				render();
 				statusEl.textContent = '';
-				toast( data.moved ? i18n.savedMoved.replace( '%d', String( data.moved ) ) : i18n.saved, 'success' );
+				toast( data.message || i18n.saved, 'success' );
 			} )
 			.catch( function ( body ) {
 				statusEl.textContent = '';

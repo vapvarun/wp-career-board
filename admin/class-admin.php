@@ -909,8 +909,6 @@ class Admin {
 						'duplicate'   => __( 'That industry already exists.', 'wp-career-board' ),
 						'saving'      => __( 'Saving…', 'wp-career-board' ),
 						'saved'       => __( 'Industries saved.', 'wp-career-board' ),
-						/* translators: %d: number of companies moved to another industry. */
-						'savedMoved'  => __( 'Industries saved. %d companies updated.', 'wp-career-board' ),
 						'error'       => __( 'Could not save industries. Please try again.', 'wp-career-board' ),
 						'loadError'   => __( 'Could not load industries.', 'wp-career-board' ),
 						'emptyList'   => __( 'Keep at least one industry.', 'wp-career-board' ),
