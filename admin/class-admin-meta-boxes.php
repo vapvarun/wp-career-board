@@ -94,6 +94,7 @@ class AdminMetaBoxes {
 		add_filter( 'redirect_post_location', array( $this, 'flag_held_job' ) );
 		add_action( 'admin_notices', array( $this, 'render_held_job_notice' ) );
 		add_action( 'save_post_wcb_company', array( $this, 'save_company_meta' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'keep_company_owner' ), 10, 2 );
 		// wcb_application is managed via REST; no save_post hook needed.
 	}
 
@@ -792,6 +793,31 @@ class AdminMetaBoxes {
 		);
 		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
 		$this->held_job = $post_id;
+	}
+
+	/**
+	 * Keep a company's owner when an admin saves it in wp-admin.
+	 *
+	 * A company has no author box, and core's edit_post() hands a post with no author
+	 * field to the person saving it, so any admin edit (a typo, a trust level) made the
+	 * admin the owner and locked the employer out of their own company. A real owner
+	 * change goes through post_author_override or code, which this leaves alone.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, mixed> $data    Slashed post data about to be saved.
+	 * @param array<string, mixed> $postarr Raw data passed to wp_insert_post().
+	 * @return array<string, mixed>
+	 */
+	public function keep_company_owner( array $data, array $postarr ): array {
+		$id = (int) ( $postarr['ID'] ?? 0 );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- reads which form is saving; the form's own nonce is checked by core.
+		$from_form = isset( $_POST['action'] ) && in_array( $_POST['action'], array( 'editpost', 'inline-save' ), true ) && empty( $_POST['post_author_override'] );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		if ( $id > 0 && 'wcb_company' === ( $data['post_type'] ?? '' ) && $from_form ) {
+			$data['post_author'] = (int) get_post_field( 'post_author', $id );
+		}
+		return $data;
 	}
 
 	/**
