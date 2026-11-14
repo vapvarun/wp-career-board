@@ -819,13 +819,15 @@ $wcb_step_labels = array(
 				</label>
 				<input
 					id="wcb-apply-url"
-					type="url"
+					type="text"
+					inputmode="url"
 					class="wcb-field"
 					placeholder="https://yourcompany.com/careers/apply"
 					data-wcb-field="applyUrl"
 					data-wp-bind--value="state.applyUrl"
 					data-wp-on--input="actions.updateField"
 				/>
+				<p class="wcb-field-error wcb-field-error--url" id="wcb-apply-url-error"><?php esc_html_e( 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.', 'wp-career-board' ); ?></p>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Link to your external ATS or application form.', 'wp-career-board' ); ?>
 				</span>

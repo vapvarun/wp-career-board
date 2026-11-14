@@ -257,6 +257,7 @@ $wcb_state = apply_filters(
 			// Submit-time validation + transport errors.
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
 			'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
+			'errorApplyUrl'            => __( 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.', 'wp-career-board' ),
 			'errorSalaryAmount'        => sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Enter a salary from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
 			'errorSessionExpired'      => __( 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.', 'wp-career-board' ),
@@ -571,7 +572,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<div class="wcb-form-grid">
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-apply-url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
-					<input id="wcb-simple-apply-url" type="url" class="wcb-field" placeholder="<?php esc_attr_e( 'https://yourcompany.com/careers/apply', 'wp-career-board' ); ?>" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+					<input id="wcb-simple-apply-url" type="text" inputmode="url" class="wcb-field" placeholder="<?php esc_attr_e( 'https://yourcompany.com/careers/apply', 'wp-career-board' ); ?>" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+					<p class="wcb-field-error wcb-field-error--url" id="wcb-simple-apply-url-error"><?php esc_html_e( 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.', 'wp-career-board' ); ?></p>
 				</div>
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-apply-email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>

@@ -12,7 +12,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, fitDeadline, groupOnBoard, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, isWebAddress, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -329,6 +329,14 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				}
 				if ( salaryInverted( state.salaryMin, state.salaryMax ) ) {
 					state.error = t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' );
+					return;
+				}
+				if ( ! isWebAddress( state.applyUrl ) ) {
+					state.error = t( 'errorApplyUrl', 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.' );
+					const field = document.getElementById( 'wcb-simple-apply-url' );
+					field?.setAttribute( 'aria-invalid', 'true' );
+					field?.setAttribute( 'aria-describedby', 'wcb-simple-apply-url-error' );
+					field?.focus();
 					return;
 				}
 

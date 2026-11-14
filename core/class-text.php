@@ -136,6 +136,10 @@ final class Text {
 			$url = 'https://' . substr( $url, 7 );
 		}
 		$host = (string) wp_parse_url( $url, PHP_URL_HOST );
+		// An email typed into a web-address field parses as user@host and would pass the host check below.
+		if ( null !== wp_parse_url( $url, PHP_URL_USER ) ) {
+			return '';
+		}
 		// A host is dot-separated labels; esc_url_raw() turns a space into %20, which no host has.
 		return preg_match( '/^[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?(?:\.[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?)+$/i', $host ) ? $url : '';
 	}

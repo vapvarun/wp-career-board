@@ -24,7 +24,7 @@
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, fitDeadline, groupOnBoard, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, isWebAddress, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 
 /**
@@ -664,6 +664,13 @@ const { state } = store(
 					if ( state.step === 2 && salaryInverted( state.salaryMin, state.salaryMax ) ) {
 						setValidation( state, 'salary', t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' ) );
 						focusField( 'wcb-salary-max' );
+						return;
+					}
+					if ( state.step === 2 && ! isWebAddress( state.applyUrl ) ) {
+						const field = document.getElementById( 'wcb-apply-url' );
+						field?.setAttribute( 'aria-invalid', 'true' );
+						field?.setAttribute( 'aria-describedby', 'wcb-apply-url-error' );
+						field?.focus();
 						return;
 					}
 					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {

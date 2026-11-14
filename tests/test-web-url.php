@@ -58,6 +58,9 @@ if ( $wcb_has_helper ) {
 		'portfolio'                    => '',
 		'javascript:alert(1)'          => '',
 		'ftp://files.acme.example'     => '',
+		'tomas@harborline.example'     => '',
+		'https://user:pw@acme.example' => '',
+		'https://acme.example/a@b'     => 'https://acme.example/a@b',
 		''                             => '',
 	);
 	foreach ( $wcb_cases as $wcb_in => $wcb_out ) {
@@ -166,7 +169,7 @@ foreach ( array( 'site', 'linkedin', 'twitter' ) as $wcb_link ) {
 wcb_wu_assert( str_contains( $wcb_fields_js, "'aria-invalid'" ) && str_contains( (string) file_get_contents( dirname( __DIR__ ) . '/assets/css/wcb-ui.css' ), '[aria-invalid="true"] ~ .wcb-field-error--url' ), 'the inline error and aria-invalid come from the same check' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
 wcb_wu_assert( str_contains( (string) file_get_contents( dirname( __DIR__ ) . '/core/class-form-custom-fields.php' ), "wp_enqueue_script_module( '@wcb/fields' )" ), 'a custom URL input loads the module that runs the check' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
 
-$wcb_js_cases = array( 'example.org', 'northwind.example/careers', 'https://x.y', 'my site', 'javascript:alert(1)', 'lenahoffmann.design', 'http://legacy.acme.example', 'ftp://files.acme.example', 'acme.example:8080/jobs', 'https://acme.example:8443/jobs', 'https://acme.example/a b', 'portfolio', '' );
+$wcb_js_cases = array( 'example.org', 'northwind.example/careers', 'https://x.y', 'my site', 'javascript:alert(1)', 'lenahoffmann.design', 'http://legacy.acme.example', 'ftp://files.acme.example', 'acme.example:8080/jobs', 'https://acme.example:8443/jobs', 'https://acme.example/a b', 'portfolio', 'tomas@harborline.example', 'https://user:pw@acme.example', 'https://acme.example/a@b', '' );
 $wcb_node_src  = 'globalThis.document={addEventListener(){}};const m=await import(' . wp_json_encode( 'file://' . dirname( __DIR__ ) . '/assets/js/modules/wcb-fields.js' ) . ');console.log(JSON.stringify(' . wp_json_encode( $wcb_js_cases ) . '.map((v)=>m.isWebAddress(v))));';
 $wcb_node_out  = shell_exec( 'node --input-type=module -e ' . escapeshellarg( $wcb_node_src ) . ' 2>/dev/null' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec -- test runner calls node on a repo file.
 $wcb_js_valid  = json_decode( (string) $wcb_node_out, true );
@@ -174,6 +177,17 @@ wcb_wu_assert( is_array( $wcb_js_valid ), 'the browser check runs (node)' );
 foreach ( $wcb_js_cases as $wcb_i => $wcb_case ) {
 	$wcb_server = '' === $wcb_case || '' !== \WCB\Core\Text::web_url( $wcb_case );
 	wcb_wu_assert( is_array( $wcb_js_valid ) && $wcb_server === ( $wcb_js_valid[ $wcb_i ] ?? null ), "browser and server agree on '{$wcb_case}' (" . ( $wcb_server ? 'accept' : 'reject' ) . ')' );
+}
+
+// Apply URL on both job forms: same inline error and the same browser check as the company links.
+foreach ( array(
+	'job-form'        => array( 'wcb-apply-url', 'job-form/render.php' ),
+	'job-form-simple' => array( 'wcb-simple-apply-url', 'job-form-simple/render.php' ),
+) as $wcb_form => $wcb_apply ) {
+	$wcb_form_src = (string) file_get_contents( $wcb_blocks . $wcb_apply[1] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+	wcb_wu_assert( (bool) preg_match( '/id="' . $wcb_apply[0] . '"\s+type="text"\s+inputmode="url"/', $wcb_form_src ), "{$wcb_form}: Apply URL input skips the browser url check" );
+	wcb_wu_assert( str_contains( $wcb_form_src, 'id="' . $wcb_apply[0] . '-error"' ), "{$wcb_form}: Apply URL has the inline web-address error" );
+	wcb_wu_assert( str_contains( (string) file_get_contents( $wcb_blocks . $wcb_form . '/view.js' ), 'isWebAddress( state.applyUrl )' ), "{$wcb_form}: a bad Apply URL stops the form" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
 }
 
 // Custom URL answers on the job page read as links.

@@ -34,9 +34,13 @@ export function isWebAddress( raw ) {
 	if ( scheme ? ! /^https?$/i.test( scheme[ 1 ] ) : value.includes( ':' ) ) {
 		return false;
 	}
-	const rest = scheme ? value.slice( scheme[ 0 ].length ) : value;
-	const host = rest.split( /[/?#]/ )[ 0 ].replace( /:\d+$/, '' );
-	return WEB_HOST.test( host );
+	const rest      = scheme ? value.slice( scheme[ 0 ].length ) : value;
+	const authority = rest.split( /[/?#]/ )[ 0 ];
+	// An email is not a web address: user@host is refused, as Text::web_url() does.
+	if ( authority.includes( '@' ) ) {
+		return false;
+	}
+	return WEB_HOST.test( authority.replace( /:\d+$/, '' ) );
 }
 
 /*
