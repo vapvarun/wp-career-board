@@ -325,6 +325,11 @@
 	min-width: 0;
 }
 
+/* The 30-day view count sits beside the status badge; keep "1,204 views" on one line. */
+.wcb-job-views {
+	white-space: nowrap;
+}
+
 /* Why a job closed when its owner didn't close it ("company removed"). */
 .wcb-job-note {
 	display: block;
