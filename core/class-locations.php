@@ -83,6 +83,13 @@ final class Locations {
 	private static array $trusted = array();
 
 	/**
+	 * Jobs kept out of Published by guard_publish() in this request.
+	 *
+	 * @var int
+	 */
+	private static int $held = 0;
+
+	/**
 	 * Whether "Require a location" is on and the job has none stored.
 	 *
 	 * @since 1.8.4
@@ -165,7 +172,22 @@ final class Locations {
 			return $data;
 		}
 		$data['post_status'] = in_array( $before, array( 'pending', 'draft' ), true ) ? $before : 'draft';
+		if ( 0 === self::$held++ ) {
+			add_filter( 'wp_redirect', array( self::class, 'flag_held_redirect' ) );
+		}
 		return $data;
+	}
+
+	/**
+	 * Tell the Jobs list how many jobs a Bulk Edit kept back, so the admin sees why.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $url Redirect target.
+	 * @return string
+	 */
+	public static function flag_held_redirect( string $url ): string {
+		return str_contains( $url, 'edit.php' ) ? add_query_arg( 'wcb_held', self::$held, $url ) : $url;
 	}
 
 	/**

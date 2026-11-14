@@ -280,8 +280,11 @@
 					method: 'POST',
 					data:   data,
 				} );
-			} ).then( function () {
+			} ).then( function ( res ) {
 				var row = btn.closest( 'tr' );
+				if ( res && res.notice ) {
+					wcbToast( res.notice, 'warning' );
+				}
 				// A job leaves the Pending view and the Overview widget; on All or
 				// Published it stays listed, so show its new status instead.
 				var view   = new window.URLSearchParams( window.location.search ).get( 'post_status' );

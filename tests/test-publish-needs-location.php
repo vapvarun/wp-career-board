@@ -60,13 +60,18 @@ $req->set_body( wp_json_encode( array( 'status' => 'publish', 'remote' => true )
 $res = rest_do_request( $req );
 $ok( 200 === $res->get_status() && 'publish' === $st( $r ), 'PATCH status=publish with remote in the same request publishes' );
 
-// Approve.
+// Approve: the admin's call. It publishes and says what is missing.
 $a = $mk( 'pending' );
 $res = rest_do_request( new WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $a . '/approve' ) );
-$ok( 400 === $res->get_status() && 'pending' === $st( $a ), 'Approve on a no-location pending job is refused and it stays pending' );
-update_post_meta( $a, '_wcb_remote', '1' );
-$res = rest_do_request( new WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $a . '/approve' ) );
-$ok( 200 === $res->get_status() && 'publish' === $st( $a ), 'Approve works once the job has a location' );
+$ok( 200 === $res->get_status() && 'publish' === $st( $a ), 'Approve on a no-location pending job publishes it' );
+$ok( ! empty( $res->get_data()['notice'] ), 'and the response carries a heads-up' );
+$b = $mk( 'pending' );
+update_post_meta( $b, '_wcb_remote', '1' );
+$res = rest_do_request( new WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $b . '/approve' ) );
+$ok( 200 === $res->get_status() && 'publish' === $st( $b ) && empty( $res->get_data()['notice'] ), 'a remote job approves with no notice' );
+
+// Bulk Edit tells the list why: the redirect carries how many were kept back.
+$ok( str_contains( \WCB\Core\Locations::flag_held_redirect( admin_url( 'edit.php?post_type=wcb_job' ) ), 'wcb_held=' ), 'the Jobs list redirect carries the held count' );
 
 // Setting off: nothing changes.
 update_option( 'wcb_settings', array_merge( (array) $old, array( 'require_job_location' => false ) ) );

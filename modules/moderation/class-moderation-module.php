@@ -335,8 +335,10 @@ class ModerationModule extends \WCB\Api\RestController {
 			);
 		}
 
-		if ( 'publish' !== $job->post_status && \WCB\Core\Locations::job_lacks_location( $job_id ) ) {
-			return \WCB\Core\Locations::required_error();
+		// An admin approving is a deliberate call: publish, then say what is missing.
+		$unlocated = 'publish' !== $job->post_status && \WCB\Core\Locations::job_lacks_location( $job_id );
+		if ( $unlocated ) {
+			\WCB\Core\Locations::trust( $job_id );
 		}
 
 		$result = wp_update_post(
@@ -363,12 +365,14 @@ class ModerationModule extends \WCB\Api\RestController {
 			);
 		}
 
-		return rest_ensure_response(
-			array(
-				'id'     => $job_id,
-				'status' => 'publish',
-			)
+		$response = array(
+			'id'     => $job_id,
+			'status' => 'publish',
 		);
+		if ( $unlocated ) {
+			$response['notice'] = __( 'Approved. This job has no location, so it will not show in location filters.', 'wp-career-board' );
+		}
+		return rest_ensure_response( $response );
 	}
 
 	/**

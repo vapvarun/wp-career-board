@@ -813,6 +813,16 @@ class AdminMetaBoxes {
 			$wcb_apply = in_array( 'apply_url', explode( ',', sanitize_text_field( wp_unslash( $_GET['wcb_bad_url'] ) ) ), true );
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The web address was not saved, so the previous one is kept.', 'wp-career-board' ) . ' ' . esc_html( \WCB\Core\Text::web_url_error( $wcb_apply ) ) . '</p></div>';
 		}
+		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_held'] ) ) {
+			$wcb_held = absint( wp_unslash( $_GET['wcb_held'] ) );
+			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html(
+				sprintf(
+					/* translators: %d: number of jobs */
+					_n( '%d job was kept as a draft because it has no location. Add a location, or tick Remote, then publish it.', '%d jobs were kept as drafts because they have no location. Add a location, or tick Remote, then publish them.', $wcb_held, 'wp-career-board' ),
+					$wcb_held
+				)
+			) . '</p></div>';
+		}
 		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_location_required'] ) ) {
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'Saved as a draft. Add a location, or tick Remote, before publishing this job.', 'wp-career-board' ) . '</p></div>';
 		}
