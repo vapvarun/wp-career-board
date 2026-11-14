@@ -83,6 +83,18 @@ if ( $apps ) {
 	foreach ( array( 'applicant_name', 'applicant_email', 'job_title', 'rating', 'submitted_at_label', 'ai_score', 'status_history', 'resume_url' ) as $k ) {
 		$ok( array_key_exists( $k, $one ), "single application has {$k}" );
 	}
+	// Owning the job without wcb/view-applications gets no applicant fields.
+	$owner = (int) wp_insert_user( array( 'user_login' => 'snake_owner_' . wp_rand(), 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
+	$tjob  = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'Snake Job', 'post_author' => $owner ) );
+	$tapp  = (int) wp_insert_post( array( 'post_type' => 'wcb_application', 'post_status' => 'publish', 'post_title' => 'Snake App', 'post_author' => 1 ) );
+	update_post_meta( $tapp, '_wcb_job_id', $tjob );
+	update_post_meta( $tapp, '_wcb_guest_email', 'guest@example.com' );
+	wp_set_current_user( $owner );
+	$gated = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/applications/' . $tapp ) );
+	$ok( 200 === $gated->get_status() && ! array_key_exists( 'applicant_email', (array) $gated->get_data() ), 'applicant_email withheld without wcb/view-applications' );
+	wp_delete_post( $tapp, true );
+	wp_delete_post( $tjob, true );
+	wp_delete_user( $owner );
 }
 
 WP_CLI::log( '  Total: ' . ( $pass + $fail ) . "  Pass: {$pass}  Fail: {$fail}" );
