@@ -427,6 +427,25 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
+	 * A 400 when a company link was typed but is not a web address, so the stored
+	 * value is kept and the caller is told instead of the link being cleared.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_Error|null
+	 */
+	private function refused_link( \WP_REST_Request $request ): ?\WP_Error {
+		foreach ( self::LINK_PARAMS as $param ) {
+			$value = $request->get_param( $param );
+			if ( is_string( $value ) && \WCB\Core\Text::is_refused_url( $value ) ) {
+				return new \WP_Error( 'rest_invalid_param', \WCB\Core\Text::web_url_error(), array( 'status' => 400 ) );
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Create a new company profile for the current employer.
 	 *
 	 * @since 1.0.0
@@ -435,6 +454,10 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create_item( $request ): \WP_REST_Response|\WP_Error {
+		$link_error = $this->refused_link( $request );
+		if ( $link_error ) {
+			return $link_error;
+		}
 		$name = sanitize_text_field( (string) $request->get_param( 'name' ) );
 		if ( empty( $name ) ) {
 			return new \WP_Error(
@@ -538,6 +561,11 @@ final class EmployersEndpoint extends RestController {
 				__( 'Company not found.', 'wp-career-board' ),
 				array( 'status' => 404 )
 			);
+		}
+
+		$link_error = $this->refused_link( $request );
+		if ( $link_error ) {
+			return $link_error;
 		}
 
 		$data = array( 'ID' => $post->ID );

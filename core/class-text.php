@@ -143,4 +143,32 @@ final class Text {
 		// A host is dot-separated labels; esc_url_raw() turns a space into %20, which no host has.
 		return preg_match( '/^[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?(?:\.[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?)+$/i', $host ) ? $url : '';
 	}
+
+	/**
+	 * Whether a typed value is something web_url() would drop: not empty, but not a web address.
+	 *
+	 * Callers that store a value use this to tell the person instead of clearing the field silently.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $raw Typed value.
+	 * @return bool
+	 */
+	public static function is_refused_url( string $raw ): bool {
+		return '' !== trim( $raw ) && '' === self::web_url( $raw );
+	}
+
+	/**
+	 * The one sentence shown when a web address is refused.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param bool $apply True for the Apply URL field, which also points to Apply Email.
+	 * @return string
+	 */
+	public static function web_url_error( bool $apply = false ): string {
+		return $apply
+			? __( 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.', 'wp-career-board' )
+			: __( 'Enter a full web address, like https://example.com', 'wp-career-board' );
+	}
 }

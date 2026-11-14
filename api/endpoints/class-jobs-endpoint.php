@@ -2022,7 +2022,7 @@ final class JobsEndpoint extends RestController {
 	public function get_write_params(): array {
 		$rule = static function ( callable $is_valid, string $message ): callable {
 			return static function ( $value ) use ( $is_valid, $message ) {
-				return ( null === $value || '' === $value || $is_valid( $value ) )
+				return ( null === $value || '' === ( is_string( $value ) ? trim( $value ) : $value ) || $is_valid( $value ) )
 					? true
 					: new \WP_Error( 'rest_invalid_param', $message, array( 'status' => 400 ) );
 			};
@@ -2041,7 +2041,7 @@ final class JobsEndpoint extends RestController {
 			),
 			// Refuse an address the server would drop, so the poster is told.
 			'apply_url'       => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Core\Text::web_url( (string) $v ), __( 'Enter a full web address, like https://example.com', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Core\Text::web_url( (string) $v ), \WCB\Core\Text::web_url_error( true ) ),
 			),
 			'salary_currency' => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => array_key_exists( strtoupper( (string) $v ), \WCB\Admin\AdminSettings::get_currency_catalog() ), __( 'Unknown salary currency.', 'wp-career-board' ) ),

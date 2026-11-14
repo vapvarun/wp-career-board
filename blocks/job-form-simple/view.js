@@ -397,6 +397,13 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 						state.error = t( 'errorSessionExpired', 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.' );
 					} else {
 						state.error = restErrorMessage( err, t( 'errorGeneric', 'Job could not be posted. Please try again.' ) );
+						// The server refused the Apply URL: put the cursor in that field, as the job form does.
+						if ( err?.data?.params?.apply_url ) {
+							const field = document.getElementById( 'wcb-simple-apply-url' );
+							field?.setAttribute( 'aria-invalid', 'true' );
+							field?.setAttribute( 'aria-describedby', 'wcb-simple-apply-url-error' );
+							field?.focus();
+						}
 					}
 					// Not enough credits: offer the Credits tab right there.
 					state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';

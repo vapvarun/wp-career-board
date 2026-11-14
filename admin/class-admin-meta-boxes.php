@@ -74,6 +74,14 @@ class AdminMetaBoxes {
 	private bool $past_deadline = false;
 
 	/**
+	 * Fields whose typed web address was refused during this request.
+	 *
+	 * @since 1.8.4
+	 * @var string[]
+	 */
+	private array $refused_urls = array();
+
+	/**
 	 * Boot the meta box module.
 	 *
 	 * @since 1.0.0
@@ -252,7 +260,7 @@ class AdminMetaBoxes {
 		$wcb_deadline            = \WCB\Core\JobDeadline::day( $post->ID ); // The picker shows the day in the site's timezone.
 		// A saved job without a deadline was made evergreen; a new one starts on the default.
 		$wcb_no_expiry    = '' === $wcb_deadline && 'auto-draft' !== $post->post_status;
-		$wcb_apply_url    = (string) get_post_meta( $post->ID, '_wcb_apply_url', true );
+		$wcb_apply_url    = \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_apply_url', true ) );
 		$wcb_apply_email  = (string) get_post_meta( $post->ID, '_wcb_apply_email', true );
 		$wcb_company_id   = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$wcb_company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
@@ -652,6 +660,11 @@ class AdminMetaBoxes {
 				delete_post_meta( $post_id, '_wcb_' . $field );
 				continue;
 			}
+			// Keep the stored address and say so, rather than saving an empty field.
+			if ( 'apply_url' === $field && \WCB\Core\Text::is_refused_url( $value ) ) {
+				$this->refused_urls[] = 'apply_url';
+				continue;
+			}
 			update_post_meta( $post_id, '_wcb_' . $field, $value );
 		}
 		\WCB\Modules\Jobs\JobsMeta::order_salary( $post_id );
@@ -772,6 +785,9 @@ class AdminMetaBoxes {
 		if ( $this->held_job > 0 ) {
 			$location = add_query_arg( 'wcb_location_required', 1, $location );
 		}
+		if ( $this->refused_urls ) {
+			$location = add_query_arg( 'wcb_bad_url', implode( ',', $this->refused_urls ), $location );
+		}
 		return $this->past_deadline ? add_query_arg( 'wcb_deadline_past', 1, $location ) : $location;
 	}
 
@@ -784,14 +800,18 @@ class AdminMetaBoxes {
 	 */
 	public function render_held_job_notice(): void {
 		$screen = get_current_screen();
-		if ( ! $screen || 'wcb_job' !== $screen->post_type ) {
+		if ( ! $screen || ! in_array( $screen->post_type, array( 'wcb_job', 'wcb_company' ), true ) ) {
 			return;
 		}
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- display flags only.
-		if ( isset( $_GET['wcb_location_required'] ) ) {
+		if ( isset( $_GET['wcb_bad_url'] ) ) {
+			$wcb_apply = in_array( 'apply_url', explode( ',', sanitize_text_field( wp_unslash( $_GET['wcb_bad_url'] ) ) ), true );
+			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The web address was not saved, so the previous one is kept.', 'wp-career-board' ) . ' ' . esc_html( \WCB\Core\Text::web_url_error( $wcb_apply ) ) . '</p></div>';
+		}
+		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_location_required'] ) ) {
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'Saved as a draft. Add a location, or tick Remote, before publishing this job.', 'wp-career-board' ) . '</p></div>';
 		}
-		if ( isset( $_GET['wcb_deadline_past'] ) ) {
+		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_deadline_past'] ) ) {
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The deadline is in the past, so it was not saved. Choose today or a later date.', 'wp-career-board' ) . '</p></div>';
 		}
 		// phpcs:enable
@@ -838,6 +858,10 @@ class AdminMetaBoxes {
 		foreach ( $wcb_text_fields as $wcb_post_key => $wcb_meta_key ) {
 			$wcb_value = isset( $_POST[ $wcb_post_key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $wcb_post_key ] ) ) : '';
 			if ( in_array( $wcb_post_key, array( 'wcb_website', 'wcb_linkedin', 'wcb_twitter' ), true ) ) {
+				if ( \WCB\Core\Text::is_refused_url( $wcb_value ) ) {
+					$this->refused_urls[] = $wcb_post_key;
+					continue;
+				}
 				$wcb_value = \WCB\Core\Text::web_url( $wcb_value );
 			}
 			update_post_meta( $post_id, $wcb_meta_key, $wcb_value );

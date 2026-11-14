@@ -827,7 +827,7 @@ $wcb_step_labels = array(
 					data-wp-bind--value="state.applyUrl"
 					data-wp-on--input="actions.updateField"
 				/>
-				<p class="wcb-field-error wcb-field-error--url" id="wcb-apply-url-error"><?php esc_html_e( 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.', 'wp-career-board' ); ?></p>
+				<p class="wcb-field-error wcb-field-error--url" id="wcb-apply-url-error"><?php echo esc_html( \WCB\Core\Text::web_url_error( true ) ); ?></p>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Link to your external ATS or application form.', 'wp-career-board' ); ?>
 				</span>
