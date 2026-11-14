@@ -787,6 +787,22 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-primary-text);
 }
 
+.wcb-apply-last-cv {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	margin: 0;
+	padding: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-surface);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
 .wcb-apply-or-divider {
 	display: flex;
 	align-items: center;

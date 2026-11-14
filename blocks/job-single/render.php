@@ -256,6 +256,7 @@ $wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 
 // ── Resume data for apply panel ───────────────────────────────────────────────
 $wcb_user_resumes            = array();
+$wcb_last_cv                 = array();
 $wcb_resume_page_url         = '';
 $wcb_career_board_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
 // Gated on the Pro filter, not post_type_exists(): Free registers wcb_resume
@@ -315,6 +316,34 @@ $wcb_can_report       = is_user_logged_in() && ! $wcb_is_job_owner;
 $wcb_flag_reporters   = array_map( 'intval', (array) get_post_meta( $wcb_job_id, '_wcb_flag_reporters', true ) );
 $wcb_already_reported = in_array( $wcb_current_user_id, $wcb_flag_reporters, true );
 
+// A signed-in candidate with no saved resume reuses the CV from their latest
+// application, so the second application is one click. Ownership is checked
+// again by the apply endpoint (resolve_resume_attachment).
+if ( $wcb_current_user_id > 0 && empty( $wcb_user_resumes ) ) {
+	$wcb_past_apps = get_posts(
+		array(
+			'post_type'      => 'wcb_application',
+			'post_status'    => 'any',
+			'author'         => $wcb_current_user_id,
+			'posts_per_page' => 5,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'no_found_rows'  => true,
+			'meta_key'       => '_wcb_resume_attachment_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- five rows, author-scoped.
+		)
+	);
+	foreach ( $wcb_past_apps as $wcb_past_app ) {
+		$wcb_past_cv = get_post( (int) get_post_meta( $wcb_past_app->ID, '_wcb_resume_attachment_id', true ) );
+		if ( $wcb_past_cv && 'attachment' === $wcb_past_cv->post_type && (int) $wcb_past_cv->post_author === $wcb_current_user_id ) {
+			$wcb_last_cv = array(
+				'id'   => $wcb_past_cv->ID,
+				'name' => wp_basename( (string) get_attached_file( $wcb_past_cv->ID ) ),
+			);
+			break;
+		}
+	}
+}
+
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
@@ -350,6 +379,9 @@ wp_interactivity_state(
 		'guestName'            => '',
 		'guestEmail'           => '',
 		'resumeFileName'       => '',
+		'lastResumeId'         => (int) ( $wcb_last_cv['id'] ?? 0 ),
+		'lastResumeName'       => (string) ( $wcb_last_cv['name'] ?? '' ),
+		'useLastResume'        => ! empty( $wcb_last_cv ),
 		'resumeRequired'       => $wcb_resume_required,
 		'resumeMaxMb'          => $wcb_resume_max_mb,
 		'alertFromJobSaved'    => false,
@@ -1143,7 +1175,18 @@ wp_interactivity_state(
 						</label>
 					<?php endif; ?>
 
-					<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFileName">
+					<?php if ( ! empty( $wcb_last_cv ) ) : ?>
+					<p class="wcb-apply-last-cv" data-wp-class--wcb-hidden="!state.useLastResume">
+						<span>
+						<?php
+						/* translators: %s: file name of the candidate's last CV. */
+						printf( esc_html__( 'Using your last CV: %s', 'wp-career-board' ), '<strong>' . esc_html( $wcb_last_cv['name'] ) . '</strong>' );
+						?>
+						</span>
+						<button type="button" class="wcb-btn wcb-btn--ghost" data-wp-on--click="actions.replaceLastResume"><?php esc_html_e( 'Replace', 'wp-career-board' ); ?></button>
+					</p>
+					<?php endif; ?>
+					<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFileName" data-wp-class--wcb-hidden="state.useLastResume">
 						<span class="wcb-upload-icon">&#8593;</span>
 						<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
 						<span class="wcb-upload-hint">
@@ -1159,7 +1202,7 @@ wp_interactivity_state(
 							class="wcb-apply-resume-file"
 							accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 							data-wp-on--change="actions.selectResumeFile"
-		<?php echo $wcb_resume_required ? 'required' : ''; ?>
+		<?php echo $wcb_resume_required && empty( $wcb_last_cv ) ? 'required' : ''; ?>
 						/>
 					</label>
 				</div>

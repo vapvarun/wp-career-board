@@ -195,6 +195,10 @@ const { state } = store( 'wcb-job-single', {
 			state.resumeFileName = state.resumeFile ? state.resumeFile.name : '';
 		},
 
+		replaceLastResume() {
+			state.useLastResume = false;
+		},
+
 		*createAlertFromJob() {
 			if ( state.alertFromJobSaved || state.alertFromJobSaving ) {
 				return;
@@ -272,7 +276,7 @@ const { state } = store( 'wcb-job-single', {
 				}
 
 				// Resume requirement check (server enforces too).
-				if ( state.resumeRequired && ! state.resumeFile && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
+				if ( state.resumeRequired && ! state.resumeFile && ! ( state.useLastResume && state.lastResumeId > 0 ) && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
 					state.error = t( 'resumeRequiredError', 'Please attach your resume to apply.' );
 					return;
 				}
@@ -296,6 +300,8 @@ const { state } = store( 'wcb-job-single', {
 
 				if ( state.resumeFile ) {
 					formData.append( 'resume_file', state.resumeFile );
+				} else if ( state.useLastResume && state.lastResumeId > 0 ) {
+					formData.append( 'resume_attachment_id', String( state.lastResumeId ) );
 				}
 
 				// Custom application fields registered by site code via the
