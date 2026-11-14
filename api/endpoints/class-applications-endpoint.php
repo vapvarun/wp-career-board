@@ -1276,10 +1276,18 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_for_employer( \WP_Post $post ): array {
-		$base = $this->prepare_for_candidate( $post );
+		$job_id = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+		// Same applicant fields as the employer's applications lists, so a row
+		// opened from a list and the single resource agree; keys the candidate
+		// shape already sets keep their value.
+		$base = $this->prepare_for_candidate( $post ) + JobsEndpoint::employer_application_item(
+			$post,
+			(array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id )
+		);
 		return array_merge(
 			$base,
 			array(
+				'job_title'      => $base['job_title'] ?? get_the_title( $job_id ),
 				'status_history' => $this->status_history_for_employer( $post ),
 			)
 		);

@@ -73,6 +73,18 @@ if ( class_exists( '\WCB\Pro\Modules\Resume\ResumeModule' ) ) {
 	}
 }
 
+
+// The single application, as its employer, has the fields the list rows have.
+$apps = get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => true, 'meta_key' => '_wcb_job_id', 'meta_compare' => 'EXISTS' ) ); // phpcs:ignore
+if ( $apps ) {
+	$job = (int) get_post_meta( $apps[0], '_wcb_job_id', true );
+	wp_set_current_user( (int) get_post_field( 'post_author', $job ) ?: 1 );
+	$one = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/applications/' . $apps[0] ) )->get_data();
+	foreach ( array( 'applicant_name', 'applicant_email', 'job_title', 'rating', 'submitted_at_label', 'ai_score', 'status_history', 'resume_url' ) as $k ) {
+		$ok( array_key_exists( $k, $one ), "single application has {$k}" );
+	}
+}
+
 WP_CLI::log( '  Total: ' . ( $pass + $fail ) . "  Pass: {$pass}  Fail: {$fail}" );
 if ( $fail ) {
 	WP_CLI::error( "{$fail} test(s) failed." );
