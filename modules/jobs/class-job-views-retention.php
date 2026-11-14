@@ -29,12 +29,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class JobViewsRetention {
 
 	/**
-	 * SQL for "views": one per visitor per day, so reloads do not inflate it.
-	 * Every reader of wcb_job_views (employer dashboard, Pro analytics) uses it.
+	 * SQL for "views": one per visitor per job per day, so reloads do not inflate it.
+	 * Every reader of wcb_job_views (employer dashboard, Pro analytics) uses it and
+	 * aliases the table as `v`, so it stays valid when joined to wp_posts.
 	 *
 	 * @since 1.8.4
 	 */
-	public const VISITS_SQL = 'COUNT(DISTINCT DATE(viewed_at), COALESCE(ip_hash, id))';
+	public const VISITS_SQL = 'COUNT(DISTINCT v.job_id, DATE(v.viewed_at), COALESCE(v.ip_hash, v.id))';
 
 	/**
 	 * Cron hook name.
@@ -132,7 +133,7 @@ final class JobViewsRetention {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one grouped read of a plugin-owned table; placeholders are generated.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT job_id, {$visits} AS cnt FROM {$wpdb->prefix}wcb_job_views WHERE job_id IN ({$placeholders}) AND viewed_at > %s GROUP BY job_id",
+				"SELECT v.job_id, {$visits} AS cnt FROM {$wpdb->prefix}wcb_job_views v WHERE v.job_id IN ({$placeholders}) AND v.viewed_at > %s GROUP BY v.job_id",
 				...array_merge( $job_ids, array( gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ) ) )
 			)
 		);

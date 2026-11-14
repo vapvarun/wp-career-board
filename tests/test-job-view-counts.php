@@ -54,6 +54,18 @@ $wcb_chk( 2 === ( $wcb_counts[ $wcb_jobs[3] ] ?? 0 ), 'four reloads by one visit
 $wcb_chk( ! isset( $wcb_counts[ $wcb_jobs[2] ] ), 'a job with no views is left out' );
 $wcb_chk( array() === \WCB\Modules\Jobs\JobViewsRetention::counts( array() ), 'no jobs: no query, empty result' );
 
+// The shared SQL must stay valid when joined to wp_posts (Pro Top Jobs) and a
+// visitor who opens two jobs in a day is two views, so the headline equals the per-job sum.
+$wcb_ins( $wcb_jobs[5], 1, 'same-visitor' );
+$wcb_ins( $wcb_jobs[6], 1, 'same-visitor' );
+$wcb_visits = \WCB\Modules\Jobs\JobViewsRetention::VISITS_SQL;
+$wpdb->suppress_errors( true );
+$wpdb->get_results( "SELECT v.job_id, {$wcb_visits} AS views FROM {$wcb_table} v INNER JOIN {$wpdb->posts} p ON p.ID = v.job_id GROUP BY v.job_id" ); // phpcs:ignore WordPress.DB
+$wcb_chk( '' === $wpdb->last_error, 'the views SQL joined to wp_posts runs without an ambiguous column' );
+$wcb_total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT {$wcb_visits} FROM {$wcb_table} v WHERE v.viewed_at > %s AND v.job_id IN (" . implode( ',', array_fill( 0, 2, '%d' ) ) . ')', gmdate( 'Y-m-d H:i:s', time() - 30 * DAY_IN_SECONDS ), $wcb_jobs[5], $wcb_jobs[6] ) ); // phpcs:ignore WordPress.DB
+$wcb_chk( 2 === $wcb_total, 'one visitor on two jobs the same day is 2 views in the headline, matching the per-job numbers' );
+$wpdb->suppress_errors( false );
+
 $wpdb->query( $wpdb->prepare( "DELETE FROM {$wcb_table} WHERE job_id IN (" . implode( ',', array_fill( 0, count( $wcb_jobs ), '%d' ) ) . ')', ...$wcb_jobs ) ); // phpcs:ignore WordPress.DB
 foreach ( $wcb_jobs as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );
