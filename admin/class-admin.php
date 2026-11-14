@@ -454,9 +454,27 @@ class Admin {
 		$total_apps   = isset( $apps_count->publish ) ? (int) $apps_count->publish : 0;
 		$pending_jobs = isset( $jobs_count->pending ) ? (int) $jobs_count->pending : 0;
 
-		// Getting Started card: hide once setup complete AND at least one job is published.
+		// Getting Started card: hide once setup is complete AND the owner has published a
+		// job of their own. The wizard's sample jobs must not count as that first job.
 		$wcb_setup_done = SetupWizard::is_setup_complete();
-		$wcb_show_gs    = ! ( $wcb_setup_done && $total_jobs > 0 );
+		$wcb_own_jobs   = $total_jobs > 0 ? count(
+			get_posts(
+				array(
+					'post_type'      => 'wcb_job',
+					'post_status'    => 'publish',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_query'     => array(
+						array(
+							'key'     => '_wcb_sample',
+							'compare' => 'NOT EXISTS',
+						),
+					),
+				)
+			)
+		) : 0;
+		$wcb_show_gs    = ! ( $wcb_setup_done && $wcb_own_jobs > 0 );
 
 		if ( $wcb_show_gs ) {
 			// The same page set the Missing pages notice and the wizard use.
@@ -552,11 +570,11 @@ class Admin {
 			<?php endif; ?>
 						</span>
 					</li>
-					<li class="wcb-gs-item <?php echo $total_jobs > 0 ? 'wcb-gs-done' : ''; ?>">
-						<i data-lucide="<?php echo $total_jobs > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
+					<li class="wcb-gs-item <?php echo $wcb_own_jobs > 0 ? 'wcb-gs-done' : ''; ?>">
+						<i data-lucide="<?php echo $wcb_own_jobs > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 			<?php esc_html_e( 'Add your first job', 'wp-career-board' ); ?>
-			<?php if ( 0 === $total_jobs ) : ?>
+			<?php if ( 0 === $wcb_own_jobs ) : ?>
 								&mdash; <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>"><?php esc_html_e( '+ Add Job', 'wp-career-board' ); ?></a>
 			<?php endif; ?>
 						</span>
