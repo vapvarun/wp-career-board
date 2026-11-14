@@ -269,7 +269,8 @@ class AdminMetaBoxes {
 		// yet. Resolved through CompanyMetaShape so an employer whose company was
 		// created by import/admin/migration (post-side link only) still
 		// pre-selects correctly instead of landing on "- Select a company -".
-		if ( ! $wcb_company_id ) {
+		$wcb_company_guessed = ! $wcb_company_id;
+		if ( $wcb_company_guessed ) {
 			$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( (int) $post->post_author );
 		}
 
@@ -296,6 +297,13 @@ class AdminMetaBoxes {
 			if ( count( $wcb_batch ) < 100 ) {
 				break;
 			}
+		}
+
+		// A guessed company that is wizard sample data is not offered while a real one exists:
+		// the owner would save a real job against a company that Remove Sample Data deletes.
+		if ( $wcb_company_guessed && $wcb_company_id && \WCB\Admin\SetupWizard::is_sample_post( $wcb_company_id )
+			&& array_filter( array_keys( $wcb_companies ), static fn ( $wcb_id ) => ! \WCB\Admin\SetupWizard::is_sample_post( (int) $wcb_id ) ) ) {
+			$wcb_company_id = 0;
 		}
 
 		// The list is published-only, so a job linked to a pending/draft company

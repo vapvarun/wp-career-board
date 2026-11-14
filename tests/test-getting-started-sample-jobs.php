@@ -35,7 +35,9 @@ $j2 = $job( $b, 'wcb-sample-gs-' . wp_rand() );
 $ok( \WCB\Admin\AdminEmployers::count_employers() === $before, 'authors of sample jobs (marker, or old wcb-sample- slug) are not employers' );
 
 $j3 = $job( $c, 'gs-real-' . wp_rand() );
-$ok( \WCB\Admin\AdminEmployers::count_employers() === $before + 1, 'the author of a real job is counted once' );
+$ok( \WCB\Admin\AdminEmployers::count_employers() === $before, 'authoring a job by hand does not make someone an employer; the Employer role does' );
+( new WP_User( $c ) )->set_role( 'wcb_employer' );
+$ok( \WCB\Admin\AdminEmployers::count_employers() === $before + 1, 'a user holding the Employer role is counted once' );
 
 global $wpdb;
 $mine = array_map( 'intval', (array) $wpdb->get_col( "SELECT p.ID FROM {$wpdb->posts} p WHERE p.ID IN ( {$j1}, {$j2}, {$j3} )" . \WCB\Admin\SetupWizard::own_job_sql() ) ); // phpcs:ignore

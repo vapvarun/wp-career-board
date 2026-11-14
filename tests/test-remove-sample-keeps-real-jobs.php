@@ -42,13 +42,16 @@ $mk   = static function ( string $title, bool $sample ) use ( $co ): int {
 $real   = $mk( 'RSK My first job', false );
 $sample = $mk( 'RSK Sample job', true );
 
-( new \WCB\Admin\SetupWizard() )->remove_sample_data();
+$ok( \WCB\Admin\SetupWizard::is_sample_post( $co ) && ! \WCB\Admin\SetupWizard::is_sample_post( $real ), 'is_sample_post tells the sample company from the real job' );
+$result = ( new \WCB\Admin\SetupWizard() )->remove_sample_data();
 
 $ok( null === get_post( $co ), 'the sample company is deleted' );
 $ok( null === get_post( $sample ), 'the sample job is deleted' );
 $ok( 'publish' === get_post_status( $real ), 'the real job is still published' );
 $ok( '' === (string) get_post_meta( $real, '_wcb_company_id', true ), 'the real job no longer points at the deleted company' );
 $ok( '' === (string) get_post_meta( $real, '_wcb_closed_reason', true ), 'the real job has no closed reason' );
+
+$ok( ! empty( $result['notice'] ) && str_contains( (string) $result['notice'], 'RSK My first job' ), 'the removal result names the real job it detached' );
 
 $wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 wp_cache_flush();

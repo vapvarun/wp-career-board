@@ -56,12 +56,15 @@
 						.replace( '%COMPANIES%', String( companies ) )
 						.replace( '%CANDIDATES%', String( candidates ) )
 						.replace( '%TERMS%', String( terms ) );
+					if ( data && data.notice ) {
+						msg += ' ' + data.notice;
+					}
 					status.textContent = msg;
 					toast( msg, 'success' );
 					setTimeout( function () {
 						var block = document.getElementById( 'wcb-sample-data-block' );
 						if ( block ) { block.style.display = 'none'; }
-					}, 2500 );
+					}, data && data.notice ? 12000 : 2500 );
 				} else {
 					status.textContent = i18n.emptyNotice;
 					toast( i18n.emptyNotice, 'info' );

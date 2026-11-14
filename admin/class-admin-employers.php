@@ -399,56 +399,37 @@ class AdminEmployers extends \WP_List_Table {
 	}
 
 	/**
-	 * Every user who is functionally an employer on this board: anyone holding
-	 * the wcb_employer role PLUS anyone who has authored a job.
+	 * Every employer on this board: the users who hold the wcb_employer role.
 	 *
-	 * Job posting is capability-gated, and administrators hold the posting cap
-	 * too, so a job author need not carry the employer role — but they ARE
-	 * running listings (the frontend attributes those jobs to them), so the
-	 * site owner must see them here. Keying the screen on `role__in` alone hid
-	 * every admin/non-role poster, which read as "No employers yet" on boards
-	 * whose listings were all posted by admins. Memoized per request.
+	 * Authoring a job does not make someone an employer: an administrator who
+	 * posts a listing by hand stays an administrator, and the Getting started
+	 * step "Invite an employer" ticks only when someone holds the role. Memoized
+	 * per request.
 	 *
 	 * @since 1.7.0
 	 * @return int[]
 	 */
 	private function employer_user_ids(): array {
-		if ( null !== $this->employer_ids_cache ) {
-			return $this->employer_ids_cache;
+		if ( null === $this->employer_ids_cache ) {
+			$this->employer_ids_cache = array_map(
+				'intval',
+				( new \WP_User_Query(
+					array(
+						'role__in' => array( 'wcb_employer' ),
+						'fields'   => 'ID',
+						'number'   => 0,
+					)
+				) )->get_results()
+			);
 		}
-
-		$role_ids = ( new \WP_User_Query(
-			array(
-				'role__in' => array( 'wcb_employer' ),
-				'fields'   => 'ID',
-				'number'   => 0,
-			)
-		) )->get_results();
-
-		global $wpdb;
-		// Distinct authors of real (non-trashed) job posts who still exist as
-		// users: jobs of a deleted user keep the orphan author id.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$author_ids = $wpdb->get_col(
-			"SELECT DISTINCT p.post_author FROM {$wpdb->posts} p
-			 INNER JOIN {$wpdb->users} u ON u.ID = p.post_author
-			 WHERE p.post_type = 'wcb_job'
-			   AND p.post_status NOT IN ( 'trash', 'auto-draft' )" . SetupWizard::own_job_sql()
-		);
-
-		$this->employer_ids_cache = array_values(
-			array_unique(
-				array_map( 'intval', array_merge( (array) $role_ids, (array) $author_ids ) )
-			)
-		);
 
 		return $this->employer_ids_cache;
 	}
 
 	/**
-	 * How many employers there are: the same set as employer_user_ids() (role
-	 * holders plus job authors) counted in SQL, so the dashboard tile and the
-	 * list's "All" count agree without loading every ID.
+	 * How many employers there are: the same set as employer_user_ids(),
+	 * counted in SQL so the dashboard tile and the list's "All" count agree
+	 * without loading every ID.
 	 *
 	 * @since 1.8.4
 	 * @return int
@@ -457,13 +438,10 @@ class AdminEmployers extends \WP_List_Table {
 		global $wpdb;
 		$caps_key = $wpdb->get_blog_prefix() . 'capabilities';
 		$like     = '%' . $wpdb->esc_like( '"wcb_employer"' ) . '%';
-		$own_job  = SetupWizard::own_job_sql();
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->users} u
-				 WHERE EXISTS ( SELECT 1 FROM {$wpdb->usermeta} m WHERE m.user_id = u.ID AND m.meta_key = %s AND m.meta_value LIKE %s )
-				    OR EXISTS ( SELECT 1 FROM {$wpdb->posts} p WHERE p.post_author = u.ID AND p.post_type = 'wcb_job' AND p.post_status NOT IN ( 'trash', 'auto-draft' ){$own_job} )",
+				"SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value LIKE %s",
 				$caps_key,
 				$like
 			)

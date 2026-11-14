@@ -875,6 +875,28 @@ class SetupWizard extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * Whether a post is wizard sample data: marked, tracked, or one of the old
+	 * `wcb-sample-` slugs. The same rule as own_job_sql(), for a single post.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public static function is_sample_post( int $post_id ): bool {
+		if ( '1' === (string) get_post_meta( $post_id, '_wcb_sample', true ) || str_starts_with( (string) get_post_field( 'post_name', $post_id ), 'wcb-sample-' ) ) {
+			return true;
+		}
+		$tracked = (array) get_option( 'wcb_sample_data_ids', array() );
+		foreach ( array( 'jobs', 'companies', 'candidates' ) as $bucket ) {
+			if ( in_array( $post_id, array_map( 'intval', (array) ( $tracked[ $bucket ] ?? array() ) ), true ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * How many published jobs are the owner's own (see own_job_sql()).
 	 *
 	 * @since 1.8.4
@@ -962,9 +984,9 @@ class SetupWizard extends \WCB\Api\RestController {
 	 * @since 1.8.4
 	 *
 	 * @param int $company_id Sample company post ID.
-	 * @return void
+	 * @return int[] The real jobs that were detached and kept live.
 	 */
-	private static function delete_sample_company( int $company_id ): void {
+	private static function delete_sample_company( int $company_id ): array {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- the own-job fragment is prepared in own_job_sql().
 		$real = (array) $wpdb->get_col(
@@ -975,11 +997,13 @@ class SetupWizard extends \WCB\Api\RestController {
 				'wcb_job'
 			) . self::own_job_sql()
 		);
-		foreach ( wp_parse_id_list( $real ) as $job_id ) {
+		$real = wp_parse_id_list( $real );
+		foreach ( $real as $job_id ) {
 			delete_post_meta( $job_id, '_wcb_company_id' );
 			delete_post_meta( $job_id, '_wcb_company_name' );
 		}
 		wp_delete_post( $company_id, true );
+		return $real;
 	}
 
 	/**
@@ -992,9 +1016,10 @@ class SetupWizard extends \WCB\Api\RestController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array{jobs: int, companies: int, candidates: int, terms: int} Counts of removed items.
+	 * @return array{jobs: int, companies: int, candidates: int, terms: int, notice?: string} Counts of removed items, plus a notice when real jobs were detached from a sample company.
 	 */
 	public function remove_sample_data(): array {
+		$kept    = array();
 		$ids     = (array) get_option( 'wcb_sample_data_ids', array() );
 		$removed = array(
 			'jobs'       => 0,
@@ -1022,7 +1047,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		foreach ( $ids['companies'] ?? array() as $cid ) {
 			$cid = (int) $cid;
 			if ( $cid && get_post( $cid ) ) {
-				self::delete_sample_company( $cid );
+				$kept                           = array_merge( $kept, self::delete_sample_company( $cid ) );
 				$deleted['wcb_company'][ $cid ] = true;
 				++$removed['companies'];
 			}
@@ -1063,7 +1088,11 @@ class SetupWizard extends \WCB\Api\RestController {
 			if ( ! get_post( $post_id ) ) {
 				continue;
 			}
-			'wcb_company' === $post_type ? self::delete_sample_company( $post_id ) : wp_delete_post( $post_id, true );
+			if ( 'wcb_company' === $post_type ) {
+				$kept = array_merge( $kept, self::delete_sample_company( $post_id ) );
+			} else {
+				wp_delete_post( $post_id, true );
+			}
 			$deleted[ $post_type ][ $post_id ] = true;
 			$bucket                            = 'wcb_job' === $post_type ? 'jobs' : ( 'wcb_company' === $post_type ? 'companies' : 'candidates' );
 			++$removed[ $bucket ];
@@ -1114,7 +1143,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				continue;
 			}
 			if ( get_post( $wcb_orphan_co_id ) ) {
-				self::delete_sample_company( $wcb_orphan_co_id );
+				$kept                                        = array_merge( $kept, self::delete_sample_company( $wcb_orphan_co_id ) );
 				$deleted['wcb_company'][ $wcb_orphan_co_id ] = true;
 				++$removed['companies'];
 			}
@@ -1136,6 +1165,13 @@ class SetupWizard extends \WCB\Api\RestController {
 		 * @since 1.3.1
 		 */
 		do_action( 'wcb_sample_data_removed' );
+
+		$kept = array_unique( $kept );
+		if ( $kept ) {
+			$titles = array_map( 'get_the_title', array_slice( $kept, 0, 3 ) );
+			/* translators: 1: number of jobs, 2: their titles */
+			$removed['notice'] = sprintf( _n( '%1$d of your own jobs was linked to a sample company. It stays published without a company: %2$s. Choose a company for it in the job editor.', '%1$d of your own jobs were linked to a sample company. They stay published without a company: %2$s. Choose a company for each in the job editor.', count( $kept ), 'wp-career-board' ), count( $kept ), implode( ', ', $titles ) );
+		}
 
 		return $removed;
 	}
