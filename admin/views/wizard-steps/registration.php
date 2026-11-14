@@ -43,4 +43,6 @@ $wcb_verify       = \WCB\Admin\Settings::bool( 'require_email_verification', fal
 	</div>
 </div>
 <?php
+// The toggle opens ON before setup completes, so Skip stores what the screen shows.
+$wcb_skip_saves = true;
 require __DIR__ . '/_footer.php';

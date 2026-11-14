@@ -6,7 +6,7 @@ You can set up your job board in the Setup Wizard. It creates your pages, sets y
 
 A stepper runs across the top of the wizard. The WordPress admin menu is hidden while the wizard runs. Click **Exit setup** in the wizard header to leave at any time. You can click a step you have already reached in the stepper to reopen it.
 
-The Sign-ups, Jobs, Emails and Spam Protection steps have **Save & Continue** and **Skip for now**. Every answer can be changed later in **Settings**.
+The Sign-ups, Jobs, Emails and Spam Protection steps have **Save & Continue** and **Skip for now**. **Skip for now** on Sign-ups keeps the setting as the screen shows it (sign-ups on). Every answer can be changed later in **Settings**.
 
 ## The steps
 
@@ -46,7 +46,7 @@ Choose a CAPTCHA option and enter its site key and secret key. The options are N
 
 ### 6. Sample data
 
-Optionally install sample categories, job types, companies and demo jobs, so you can see how the board looks before you add real data. Click **Finish Setup** to complete.
+The sample data box starts unticked. Tick it to install sample categories, job types, companies and demo jobs, so you can see how the board looks before you add real data. Click **Finish Setup** to complete.
 
 ### Extra steps with Pro
 

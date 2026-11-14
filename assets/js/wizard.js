@@ -195,15 +195,17 @@
 		var save = e.target.closest( '[data-wcb-wizard-save]' );
 		var skip = e.target.closest( '[data-wcb-wizard-skip]' );
 
-		if ( skip ) {
+		if ( skip && ! skip.hasAttribute( 'data-wcb-skip-saves' ) ) {
 			dispatchComplete( getStepNum( skip ) );
 			return;
 		}
-		if ( ! save ) {
+		var trigger = save || skip;
+		if ( ! trigger ) {
 			return;
 		}
 
-		var stepNum = getStepNum( save );
+		var stepNum = getStepNum( trigger );
+		save = trigger;
 		save.disabled = true;
 		showError( save, '' );
 

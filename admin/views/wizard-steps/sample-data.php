@@ -8,11 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Demo content defaults on only for an empty board, so finishing setup on a
-// live site never publishes demo jobs next to real ones.
-$wcb_job_counts = (array) wp_count_posts( 'wcb_job' );
-unset( $wcb_job_counts['trash'], $wcb_job_counts['auto-draft'] );
-$wcb_has_jobs  = array_sum( array_map( 'intval', $wcb_job_counts ) ) > 0;
+// Demo content is opt-in: a site owner who just clicks Finish never gets demo jobs next to real ones.
 $wcb_demo_url  = \WCB\Admin\SetupWizard::demo_installer_url();
 $wcb_has_menus = array() !== get_registered_nav_menus();
 ?>
@@ -26,7 +22,7 @@ $wcb_has_menus = array() !== get_registered_nav_menus();
 		<?php else : ?>
 			<label class="wcb-toggle-label">
 				<span class="wcb-toggle">
-					<input type="checkbox" id="wcb-install-sample" <?php checked( ! $wcb_has_jobs ); ?>>
+					<input type="checkbox" id="wcb-install-sample">
 					<span class="wcb-toggle-slider"></span>
 				</span>
 				<?php esc_html_e( 'Add sample companies and jobs', 'wp-career-board' ); ?>
