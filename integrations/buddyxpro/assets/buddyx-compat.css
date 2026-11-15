@@ -315,7 +315,7 @@ button[class*="wcb-"].wcb-rating__star:not(.wcb-rating__star--on) {
 }
 
 button[class*="wcb-"].wcb-rating__star--on {
-	color: var( --wcb-warning, #d97706 ) !important;
+	color: var( --wcb-star-on, var( --wcb-warning, #d97706 ) ) !important;
 }
 
 /* Danger actions keep their danger label tone. */

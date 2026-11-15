@@ -1297,8 +1297,10 @@
 }
 
 .wcb-rating__star--on {
-	color: var(--wcb-warning, #d97706);
-	-webkit-text-stroke-color: var(--wcb-warning, #d97706);
+	/* Amber pulled toward the warning text tone so the star reads on the panel (4.5:1). */
+	--wcb-star-on: color-mix(in srgb, var(--wcb-warning, #d97706) 40%, var(--wcb-warning-fg, #92400e));
+	color: var(--wcb-star-on);
+	-webkit-text-stroke-color: var(--wcb-star-on);
 }
 
 .wcb-rating__none {
@@ -1316,7 +1318,7 @@
 }
 
 .wcb-rating__star--on:is(:hover, :focus) {
-	color: var(--wcb-warning, #d97706);
+	color: var(--wcb-star-on);
 }
 
 .wcb-rating__star:focus-visible {
