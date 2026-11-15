@@ -14,7 +14,7 @@ Free version includes everything you'd expect from a paid plugin:
 - Application tracking with 5 statuses
 - Guest applications — candidates apply without registering
 - BuddyPress activity stream integration
-- reCAPTCHA v3, GDPR, JobPosting schema — all included
+- Honeypot spam protection, GDPR, JobPosting schema — all included
 
 No shortcodes. No jQuery. Built on Gutenberg blocks and the WordPress Interactivity API.
 

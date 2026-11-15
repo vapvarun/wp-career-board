@@ -40,7 +40,7 @@ WP Career Board is built entirely on Gutenberg blocks and the WordPress Interact
 **For admins**
 - Job moderation queue (or auto-publish)
 - Customizable email notifications
-- reCAPTCHA v3 spam protection (invisible)
+- Honeypot spam protection (invisible)
 - GDPR — personal data export and erasure
 - JobPosting schema.org on every job page
 
@@ -84,7 +84,7 @@ No jQuery · No shortcodes · No admin-ajax.php · PHP 8.1+ · WP 6.9+
 
 ## WHY WP CAREER BOARD
 
-**vs WP Job Manager:** Block-first vs shortcode-primary. BuddyPress integration built in. Guest applications, reCAPTCHA, and GDPR are free here; they're add-ons there.
+**vs WP Job Manager:** Block-first vs shortcode-primary. BuddyPress integration built in. Guest applications, honeypot spam protection, and GDPR are free here; they're add-ons there.
 
 **vs SaaS job board platforms:** One WordPress plugin license. No per-posting fees, no platform percentage, no lock-in.
 

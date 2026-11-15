@@ -45,7 +45,7 @@
 | **ADMIN** | | |
 | Setup Wizard | ✓ | ✓ |
 | Job moderation queue | ✓ | ✓ |
-| reCAPTCHA v3 (spam protection) | ✓ | ✓ |
+| Honeypot spam protection | ✓ | ✓ |
 | GDPR — personal data export + erasure | ✓ | ✓ |
 | Admin jobs/applications/employers list tables | ✓ | ✓ |
 | **MONETIZATION** | | |
@@ -69,7 +69,7 @@
 | Block-first (no shortcodes) | ✓ | Partial | — | — |
 | WordPress Interactivity API | ✓ | — | — | — |
 | Guest applications (free) | ✓ | Add-on ($) | Add-on ($) | — |
-| reCAPTCHA (free) | ✓ | — | — | — |
+| Honeypot spam protection (free) | ✓ | — | — | — |
 | GDPR (free) | ✓ | — | Partial | — |
 | BuddyPress integration | ✓ | — | — | — |
 | Reign / BuddyX bundling | ✓ | — | — | — |

@@ -20,7 +20,7 @@ WP Career Board is a full-featured job board plugin built entirely on Gutenberg 
 - Guest applications — candidates apply without registering
 - Email notifications — automatic emails at every key event
 - Job moderation — approve jobs before they go live (or use auto-publish)
-- reCAPTCHA v3 — invisible spam protection on job forms and applications
+- Honeypot spam protection on job forms and applications, with hooks for your own CAPTCHA or spam plugin
 - JobPosting schema.org — every job page outputs valid structured data for Google Jobs
 - GDPR — personal data export and erasure via the WP Privacy API
 - BuddyPress integration — job activity in feeds, employer/candidate member types
@@ -49,7 +49,7 @@ Post a job in four steps. Add title, location, type, salary range, and descripti
 Browse the job directory with live filters — keyword, location, job type, category, salary range, and whether the role is remote. Apply with one form. Track the status of every application in the Candidate Dashboard. Save jobs for later. Apply without creating an account (guest applications).
 
 **For admins:**
-Approve or reject jobs from the moderation queue. Configure which pages are used for what, whether jobs auto-publish, and which email notifications fire. Full GDPR personal data handling built in. reCAPTCHA v3 protects both the job form and the application form.
+Approve or reject jobs from the moderation queue. Configure which pages are used for what, whether jobs auto-publish, and which email notifications fire. Full GDPR personal data handling built in. A honeypot protects both the job form and the application form, and hooks let you add your own CAPTCHA plugin.
 
 ### Community integration
 
@@ -67,7 +67,7 @@ Users of Wbcom Designs' Reign Theme get WP Career Board included in their licens
 | Permissions | WordPress Abilities API |
 | SEO | `schema.org/JobPosting` LD+JSON |
 | Privacy | WP Privacy API (GDPR) |
-| Spam | reCAPTCHA v3 |
+| Spam | Honeypot (hooks for a CAPTCHA plugin) |
 
 ### Pro features
 

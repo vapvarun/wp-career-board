@@ -80,8 +80,8 @@ Every job page outputs valid `schema.org/JobPosting` structured data. Your jobs 
 **GDPR Compliance**
 Personal data export and erasure requests handled automatically via the WordPress Privacy API.
 
-**reCAPTCHA v3**
-Score-based spam protection on the job form and application form. Invisible — no checkbox challenges for real users.
+**Honeypot spam protection**
+A hidden honeypot on the job form and application form. Invisible — no checkbox challenges for real users, and hooks let you add your own CAPTCHA plugin.
 
 **BuddyPress Integration**
 Job activity in the community feed. Employer and candidate roles mapped to BuddyPress member types. Works with BuddyBoss Platform too.

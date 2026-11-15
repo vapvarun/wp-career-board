@@ -184,7 +184,7 @@ abstract class RestController extends \WP_REST_Controller {
 	 * Registration used to create accounts with no honeypot, CAPTCHA or rate
 	 * limit, and skipped core's `registration_errors`, so third-party anti-spam
 	 * plugins never saw these sign-ups either. Runs `wcb_pre_registration`
-	 * (the anti-spam module's honeypot + CAPTCHA), a per-IP limit, then
+	 * (the anti-spam module's honeypot; a CAPTCHA plugin hooks it too), a per-IP limit, then
 	 * `registration_errors`.
 	 *
 	 * @since 1.8.0

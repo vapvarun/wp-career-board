@@ -768,13 +768,6 @@
       "controls": "Per-email enable/from/subject — consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_email_settings() helper."
     },
     {
-      "key": "wcb_settings.captcha.driver",
-      "group": "wcb_settings_group",
-      "type": "string",
-      "default": "(empty)",
-      "controls": "Captcha driver slug — consolidated under wcb_settings in 1.2.0 (F-5). Read via wcb_get_captcha_driver() helper."
-    },
-    {
       "key": "wcb_settings.resume_archive_enabled",
       "group": "wcb_settings_group",
       "type": "boolean",
@@ -1324,7 +1317,7 @@
       "key": "module.antispam",
       "class": "WCB\\Modules\\Antispam\\AntiSpamModule",
       "added": "1.0.0",
-      "purpose": "reCAPTCHA / Turnstile gate on submit hooks"
+      "purpose": "Honeypot gate on submit hooks; a third-party CAPTCHA hooks wcb_pre_* itself"
     },
     {
       "key": "module.applications",
@@ -4269,22 +4262,6 @@
   "frontend_assets": {
     "js": [
       {
-        "handle": "wcb-recaptcha",
-        "path": "assets/js/wcb-recaptcha.js",
-        "deps": [
-          "google-recaptcha"
-        ],
-        "footer": true
-      },
-      {
-        "handle": "wcb-turnstile",
-        "path": "assets/js/wcb-turnstile.js",
-        "deps": [
-          "cf-turnstile"
-        ],
-        "footer": true
-      },
-      {
         "handle": "wcb-confirm-modal",
         "path": "assets/js/wcb-confirm-modal.js",
         "deps": [],
@@ -4533,23 +4510,12 @@
       "where": "cli/class-scale-command.php"
     }
   ],
-  "storage_drivers": [
-    {
-      "key": "captcha.recaptcha",
-      "class": "WCB\\Modules\\Antispam\\RecaptchaDriver",
-      "purpose": "Google reCAPTCHA v3 verification"
-    },
-    {
-      "key": "captcha.turnstile",
-      "class": "WCB\\Modules\\Antispam\\TurnstileDriver",
-      "purpose": "Cloudflare Turnstile verification"
-    }
-  ],
+  "storage_drivers": [],
   "security": {
     "uploads_gate": "Resume + logo uploads gated by REST permission_callback (login + ownership)",
     "signing_entry_points": [],
     "always_sign_filter": null,
-    "rate_limit_middleware": "wcb_pre_job_submit / wcb_pre_application_submit (CAPTCHA gate via AntiSpamModule)",
+    "rate_limit_middleware": "wcb_pre_job_submit / wcb_pre_application_submit (honeypot gate via AntiSpamModule)",
     "csrf": "All write endpoints rely on REST cookie-nonce auth (X-WP-Nonce); admin-post handlers call wp_verify_nonce",
     "abilities_api": "All capability checks go via wp_is_authorized() — no current_user_can('manage_options')"
   },

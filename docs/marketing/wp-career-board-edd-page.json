@@ -2684,7 +2684,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "title": "reCAPTCHA v3 + GDPR",
+                        "title": "Honeypot + GDPR",
                         "header_size": "h4",
                         "align": "center",
                         "title_color": "#001347",
@@ -2715,7 +2715,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "Invisible spam protection on job form and application form. Personal data export and erasure built in — both free.",
+                        "editor": "Honeypot spam protection on job form and application form. Personal data export and erasure built in — both free.",
                         "align": "center",
                         "align_tablet": "center",
                         "typography_typography": "custom",
@@ -9111,7 +9111,7 @@
                       "isInner": false,
                       "isLocked": false,
                       "settings": {
-                        "editor": "Permanently free. The free version is a complete job board — employer and candidate dashboards, application tracking, BuddyPress integration, reCAPTCHA, GDPR, and JobPosting schema are all included. No trial period, no feature locks. WP Career Board Pro is a separate paid product for advanced features like a Kanban pipeline, multiple boards, and WooCommerce monetization.",
+                        "editor": "Permanently free. The free version is a complete job board — employer and candidate dashboards, application tracking, BuddyPress integration, honeypot spam protection, GDPR, and JobPosting schema are all included. No trial period, no feature locks. WP Career Board Pro is a separate paid product for advanced features like a Kanban pipeline, multiple boards, and WooCommerce monetization.",
                         "align": "left",
                         "typography_typography": "custom",
                         "text_color": "#001347",

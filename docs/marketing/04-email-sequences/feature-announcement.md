@@ -99,7 +99,7 @@ Hi [First Name],
 Starting today, WP Career Board is included with all Reign Theme licenses — including yours.
 
 **What you get:**
-A full WordPress job board — employer dashboards, candidate applications, company profiles, BuddyPress integration, email notifications, GDPR compliance, and reCAPTCHA — at no extra cost.
+A full WordPress job board — employer dashboards, candidate applications, company profiles, BuddyPress integration, email notifications, GDPR compliance, and honeypot spam protection — at no extra cost.
 
 **How to get it:**
 1. Log in to your Wbcom account at wbcomdesigns.com
