@@ -605,7 +605,7 @@ class SetupWizard extends \WCB\Api\RestController {
 
 		$company_ids = array();
 		foreach ( $companies as $co ) {
-			$existing = get_page_by_path( $co['slug'], OBJECT, 'wcb_company' );
+			$existing = self::find_sample_post( $co['slug'], 'wcb_company' );
 			if ( $existing ) {
 				$company_ids[ $co['slug'] ] = (int) $existing->ID;
 				// Re-track on re-run so wcb_sample_data_ids stays complete
@@ -619,7 +619,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				array(
 					'post_type'     => 'wcb_company',
 					'post_title'    => $co['title'],
-					'post_name'     => $co['slug'],
+					'post_name'     => self::free_sample_slug( $co['slug'], 'wcb_company' ),
 					'post_status'   => 'publish',
 					'post_author'   => $author_id,
 					'post_date_gmt' => $joined_gmt,
@@ -677,7 +677,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		// job read as fake on a fresh board.
 		$job_age = array( 1, 2, 4, 6, 9, 12, 15, 19 );
 		foreach ( $jobs as $job_index => $job ) {
-			$existing = get_page_by_path( $job['slug'], OBJECT, 'wcb_job' );
+			$existing = self::find_sample_post( $job['slug'], 'wcb_job' );
 			if ( $existing ) {
 				// Re-track on re-run so wcb_sample_data_ids stays complete.
 				$created_ids['jobs'][] = (int) $existing->ID;
@@ -690,7 +690,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				array(
 					'post_type'     => 'wcb_job',
 					'post_title'    => $job['title'],
-					'post_name'     => $job['slug'],
+					'post_name'     => self::free_sample_slug( $job['slug'], 'wcb_job' ),
 					'post_content'  => self::sample_content_to_html( $job['content'] ),
 					'post_status'   => 'publish',
 					'post_author'   => $author_id,
@@ -894,6 +894,41 @@ class SetupWizard extends \WCB\Api\RestController {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * The sample post for a slug, or null. A post that merely shares the slug
+	 * (the owner's own "roastworks") is never adopted, so Remove Sample Data
+	 * cannot delete it. A sample whose slug was taken lives under `wcb-sample-{slug}`.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $slug      Sample slug.
+	 * @param string $post_type wcb_company or wcb_job.
+	 * @return \WP_Post|null
+	 */
+	private static function find_sample_post( string $slug, string $post_type ): ?\WP_Post {
+		foreach ( array( $slug, 'wcb-sample-' . $slug ) as $candidate ) {
+			$post = get_page_by_path( $candidate, OBJECT, $post_type );
+			if ( $post && self::is_sample_post( (int) $post->ID ) ) {
+				return $post;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The slug a new sample post is saved under: the plain slug, or the
+	 * `wcb-sample-` form when the owner already uses the plain one.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $slug      Sample slug.
+	 * @param string $post_type wcb_company or wcb_job.
+	 * @return string
+	 */
+	private static function free_sample_slug( string $slug, string $post_type ): string {
+		return get_page_by_path( $slug, OBJECT, $post_type ) ? 'wcb-sample-' . $slug : $slug;
 	}
 
 	/**
@@ -1169,6 +1204,10 @@ class SetupWizard extends \WCB\Api\RestController {
 		$kept = array_unique( $kept );
 		if ( $kept ) {
 			$titles = array_map( 'get_the_title', array_slice( $kept, 0, 3 ) );
+			if ( count( $kept ) > 3 ) {
+				/* translators: %d: number of jobs not named in the list */
+				$titles[] = sprintf( __( 'and %d more', 'wp-career-board' ), count( $kept ) - 3 );
+			}
 			/* translators: 1: number of jobs, 2: their titles */
 			$removed['notice'] = sprintf( _n( '%1$d of your own jobs was linked to a sample company. It stays published without a company: %2$s. Choose a company for it in the job editor.', '%1$d of your own jobs were linked to a sample company. They stay published without a company: %2$s. Choose a company for each in the job editor.', count( $kept ), 'wp-career-board' ), count( $kept ), implode( ', ', $titles ) );
 		}

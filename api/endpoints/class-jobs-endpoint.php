@@ -1239,7 +1239,7 @@ final class JobsEndpoint extends RestController {
 
 		$message = sprintf(
 			/* translators: 1: maximum number of active jobs allowed, 2: number the employer currently has live. */
-			__( 'You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one.', 'wp-career-board' ),
+			_n( 'You can have %1$d active job at a time and currently have %2$d. Close or expire a listing to post a new one.', 'You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one.', $limit, 'wp-career-board' ),
 			$limit,
 			$count
 		);
