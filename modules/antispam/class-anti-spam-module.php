@@ -127,6 +127,23 @@ class AntiSpamModule {
 			return $result;
 		}
 
+		/**
+		 * Whether this request skips the CAPTCHA check.
+		 *
+		 * A request signed in with an application password (the mobile app,
+		 * integrations, scripts) has no browser to show a widget in, and it
+		 * already proved who it is. The honeypot above still applies. Return
+		 * false to hold API clients to the CAPTCHA as well.
+		 *
+		 * @since 1.8.4
+		 *
+		 * @param bool             $skip    True for an application-password request.
+		 * @param \WP_REST_Request $request The request.
+		 */
+		if ( (bool) apply_filters( 'wcb_captcha_skip', null !== rest_get_authenticated_app_password(), $request ) ) {
+			return $result;
+		}
+
 		$token = (string) ( $request->get_param( 'wcb_captcha_token' ) ?? '' );
 
 		if ( ! $this->driver->verify( $token ) ) {
