@@ -2,10 +2,10 @@
     "schema_version": "v1",
     "plugin": {
         "slug": "wp-career-board",
-        "version": "1.8.3"
+        "version": "1.8.4"
     },
     "generated": {
-        "at": "2026-11-12T05:57:05+00:00",
+        "at": "2026-11-15T13:03:01+00:00",
         "manifest_at": "2026-10-26T00:00:00Z",
         "manifest_branch": "1.8.3"
     },
@@ -370,8 +370,8 @@
         },
         "hooks_fired": {
             "total": 93,
-            "covered": 22,
-            "uncovered": 71,
+            "covered": 34,
+            "uncovered": 59,
             "skipped": 184,
             "covered_items": [
                 {
@@ -391,11 +391,47 @@
                     "consumer_count": 1
                 },
                 {
+                    "name": "wcb_registered_emails",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_registered_emails",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_registered_emails",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_registered_emails",
+                    "consumer_count": 1
+                },
+                {
                     "name": "wcb_pro_active",
                     "consumer_count": 1
                 },
                 {
                     "name": "wcb_pro_active",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
                     "consumer_count": 1
                 },
                 {
@@ -408,6 +444,10 @@
                 },
                 {
                     "name": "wcb_pro_active",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_pro_alerts_enabled",
                     "consumer_count": 1
                 },
                 {
@@ -455,11 +495,19 @@
                     "consumer_count": 1
                 },
                 {
+                    "name": "wcb_registered_emails",
+                    "consumer_count": 1
+                },
+                {
                     "name": "wcb_email_announces_notification",
                     "consumer_count": 1
                 },
                 {
                     "name": "wcb_notification_created",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_registered_emails",
                     "consumer_count": 1
                 }
             ],
@@ -490,21 +538,6 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_pro_settings_saved_notice"
                 },
                 {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
                     "name": "wcb_page_settings",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_page_settings"
@@ -518,11 +551,6 @@
                     "name": "wcb_wizard_force_render",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_wizard_force_render"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
                     "name": "wcb_application_submitted",
@@ -625,34 +653,14 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_candidate_form_fields"
                 },
                 {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
                     "name": "wcb_pro_resumes_enabled",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_pro_resumes_enabled"
                 },
                 {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
                     "name": "wcb_pro_resumes_enabled",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_pro_resumes_enabled"
-                },
-                {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
                 },
                 {
                     "name": "wcb_candidate_form_fields",
@@ -678,11 +686,6 @@
                     "name": "wcb_company_form_fields",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_company_form_fields"
-                },
-                {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
                 },
                 {
                     "name": "wcb_board_currency",
@@ -750,11 +753,6 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_listings_board_options"
                 },
                 {
-                    "name": "wcb_pro_alerts_enabled",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_pro_alerts_enabled"
-                },
-                {
                     "name": "wcb_cli_abilities",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_cli_abilities"
@@ -798,16 +796,6 @@
                     "name": "wcb_job_rejected",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_rejected"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
-                },
-                {
-                    "name": "wcb_registered_emails",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_registered_emails"
                 },
                 {
                     "name": "wcb_job_approved",
@@ -898,14 +886,14 @@
     "summary": {
         "categories_checked": 5,
         "items_total": 188,
-        "items_covered": 85,
-        "items_uncovered": 103,
+        "items_covered": 97,
+        "items_uncovered": 91,
         "items_skipped": 184,
-        "coverage_percent": 45.2
+        "coverage_percent": 51.600000000000001
     },
     "drift": {
-        "previous_uncovered": 105,
-        "current_uncovered": 103,
-        "delta": -2
+        "previous_uncovered": 103,
+        "current_uncovered": 91,
+        "delta": -12
     }
 }
