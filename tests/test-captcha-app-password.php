@@ -46,6 +46,9 @@ $GLOBALS['wp_rest_application_password_uuid'] = 'test-uuid';
 $ok( 'pass' === $code( $module->verify_request( null, $req() ) ), 'an application-password request passes with no token' );
 $ok( 'wcb_spam' === $code( $module->verify_request( null, $req( array( 'hp' => 'bot' ) ) ) ), 'the honeypot still refuses it' );
 
+add_filter( 'wcb_pre_registration', array( $module, 'verify_request' ), 10, 2 );
+$ok( 'wcb_captcha_failed' === $code( apply_filters( 'wcb_pre_registration', null, $req() ) ), 'sign-up is never skipped, even with an application password' );
+
 add_filter( 'wcb_captcha_skip', '__return_false' );
 $ok( 'wcb_captcha_failed' === $code( $module->verify_request( null, $req() ) ), 'wcb_captcha_skip returning false holds API clients to the CAPTCHA' );
 remove_filter( 'wcb_captcha_skip', '__return_false' );

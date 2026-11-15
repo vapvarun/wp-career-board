@@ -448,7 +448,7 @@ reCAPTCHA v2 (invisible badge). The web forms and app-config
 (`captcha_required`, `captcha.provider`, `captcha.site_key`) both read it.
 
 A request signed in with an application password skips the CAPTCHA check (the
-app and scripts have no widget to solve); the honeypot still applies. The
+app and scripts have no widget to solve) on job and application submits, never on sign-up; the honeypot still applies. The
 `wcb_captcha_skip` filter (`$skip`, `$request`) changes that: return false to
 hold API clients to the CAPTCHA too. `captcha_required` in app-config describes
 the web forms and sign-up, where a visitor is not yet authenticated.

@@ -133,14 +133,15 @@ class AntiSpamModule {
 		 * A request signed in with an application password (the mobile app,
 		 * integrations, scripts) has no browser to show a widget in, and it
 		 * already proved who it is. The honeypot above still applies. Return
-		 * false to hold API clients to the CAPTCHA as well.
+		 * false to hold API clients to the CAPTCHA as well. Sign-up is never skipped.
 		 *
 		 * @since 1.8.4
 		 *
 		 * @param bool             $skip    True for an application-password request.
 		 * @param \WP_REST_Request $request The request.
 		 */
-		if ( (bool) apply_filters( 'wcb_captcha_skip', null !== rest_get_authenticated_app_password(), $request ) ) {
+		// Sign-up is never skipped: an account is what a bot needs before it can hold an application password.
+		if ( 'wcb_pre_registration' !== current_filter() && (bool) apply_filters( 'wcb_captcha_skip', null !== rest_get_authenticated_app_password(), $request ) ) {
 			return $result;
 		}
 
