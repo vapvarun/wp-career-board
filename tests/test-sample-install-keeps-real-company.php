@@ -76,6 +76,14 @@ update_post_meta( $j, '_wcb_company_id', $one );
 $result = $wizard->remove_sample_data();
 $ok( ! str_contains( (string) ( $result['notice'] ?? '' ), 'more' ), 'a single detached job has no "and N more"' );
 
+// An ampersand or quote in a title reads as typed, not as &#038; or &#8217;.
+$amp = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'SIK Sample Co 3' ) );
+update_post_meta( $amp, '_wcb_sample', 1 );
+$j = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'Mike & Co "Lead"' ) );
+update_post_meta( $j, '_wcb_company_id', $amp );
+$result = $wizard->remove_sample_data();
+$ok( str_contains( (string) ( $result['notice'] ?? '' ), 'Mike & Co "Lead"' ) && ! str_contains( (string) ( $result['notice'] ?? '' ), '&#' ), 'a job title with & and quotes is not shown entity-encoded' );
+
 $wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 wp_cache_flush();
 

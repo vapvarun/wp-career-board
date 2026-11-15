@@ -171,7 +171,7 @@ final class Locations {
 	 */
 	public static function guard_publish( array $data, array $postarr ): array {
 		$id = (int) ( $postarr['ID'] ?? 0 );
-		if ( 'wcb_job' !== ( $data['post_type'] ?? '' ) || 'publish' !== ( $data['post_status'] ?? '' ) || $id <= 0 || isset( $_POST[ \WCB\Admin\AdminMetaBoxes::NONCE_NAME ] ) || in_array( $id, self::$trusted, true ) || self::is_core_rest_request() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only detects the editor request; the editor verifies its own nonce.
+		if ( 'wcb_job' !== ( $data['post_type'] ?? '' ) || ! in_array( $data['post_status'] ?? '', array( 'publish', 'future' ), true ) || $id <= 0 || isset( $_POST[ \WCB\Admin\AdminMetaBoxes::NONCE_NAME ] ) || in_array( $id, self::$trusted, true ) || self::is_core_rest_request() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only detects the editor request; the editor verifies its own nonce.
 			return $data;
 		}
 		$before = (string) get_post_status( $id );
@@ -185,6 +185,25 @@ final class Locations {
 		}
 		self::$held_ids[] = $id;
 		return $data;
+	}
+
+	/**
+	 * Core turns a publish with a future date into Scheduled before any filter
+	 * runs, so a scheduled job that lost its location (or was scheduled before
+	 * the setting was turned on) would go live with no place. Hold it as it
+	 * goes live; the schedule step itself is held by guard_publish().
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string   $new_status New status.
+	 * @param string   $old_status Old status.
+	 * @param \WP_Post $post       Post.
+	 * @return void
+	 */
+	public static function hold_scheduled( string $new_status, string $old_status, \WP_Post $post ): void {
+		if ( 'publish' === $new_status && 'future' === $old_status && 'wcb_job' === $post->post_type && ! in_array( $post->ID, self::$trusted, true ) ) {
+			self::hold_if_unlocated( $post->ID );
+		}
 	}
 
 	/**

@@ -106,6 +106,44 @@ $ok( ! str_contains( $url, 'updated=' ), 'when every job was kept back there is 
 $ok( isset( apply_filters( 'display_post_states', array(), get_post( $j ) )['wcb_needs_location'] ), 'a job Quick Edit kept as a draft says why in its row' );
 $ok( ! isset( apply_filters( 'display_post_states', array(), get_post( $mk() ) )['wcb_needs_location'] ), 'a job that was not held has no such label' );
 
+// Scheduling is a publish too: core turns it into Scheduled before any filter runs.
+$future = gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) );
+$sc     = $mk();
+wp_update_post( array( 'ID' => $sc, 'post_status' => 'publish', 'edit_date' => true, 'post_date' => $future, 'post_date_gmt' => $future ) );
+$ok( 'draft' === $st( $sc ), 'a no-location draft scheduled for a future date stays a draft' );
+update_post_meta( $sc, '_wcb_remote', '1' );
+wp_update_post( array( 'ID' => $sc, 'post_status' => 'publish', 'edit_date' => true, 'post_date' => $future, 'post_date_gmt' => $future ) );
+$ok( 'future' === $st( $sc ), 'the same job can be scheduled once it is remote' );
+// A scheduled job that has lost its location is held as it goes live.
+$lost = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'future', 'post_title' => 'PNL Job', 'post_author' => 1, 'post_date' => $future, 'post_date_gmt' => $future ) );
+$ok( 'future' === $st( $lost ), 'fixture: a scheduled job exists' );
+wp_publish_post( $lost );
+$ok( 'draft' === $st( $lost ), 'a scheduled job with no location goes back to draft instead of going live' );
+wp_publish_post( $sc );
+$ok( 'publish' === $st( $sc ), 'a scheduled remote job goes live' );
+
+// Bulk Approve on the Jobs page: same call as the single Approve, with a heads-up.
+$ba = $mk( 'pending' );
+$bb = $mk( 'pending' );
+update_post_meta( $bb, '_wcb_remote', '1' );
+$_REQUEST['action'] = 'approve';
+$_GET['_wpnonce']   = wp_create_nonce( 'bulk-jobs' );
+$_GET['job']        = array( $ba, $bb );
+$bulk_url           = '';
+$catch              = static function ( string $u ) {
+	throw new RuntimeException( $u );
+};
+add_filter( 'wp_redirect', $catch );
+try {
+	( new \WCB\Admin\AdminJobs() )->process_bulk_action();
+} catch ( RuntimeException $e ) {
+	$bulk_url = $e->getMessage();
+}
+remove_filter( 'wp_redirect', $catch );
+unset( $_REQUEST['action'], $_GET['_wpnonce'], $_GET['job'] );
+$ok( 'publish' === $st( $ba ) && 'publish' === $st( $bb ), 'bulk Approve publishes a no-location job like the single Approve' );
+$ok( 1 === (int) ( wp_parse_args( (string) wp_parse_url( $bulk_url, PHP_URL_QUERY ) )['wcb_unlocated'] ?? 0 ), 'and the redirect counts only the job that has no location' );
+
 // Setting off: nothing changes.
 update_option( 'wcb_settings', array_merge( (array) $old, array( 'require_job_location' => false ) ) );
 $o = $mk();
@@ -113,7 +151,7 @@ wp_update_post( array( 'ID' => $o, 'post_status' => 'publish' ) );
 $ok( 'publish' === $st( $o ), 'with the setting off a no-location job publishes' );
 
 update_option( 'wcb_settings', $old );
-foreach ( array( $j, $p, $r, $a, $o ) as $id ) {
+foreach ( array( $j, $p, $r, $a, $o, $sc, $lost, $ba, $bb ) as $id ) {
 	wp_delete_post( $id, true );
 }
 

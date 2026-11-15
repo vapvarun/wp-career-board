@@ -773,7 +773,7 @@ class AdminMetaBoxes {
 	 * @return void
 	 */
 	public function hold_job_without_location( int $post_id, \WP_Post $post, bool $update, ?\WP_Post $post_before ): void {
-		if ( 'wcb_job' !== $post->post_type || 'publish' !== $post->post_status || ( $update && $post_before && 'publish' === $post_before->post_status ) ) {
+		if ( 'wcb_job' !== $post->post_type || ! in_array( $post->post_status, array( 'publish', 'future' ), true ) || ( $update && $post_before && 'publish' === $post_before->post_status ) ) {
 			return;
 		}
 		$nonce = isset( $_POST[ self::NONCE_NAME ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ) : '';

@@ -1203,7 +1203,8 @@ class SetupWizard extends \WCB\Api\RestController {
 
 		$kept = array_unique( $kept );
 		if ( $kept ) {
-			$titles = array_map( 'get_the_title', array_slice( $kept, 0, 3 ) );
+			// The notice is plain text: the stored title, not get_the_title(), which encodes & and curls quotes.
+			$titles = array_map( static fn( $id ) => wp_specialchars_decode( (string) get_post_field( 'post_title', $id ), ENT_QUOTES ), array_slice( $kept, 0, 3 ) );
 			if ( count( $kept ) > 3 ) {
 				/* translators: %d: number of jobs not named in the list */
 				$titles[] = sprintf( __( 'and %d more', 'wp-career-board' ), count( $kept ) - 3 );
