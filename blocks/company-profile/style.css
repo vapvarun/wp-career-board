@@ -562,7 +562,7 @@
  * against the four target themes.
  */
 .wcb-company-page #secondary,
-.wcb-company-page .widget-area,
+.wcb-company-page .widget-area:not(.footer-widget-area),
 .wcb-company-page aside.sidebar,
 .wcb-company-page .sidebar-area,
 .wcb-company-page .site-sidebar,

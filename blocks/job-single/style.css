@@ -918,7 +918,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
  * cannot beat a theme's `!important` - we mirror the keyword. Same
  * pattern as company-profile/style.css and resume-single/style.css. */
 .wcb-job-page #secondary,
-.wcb-job-page .widget-area,
+.wcb-job-page .widget-area:not(.footer-widget-area),
 .wcb-job-page aside.sidebar,
 .wcb-job-page .sidebar-area,
 .wcb-job-page .site-sidebar,

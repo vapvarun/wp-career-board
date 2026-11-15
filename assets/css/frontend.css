@@ -246,9 +246,10 @@ body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-grou
 	margin-block-start: 0;
 }
 
-/* Suppress the theme sidebar on WCB app / archive pages. */
+/* Suppress the theme sidebar on WCB app / archive pages. The footer widget
+   area also carries .widget-area on Reign, Astra and Kadence, so it is excluded. */
 .wcb-page #secondary,
-.wcb-page .widget-area,
+.wcb-page .widget-area:not(.footer-widget-area),
 .wcb-page aside.sidebar,
 .wcb-page .sidebar-area,
 .wcb-page .site-sidebar,
