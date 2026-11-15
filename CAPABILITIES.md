@@ -63,7 +63,7 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 | Let members switch off optional emails? | YES | dashboard Email Notifications preferences |
 | Link to documentation from Settings? | YES | `Help` group with a `Documentation` link; `wcb_docs_url` filter in `admin/class-admin-settings.php` |
 | In-app notifications panel (read/unread, mark-all, delete)? | YES | dashboard panel; `wcb_notification_created`; `wcb_notifications_log` |
-| Spam-protect submission + application forms? | YES | reCAPTCHA v3 / Turnstile drivers; `wcb_pre_*_submit` gates |
+| Spam-protect submission + application forms? | YES | honeypot; `wcb_pre_*_submit` gates for a third-party CAPTCHA |
 | Send Zapier/webhook triggers on job/application events? | NO | no webhook layer — hooks fire in-PHP only |
 | Track listing view stats? | YES | `wcb_job_views` table |
 

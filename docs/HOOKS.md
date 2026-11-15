@@ -346,8 +346,7 @@ three.
 ## Sign-up and accounts (1.8.0)
 
 Both sign-up routes (`/candidates/register`, `/employers/register`) run one
-gate before an account is created: the plugin's anti-spam check (honeypot +
-CAPTCHA), a per-IP limit, then core's `registration_errors` filter so
+gate before an account is created: the plugin's honeypot check, a per-IP limit, then core's `registration_errors` filter so
 third-party anti-spam plugins see these sign-ups too. When the
 **Email Verification** setting is on (default for new installs), the new
 account stays signed out until the link in the "Confirm your email address"
@@ -442,16 +441,7 @@ Read it with `WCB\Core\Brand::color()` and `WCB\Core\Brand::logo_url( $size )`
 rather than the raw keys. The 1.3.4 upgrade moves an existing site's email
 header colour and logo into the Brand.
 
-**CAPTCHA.** `WCB\Modules\AntiSpam\AntiSpamModule::active()` answers which
-provider is in force (chosen AND both keys set): Turnstile, reCAPTCHA v3 or
-reCAPTCHA v2 (invisible badge). The web forms and app-config
-(`captcha_required`, `captcha.provider`, `captcha.site_key`) both read it.
-
-A request signed in with an application password skips the CAPTCHA check (the
-app and scripts have no widget to solve) on job and application submits, never on sign-up; the honeypot still applies. The
-`wcb_captcha_skip` filter (`$skip`, `$request`) changes that: return false to
-hold API clients to the CAPTCHA too. `captcha_required` in app-config describes
-the web forms and sign-up, where a visitor is not yet authenticated.
+**Spam protection.** The plugin ships a honeypot only (`AntiSpamModule`). A CAPTCHA or spam service belongs in its own plugin: hook `wcb_pre_job_submit`, `wcb_pre_application_submit` and `wcb_pre_registration` and return a `WP_Error` to refuse. The built-in CAPTCHA (Turnstile, reCAPTCHA) and `wcb_captcha_skip` were removed in 1.8.4, and app-config no longer has `captcha_required` or `captcha`.
 
 ## Active-job quota (free tier)
 

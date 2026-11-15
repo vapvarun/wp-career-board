@@ -169,13 +169,6 @@ const { state } = store( 'wcb-employer-registration', {
 					password:   state.password,
 				};
 
-			// Registration now runs the same anti-spam gate as job and
-			// application submits, so it needs the CAPTCHA token too.
-			// Empty when no provider is configured.
-			body.wcb_captcha_token = window.wcbCaptchaGetToken
-				? yield window.wcbCaptchaGetToken()
-				: '';
-
 			if ( state.role === 'employer' ) {
 				body.company_name = state.companyName;
 				if ( state.companyWebsite ) body.website = state.companyWebsite;

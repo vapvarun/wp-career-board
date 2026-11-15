@@ -232,11 +232,6 @@ class SetupWizard extends \WCB\Api\RestController {
 					'template'    => WCB_DIR . 'admin/views/wizard-steps/emails.php',
 					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
 				),
-				'anti-spam'    => array(
-					'title'       => __( 'Spam Protection', 'wp-career-board' ),
-					'template'    => WCB_DIR . 'admin/views/wizard-steps/anti-spam.php',
-					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
-				),
 				'sample-data'  => array(
 					'title'       => __( 'Sample data', 'wp-career-board' ),
 					'template'    => WCB_DIR . 'admin/views/wizard-steps/sample-data.php',

@@ -212,17 +212,6 @@ function wcb_get_email_settings(): array {
 	return (array) get_option( 'wcb_email_settings', array() );
 }
 
-/**
- * The CAPTCHA provider in force, or '' when only the honeypot runs (no
- * provider chosen, or its keys are missing).
- *
- * @since  1.2.0
- * @return string
- */
-function wcb_get_captcha_driver(): string {
-	return \WCB\Modules\AntiSpam\AntiSpamModule::active()['provider'] ?? '';
-}
-
 register_activation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'activate' ) );
 register_deactivation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'deactivate' ) );
 

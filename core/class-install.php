@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.6';
+	const DB_VERSION = '1.4.7';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -605,6 +605,12 @@ final class Install {
 				self::migrate_plain_ampersand_titles();
 			}
 
+			// 1.4.7 - the built-in CAPTCHA is gone: drop its provider choice and keys
+			// (the secrets must not stay in the options table).
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.7', '<' ) ) {
+				self::remove_captcha_settings();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -616,6 +622,24 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Remove the CAPTCHA provider choice and keys the plugin used to store.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function remove_captcha_settings(): void {
+		$settings = get_option( 'wcb_settings', array() );
+		if ( ! is_array( $settings ) ) {
+			return;
+		}
+		$gone = array( 'captcha', 'captcha_provider', 'turnstile_site_key', 'turnstile_secret_key', 'recaptcha_site_key', 'recaptcha_secret_key', 'recaptcha_threshold', 'recaptcha_v2_site_key', 'recaptcha_v2_secret_key' );
+		if ( array_intersect_key( $settings, array_flip( $gone ) ) ) {
+			update_option( 'wcb_settings', array_diff_key( $settings, array_flip( $gone ) ) );
+		}
+		delete_option( 'wcb_captcha_driver' );
 	}
 
 	/**

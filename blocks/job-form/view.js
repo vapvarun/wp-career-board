@@ -753,11 +753,6 @@ const { state } = store(
 					return;
 				}
 
-				// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
-				const captchaToken = window.wcbCaptchaGetToken
-					? yield window.wcbCaptchaGetToken()
-					: '';
-
 				state.error = '';
 
 				try {
@@ -787,7 +782,6 @@ const { state } = store(
 						company_id:        Number( state.companyId ) || 0,
 						custom_fields:     state.customFields || {},
 						hp:                hpEl ? hpEl.value : '',
-						wcb_captcha_token: captchaToken,
 					};
 
 					const isEdit   = state.editJobId > 0;

@@ -29,7 +29,12 @@ $old = get_option( 'wcb_settings' );
 update_option( 'wcb_settings', array_merge( (array) $old, array( 'require_job_location' => true ) ) );
 wp_set_current_user( 1 );
 
-$mk = static fn( string $status = 'draft' ) => (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => $status, 'post_title' => 'PNL Job', 'post_author' => 1 ) );
+$made = array();
+$mk   = static function ( string $status = 'draft' ) use ( &$made ): int {
+	$id     = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => $status, 'post_title' => 'PNL Job', 'post_author' => 1 ) );
+	$made[] = $id;
+	return $id;
+};
 $st = static fn( int $id ) => get_post_status( $id );
 
 // Quick Edit / Bulk Edit / any wp_update_post flip.
@@ -151,7 +156,7 @@ wp_update_post( array( 'ID' => $o, 'post_status' => 'publish' ) );
 $ok( 'publish' === $st( $o ), 'with the setting off a no-location job publishes' );
 
 update_option( 'wcb_settings', $old );
-foreach ( array( $j, $p, $r, $a, $o, $sc, $lost, $ba, $bb ) as $id ) {
+foreach ( array_merge( $made, array( $lost ) ) as $id ) {
 	wp_delete_post( $id, true );
 }
 

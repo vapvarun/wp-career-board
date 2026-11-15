@@ -347,7 +347,6 @@ class AdminSettings {
 			'import'        => 'upload',
 			'mobile-app'    => 'smartphone',
 			'privacy'       => 'shield-check',
-			'antispam'      => 'shield',
 			'notifications' => 'bell',
 			'emails'        => 'mail',
 			'boards'        => 'layout-grid',
@@ -392,7 +391,7 @@ class AdminSettings {
 				),
 				'site'   => array(
 					'label' => __( 'Site', 'wp-career-board' ),
-					'tabs'  => array( 'pages', 'antispam', 'ai-settings', 'analytics', 'integrations', 'advanced', 'license' ),
+					'tabs'  => array( 'pages', 'ai-settings', 'analytics', 'integrations', 'advanced', 'license' ),
 				),
 			)
 		);
@@ -405,7 +404,7 @@ class AdminSettings {
 	 * @return string[]
 	 */
 	private function get_free_tab_slugs(): array {
-		return array( 'listings', 'applications', 'signups', 'advanced', 'pages', 'brand', 'emails', 'industries', 'import', 'mobile-app', 'privacy', 'antispam', 'integrations' );
+		return array( 'listings', 'applications', 'signups', 'advanced', 'pages', 'brand', 'emails', 'industries', 'import', 'mobile-app', 'privacy', 'integrations' );
 	}
 
 	/**

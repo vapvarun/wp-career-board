@@ -222,18 +222,6 @@
 		} );
 	} );
 
-	// CAPTCHA step: show only the chosen provider's key fields.
-	container.addEventListener( 'change', function ( e ) {
-		if ( ! e.target.matches( '[data-wcb-captcha-provider]' ) ) {
-			return;
-		}
-		var groups = container.querySelectorAll( '[data-wcb-provider-fields]' );
-		var i;
-		for ( i = 0; i < groups.length; i++ ) {
-			groups[ i ].hidden = groups[ i ].getAttribute( 'data-wcb-provider-fields' ) !== e.target.value;
-		}
-	} );
-
 	// Step: Sample Data.
 	if ( finishBtn ) {
 		finishBtn.addEventListener( 'click', function () {

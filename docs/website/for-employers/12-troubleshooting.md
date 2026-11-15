@@ -47,7 +47,6 @@ The site charges credits per posting. Your balance shows in the **Credits** item
 
 - **They may need to log in.** If the site has **Require login to apply** on, the job page shows **Sign in to apply** in place of the form.
 - **They may be an employer.** Employers do not see an Apply button, and nobody can apply to their own job.
-- **The site may use anti-spam.** Ad blockers or strict browser settings can block a captcha script (Turnstile or reCAPTCHA). Ask the candidate to try another browser.
 - **The resume may be too large.** The site sets a maximum resume size, 5 MB by default. Ask the candidate to shrink or re-export the file.
 
 ## "I cannot see the Pro features"

@@ -2,7 +2,7 @@
  * Job Form Simple block — Interactivity API store.
  *
  * Single-page sibling of blocks/job-form. Same /wcb/v1/jobs endpoint,
- * same body shape, same honeypot + captcha hooks. Drops step navigation,
+ * same body shape, same honeypot hook. Drops step navigation,
  * preview, and edit mode by design — keep this store small and focused.
  *
  * @package WP_Career_Board
@@ -296,9 +296,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		},
 
 		* submitJob() {
-			// Set before the first yield (the CAPTCHA wait below): a second
-			// click during that wait used to pass this check because the flag
-			// wasn't set until after it resolved (Basecamp 10350213909).
+			// Set before the first yield: a second click during a wait must not
+			// pass this check (Basecamp 10350213909).
 			if ( state.submitting ) {
 				return;
 			}
@@ -348,11 +347,6 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					return;
 				}
 
-				// Optional CAPTCHA token (Turnstile / reCAPTCHA via Free antispam module).
-				const captchaToken = window.wcbCaptchaGetToken
-					? yield window.wcbCaptchaGetToken()
-					: '';
-
 				state.error = '';
 				const tagSlugs = state.tags
 					? state.tags.split( ',' ).map( ( t ) => t.trim() ).filter( Boolean )
@@ -379,7 +373,6 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					company_id:        Number( state.companyId ) || 0,
 					custom_fields:     state.customFields,
 					hp:                hpEl ? hpEl.value : '',
-					wcb_captcha_token: captchaToken,
 				};
 
 				const response = yield wcbFetch( state.apiBase + '/jobs', {
@@ -421,9 +414,6 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				state.draftRestored = false;
 				draft().clear();
 
-				if ( window.wcbCaptchaReset ) {
-					window.wcbCaptchaReset();
-				}
 
 				// Auto-dismiss the success state after 8 seconds and clear
 				// volatile fields so the user gets a fresh form instead of a

@@ -25,7 +25,7 @@ Version 1.8.2 | Requires WordPress 6.9, PHP 8.1 | GPL-2.0-or-later
 - 18 transactional emails: job approved, rejected, pending, expiring and expired; application received, status change, withdrawn and guest; account verification, welcome, report received and the account deletion flow.
 
 **Trust and privacy**
-- Spam protection with reCAPTCHA v3, reCAPTCHA v2 or Cloudflare Turnstile.
+- Honeypot spam protection on every form, with hooks for your own CAPTCHA or spam plugin.
 - Report and block users.
 - WordPress Privacy API export and erasure for candidate data.
 

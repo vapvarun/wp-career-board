@@ -26,7 +26,6 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | `wcb_account_pending_deletion` | 403 | The account is waiting for deletion; cancel it on the website first |
 | `wcb_email_unverified` | none | Returned to the WordPress login when **Email Verification** is on and the member has not confirmed their address. It is a login error, not a REST status |
 | `wcb_rate_limited` | 429 | The hourly per-address limit for sign-ups, guest applications or confirmation re-sends. See [Abuse prevention](03-rest-api.md#abuse-prevention) |
-| `wcb_captcha_failed` | 400 | The CAPTCHA check failed |
 | `wcb_spam` | 400 | The honeypot caught the request |
 | `wcb_registration_rejected` | 400 | A `wcb_pre_registration` or `registration_errors` listener refused the sign-up; the message is theirs |
 

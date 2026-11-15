@@ -117,18 +117,6 @@ final class SettingsSchema {
 			'eula_url'                   => array( '', $url ),
 			'guidelines_url'             => array( '', $url ),
 			'abuse_contact_email'        => array( '', $email ),
-			// Anti-spam.
-			'captcha_provider'           => array(
-				'none',
-				static fn ( $v ): string => in_array( (string) $v, array( 'none', 'turnstile', 'recaptcha', 'recaptcha_v2' ), true ) ? (string) $v : 'none',
-			),
-			'turnstile_site_key'         => array( '', $text ),
-			'turnstile_secret_key'       => array( '', $text ),
-			'recaptcha_site_key'         => array( '', $text ),
-			'recaptcha_secret_key'       => array( '', $text ),
-			'recaptcha_threshold'        => array( 0.5, static fn ( $v ): float => max( 0.0, min( 1.0, (float) $v ) ) ),
-			'recaptcha_v2_site_key'      => array( '', $text ),
-			'recaptcha_v2_secret_key'    => array( '', $text ),
 			// Which request header carries the visitor's IP (behind a proxy/CDN).
 			'client_ip_header'           => array(
 				'',
