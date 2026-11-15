@@ -201,7 +201,9 @@ final class Locations {
 	 * @return void
 	 */
 	public static function hold_scheduled( string $new_status, string $old_status, \WP_Post $post ): void {
-		if ( 'publish' === $new_status && 'future' === $old_status && 'wcb_job' === $post->post_type && ! in_array( $post->ID, self::$trusted, true ) ) {
+		// Any move into Published from a stored status: wp_publish_post() and scheduling go live by a direct DB write that guard_publish() never sees.
+		// New and auto-draft inserts are left to their entry point (importers and the editor judge the location once the terms exist).
+		if ( 'publish' === $new_status && ! in_array( $old_status, array( 'publish', 'new', 'auto-draft' ), true ) && 'wcb_job' === $post->post_type && ! in_array( $post->ID, self::$trusted, true ) && ! isset( $_POST[ \WCB\Admin\AdminMetaBoxes::NONCE_NAME ] ) && ! self::is_core_rest_request() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only detects the editor request; the editor verifies its own nonce.
 			self::hold_if_unlocated( $post->ID );
 		}
 	}
