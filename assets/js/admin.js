@@ -465,6 +465,12 @@
 						} );
 					}
 
+					if ( res.warnings && res.warnings.length ) {
+						res.warnings.forEach( function ( warning ) {
+							appendLog( warning );
+						} );
+					}
+
 					offset = res.next || ( offset + limit );
 
 					var processed = imported + skipped + errors;

@@ -28,6 +28,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WpjmImporter {
 
 	/**
+	 * Values the current batch could not carry over, reported to the admin.
+	 *
+	 * @var string[]
+	 */
+	private array $warnings = array();
+
+	/**
 	 * WPJM pay unit => WP Career Board salary type.
 	 *
 	 * @var array<string, string>
@@ -117,7 +124,7 @@ class WpjmImporter {
 		if ( '' === $name ) {
 			return 0;
 		}
-		$website  = \WCB\Core\Text::web_url( (string) get_post_meta( $source->ID, '_company_website', true ) );
+		$website  = $this->link_or_warn( (string) get_post_meta( $source->ID, '_company_website', true ), $source->ID, __( 'company website', 'wp-career-board' ) );
 		$existing = '' !== $website ? get_posts(
 			array(
 				'post_type'      => 'wcb_company',
@@ -274,11 +281,12 @@ class WpjmImporter {
 			)
 		);
 
-		$result = array(
+		$result         = array(
 			'imported' => 0,
 			'skipped'  => 0,
 			'errors'   => array(),
 		);
+		$this->warnings = array();
 
 		foreach ( $ids as $source_id ) {
 			$r = $this->migrate_single_job( (int) $source_id );
@@ -291,7 +299,31 @@ class WpjmImporter {
 			}
 		}
 
+		$result['warnings'] = $this->warnings;
+
 		return $result;
+	}
+
+	/**
+	 * A web address from WPJM, or '' with a warning when it is not one (the job still imports).
+	 *
+	 * @param string $raw       Value WPJM stored.
+	 * @param int    $source_id WPJM post it came from.
+	 * @param string $what      Short name of the field, for the warning.
+	 * @return string
+	 */
+	private function link_or_warn( string $raw, int $source_id, string $what ): string {
+		if ( \WCB\Core\Text::is_refused_url( $raw ) ) {
+			$this->warnings[] = sprintf(
+				/* translators: 1: source post ID, 2: field name, 3: the value that was refused. */
+				__( 'ID %1$d: the %2$s "%3$s" is not a web address, so it was left empty.', 'wp-career-board' ),
+				$source_id,
+				$what,
+				$raw
+			);
+			return '';
+		}
+		return \WCB\Core\Text::web_url( $raw );
 	}
 
 	/**
@@ -395,7 +427,7 @@ class WpjmImporter {
 			if ( is_email( $application ) ) {
 				update_post_meta( $new_id, '_wcb_apply_email', $application );
 			} else {
-				update_post_meta( $new_id, '_wcb_apply_url', \WCB\Core\Text::web_url( (string) $application ) );
+				update_post_meta( $new_id, '_wcb_apply_url', $this->link_or_warn( (string) $application, $source_id, __( 'application link', 'wp-career-board' ) ) );
 			}
 		}
 

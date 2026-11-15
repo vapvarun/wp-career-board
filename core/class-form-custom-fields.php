@@ -229,6 +229,10 @@ final class FormCustomFields {
 	 * @return \WP_Error|null
 	 */
 	public static function required_error( array $groups, array $submitted, int $owner_id = 0, string $reader = 'post_meta', string $key_prefix = '' ): ?\WP_Error {
+		$bad_link = self::refused_link( $groups, $submitted );
+		if ( $bad_link ) {
+			return $bad_link;
+		}
 		$missing = self::missing_required( $groups, array_merge( self::load_values( $groups, $owner_id, $reader, $key_prefix ), $submitted ) );
 		if ( ! $missing ) {
 			return null;
@@ -242,6 +246,39 @@ final class FormCustomFields {
 				'fields' => array_keys( $missing ),
 			)
 		);
+	}
+
+	/**
+	 * Refuse a link answer that is not a web address, instead of saving it empty.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<int, array<string, mixed>> $groups    Field groups the form shows.
+	 * @param array<string, mixed>             $submitted Submitted values.
+	 * @return \WP_Error|null
+	 */
+	private static function refused_link( array $groups, array $submitted ): ?\WP_Error {
+		foreach ( $groups as $group ) {
+			foreach ( (array) ( is_array( $group ) ? ( $group['fields'] ?? array() ) : array() ) as $raw_field ) {
+				if ( ! is_array( $raw_field ) ) {
+					continue;
+				}
+				$field = self::normalise_field( $raw_field );
+				$value = $submitted[ $field['key'] ] ?? null;
+				if ( in_array( $field['type'], array( 'url', 'video_url' ), true ) && is_string( $value ) && Text::is_refused_url( $value ) ) {
+					return new \WP_Error(
+						'rest_invalid_param',
+						/* translators: 1: field label, 2: the sentence explaining what a web address looks like. */
+						sprintf( __( '%1$s: %2$s', 'wp-career-board' ), $field['label'], Text::web_url_error() ),
+						array(
+							'status' => 400,
+							'fields' => array( $field['key'] ),
+						)
+					);
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

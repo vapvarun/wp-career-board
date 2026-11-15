@@ -90,6 +90,13 @@ final class Locations {
 	private static int $held = 0;
 
 	/**
+	 * IDs of the jobs kept back in this request, so Quick Edit's refreshed row can say why.
+	 *
+	 * @var int[]
+	 */
+	private static array $held_ids = array();
+
+	/**
 	 * Whether "Require a location" is on and the job has none stored.
 	 *
 	 * @since 1.8.4
@@ -174,12 +181,15 @@ final class Locations {
 		$data['post_status'] = in_array( $before, array( 'pending', 'draft' ), true ) ? $before : 'draft';
 		if ( 0 === self::$held++ ) {
 			add_filter( 'wp_redirect', array( self::class, 'flag_held_redirect' ) );
+			add_filter( 'display_post_states', array( self::class, 'flag_held_row' ), 10, 2 );
 		}
+		self::$held_ids[] = $id;
 		return $data;
 	}
 
 	/**
-	 * Tell the Jobs list how many jobs a Bulk Edit kept back, so the admin sees why.
+	 * Tell the Jobs list how many jobs a Bulk Edit kept back, so the admin sees why,
+	 * and take them out of core's "N posts updated" count so the two notices agree.
 	 *
 	 * @since 1.8.4
 	 *
@@ -187,7 +197,31 @@ final class Locations {
 	 * @return string
 	 */
 	public static function flag_held_redirect( string $url ): string {
-		return str_contains( $url, 'edit.php' ) ? add_query_arg( 'wcb_held', self::$held, $url ) : $url;
+		if ( ! str_contains( $url, 'edit.php' ) ) {
+			return $url;
+		}
+		$updated = (int) ( wp_parse_args( (string) wp_parse_url( $url, PHP_URL_QUERY ) )['updated'] ?? 0 );
+		if ( $updated > 0 ) {
+			$url = $updated > self::$held ? add_query_arg( 'updated', $updated - self::$held, $url ) : remove_query_arg( 'updated', $url );
+		}
+		return add_query_arg( 'wcb_held', self::$held, $url );
+	}
+
+	/**
+	 * Quick Edit answers through admin-ajax with the refreshed row and no notice, so
+	 * a job it kept as a draft says why in its own row.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, string> $states Post states shown after the title.
+	 * @param \WP_Post              $post   Row's post.
+	 * @return array<string, string>
+	 */
+	public static function flag_held_row( array $states, \WP_Post $post ): array {
+		if ( in_array( (int) $post->ID, self::$held_ids, true ) ) {
+			$states['wcb_needs_location'] = __( 'Needs a location to publish', 'wp-career-board' );
+		}
+		return $states;
 	}
 
 	/**

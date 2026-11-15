@@ -96,6 +96,15 @@ $ok( 200 === $res->get_status() && 'publish' === $st( $c2 ), 'a cookie session (
 
 // Bulk Edit tells the list why: the redirect carries how many were kept back.
 $ok( str_contains( \WCB\Core\Locations::flag_held_redirect( admin_url( 'edit.php?post_type=wcb_job' ) ), 'wcb_held=' ), 'the Jobs list redirect carries the held count' );
+$held_n = (int) ( wp_parse_args( (string) wp_parse_url( \WCB\Core\Locations::flag_held_redirect( admin_url( 'edit.php?post_type=wcb_job' ) ), PHP_URL_QUERY ) )['wcb_held'] ?? 0 );
+$url    = \WCB\Core\Locations::flag_held_redirect( admin_url( 'edit.php?post_type=wcb_job&updated=' . ( $held_n + 3 ) ) );
+$ok( 3 === (int) ( wp_parse_args( (string) wp_parse_url( $url, PHP_URL_QUERY ) )['updated'] ?? -1 ), 'core\'s "posts updated" count drops by the jobs kept back' );
+$url = \WCB\Core\Locations::flag_held_redirect( admin_url( 'edit.php?post_type=wcb_job&updated=' . $held_n ) );
+$ok( ! str_contains( $url, 'updated=' ), 'when every job was kept back there is no "posts updated" notice' );
+
+// Quick Edit answers with the refreshed row only, so the row itself says why.
+$ok( isset( apply_filters( 'display_post_states', array(), get_post( $j ) )['wcb_needs_location'] ), 'a job Quick Edit kept as a draft says why in its row' );
+$ok( ! isset( apply_filters( 'display_post_states', array(), get_post( $mk() ) )['wcb_needs_location'] ), 'a job that was not held has no such label' );
 
 // Setting off: nothing changes.
 update_option( 'wcb_settings', array_merge( (array) $old, array( 'require_job_location' => false ) ) );
