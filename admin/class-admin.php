@@ -48,6 +48,8 @@ class Admin {
 		add_action( 'admin_notices', array( $this, 'notice_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'enable_job_expiry' ) );
+		add_filter( 'manage_wcb_job_posts_columns', array( AdminJobs::class, 'core_list_columns' ) );
+		add_action( 'manage_wcb_job_posts_custom_column', array( AdminJobs::class, 'core_list_column' ), 10, 2 );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.

@@ -261,7 +261,8 @@ class AdminJobs extends \WP_List_Table {
 
 		$query       = new \WP_Query( $query_args );
 		$this->items = $query->posts;
-		$this->load_application_counts( wp_list_pluck( $this->items, 'ID' ) );
+
+		$this->application_counts = self::application_counts( wp_list_pluck( $this->items, 'ID' ) );
 
 		$this->set_pagination_args(
 			array(
@@ -715,32 +716,33 @@ class AdminJobs extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_company( $item ): string {
-		$name = (string) get_post_meta( $item->ID, '_wcb_company_name', true );
-		return $name ? esc_html( $name ) : '—';
+		return self::company_cell( (int) $item->ID );
 	}
 
 	/**
-	 * Count the applications for this page of jobs in one grouped query.
+	 * Count the applications for a page of jobs in one grouped query.
 	 *
 	 * Counts published applications, the set the Applications screen lists as All.
 	 *
 	 * @since 1.8.4
 	 * @param int[] $job_ids Job IDs on the page.
-	 * @return void
+	 * @return array<int,int> Count keyed by job ID; jobs with none are absent.
 	 */
-	private function load_application_counts( array $job_ids ): void {
+	private static function application_counts( array $job_ids ): array {
 		$job_ids = array_map( 'intval', $job_ids );
 		if ( ! $job_ids ) {
-			return;
+			return array();
 		}
 		global $wpdb;
 		$in = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one grouped read for the page; placeholders are generated.
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT pm.meta_value AS job_id, COUNT(*) AS n FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE pm.meta_key = '_wcb_job_id' AND pm.meta_value IN ( {$in} ) AND p.post_type = 'wcb_application' AND p.post_status = 'publish' GROUP BY pm.meta_value", $job_ids ) );
 		// phpcs:enable
+		$counts = array();
 		foreach ( (array) $rows as $row ) {
-			$this->application_counts[ (int) $row->job_id ] = (int) $row->n;
+			$counts[ (int) $row->job_id ] = (int) $row->n;
 		}
+		return $counts;
 	}
 
 	/**
@@ -751,15 +753,77 @@ class AdminJobs extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_applications( $item ): string {
-		$count = $this->application_counts[ (int) $item->ID ] ?? 0;
+		return self::applications_cell( (int) $item->ID, $this->application_counts[ (int) $item->ID ] ?? 0 );
+	}
+
+	/**
+	 * A job's company name for a list cell.
+	 *
+	 * @since 1.8.4
+	 * @param int $job_id Job ID.
+	 * @return string Escaped HTML.
+	 */
+	private static function company_cell( int $job_id ): string {
+		$name = (string) get_post_meta( $job_id, '_wcb_company_name', true );
+		return $name ? esc_html( $name ) : '—';
+	}
+
+	/**
+	 * A job's application count for a list cell, linking to its applications.
+	 *
+	 * @since 1.8.4
+	 * @param int $job_id Job ID.
+	 * @param int $count  Application count.
+	 * @return string Escaped HTML.
+	 */
+	private static function applications_cell( int $job_id, int $count ): string {
 		if ( 0 === $count ) {
 			return '0';
 		}
 		return sprintf(
 			'<a href="%s">%s</a>',
-			esc_url( admin_url( 'admin.php?page=wcb-applications&job_id=' . (int) $item->ID ) ),
+			esc_url( admin_url( 'admin.php?page=wcb-applications&job_id=' . $job_id ) ),
 			esc_html( number_format_i18n( $count ) )
 		);
+	}
+
+	/**
+	 * Company and Applications on the WordPress Jobs list (edit.php?post_type=wcb_job),
+	 * after the title, so both job lists show them.
+	 *
+	 * @since 1.8.4
+	 * @param array<string,string> $columns Columns.
+	 * @return array<string,string>
+	 */
+	public static function core_list_columns( array $columns ): array {
+		$out = array();
+		foreach ( $columns as $key => $label ) {
+			$out[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$out['wcb_company']      = __( 'Company', 'wp-career-board' );
+				$out['wcb_applications'] = __( 'Applications', 'wp-career-board' );
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Print a Company or Applications cell on the WordPress Jobs list. The
+	 * counts for the whole page come from one grouped query on the first cell.
+	 *
+	 * @since 1.8.4
+	 * @param string $column  Column key.
+	 * @param int    $post_id Job ID.
+	 * @return void
+	 */
+	public static function core_list_column( string $column, int $post_id ): void {
+		static $counts = null;
+		if ( 'wcb_company' === $column ) {
+			echo self::company_cell( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in company_cell().
+		} elseif ( 'wcb_applications' === $column ) {
+			$counts ??= self::application_counts( wp_list_pluck( (array) ( $GLOBALS['wp_query']->posts ?? array() ), 'ID' ) );
+			echo self::applications_cell( $post_id, $counts[ $post_id ] ?? 0 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in applications_cell().
+		}
 	}
 
 	/**

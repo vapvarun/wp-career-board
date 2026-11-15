@@ -168,7 +168,16 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_jobs' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
-				'args'                => self::pagination_args() + self::company_filter_args(),
+				'args'                => self::pagination_args() + self::company_filter_args() + array(
+					'orderby' => array(
+						'description'       => __( 'Sort order: newest first, most applicants first, or soonest closing date first.', 'wp-career-board' ),
+						'type'              => 'string',
+						'enum'              => array( 'date', 'applicants', 'deadline' ),
+						'default'           => 'date',
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
 			)
 		);
 
@@ -789,9 +798,23 @@ final class EmployersEndpoint extends RestController {
 		) . ' AND ' . \WCB\Modules\Employers\EmployersModule::job_scope_sql( get_current_user_id(), 'job', $company_id );
 
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} job WHERE {$where}" );
-		$ids   = $wpdb->get_col(
+		// Sorts join by indexed keys only (meta_key, post_id); applicants is one grouped
+		// count, the same "any _wcb_job_id row" rule as each row's appCount.
+		list( $join, $order ) = match ( (string) $request->get_param( 'orderby' ) ) {
+			'applicants' => array(
+				"LEFT JOIN ( SELECT meta_value AS job_id, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_job_id' GROUP BY meta_value ) ac ON ac.job_id = CAST( job.ID AS CHAR )",
+				'COALESCE( ac.cnt, 0 ) DESC, ',
+			),
+			// Open deadlines soonest first; none or already passed go last.
+			'deadline'   => array(
+				"LEFT JOIN {$wpdb->postmeta} dl ON dl.post_id = job.ID AND dl.meta_key = '_wcb_deadline'",
+				$wpdb->prepare( "( dl.meta_value IS NULL OR dl.meta_value = '' OR dl.meta_value < %s ) ASC, dl.meta_value ASC, ", gmdate( 'Y-m-d H:i:s' ) ),
+			),
+			default      => array( '', '' ),
+		};
+		$ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT job.ID FROM {$wpdb->posts} job WHERE {$where} ORDER BY job.post_date DESC, job.ID DESC LIMIT %d OFFSET %d",
+				"SELECT job.ID FROM {$wpdb->posts} job {$join} WHERE {$where} ORDER BY {$order}job.post_date DESC, job.ID DESC LIMIT %d OFFSET %d",
 				$per_page,
 				( $paged - 1 ) * $per_page
 			)
@@ -877,6 +900,17 @@ final class EmployersEndpoint extends RestController {
 							_n( '%s view in 30 days', '%s views in 30 days', $wcb_view_counts[ $p->ID ] ?? 0, 'wp-career-board' ),
 							number_format_i18n( $wcb_view_counts[ $p->ID ] ?? 0 )
 						),
+						// A job nobody can see yet says why, instead of "0 views".
+						'statusNote'       => match ( true ) {
+							$rejected                       => '',
+							'draft' === $p->post_status     => __( 'Not submitted yet', 'wp-career-board' ),
+							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
+								/* translators: %s: the date the job was submitted, already formatted for the site. */
+								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
+								\WCB\Core\Time::date_label( '0000-00-00 00:00:00' !== $p->post_date_gmt ? $p->post_date_gmt : get_gmt_from_date( $p->post_date ) ) // A pending post has no GMT date until it is published.
+							),
+							default                         => '',
+						},
 						'location'         => implode( ', ', $location_terms ),
 						'type'             => implode( ', ', $type_terms ),
 						'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,

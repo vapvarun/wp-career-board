@@ -708,6 +708,7 @@ final class ApplicationsEndpoint extends RestController {
 					'updated_at'   => $app->post_modified_gmt,
 					// Legacy `date` key, still rendered by the candidate dashboard.
 					'date'         => \WCB\Core\Time::date_label( $app->post_date_gmt ),
+					'timeline'     => self::candidate_timeline( $app ),
 				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE )
 			);
 
@@ -1352,6 +1353,40 @@ final class ApplicationsEndpoint extends RestController {
 				'reviewer_user_id' => $entry['by'],
 			),
 			$log
+		);
+	}
+
+	/**
+	 * Where an application stands, for its candidate: submitted, then each
+	 * status change, in the candidate's wording. No reviewer and no note,
+	 * which stay part of the employer's audit trail.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param  \WP_Post $post Application post object (meta cache primed by the caller).
+	 * @return array<int, array{status:string, label:string, date:string}>
+	 */
+	private static function candidate_timeline( \WP_Post $post ): array {
+		$audience = \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE;
+		$steps    = array(
+			array(
+				'status' => \WCB\Modules\Applications\ApplicationStatus::SUBMITTED,
+				'at'     => $post->post_date_gmt,
+			),
+		);
+		foreach ( \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID ) as $entry ) {
+			$steps[] = array(
+				'status' => $entry['to'],
+				'at'     => $entry['at'],
+			);
+		}
+		return array_map(
+			static fn( array $step ): array => array(
+				'status' => $step['status'],
+				'label'  => \WCB\Modules\Applications\ApplicationStatus::label( $step['status'], $audience ),
+				'date'   => \WCB\Core\Time::date_label( $step['at'] ),
+			),
+			$steps
 		);
 	}
 }

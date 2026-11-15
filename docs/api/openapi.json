@@ -2217,6 +2217,21 @@
                             "default": 0
                         },
                         "description": ""
+                    },
+                    {
+                        "name": "orderby",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "applicants",
+                                "deadline"
+                            ],
+                            "default": "date"
+                        },
+                        "description": "Sort order: newest first, most applicants first, or soonest closing date first."
                     }
                 ],
                 "responses": {

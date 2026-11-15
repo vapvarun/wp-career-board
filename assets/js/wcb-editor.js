@@ -433,7 +433,8 @@
 			data: htmlToBlocks( textarea.value ),
 			placeholder: editorEl.dataset.placeholder || '',
 			i18n: { messages: window.wcbEditorI18n || {} },
-			minHeight: 200,
+			// Editor.js pads this much below the last block; a short field (about, bio) grows with its text instead.
+			minHeight: editorEl.classList.contains( 'wcb-editor--short' ) ? 0 : 200,
 			onChange: () => {
 				if ( isSaving ) {
 					return;

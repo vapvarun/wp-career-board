@@ -73,17 +73,24 @@ const aiScoreLabel = ( score ) =>
 // Applicants fetched per page (endpoint maximum is 100).
 const APPS_PER_PAGE = 50;
 
+// List and detail sit side by side from this width; below it the detail replaces the list.
+const TWO_PANE = '(min-width: 1025px)';
+
 /**
- * Open an applicant from the list. Where list and detail stack (tablet and
- * phone) the detail sits below the list, so bring it into view.
+ * Open an applicant from the list. On a phone the detail replaces the list,
+ * so move to its top and put focus on Back.
  *
  * @param {HTMLElement} row Applicant row.
  */
 function pickApplicant( row ) {
 	const id = parseInt( row.dataset.wcbAppId, 10 );
 	state.selectedAppId = Number.isNaN( id ) ? null : id;
-	if ( null !== state.selectedAppId && window.matchMedia( '(max-width: 1024px)' ).matches ) {
-		window.requestAnimationFrame( () => row.closest( '.wcb-split-panel' )?.querySelector( '.wcb-applicant-detail' )?.scrollIntoView( { behavior: 'smooth', block: 'start' } ) );
+	if ( null !== state.selectedAppId && ! window.matchMedia( TWO_PANE ).matches ) {
+		const panel = row.closest( '.wcb-split-panel' );
+		window.requestAnimationFrame( () => {
+			panel?.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+			panel?.querySelector( '.wcb-detail-back' )?.focus( { preventScroll: true } );
+		} );
 	}
 }
 
@@ -98,6 +105,18 @@ const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
  * @return {boolean}
  */
 const canFeatureJob = ( job ) => Number( state.featuredCost ) > 0 && 'publish' === job.status && ! job.featured;
+
+/**
+ * Views and applicants mean something only once a job has been live; a job
+ * nobody could see yet shows its status note instead.
+ *
+ * @param {Object} job Job row (status, appCount).
+ * @return {{showStats: boolean, showNoApplicants: boolean}}
+ */
+const jobStats = ( job ) => {
+	const showStats = [ 'publish', 'closed', 'expired' ].includes( job.status ) || job.appCount > 0;
+	return { showStats, showNoApplicants: showStats && ! job.appCount };
+};
 
 /**
  * Resolve a job's status slug to its seeded, translated badge label. Applied at
@@ -233,6 +252,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isViewCompanies() {
 			return state.currentView === 'companies';
+		},
+		// The Companies nav item stays lit on a company's profile form.
+		get isViewCompanyArea() {
+			return state.currentView === 'companies' || state.currentView === 'company';
 		},
 		get hasManyCompanies() {
 			return state.companies.length > 1;
@@ -727,10 +750,6 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			const ctx = getContext();
 			return ctx.app?.id === state.selectedAppId;
 		},
-		get isAppClosed() {
-			const status = getContext().app?.status;
-			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
-		},
 		get isUnread() {
 			const ctx = getContext();
 			return ctx.app?.status === 'submitted';
@@ -842,6 +861,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 		*init() {
+			// The old Profile tab's address opens the company form.
+			if ( '#profile' === window.location.hash ) {
+				window.history.replaceState( null, '', window.location.pathname + window.location.search + '#company' );
+			}
 			state.currentView = views.initial( state.currentView );
 			const savedJob = Number( sessionStorage.getItem( 'wcb_employer_apps_job' ) );
 			// A job_apps link (state.appsJobId seeded by render.php) beats the tab's saved job.
@@ -931,6 +954,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		*loadJobs() {
 			const jobsUrl = new URL( state.apiBase + '/employers/me/jobs' );
 			jobsUrl.searchParams.set( 'per_page', '50' );
+			if ( 'date' !== state.jobSort ) {
+				jobsUrl.searchParams.set( 'orderby', state.jobSort );
+			}
 			if ( state.companyFilter ) {
 				jobsUrl.searchParams.set( 'company_id', String( state.companyFilter ) );
 			}
@@ -962,6 +988,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				isRejected: !! j.rejected,
 				isDraft:   j.status === 'draft' && ! j.rejected,
 				canFeature: canFeatureJob( j ),
+				...jobStats( j ),
 			} ) );
 		},
 
@@ -1318,6 +1345,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.jobSearch = event.target.value;
 		},
 
+		// Sorting runs on the server, so it covers every job, not just the loaded page.
+		*setJobSort( event ) {
+			state.jobSort = event.target.value;
+			state.loading = true;
+			state.error   = '';
+			try {
+				yield actions.loadJobs();
+			} catch {
+				state.error = t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+			} finally {
+				state.loading = false;
+			}
+		},
+
 		*clearJobFilters() {
 			state.jobFilter = 'all';
 			state.jobSearch = '';
@@ -1420,6 +1461,14 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			pickApplicant( event.currentTarget );
 		},
 
+		// Phone: back from an applicant to the list, focus on the row just read.
+		backToApplicants( event ) {
+			const id    = state.selectedAppId;
+			const panel = event.currentTarget.closest( '.wcb-split-panel' );
+			state.selectedAppId = null;
+			window.requestAnimationFrame( () => panel?.querySelector( '.wcb-applicant-row[data-wcb-app-id="' + String( id ) + '"]' )?.focus() );
+		},
+
 		handleRowKeydown( event ) {
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
@@ -1516,7 +1565,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					state.selectedAppId = null;
 				}
 				// Side by side (desktop), open the newest applicant instead of an empty pane.
-				if ( ! append && null === state.selectedAppId && apps.length && window.matchMedia( '(min-width: 1025px)' ).matches ) {
+				if ( ! append && null === state.selectedAppId && apps.length && window.matchMedia( TWO_PANE ).matches ) {
 					state.selectedAppId = apps[ 0 ].id;
 				}
 				state.appsPage     = append ? state.appsPage + 1 : 1;
@@ -1786,7 +1835,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.jobs[ idx ].isRejected  = false;
 						state.jobs[ idx ].isDraft     = false;
 						state.jobs[ idx ].closedNote  = '';
+						state.jobs[ idx ].statusNote  = '';
 						state.jobs[ idx ].canFeature  = canFeatureJob( state.jobs[ idx ] );
+						Object.assign( state.jobs[ idx ], jobStats( state.jobs[ idx ] ) );
 					}
 				} else {
 					yield actions.reportRefusal( response );

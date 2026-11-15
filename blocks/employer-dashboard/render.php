@@ -168,18 +168,8 @@ $wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wc
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag.
 $wcb_credits_added = isset( $_GET['wcb_credits_added'] ) ? max( 0, (int) $_GET['wcb_credits_added'] ) : 0;
 
-// Credits show only where they mean something: credits are on and the
-// employer holds some, just bought some, or could be charged by a board.
-// On a site where every board is free, 'Credits 0' read like a problem.
-$wcb_show_credits = (bool) apply_filters( 'wcb_credits_enabled', false ) && ( $wcb_credit_balance > 0 || $wcb_credits_added > 0 );
-if ( ! $wcb_show_credits && apply_filters( 'wcb_credits_enabled', false ) && ! \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
-	foreach ( \WCB\Modules\Boards\BoardsModule::options_for_employer( $wcb_employer_id ) as $wcb_board_option ) {
-		if ( (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_board_option['id'] ) > 0 ) {
-			$wcb_show_credits = true;
-			break;
-		}
-	}
-}
+// One check for the Credits nav item, Overview tile and panel; a hidden tab's hash opens Overview.
+$wcb_show_credits = \WCB\Modules\Employers\EmployersModule::shows_credits( $wcb_employer_id, $wcb_credits_added );
 
 // Company-size slug → translated label map. Defined once here so it can both seed
 // the Interactivity state (for the Live Preview chip, which must show the label,
@@ -207,6 +197,7 @@ wp_interactivity_state(
 		'currentView'           => $wcb_apps_job_id > 0 ? 'applications' : ( $wcb_edit_job_id > 0 ? 'post-job' : ( $wcb_profile_view ? 'company' : 'overview' ) ),
 		'jobFilter'             => 'all',
 		'jobSearch'             => '',
+		'jobSort'               => 'date',
 		'appsFilter'            => 'all',
 		'selectedAppId'         => null,
 		'allApplications'       => array(),
@@ -490,7 +481,7 @@ $wcb_views        = array_values(
 		array( 'overview', 'jobs', 'post-job', 'applications', 'companies', 'company', 'saved-jobs', 'saved-companies', 'saved-resumes', 'settings', 'notifications', 'credits' ),
 		$wcb_can_bookmark ? array() : array( 'saved-jobs', 'saved-companies' ),
 		$wcb_saved_resumes_enabled ? array() : array( 'saved-resumes' ),
-		$wcb_show_credits ? array() : array( 'credits' ),
+		$wcb_show_credits && '' !== $wcb_credits_panel ? array() : array( 'credits' ),
 		$wcb_bell_enabled ? array() : array( 'notifications' )
 	)
 );
@@ -564,12 +555,10 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 
 			<div class="wcb-nav-group" role="group" aria-labelledby="wcb-nav-g-company">
 			<span id="wcb-nav-g-company" class="wcb-nav-section-label"><?php esc_html_e( 'Company', 'wp-career-board' ); ?></span>
-			<button type="button" class="wcb-nav-item" id="wcb-tab-companies" aria-controls="wcb-panel-companies" data-wp-bind--aria-current="state.isViewCompanies" data-wp-class--wcb-nav-active="state.isViewCompanies" data-wp-on--click="actions.switchToCompanies">
+			<?php // One door to company editing: each company in the list opens its profile form (#company). ?>
+			<button type="button" class="wcb-nav-item" id="wcb-tab-companies" aria-controls="wcb-panel-companies" data-wp-bind--aria-current="state.isViewCompanyArea" data-wp-class--wcb-nav-active="state.isViewCompanyArea" data-wp-on--click="actions.switchToCompanies">
 				<?php esc_html_e( 'Companies', 'wp-career-board' ); ?>
 				<span class="wcb-nav-badge" data-wp-text="state.companies.length"><?php echo esc_html( number_format_i18n( count( $wcb_companies ) ) ); ?></span>
-			</button>
-			<button type="button" class="wcb-nav-item" id="wcb-tab-company" aria-controls="wcb-panel-company" data-wp-bind--aria-current="state.isViewCompany" data-wp-class--wcb-nav-active="state.isViewCompany" data-wp-on--click="actions.switchToCompany">
-				<?php esc_html_e( 'Profile', 'wp-career-board' ); ?>
 			</button>
 			<a class="wcb-nav-item wcb-nav-item--link" href="<?php echo esc_url( $wcb_company_url ); ?>" data-wp-bind--href="state.mainCompanyUrl" data-wp-bind--hidden="!state.mainCompanyUrl" target="_blank" rel="noopener noreferrer"<?php echo $wcb_main_company_id ? '' : ' hidden'; ?>>
 				<?php esc_html_e( 'Public Page', 'wp-career-board' ); ?> &#8599;
@@ -820,6 +809,12 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 				</div>
 				<?php // One toolbar row on desktop: status chips, then search and the company filter. ?>
 				<input type="search" class="wcb-job-search" aria-label="<?php esc_attr_e( 'Search your jobs', 'wp-career-board' ); ?>" placeholder="<?php esc_attr_e( 'Search jobs…', 'wp-career-board' ); ?>" data-wp-bind--value="state.jobSearch" data-wp-on--input="actions.setJobSearch" />
+				<label class="screen-reader-text" for="wcb-job-sort"><?php esc_html_e( 'Sort jobs', 'wp-career-board' ); ?></label>
+				<select id="wcb-job-sort" class="wcb-sort-select wcb-job-sort" data-wp-bind--value="state.jobSort" data-wp-on--change="actions.setJobSort">
+					<option value="date"><?php esc_html_e( 'Newest', 'wp-career-board' ); ?></option>
+					<option value="applicants"><?php esc_html_e( 'Most applicants', 'wp-career-board' ); ?></option>
+					<option value="deadline"><?php esc_html_e( 'Closing soon', 'wp-career-board' ); ?></option>
+				</select>
 				<?php $wcb_company_filter(); ?>
 			</div>
 
@@ -861,13 +856,14 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<span class="wcb-job-meta" data-wp-text="context.job.location"></span>
 							<span class="wcb-job-meta wcb-job-note" data-wp-class--wcb-hidden="!context.job.closedNote" data-wp-text="context.job.closedNote"></span>
 						</div>
-						<?php // Status first, at the same x on every row; then the applicant count. ?>
+						<?php // Status first, at the same x on every row; views and applicants only once the job has been live, else what it waits for. ?>
 						<div class="wcb-job-facts">
 							<span class="wcb-status-badge" role="status" data-wp-text="context.job.statusLabel" data-wp-bind--data-status="context.job.status"></span>
 							<span class="wcb-status-badge wcb-status-badge--featured" data-wp-class--wcb-hidden="!context.job.featured"><?php esc_html_e( 'Featured', 'wp-career-board' ); ?></span>
-							<span class="wcb-job-meta wcb-job-views" data-wp-text="context.job.viewLabel"></span>
+							<span class="wcb-job-meta wcb-job-views" data-wp-class--wcb-hidden="!context.job.showStats" data-wp-text="context.job.viewLabel"></span>
 							<button type="button" class="wcb-apps-chip" data-wp-class--wcb-hidden="!context.job.appCount" data-wp-text="context.job.appLabel" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.switchAppsJob"></button>
-							<span class="wcb-apps-chip wcb-apps-chip--empty" data-wp-class--wcb-hidden="context.job.appCount" data-wp-text="context.job.appLabel"></span>
+							<span class="wcb-apps-chip wcb-apps-chip--empty" data-wp-class--wcb-hidden="!context.job.showNoApplicants" data-wp-text="context.job.appLabel"></span>
+							<span class="wcb-job-meta wcb-job-status-note" data-wp-class--wcb-hidden="!context.job.statusNote" data-wp-text="context.job.statusNote"></span>
 						</div>
 						<?php // One main action (Pipeline with Pro, else Edit) and the rest in a menu (owner decision, 1.8.1). ?>
 						<div class="wcb-job-actions">
@@ -981,7 +977,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 				<p class="wcb-empty-state__body" data-wp-text="state.noFilteredAppsLabel"><?php esc_html_e( 'No applications with this status.', 'wp-career-board' ); ?></p>
 			</div>
 
-			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications" data-wp-class--wcb-hidden="!state.isAppsListLayout">
+			<?php // Side by side from 768px; narrower, the picked applicant replaces the list until Back. ?>
+			<div class="wcb-split-panel" data-wp-class--wcb-shown="state.hasApplications" data-wp-class--wcb-hidden="!state.isAppsListLayout" data-wp-class--wcb-split-panel--detail="!state.noAppSelected">
 				<div class="wcb-applicant-list" aria-live="polite">
 					<button type="button" class="wcb-btn wcb-btn--ghost wcb-ai-rank-btn" data-wp-class--wcb-hidden="!state.showAiRankButton" data-wp-bind--disabled="state.aiRankLoading" data-wp-on--click="actions.rankByAi" data-wp-text="state.aiRankBtnLabel"></button>
 					<template data-wp-each--app="state.filteredApps" data-wp-each-key="context.app.id">
@@ -992,10 +989,10 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 								<span class="wcb-app-job" data-wp-class--wcb-hidden="!state.isAllApps" data-wp-text="context.app.job_title"></span>
 								<span class="wcb-ai-summary" data-wp-class--wcb-hidden="!context.app.aiSummary" data-wp-text="context.app.aiSummary"></span>
 								<span class="wcb-app-date" data-wp-text="context.app.submitted_at_label"></span>
-								<span class="wcb-app-stage wcb-hidden" data-wp-class--wcb-hidden="!context.app.stage_label" data-wp-text="context.app.stage_label"></span>
 							</div>
 							<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
-							<span class="wcb-status-badge wcb-hidden" data-wp-class--wcb-hidden="!state.isAppClosed" data-wp-bind--data-status="context.app.status" data-wp-text="context.app.statusLabel"></span>
+							<?php // The same status label as the control in the detail pane; stage names stay on the Pipeline board. ?>
+							<span class="wcb-status-badge" data-wp-bind--data-status="context.app.status" data-wp-text="context.app.statusLabel"></span>
 							<span class="wcb-unread-dot" data-wp-class--wcb-shown="state.isUnread"></span>
 						</div>
 					</template>
@@ -1009,6 +1006,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 						<p class="wcb-empty-state__body"><?php esc_html_e( 'Their answers, resume and your team notes open here.', 'wp-career-board' ); ?></p>
 					</div>
 					<div data-wp-class--wcb-hidden="state.noAppSelected">
+						<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm wcb-detail-back" data-wp-on--click="actions.backToApplicants"><?php esc_html_e( '← All applicants', 'wp-career-board' ); ?></button>
 						<div class="wcb-detail-header">
 							<div class="wcb-avatar wcb-avatar--round wcb-avatar--sm wcb-detail-avatar" data-wp-text="state.selectedAppInitials" aria-hidden="true"></div>
 							<div>
@@ -1162,12 +1160,11 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 			</ul>
 		</div>
 
-		<div class="wcb-view-panel" id="wcb-panel-company" role="region" aria-labelledby="wcb-tab-company" data-wp-class--wcb-view-active="state.isViewCompany">
+		<div class="wcb-view-panel" id="wcb-panel-company" role="region" aria-labelledby="wcb-company-title" data-wp-class--wcb-view-active="state.isViewCompany">
 			<div class="wcb-page-header">
-				<h1 class="wcb-page-title"><?php echo $wcb_adding_company ? esc_html__( 'Add a company', 'wp-career-board' ) : esc_html__( 'Company Profile', 'wp-career-board' ); ?></h1>
-				<?php if ( $wcb_adding_company || count( $wcb_companies ) > 1 ) : ?>
-					<button type="button" class="wcb-btn wcb-btn--ghost" data-wp-on--click="actions.switchToCompanies"><?php esc_html_e( '← All companies', 'wp-career-board' ); ?></button>
-				<?php endif; ?>
+				<h1 class="wcb-page-title" id="wcb-company-title"><?php echo $wcb_adding_company ? esc_html__( 'Add a company', 'wp-career-board' ) : esc_html__( 'Company Profile', 'wp-career-board' ); ?></h1>
+				<?php // The form is reached from Companies, so the way back is always there. ?>
+				<button type="button" class="wcb-btn wcb-btn--ghost" data-wp-on--click="actions.switchToCompanies"><?php esc_html_e( '← All companies', 'wp-career-board' ); ?></button>
 			</div>
 			<?php if ( ! $wcb_adding_company && count( $wcb_companies ) > 1 && $wcb_company instanceof \WP_Post ) : ?>
 				<p class="wcb-page-intro">
@@ -1213,7 +1210,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					</div>
 					<div class="wcb-field-group">
 						<label class="wcb-field-label" for="wcb-company-desc"><?php esc_html_e( 'About the company', 'wp-career-board' ); ?></label>
-						<div class="wcb-editor" data-placeholder="<?php esc_attr_e( 'What does your company do? Mission, products, culture…', 'wp-career-board' ); ?>">
+						<div class="wcb-editor wcb-editor--short" data-placeholder="<?php esc_attr_e( 'What does your company do? Mission, products, culture…', 'wp-career-board' ); ?>">
 							<div class="wcb-editor-holder" id="wcb-editor-company-desc"></div>
 							<textarea
 								id="wcb-company-desc"
@@ -1544,7 +1541,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 		?>
 	</div>
 
-	<?php if ( '' !== $wcb_credits_panel ) : ?>
+	<?php if ( $wcb_show_credits && '' !== $wcb_credits_panel ) : ?>
 	<!-- VIEW: Credits (Pro) -->
 	<div class="wcb-view-panel" id="wcb-panel-credits" role="region" aria-labelledby="wcb-tab-credits" data-wp-class--wcb-view-active="state.isViewCredits">
 		<div class="wcb-page-header">

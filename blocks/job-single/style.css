@@ -820,10 +820,11 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-/* 1024, not 768: at 800-1023 the two-column hero/body was still forced
-   into two cramped columns (a squeezed Apply button in the hero), while
-   resume-single (before its own fix) collapsed at a different width
-   entirely. One tablet breakpoint for every detail page. */
+/* 1024, not 768: at 800-1023 the two-column hero was still forced into
+   two cramped columns (a squeezed Apply button), while resume-single
+   (before its own fix) collapsed at a different width entirely. One tablet
+   breakpoint for every detail page; only the job body keeps its sidebar
+   down to 768 (below). */
 @media (max-width: 1024px) {
 	.wcb-job-hero {
 		grid-template-columns: minmax(0, 1fr);
@@ -840,6 +841,16 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 		width: 100%;
 	}
 
+	/* Tablet keeps the Job details beside the description (a narrower
+	   sidebar), so salary, location and the apply-by date stay in view
+	   instead of dropping below the whole description. */
+	.wcb-job-body {
+		grid-template-columns: minmax(0, 1fr) 280px; /* component-specific sidebar width */
+		gap: var(--wcb-space-xl);
+	}
+}
+
+@media (max-width: 767px) {
 	.wcb-job-body {
 		grid-template-columns: minmax(0, 1fr);
 	}

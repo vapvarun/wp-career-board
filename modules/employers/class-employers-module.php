@@ -912,4 +912,36 @@ final class EmployersModule {
 			'jobs_with_apps' => $by_company,
 		);
 	}
+
+	/**
+	 * Whether the employer dashboard shows Credits (nav item, Overview tile, panel).
+	 *
+	 * Only where credits mean something to this employer: credits are on and they
+	 * hold some, just bought some, can buy some, or post to a board that charges.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $user_id    Employer user ID.
+	 * @param int $just_added Credits the checkout return just added (0 if none).
+	 * @return bool
+	 */
+	public static function shows_credits( int $user_id, int $just_added = 0 ): bool {
+		if ( ! apply_filters( 'wcb_credits_enabled', false ) ) {
+			return false;
+		}
+		if ( $just_added > 0
+			|| (int) apply_filters( 'wcb_employer_credit_balance', 0, $user_id ) > 0
+			|| '' !== (string) apply_filters( 'wcb_credit_purchase_url', '' ) ) {
+			return true;
+		}
+		if ( \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+			return false;
+		}
+		foreach ( \WCB\Modules\Boards\BoardsModule::options_for_employer( $user_id ) as $board ) {
+			if ( (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $board['id'] ) > 0 ) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

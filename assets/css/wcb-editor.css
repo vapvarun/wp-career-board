@@ -29,6 +29,11 @@
 	color: var(--wcb-contrast);
 }
 
+/* Short fields (About the company, Bio) open at about five lines and grow with the text. */
+.wcb-editor--short .wcb-editor-holder {
+	min-height: calc(5 * 1.6em + 2 * var(--wcb-space-md)); /* 5 lines at the holder line-height of 1.6 */
+}
+
 /*
  * The hidden textarea preserves form-submission semantics and the
  * Interactivity API binding without showing visually. `hidden` plus

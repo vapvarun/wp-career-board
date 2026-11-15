@@ -20,6 +20,7 @@
 /* ── Application rows ─────────────────────────────────────────────────────── */
 .wcb-cd-app-row {
 	display: flex;
+	flex-wrap: wrap; /* the status history opens on its own line */
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--wcb-space-md);
@@ -74,6 +75,135 @@
 .wcb-cd-app-date {
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-secondary); /* text: tertiary is decoration-only (2.5:1 on BuddyX) */
+}
+
+/* View job + Status history under the date. */
+.wcb-cd-app-links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	column-gap: var(--wcb-space-lg);
+}
+
+.wcb-dashboard .wcb-main .wcb-cd-app-links .wcb-panel-link {
+	font-size: var(--wcb-text-sm);
+}
+
+.wcb-cd-app-history-toggle::after {
+	content: "";
+	inline-size: 0.4em;
+	block-size: 0.4em;
+	margin-inline-start: var(--wcb-space-xs);
+	border-inline-end: 2px solid currentColor;
+	border-block-end: 2px solid currentColor;
+	transform: rotate(45deg) translateY(-25%);
+	transition: transform var(--wcb-transition-fast);
+}
+
+.wcb-cd-app-history-toggle[aria-expanded="true"]::after {
+	transform: rotate(-135deg) translateY(-25%);
+}
+
+/* Status history: one step per line, newest last, a rail on the start side. */
+.wcb-cd-app-timeline {
+	flex: 1 1 100%;
+	margin: 0;
+	padding: 0;
+	padding-inline-start: var(--wcb-space-md);
+	border-inline-start: 2px solid var(--wcb-border);
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-cd-app-timeline[hidden] {
+	display: none;
+}
+
+.wcb-cd-app-timeline__step {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs) var(--wcb-space-sm);
+	font-size: var(--wcb-text-sm);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-cd-app-timeline__label {
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+}
+
+.wcb-cd-app-timeline__step:last-child .wcb-cd-app-timeline__label {
+	color: var(--wcb-primary-text);
+}
+
+/* Overview: the one next step under the tiles. */
+.wcb-cd-next-step {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0 var(--wcb-space-md);
+	margin: 0 0 var(--wcb-space-2xl);
+	padding: var(--wcb-space-sm) var(--wcb-space-xl);
+	border: 1px dashed var(--wcb-border);
+	border-radius: var(--wcb-radius-xl);
+}
+
+/* Beats `.wcb-dashboard .wcb-main .wcb-panel-link { display: inline-flex }`. */
+.wcb-cd-next-step[hidden],
+.wcb-dashboard .wcb-main :is(.wcb-cd-next-step, .wcb-cd-app-links) [hidden] {
+	display: none;
+}
+
+.wcb-cd-next-step__label {
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+}
+
+/* Saved: Jobs / Companies switch above the list. */
+.wcb-cd-switch {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs);
+	margin-block-end: var(--wcb-space-lg);
+	padding: var(--wcb-space-xs);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-full);
+	background: var(--wcb-base);
+}
+
+.wcb-dashboard .wcb-cd-switch__btn {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wcb-space-xs);
+	min-height: 40px;
+	padding: 0 var(--wcb-space-lg);
+	border: none;
+	border-radius: var(--wcb-radius-full);
+	background: transparent;
+	color: var(--wcb-text-secondary);
+	font: inherit;
+	font-size: var(--wcb-text-sm);
+	font-weight: var(--wcb-font-medium);
+	cursor: pointer;
+}
+
+/* A theme's button:hover must not fill the pill. */
+.wcb-dashboard .wcb-cd-switch__btn:is(:hover, :focus) {
+	background: transparent;
+	color: var(--wcb-contrast);
+	box-shadow: none;
+}
+
+.wcb-dashboard .wcb-cd-switch__btn[aria-pressed="true"] {
+	background: var(--wcb-bg-hover);
+	color: var(--wcb-contrast);
+}
+
+.wcb-dashboard .wcb-cd-switch__btn:focus-visible {
+	outline: 2px solid var(--wcb-primary);
+	outline-offset: 2px;
 }
 
 /* My Resumes before the list arrives (never an empty pane under 'N of M'). */
@@ -348,6 +478,38 @@
 
 /* ── Status badge (overview panels) ─────────────────────────────────────── */
 /* ── Job Alerts tab ────────────────────────────────────────────────────── */
+/* New alert: keywords wide, location and frequency narrow, Save at the end. */
+.wcb-cd-alert-form {
+	margin-block-end: var(--wcb-space-lg);
+}
+
+.wcb-cd-alert-form__title {
+	margin: 0 0 var(--wcb-space-md);
+	font-size: var(--wcb-text-md);
+	font-weight: var(--wcb-font-semibold);
+	color: var(--wcb-contrast);
+}
+
+.wcb-cd-alert-form__fields {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+	align-items: end;
+	gap: var(--wcb-space-md);
+}
+
+.wcb-cd-alert-form__fields .wcb-form-field {
+	margin: 0;
+	min-width: 0;
+}
+
+.wcb-cd-alert-form__submit {
+	min-height: var(--wcb-control-h);
+}
+
+.wcb-cd-alert-form .wcb-account-msg {
+	margin: var(--wcb-space-md) 0 0;
+}
+
 .wcb-alert-row {
 	display: flex;
 	align-items: center;
@@ -478,6 +640,40 @@
 	.wcb-alert-actions {
 		width: 100%;
 		justify-content: flex-end;
+	}
+
+	.wcb-alert-freq {
+		min-height: 40px;
+	}
+
+	/* New alert: keywords full width, location + frequency side by side, Save full width. */
+	.wcb-cd-alert-form__fields {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	.wcb-cd-alert-form__keywords,
+	.wcb-cd-alert-form__submit {
+		grid-column: 1 / -1;
+	}
+
+	.wcb-cd-next-step {
+		padding-inline: var(--wcb-space-lg);
+	}
+
+	/* Saved switch spans the row: two equal halves. */
+	.wcb-cd-switch {
+		display: flex;
+	}
+
+	.wcb-dashboard .wcb-cd-switch__btn {
+		flex: 1 1 0;
+		justify-content: center;
+	}
+}
+
+@media (max-width: 400px) {
+	.wcb-cd-alert-form__fields {
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 

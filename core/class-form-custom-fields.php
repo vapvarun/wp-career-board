@@ -316,7 +316,7 @@ final class FormCustomFields {
 	 * @since 1.1.1
 	 *
 	 * @param array<string, mixed> $field Raw field row.
-	 * @return array{key:string,type:string,label:string,required:bool,placeholder:string,description:string,options:array<string,string>}
+	 * @return array{key:string,type:string,label:string,required:bool,placeholder:string,description:string,options:array<string,string>,prefix:string,suffix:string}
 	 */
 	private static function normalise_field( array $field ): array {
 		$key  = (string) ( $field['key'] ?? $field['field_key'] ?? '' );
@@ -348,6 +348,9 @@ final class FormCustomFields {
 			'placeholder' => (string) ( $field['placeholder'] ?? '' ),
 			'description' => (string) ( $field['description'] ?? '' ),
 			'options'     => $options,
+			// Number fields only: shown around the answer, "$" 500 "per year".
+			'prefix'      => sanitize_text_field( (string) ( $field['prefix'] ?? '' ) ),
+			'suffix'      => sanitize_text_field( (string) ( $field['suffix'] ?? '' ) ),
 		);
 	}
 
@@ -890,6 +893,7 @@ final class FormCustomFields {
 	 *
 	 * @since 1.7.1
 	 * @since 1.8.2 Choice answers show their labels; multi-choice answers are listed one label per item.
+	 * @since 1.8.4 A number answer carries its field's prefix and unit.
 	 *
 	 * @param array<int, array<string, mixed>> $groups     Same shape as render_groups().
 	 * @param int                              $owner_id   Post / user / row id whose meta to read.
@@ -935,6 +939,11 @@ final class FormCustomFields {
 
 				if ( '' === $value ) {
 					continue;
+				}
+
+				if ( 'number' === $normalised['type'] && ( '' !== $normalised['prefix'] || '' !== $normalised['suffix'] ) ) {
+					/* translators: 1: prefix such as "$", 2: the number, 3: unit such as "per year". */
+					$value = trim( sprintf( __( '%1$s%2$s %3$s', 'wp-career-board' ), $normalised['prefix'], $value, $normalised['suffix'] ) );
 				}
 
 				// A choice shows its label; a multi-choice answer (stored

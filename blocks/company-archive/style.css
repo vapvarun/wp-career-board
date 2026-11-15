@@ -133,6 +133,8 @@
 	 * which broke mid-word ("Copperl / eaf"). Same rule on all three archives
 	 * (Find Jobs, Companies, Find Candidates). */
 	grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+	/* Every row as tall as the tallest card, so cards match across rows too. */
+	grid-auto-rows: 1fr;
 	gap: var(--wcb-space-xl);
 }
 
@@ -464,8 +466,10 @@
 }
 
 @media (max-width: 640px) {
+	/* One column: nothing to line up with, so each card keeps its own height. */
 	.wcb-ca-container.wcb-grid {
 		grid-template-columns: minmax(0, 1fr);
+		grid-auto-rows: auto;
 	}
 
 	/* Collapse the 3-col list-view grid into the same 2-col header
