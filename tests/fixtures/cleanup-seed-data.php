@@ -301,7 +301,8 @@ $wcb_roles        = array( 'wcb_candidate', 'wcb_employer' );
 foreach ( $wcb_roles as $role ) {
 	$leftover_users = get_users( array( 'role' => $role, 'number' => 100 ) );
 	foreach ( $leftover_users as $lu ) {
-		if ( ! in_array( $lu->user_email, $protected_emails, true ) ) {
+		// Users from bin/seed-demo-data.php carry _wcb_demo; the demo set and the test seed can share a site.
+		if ( ! in_array( $lu->user_email, $protected_emails, true ) && ! get_user_meta( $lu->ID, '_wcb_demo', true ) ) {
 			wcb_cleanup_delete_user( (int) $lu->ID );
 		}
 	}
