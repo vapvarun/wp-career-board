@@ -223,7 +223,7 @@ Run manually before each release using Playwright MCP tools.
 | B21 | Settings — Job Listings | `/wp-admin/admin.php?page=wcb-settings&tab=jobs` | Per-page, default sort, expiry days fields |
 | B22 | Settings — Registration | `/wp-admin/admin.php?page=wcb-settings&tab=registration` | Enable/disable toggles |
 | B23 | Settings — Notifications | `/wp-admin/admin.php?page=wcb-settings&tab=notifications` | Email toggle matrix, from-name/email |
-| B24 | Settings — Antispam | `/wp-admin/admin.php?page=wcb-settings&tab=antispam` | reCAPTCHA / Turnstile key fields |
+| B24 | Settings — Visitor IP | `/wp-admin/admin.php?page=wcb-settings` (Advanced tab) | Visitor IP address select; no Anti-Spam tab |
 | B25 | Settings — SEO | `/wp-admin/admin.php?page=wcb-settings&tab=seo` | Schema toggle, OG toggle |
 | B26 | Jobs list | `/wp-admin/edit.php?post_type=wcb_job` | Table renders, bulk actions (approve/reject), status column |
 | B27 | Applications list | `/wp-admin/edit.php?post_type=wcb_application` | Table renders, status column, linked job |
@@ -304,7 +304,7 @@ Run manually before each release using Playwright MCP tools.
 | `WCB\Core\Install` | Free | P1 | All custom tables created via `dbDelta()`, custom roles (`wcb_employer`, `wcb_candidate`) registered, default options seeded, version option updated |
 | `WCB\Pro\Core\ProInstall` | Pro | P1 | Pro tables created (`wcb_credit_ledger`, `wcb_field_groups`, `wcb_field_definitions`, `wcb_job_alerts`, `wcb_application_stages`, `wcb_ai_vectors`), version migration from older schema |
 | `WCB\Notifications\AbstractEmail` | Free | P1 | Template file loaded from correct path, placeholder replacement (`{candidate_name}`, `{job_title}`, etc.), `send()` calls `wp_mail()`, disabled email skips send |
-| `WCB\Antispam\AntispamModule` | Free | P1 | reCAPTCHA token verification (mock HTTP), Turnstile token verification (mock HTTP), bypass when provider not configured, invalid token returns WP_Error |
+| `WCB\Antispam\AntispamModule` | Free | P1 | honeypot refuses a filled `hp` field with 400, rate limit, no CAPTCHA provider code or options remain |
 | `WCB\Search\SearchModule` | Free | P1 | Query builder: keyword search, filter by type, filter by location, combined filters, empty results |
 | `WCB\Jobs\JobsExpiry` | Free | P2 | Cron callback finds jobs past expiry date, transitions status to `wcb_expired`, skips already-expired jobs, fires `wcb_job_expired` action |
 | `WCB\Gdpr\GdprModule` | Free | P2 | `export_data()` returns correct format for WP exporter, `erase_data()` removes user meta + applications, anonymizes guest applications |
