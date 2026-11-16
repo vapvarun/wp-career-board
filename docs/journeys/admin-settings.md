@@ -7,7 +7,7 @@ last_walked: 2026-06-26
 
 # Settings — full browser walkthrough
 
-**What it is:** The single Settings screen with a left sidebar nav. Core groups are Job Listings, Pages, and Notifications; Emails, Import, and Anti-Spam (captcha) hang off the same sidebar, with greyed Pro teasers below.
+**What it is:** The single Settings screen with a left sidebar nav. Core groups are Job Listings, Pages, and Notifications; Emails and Import hang off the same sidebar, with greyed Pro teasers below.
 **Where it lives:** `wp-admin/admin.php?page=wcb-settings` (cap `wcb_manage_settings`). Sidebar items are hash links (`#listings`, `#pages`, `#notifications`, `#emails`, `#import`, `#antispam`) toggled client-side by `settings-nav.js` — all panels are in the DOM at once.
 
 ## As admin
@@ -16,7 +16,7 @@ last_walked: 2026-06-26
 3. The Listings / Pages / Notifications panels post to `options.php` (Settings API, option `wcb_settings`, group `wcb_settings_group`) → expect the "Settings saved." notice and the new value persisted on reload. Values run through `AdminSettings::sanitize()` (emails sanitized, ints clamped).
 4. Click **Pages** → each app page (jobs archive, employer/candidate dashboard, company archive, post-job, employer registration, resume archive) is a page-picker → save → blocks now resolve their host pages.
 5. Click **Notifications** → set From Name, From Email, and Notification (admin) Email; the required notification-email field rejects an empty save. These feed `wp_mail_from` / `wp_mail_from_name`.
-6. Click **Anti-Spam** → the captcha card: **CAPTCHA Provider** select = None / Cloudflare Turnstile / reCAPTCHA, plus site/secret key fields. This panel posts to `admin-post.php?action=wcb_save_antispam` (not the Settings API) → save → keys persist; secret field is `type=password`, `autocomplete=off`. A honeypot is always on regardless of provider.
+6. Click **Advanced** → the **Visitor IP address** select (Direct connection / Cloudflare / X-Forwarded-For / X-Real-IP) with the two-layer help; saving it posts through the Settings API like every other tab.
 7. Tab the sidebar links and focusable controls via keyboard → each shows a visible focus ring; the active nav item is marked.
 
 ## Themes & states
@@ -24,7 +24,7 @@ last_walked: 2026-06-26
 - Empty state: fresh install → defaults shown (no PHP notices); Pro teaser items render disabled with a Pro badge, not as broken links.
 
 ## Contracts guarded
-- Two save paths stay separate: core tabs → Settings API (`wcb_settings`); Anti-Spam → `admin-post.php` (`captcha_provider` allow-list None/Turnstile/reCAPTCHA). A wrong save target silently drops captcha keys.
+- Every tab saves through the Settings API (`wcb_settings`).
 - Sidebar nav is hash-based — every panel must be present in the DOM (server can't read the active tab), else the panel is invisible.
 - a11y: nav items + inputs have `:focus-visible` rings; the active section is announced.
 - Cap gate: only `wcb_manage_settings` (administrator) reaches the page and the save handlers.

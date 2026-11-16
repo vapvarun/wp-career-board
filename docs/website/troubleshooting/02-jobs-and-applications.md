@@ -47,7 +47,7 @@ The employer clicks **Reopen** on the job in their dashboard. The job gets a new
 
 **Cause.** Sign-ups are limited to 5 an hour per IP address. Behind a proxy or CDN every visitor arrives from the proxy's address, so they all share one count.
 
-**Fix.** Go to **Settings > Anti-Spam > Visitor IP address** and choose your proxy (for example Cloudflare). You can also change the limit in code with the `wcb_registration_rate_limit` filter (0 turns it off). Guest applications have a similar limit of 10 an hour. See [Abuse prevention](../developer-guide/03-rest-api.md#abuse-prevention).
+**Fix.** Go to **Settings > Advanced > Visitor IP address** and choose your proxy (for example Cloudflare). You can also change the limit in code with the `wcb_registration_rate_limit` filter (0 turns it off). Guest applications have a similar limit of 10 an hour. See [Abuse prevention](../developer-guide/03-rest-api.md#abuse-prevention).
 
 ## A candidate cannot open a resume file
 

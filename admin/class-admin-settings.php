@@ -1003,7 +1003,7 @@ class AdminSettings {
 							<div class="wcb-card">
 								<div class="wcb-card__head">
 									<p class="wcb-card__title"><?php esc_html_e( 'Advanced', 'wp-career-board' ); ?></p>
-									<p class="wcb-card__desc"><?php esc_html_e( 'Layout and data handling. Most sites never need to change these.', 'wp-career-board' ); ?></p>
+									<p class="wcb-card__desc"><?php esc_html_e( 'Layout, visitor IP and data handling. Most sites never need to change these.', 'wp-career-board' ); ?></p>
 								</div>
 								<div class="wcb-card__body">
 									<div class="wcb-settings-row">
@@ -1034,6 +1034,27 @@ class AdminSettings {
 												max="3650"
 											>
 											<span class="description"><?php esc_html_e( 'How long the email log and notification history are kept before they are deleted automatically. 0 keeps them forever.', 'wp-career-board' ); ?></span>
+										</div>
+									</div>
+									<?php
+									$wcb_ip_header  = (string) ( $settings['client_ip_header'] ?? '' );
+									$wcb_ip_options = array(
+										''                      => __( 'Direct connection (no proxy or CDN)', 'wp-career-board' ),
+										'HTTP_CF_CONNECTING_IP' => __( 'Cloudflare (CF-Connecting-IP)', 'wp-career-board' ),
+										'HTTP_X_FORWARDED_FOR'  => __( 'Load balancer or proxy (X-Forwarded-For)', 'wp-career-board' ),
+										'HTTP_X_REAL_IP'        => __( 'Nginx proxy (X-Real-IP)', 'wp-career-board' ),
+									);
+									?>
+									<div class="wcb-settings-row">
+										<div class="wcb-settings-row-label"><label for="wcb-client-ip-header"><?php esc_html_e( 'Visitor IP address', 'wp-career-board' ); ?></label></div>
+										<div class="wcb-settings-row-control">
+											<select id="wcb-client-ip-header" name="wcb_settings[client_ip_header]">
+												<?php foreach ( $wcb_ip_options as $wcb_ip_value => $wcb_ip_label ) : ?>
+													<option value="<?php echo esc_attr( $wcb_ip_value ); ?>" <?php selected( $wcb_ip_header, $wcb_ip_value ); ?>><?php echo esc_html( $wcb_ip_label ); ?></option>
+												<?php endforeach; ?>
+											</select>
+											<span class="description"><?php esc_html_e( 'Sign-ups, guest applications and sign-ins are limited per visitor IP address. Behind a proxy or CDN every visitor arrives from the proxy\'s address, so tell the plugin where the real address is. Choose a proxy only if your site really is behind it: anyone can send these headers, so on a direct connection they would let a visitor dodge the limits.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'Behind two layers, such as a CDN in front of a load balancer, pick the CDN\'s own header: Cloudflare for CF-Connecting-IP. X-Forwarded-For would read the CDN\'s address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the wcb_client_ip_trusted_hops filter set to 2.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

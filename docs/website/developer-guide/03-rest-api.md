@@ -276,7 +276,7 @@ Public routes that cost something also have hourly per-IP limits, answered with 
 | `POST /auth/verify-email/resend` | 5 | - |
 | `POST /auth/app-password` | 20 attempts, 5 failures per bucket | `wcb_app_password_max_attempts_per_ip`, `wcb_app_password_max_failures` |
 
-Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Anti-Spam > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The rightmost address in the header is used (the one your own proxy appended; the client controls everything to its left), and an invalid one falls back to `REMOTE_ADDR`.
+Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Advanced > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The rightmost address in the header is used (the one your own proxy appended; the client controls everything to its left), and an invalid one falls back to `REMOTE_ADDR`.
 
 Both sign-up routes also run `wcb_pre_registration` and core's `registration_errors` filter before an account is created.
 
