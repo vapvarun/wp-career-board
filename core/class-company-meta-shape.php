@@ -374,7 +374,7 @@ final class CompanyMetaShape {
 		if ( ! $ids ) {
 			return;
 		}
-		update_postmeta_cache( $ids );
+		_prime_post_caches( $ids, false, true ); // The company posts and their meta in two queries, so the thumbnail lookups below read from cache.
 		$images = array_values( array_filter( array_map( 'get_post_thumbnail_id', $ids ) ) );
 		if ( $images ) {
 			_prime_post_caches( $images, false, true );
