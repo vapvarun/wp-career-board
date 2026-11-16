@@ -6,7 +6,7 @@ You can go from a fresh install to your first job and your first application in 
 
 If you skipped the wizard, go to **Career Board > Settings** and click **Re-run Setup Wizard** at the bottom of the page. The wizard:
 
-- Creates the pages your board needs: Find Jobs, Post a Job, Employer Registration, Employer Dashboard, Candidate Dashboard and Find Companies. A page you already have is kept.
+- Creates the pages your board needs: Find Jobs, Post a Job, Join (the sign-up page), Employer Dashboard, Candidate Dashboard and Find Companies. A page you already have is kept.
 - Can install sample categories, job types, companies and jobs, so you can see the board with content.
 
 If you already ran it, check **Career Board > Settings > Pages** to confirm each page is assigned.

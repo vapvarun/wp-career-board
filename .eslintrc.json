@@ -24,8 +24,7 @@
 		"wcbAdminEmails": "readonly",
 		"wcbAppDetail": "readonly",
 		"wcbConfirmI18n": "readonly",
-		"wcbWizard": "readonly",
-		"wcbAntispam": "readonly"
+		"wcbWizard": "readonly"
 	},
 	"plugins": [ "@wordpress" ],
 	"rules": {

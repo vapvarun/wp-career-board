@@ -29,7 +29,7 @@ WP Career Board Pro adds more tabs to this group (Boards, Field Builder and Job 
 
 To change how a single job is saved from wp-admin (deadline, **No expiry**, **Apply URL**, **Apply Email**), see [Edit a job in wp-admin](./20-edit-a-job-in-admin.md). To order and nest the category, type, location and experience lists, see [Categories, types, locations and experience levels](./19-job-terms.md).
 
-The **Search engines and sharing** card on the same tab holds four more settings. They are covered in [Google for Jobs and Social Sharing](./17-google-for-jobs.md): **Google for Jobs** (on), **Require a location** (off; on for new sites), **Default country** (your site language's country) and **Social sharing tags** (on).
+The **Search engines and sharing** card on the same tab holds three more settings. They are covered in [Google for Jobs and Social Sharing](./17-google-for-jobs.md): **Google for Jobs** (on), **Default country** (your site language's country) and **Social sharing tags** (on).
 
 ### Applications
 
@@ -95,7 +95,6 @@ See [GDPR & Privacy](./04-gdpr.md).
 | Tab | What it controls |
 |---|---|
 | **Pages** | Assigns the WordPress pages that hold each Career Board block |
-| **Anti-Spam** | Honeypot plus an optional CAPTCHA provider |
 | **Integrations** | Install and activate other Wbcom plugins that work with Career Board |
 | **Advanced** | Content width, email history retention, Remove Data on Delete |
 
@@ -122,14 +121,7 @@ If a page is not assigned, links that depend on it, such as "View your dashboard
 
 ### Anti-spam
 
-A honeypot field protects every submission form automatically. For a stronger second layer, choose a CAPTCHA provider:
-
-- **None** - honeypot only (default).
-- **Cloudflare Turnstile** - enter the Turnstile Site Key and Secret Key.
-- **Google reCAPTCHA v3 (invisible, score)** - enter the Site Key, Secret Key and an optional score threshold (default 0.5).
-- **Google reCAPTCHA v2 (invisible badge)** - enter the Site Key and Secret Key. Create the keys in Google's console as reCAPTCHA v2, "Invisible reCAPTCHA badge". This is a different key type than v3.
-
-A CAPTCHA runs only once the chosen provider has both a site key and a secret key saved. Switching providers keeps the keys you entered for the others, so you can switch back without retyping. The provider guards the sign-up, job-submission and job-application forms, and the mobile app is told whether a CAPTCHA is required.
+A hidden honeypot field protects every submission form automatically, with nothing to set up. Career Board does not include a CAPTCHA. If your site needs one, add a CAPTCHA or spam-filter plugin that hooks `wcb_pre_job_submit`, `wcb_pre_application_submit` and `wcb_pre_registration`.
 
 **Visitor IP address.** Sign-ups, guest applications and app sign-ins are limited per visitor IP address. If your site runs behind Cloudflare, a load balancer or another proxy, every visitor reaches WordPress from the proxy's address, so choose your proxy here: Cloudflare (CF-Connecting-IP), a load balancer or proxy (X-Forwarded-For) or an Nginx proxy (X-Real-IP). Leave it on **Direct connection** otherwise, because anyone can send these headers. Behind two layers, such as a CDN in front of a load balancer, choose the CDN's own header (Cloudflare for CF-Connecting-IP); X-Forwarded-For would read the CDN's address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the `wcb_client_ip_trusted_hops` filter set to 2.
 

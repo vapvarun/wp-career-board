@@ -19,7 +19,7 @@ bug_ref: 10355318941
 3. Single-value header (Cloudflare style): same snippet with `HTTP_CF_CONNECTING_IP="198.51.100.7"` and the filter returning that key → `198.51.100.7`.
 4. Negative - malformed rightmost hop falls back: `HTTP_X_FORWARDED_FOR="1.1.1.1, not-an-ip"` → `10.0.0.1` (REMOTE_ADDR), never the attacker's text as a bucket key. Spaces are trimmed: `"1.1.1.1 ,  203.0.113.9 "` → `203.0.113.9`.
 5. End to end: with the filter active via an mu-plugin and the proxy appending `203.0.113.9`, send 11 guest applications (`POST /wp-json/wcb/v1/jobs/<id>/apply`, distinct `guest_email` each) with `X-Forwarded-For: <n>.0.0.1, 203.0.113.9` where `<n>` changes every call → the 11th is 429 `wcb_rate_limited`. Before 1.8.1 every call looked like a new visitor and none was limited.
-6. Settings path: Settings > Anti-Spam > Visitor IP address set to the X-Forwarded-For option behaves the same (the setting and the `wcb_client_ip_header` filter feed the same function).
+6. Settings path: Settings > Advanced > Visitor IP address set to the X-Forwarded-For option behaves the same (the setting and the `wcb_client_ip_header` filter feed the same function).
 7. tail debug.log diff → expect ZERO new fatal/warning lines.
 
 ## Teardown

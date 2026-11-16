@@ -21,7 +21,7 @@ With WP Career Board Pro you can also:
 
 ## Register
 
-1. Open the site's registration page (its default title is **Employer Registration**, but it serves both roles).
+1. Open the site's registration page (its default title is **Join**, or **Employer Registration** on sites set up before 1.8.4; it serves both roles).
 2. Choose **Find a Job**.
 3. Enter your first name, last name, email address and a password of at least 8 characters.
 

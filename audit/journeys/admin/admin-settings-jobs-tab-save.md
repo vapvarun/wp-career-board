@@ -62,5 +62,4 @@ wp option patch update wcb_settings jobs_expire_days "$ORIG_EXPIRE" 2>/dev/null 
 - The Jobs tab (`tab=listings`) posts: `auto_publish_jobs`, `report_auto_hide_threshold`, `jobs_expire_days`, `jobs_per_page`, `jobs_default_sort`, `salary_currency`, `apply_featured_days`, `job_schema_enabled`, `require_job_location`, `default_country`, `social_tags_enabled`. `deadline_auto_close` has no toggle there; it is on for sites installed on 1.8.0+ and switched on from the Jobs tab for older sites.
 - `allow_withdraw` and `apply_resume_required` live on the Applications tab (a separate form); an unchecked checkbox there is sent as `0` by the hidden `_wcb_form` companion fields, so unchecking intentionally turns them off.
 - `jobs_expire_days` is clamped to a minimum of 1 by the schema (the form allows 1-365); `jobs_per_page` is clamped to 1-100.
-- The Antispam tab also posts to `options.php` (since 1.8.0) and is covered by `admin-settings-antispam-tab-save.md`.
 - `critical` priority: a replace-on-save bug would silently disable notifications or other features on every installation.

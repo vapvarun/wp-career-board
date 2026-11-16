@@ -64,7 +64,6 @@ final class SettingsEndpoint extends RestController {
 		// Reads use \WCB\Admin\Settings so internal callers and this endpoint
 		// share one source of truth for canonical keys.
 		$is_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
-		$captcha       = \WCB\Modules\AntiSpam\AntiSpamModule::active();
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled Abilities API check, see core/abilities-api-polyfill.php.
 		$can_manage = wp_is_ability_granted( 'wcb/manage-settings' );
 
@@ -160,13 +159,6 @@ final class SettingsEndpoint extends RestController {
 			'timezone'              => (string) wp_timezone_string(),
 			'locale'                => (string) get_locale(),
 			'rest_namespace'        => 'wcb/v1',
-			'captcha_required'      => null !== $captcha,
-			// The app renders the same widget the website does. The site key is
-			// public by design (it is in every page's HTML); the secret never leaves.
-			'captcha'               => null === $captcha ? null : array(
-				'provider' => $captcha['provider'],
-				'site_key' => $captcha['site_key'],
-			),
 		);
 
 		/**

@@ -52,7 +52,7 @@ if ( $wcb_user && ( $wcb_is_employer || $wcb_is_candidate ) ) {
 
 // WordPress ships with "Anyone can register" off. The form used to render
 // anyway and only failed after the visitor had filled every field.
-if ( ! $wcb_user && ! get_option( 'users_can_register' ) && ! is_multisite() ) {
+if ( ! $wcb_user && ! get_option( 'users_can_register' ) ) {
 	$wcb_gate = array(
 		'icon'    => 'user-x',
 		'title'   => __( 'Employer registration', 'wp-career-board' ),

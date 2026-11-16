@@ -29,6 +29,14 @@ final class JobsModule {
 	public const TAXONOMIES = array( 'wcb_category', 'wcb_job_type', 'wcb_tag', 'wcb_location', 'wcb_experience' );
 
 	/**
+	 * One-minute cookie set on logout; its value is the site (blog) ID whose
+	 * job form drafts the next page removes from the browser.
+	 *
+	 * @var string
+	 */
+	public const CLEAR_DRAFTS_COOKIE = 'wcb_clear_drafts';
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -46,11 +54,20 @@ final class JobsModule {
 		// Any job save (REST, wp-admin, cron, CLI) invalidates the cached REST
 		// job lists. Registered here, not with the REST routes, which only
 		// load on REST requests.
+		$bump_jobs_cache = static function (): void {
+			update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
+		};
+		add_action( 'save_post_wcb_job', $bump_jobs_cache );
+		// A permanent delete fires no save_post, so a deleted job would linger in cached lists.
 		add_action(
-			'save_post_wcb_job',
-			static function (): void {
-				update_option( 'wcb_jobs_cache_v', (int) get_option( 'wcb_jobs_cache_v', 0 ) + 1, false );
-			}
+			'deleted_post',
+			static function ( $post_id, $post ) use ( $bump_jobs_cache ): void {
+				if ( $post instanceof \WP_Post && 'wcb_job' === $post->post_type ) {
+					$bump_jobs_cache();
+				}
+			},
+			10,
+			2
 		);
 		// Member blocking on the SSR frontend. REST already excludes blocked
 		// authors (class-jobs-endpoint.php author__not_in / is_hidden); mirror it
@@ -58,6 +75,50 @@ final class JobsModule {
 		// jobs don't leak on the pretty permalink or archive.
 		add_filter( 'wcb_job_listings_query_args', array( $this, 'exclude_blocked_authors' ) );
 		add_action( 'template_redirect', array( $this, 'guard_hidden_single_job' ) );
+		add_action( 'wp_logout', array( self::class, 'flag_draft_cleanup' ) );
+		add_action( 'login_enqueue_scripts', array( self::class, 'enqueue_draft_cleanup' ) );
+		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_draft_cleanup' ) );
+	}
+
+	/**
+	 * Ask the next page to remove this site's job form drafts.
+	 *
+	 * The drafts live in the browser's localStorage, which only page script
+	 * can clear, so an explicit logout leaves a one-minute cookie the next
+	 * page (normally the sign-in screen) acts on. A session that simply
+	 * expires keeps its draft for when the employer signs back in.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function flag_draft_cleanup(): void {
+		if ( headers_sent() ) {
+			return;
+		}
+		setcookie(
+			self::CLEAR_DRAFTS_COOKIE,
+			(string) get_current_blog_id(),
+			array(
+				'expires'  => time() + MINUTE_IN_SECONDS,
+				'path'     => '/',
+				'secure'   => is_ssl(),
+				'httponly' => false, // The page script reads and expires it.
+				'samesite' => 'Lax',
+			)
+		);
+	}
+
+	/**
+	 * Load the draft cleanup script on the page after a logout.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function enqueue_draft_cleanup(): void {
+		if ( ! isset( $_COOKIE[ self::CLEAR_DRAFTS_COOKIE ] ) ) {
+			return;
+		}
+		wp_enqueue_script( 'wcb-clear-drafts', WCB_URL . 'assets/js/wcb-clear-drafts.js', array(), WCB_VERSION, array( 'strategy' => 'defer' ) );
 	}
 
 	/**
@@ -184,8 +245,8 @@ final class JobsModule {
 			$meta[] = esc_html__( 'Company', 'wp-career-board' ) . ': ' . esc_html( $company );
 		}
 
-		$location_terms = wp_get_object_terms( (int) $id, 'wcb_location', array( 'fields' => 'names' ) );
-		if ( ! is_wp_error( $location_terms ) && $location_terms ) {
+		$location_terms = \WCB\Core\Locations::place_names( wp_get_object_terms( (int) $id, 'wcb_location' ) );
+		if ( $location_terms ) {
 			$meta[] = esc_html__( 'Location', 'wp-career-board' ) . ': ' . esc_html( implode( ', ', $location_terms ) );
 		}
 

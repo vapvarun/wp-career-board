@@ -45,9 +45,9 @@ if (
 $wcb_name     = $wcb_company->post_title;
 $wcb_desc     = $wcb_company->post_content;
 $wcb_tagline  = (string) get_post_meta( $wcb_company_id, '_wcb_tagline', true );
-$wcb_website  = (string) get_post_meta( $wcb_company_id, '_wcb_website', true );
-$wcb_linkedin = (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true );
-$wcb_twitter  = (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true );
+$wcb_website  = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) );
+$wcb_linkedin = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_linkedin', true ) );
+$wcb_twitter  = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_twitter', true ) );
 $wcb_industry = \WCB\Core\Industries::label( (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) );
 $wcb_size     = (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true );
 $wcb_type     = (string) get_post_meta( $wcb_company_id, '_wcb_company_type', true );
@@ -341,8 +341,8 @@ wp_interactivity_state(
 
 		$wcb_cp_jobs_state = array();
 		foreach ( $wcb_open_jobs as $wcb_jpost ) {
-			$wcb_jloc            = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_jpost->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-			$wcb_jtype           = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_jpost->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+			$wcb_jloc            = \WCB\Core\Locations::place_names( get_the_terms( $wcb_jpost->ID, 'wcb_location' ) );
+			$wcb_jtype           = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_jpost->ID, 'wcb_job_type' ) );
 			$wcb_cp_jobs_state[] = array(
 				'id'        => $wcb_jpost->ID,
 				'title'     => $wcb_jpost->post_title,

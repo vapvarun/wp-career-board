@@ -695,19 +695,22 @@ final class ApplicationsEndpoint extends RestController {
 			$company_snapshot = (string) get_post_meta( $app->ID, '_wcb_company_name_snapshot', true );
 			$job_exists       = $job instanceof \WP_Post;
 
-			$row = array(
-				'id'           => $app->ID,
-				'jobTitle'     => $job_exists ? $job->post_title : ( $title_snapshot ? $title_snapshot : __( 'Job no longer available', 'wp-career-board' ) ),
-				'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
-				'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
-				'jobRemoved'   => $job_removed || ! $job_exists,
-				// Withdraw is offered until the application has an outcome.
-				'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
-				'created_at'   => $app->post_date_gmt,
-				'updated_at'   => $app->post_modified_gmt,
-				// Legacy `date` key, still rendered by the candidate dashboard.
-				'date'         => \WCB\Core\Time::date_label( $app->post_date_gmt ),
-			) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE );
+			$row = self::with_snake_keys(
+				array(
+					'id'           => $app->ID,
+					'jobTitle'     => $job_exists ? $job->post_title : ( $title_snapshot ? $title_snapshot : __( 'Job no longer available', 'wp-career-board' ) ),
+					'jobPermalink' => $job_exists ? (string) get_permalink( $job_id ) : '',
+					'company'      => $job_exists ? (string) get_post_meta( $job_id, '_wcb_company_name', true ) : $company_snapshot,
+					'jobRemoved'   => $job_removed || ! $job_exists,
+					// Withdraw is offered until the application has an outcome.
+					'canWithdraw'  => $job_exists && ! in_array( $status, \WCB\Modules\Applications\ApplicationStatus::terminal(), true ),
+					'created_at'   => $app->post_date_gmt,
+					'updated_at'   => $app->post_modified_gmt,
+					// Legacy `date` key, still rendered by the candidate dashboard.
+					'date'         => \WCB\Core\Time::date_label( $app->post_date_gmt ),
+					'timeline'     => self::candidate_timeline( $app ),
+				) + \WCB\Modules\Applications\ApplicationStatus::payload( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE )
+			);
 
 			/** This filter is documented in api/endpoints/class-applications-endpoint.php */
 			$items[] = (array) apply_filters( 'wcb_rest_prepare_application', $row, $app, $request, 'candidate' );
@@ -1042,8 +1045,9 @@ final class ApplicationsEndpoint extends RestController {
 		$is_candidate    = $current_user_id > 0 && (int) get_post_meta( $post->ID, '_wcb_candidate_id', true ) === $current_user_id;
 		$job_id          = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
 		$job             = get_post( $job_id );
-		$is_employer     = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $current_user_id, $job );
-		$is_admin        = $this->check_ability( 'wcb/manage-settings' );
+		// Same gate as the job's applications list: owning the job is not enough without wcb/view-applications.
+		$is_employer = $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $current_user_id, $job ) && $this->check_ability( 'wcb/view-applications' );
+		$is_admin    = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_candidate || $is_employer || $is_admin ) ? true : $this->permission_error();
 	}
 
@@ -1274,10 +1278,15 @@ final class ApplicationsEndpoint extends RestController {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_for_employer( \WP_Post $post ): array {
-		$base = $this->prepare_for_candidate( $post );
+		$job_id = (int) get_post_meta( $post->ID, '_wcb_job_id', true );
+		$base   = $this->prepare_for_candidate( $post );
+		// Same applicant fields as the employer's applications lists; keys the
+		// candidate shape already sets keep their value.
+		$base += JobsEndpoint::employer_application_item( $post, (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ) );
 		return array_merge(
 			$base,
 			array(
+				'job_title'      => $base['job_title'] ?? get_the_title( $job_id ),
 				'status_history' => $this->status_history_for_employer( $post ),
 			)
 		);
@@ -1344,6 +1353,40 @@ final class ApplicationsEndpoint extends RestController {
 				'reviewer_user_id' => $entry['by'],
 			),
 			$log
+		);
+	}
+
+	/**
+	 * Where an application stands, for its candidate: submitted, then each
+	 * status change, in the candidate's wording. No reviewer and no note,
+	 * which stay part of the employer's audit trail.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param  \WP_Post $post Application post object (meta cache primed by the caller).
+	 * @return array<int, array{status:string, label:string, date:string}>
+	 */
+	private static function candidate_timeline( \WP_Post $post ): array {
+		$audience = \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_CANDIDATE;
+		$steps    = array(
+			array(
+				'status' => \WCB\Modules\Applications\ApplicationStatus::SUBMITTED,
+				'at'     => $post->post_date_gmt,
+			),
+		);
+		foreach ( \WCB\Modules\Applications\ApplicationLifecycle::log( $post->ID ) as $entry ) {
+			$steps[] = array(
+				'status' => $entry['to'],
+				'at'     => $entry['at'],
+			);
+		}
+		return array_map(
+			static fn( array $step ): array => array(
+				'status' => $step['status'],
+				'label'  => \WCB\Modules\Applications\ApplicationStatus::label( $step['status'], $audience ),
+				'date'   => \WCB\Core\Time::date_label( $step['at'] ),
+			),
+			$steps
 		);
 	}
 }

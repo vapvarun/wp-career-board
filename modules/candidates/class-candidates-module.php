@@ -412,6 +412,10 @@ final class CandidatesModule {
 		if ( wp_is_ability_granted( 'wcb/manage-settings' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return true;
 		}
+		// Only a published resume is ever readable by others: a trashed, draft or pending one stays private even if it was listed.
+		if ( 'publish' !== get_post_status( $post_id ) ) {
+			return false;
+		}
 		// A resume moderation took down (a suspended candidate's) is private, listed or not.
 		if ( '' !== \WCB\Modules\Moderation\HiddenContent::reason( $post_id ) ) {
 			return false;

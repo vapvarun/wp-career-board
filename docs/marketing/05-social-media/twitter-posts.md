@@ -23,7 +23,7 @@ For candidates: apply, track status, save jobs. Apply without an account.
 - WordPress Abilities API (no capability strings)
 - schema.org/JobPosting on every job page
 
-4/ Comes with reCAPTCHA v3, GDPR export/erasure, email notifications, and BuddyPress integration — all in the free version.
+4/ Comes with honeypot spam protection, GDPR export/erasure, email notifications, and BuddyPress integration — all in the free version.
 
 Most job board plugins charge extra for all of that.
 
@@ -84,7 +84,7 @@ Built the right way.
 Free job board features that most plugins charge extra for:
 
 - Guest applications (no account needed) ✓
-- reCAPTCHA v3 ✓
+- Honeypot spam protection ✓
 - GDPR export + erasure ✓
 - JobPosting schema.org ✓
 - BuddyPress integration ✓

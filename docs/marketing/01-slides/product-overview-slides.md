@@ -20,7 +20,7 @@ Slide content for presentations, demo videos, and product pages.
 - Shortcodes everywhere — paste them and hope for the best
 - jQuery-powered filtering — added to every page load whether used or not
 - No BuddyPress awareness — the job board is its own island
-- Features you need are add-ons — guest applications, reCAPTCHA, GDPR all cost extra
+- Features you need are add-ons — guest applications, spam protection, GDPR all cost extra
 
 **Visual:** A shortcode-heavy admin screen (generic)
 
@@ -113,7 +113,7 @@ Submitted → Reviewing → Shortlisted → Rejected / Hired
 | Permissions | WordPress Abilities API |
 | SEO | `schema.org/JobPosting` |
 | Privacy | WP Privacy API |
-| Spam | reCAPTCHA v3 |
+| Spam | Honeypot |
 
 **No jQuery. No React. No shortcodes.**
 

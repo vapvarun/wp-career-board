@@ -134,7 +134,6 @@ Permission strategy: `permission_callback` calls either `__return_true` (public 
 | `wcb_setup_complete` | flag | bool | Wizard completion |
 | `wcb_db_version` | flag | string | dbDelta version stamp |
 | `wcb_default_board_id` | flag | int | Default `wcb_board` |
-| `wcb_captcha_driver` | admin-post | string | none / recaptcha / turnstile |
 | `wcb_jobs_cache_v` | flag | int | Cache bust |
 | `wcb_sample_data_ids`, `wcb_sample_data_installed` | wizard | array, bool | Sample-data tracking |
 
@@ -177,7 +176,7 @@ Frontend (block view.js — Interactivity API stores):
 - `blocks/employer-registration/view.js`, `blocks/company-profile/view.js`, `blocks/company-archive/view.js`
 
 Standalone:
-- `assets/js/wcb-recaptcha.js`, `assets/js/wcb-turnstile.js`, `assets/js/wcb-confirm-modal.js`
+- `assets/js/wcb-confirm-modal.js`
 
 Admin: `admin.js`, `wizard.js`, `admin/icons.js`, `admin/toast.js`, `admin/settings-nav.js`, `admin/application-detail.js`, vendor `lucide.min.js`.
 

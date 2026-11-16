@@ -26,6 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class EmployersEndpoint extends RestController {
 
+	/**
+	 * Company fields that hold a web address (saved through Text::web_url()).
+	 *
+	 * @since 1.8.4
+	 */
+	private const LINK_PARAMS = array( 'website', 'linkedin', 'twitter' );
 
 	/**
 	 * Register all employer routes.
@@ -162,7 +168,16 @@ final class EmployersEndpoint extends RestController {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_my_jobs' ),
 				'permission_callback' => array( $this, 'get_my_jobs_permissions_check' ),
-				'args'                => self::pagination_args() + self::company_filter_args(),
+				'args'                => self::pagination_args() + self::company_filter_args() + array(
+					'orderby' => array(
+						'description'       => __( 'Sort order: newest first, most applicants first, or soonest closing date first.', 'wp-career-board' ),
+						'type'              => 'string',
+						'enum'              => array( 'date', 'applicants', 'deadline' ),
+						'default'           => 'date',
+						'validate_callback' => 'rest_validate_request_arg',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
 			)
 		);
 
@@ -204,6 +219,10 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function register_employer( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$refused = $this->refused_link( $request );
+		if ( $refused ) {
+			return $refused;
+		}
 		$company_name = (string) $request->get_param( 'company_name' );
 
 		// Logged-in user without the employer role: just promote them and create their company.
@@ -252,7 +271,7 @@ final class EmployersEndpoint extends RestController {
 				foreach ( $reg_meta as $param => $meta_key ) {
 					$val = $request->get_param( $param );
 					if ( $val ) {
-						update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+						update_post_meta( $company_id, $meta_key, 'website' === $param ? \WCB\Core\Text::web_url( (string) $val ) : sanitize_text_field( (string) $val ) );
 					}
 				}
 				\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $request->get_param( 'hq' ) );
@@ -274,7 +293,7 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
-		if ( ! get_option( 'users_can_register', false ) && ! is_multisite() ) {
+		if ( ! get_option( 'users_can_register', false ) ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
 				__( 'User registration is currently disabled.', 'wp-career-board' ),
@@ -385,7 +404,7 @@ final class EmployersEndpoint extends RestController {
 			foreach ( $reg_meta as $param => $meta_key ) {
 				$val = $request->get_param( $param );
 				if ( $val ) {
-					update_post_meta( $company_id, $meta_key, sanitize_text_field( (string) $val ) );
+					update_post_meta( $company_id, $meta_key, 'website' === $param ? \WCB\Core\Text::web_url( (string) $val ) : sanitize_text_field( (string) $val ) );
 				}
 			}
 			\WCB\Core\Locations::sync_company_hq( (int) $company_id, (string) $request->get_param( 'hq' ) );
@@ -421,6 +440,25 @@ final class EmployersEndpoint extends RestController {
 	}
 
 	/**
+	 * A 400 when a company link was typed but is not a web address, so the stored
+	 * value is kept and the caller is told instead of the link being cleared.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_Error|null
+	 */
+	private function refused_link( \WP_REST_Request $request ): ?\WP_Error {
+		foreach ( self::LINK_PARAMS as $param ) {
+			$value = $request->get_param( $param );
+			if ( is_string( $value ) && \WCB\Core\Text::is_refused_url( $value ) ) {
+				return new \WP_Error( 'rest_invalid_param', \WCB\Core\Text::web_url_error(), array( 'status' => 400 ) );
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Create a new company profile for the current employer.
 	 *
 	 * @since 1.0.0
@@ -429,6 +467,10 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function create_item( $request ): \WP_REST_Response|\WP_Error {
+		$link_error = $this->refused_link( $request );
+		if ( $link_error ) {
+			return $link_error;
+		}
 		$name = sanitize_text_field( (string) $request->get_param( 'name' ) );
 		if ( empty( $name ) ) {
 			return new \WP_Error(
@@ -468,7 +510,7 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				$value = sanitize_text_field( (string) $value );
+				$value = in_array( $param, self::LINK_PARAMS, true ) ? \WCB\Core\Text::web_url( (string) $value ) : sanitize_text_field( (string) $value );
 				update_post_meta( $company_id, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 			}
 		}
@@ -534,6 +576,11 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
+		$link_error = $this->refused_link( $request );
+		if ( $link_error ) {
+			return $link_error;
+		}
+
 		$data = array( 'ID' => $post->ID );
 		$name = $request->get_param( 'name' );
 		if ( null !== $name ) {
@@ -569,7 +616,7 @@ final class EmployersEndpoint extends RestController {
 		foreach ( $meta_map as $param => $meta_key ) {
 			$value = $request->get_param( $param );
 			if ( null !== $value ) {
-				$value = sanitize_text_field( (string) $value );
+				$value = in_array( $param, self::LINK_PARAMS, true ) ? \WCB\Core\Text::web_url( (string) $value ) : sanitize_text_field( (string) $value );
 				update_post_meta( $post->ID, $meta_key, 'company_type' === $param ? \WCB\Core\CompanyMetaShape::type_slug( $value ) : $value );
 				$changed = true;
 			}
@@ -751,9 +798,23 @@ final class EmployersEndpoint extends RestController {
 		) . ' AND ' . \WCB\Modules\Employers\EmployersModule::job_scope_sql( get_current_user_id(), 'job', $company_id );
 
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} job WHERE {$where}" );
-		$ids   = $wpdb->get_col(
+		// Sorts join by indexed keys only (meta_key, post_id); applicants is one grouped
+		// count, the same "any _wcb_job_id row" rule as each row's appCount.
+		list( $join, $order ) = match ( (string) $request->get_param( 'orderby' ) ) {
+			'applicants' => array(
+				"LEFT JOIN ( SELECT meta_value AS job_id, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key = '_wcb_job_id' GROUP BY meta_value ) ac ON ac.job_id = CAST( job.ID AS CHAR )",
+				'COALESCE( ac.cnt, 0 ) DESC, ',
+			),
+			// Open deadlines soonest first; none or already passed go last.
+			'deadline'   => array(
+				"LEFT JOIN {$wpdb->postmeta} dl ON dl.post_id = job.ID AND dl.meta_key = '_wcb_deadline'",
+				$wpdb->prepare( "( dl.meta_value IS NULL OR dl.meta_value = '' OR dl.meta_value < %s ) ASC, dl.meta_value ASC, ", gmdate( 'Y-m-d H:i:s' ) ),
+			),
+			default      => array( '', '' ),
+		};
+		$ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT job.ID FROM {$wpdb->posts} job WHERE {$where} ORDER BY job.post_date DESC, job.ID DESC LIMIT %d OFFSET %d",
+				"SELECT job.ID FROM {$wpdb->posts} job {$join} WHERE {$where} ORDER BY {$order}job.post_date DESC, job.ID DESC LIMIT %d OFFSET %d",
 				$per_page,
 				( $paged - 1 ) * $per_page
 			)
@@ -789,10 +850,13 @@ final class EmployersEndpoint extends RestController {
 			}
 		}
 
+		// Views in the last 30 days, also one query for the page (the owner's own jobs only).
+		$wcb_view_counts = \WCB\Modules\Jobs\JobViewsRetention::counts( $wcb_job_ids );
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts ): array {
-				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts ): array {
+				$location_terms = \WCB\Core\Locations::place_names( get_the_terms( $p->ID, 'wcb_location' ) );
+				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 				$status_labels  = self::job_status_labels();
 				// Mirror the public-facing 'closed' / 'expired' status used by
@@ -809,30 +873,50 @@ final class EmployersEndpoint extends RestController {
 				if ( 'publish' === $public_status && \WCB\Core\JobDeadline::has_passed( $p->ID ) ) {
 					$public_status = 'expired';
 				}
-				return array(
-					'id'               => $p->ID,
-					'title'            => $p->post_title,
-					'status'           => $rejected ? 'rejected' : $public_status,
-					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
-					'rejected'         => $rejected,
-					'closedNote'       => self::closed_note( $p ),
-					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
-					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
-					'permalink'        => get_permalink( $p->ID ),
-					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
-					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
-					'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
-					'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
-						? sprintf(
-							/* translators: %s: number of applicants, already localised. */
-							_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
-							number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
-						)
-						: __( 'No applicants', 'wp-career-board' ),
-					'location'         => implode( ', ', $location_terms ),
-					'type'             => implode( ', ', $type_terms ),
-					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
-					'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
+				return self::with_snake_keys(
+					array(
+						'id'               => $p->ID,
+						'title'            => $p->post_title,
+						'status'           => $rejected ? 'rejected' : $public_status,
+						'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
+						'rejected'         => $rejected,
+						'closedNote'       => self::closed_note( $p ),
+						'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+						'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
+						// Core 404s a pending or draft job, even for its author: no link.
+						'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
+						'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
+						'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
+						'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
+						'appLabel'         => ( $wcb_app_counts[ $p->ID ] ?? 0 ) > 0
+							? sprintf(
+								/* translators: %s: number of applicants, already localised. */
+								_n( '%s applicant', '%s applicants', (int) $wcb_app_counts[ $p->ID ], 'wp-career-board' ),
+								number_format_i18n( (int) $wcb_app_counts[ $p->ID ] )
+							)
+							: __( 'No applicants', 'wp-career-board' ),
+						'viewLabel'        => sprintf(
+							/* translators: %s: number of views in the last 30 days, already localised. */
+							_n( '%s view in 30 days', '%s views in 30 days', $wcb_view_counts[ $p->ID ] ?? 0, 'wp-career-board' ),
+							number_format_i18n( $wcb_view_counts[ $p->ID ] ?? 0 )
+						),
+						// A job nobody can see yet says why, instead of "0 views".
+						'statusNote'       => match ( true ) {
+							$rejected                       => '',
+							'draft' === $p->post_status     => __( 'Not submitted yet', 'wp-career-board' ),
+							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
+								/* translators: %s: the date the job was submitted, already formatted for the site. */
+								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
+								\WCB\Core\Time::date_label( '0000-00-00 00:00:00' !== $p->post_date_gmt ? $p->post_date_gmt : get_gmt_from_date( $p->post_date ) ) // A pending post has no GMT date until it is published.
+							),
+							default                         => '',
+						},
+						'location'         => implode( ', ', $location_terms ),
+						'type'             => implode( ', ', $type_terms ),
+						'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
+						'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
+
+					)
 				);
 			},
 			$posts
@@ -903,8 +987,8 @@ final class EmployersEndpoint extends RestController {
 
 		$items = array_map(
 			static function ( \WP_Post $p ) use ( $app_counts, $wcb_job_form_url ): array {
-				$location_terms = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-				$type_terms     = \WCB\Core\Taxonomy::names( wp_get_object_terms( $p->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
+				$location_terms = \WCB\Core\Locations::place_names( get_the_terms( $p->ID, 'wcb_location' ) );
+				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$app_count      = $app_counts[ $p->ID ] ?? 0;
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
 
@@ -922,30 +1006,34 @@ final class EmployersEndpoint extends RestController {
 					$public_status = 'expired';
 				}
 
-				return array(
-					'id'               => $p->ID,
-					'title'            => $p->post_title,
-					'status'           => $rejected ? 'rejected' : $public_status,
-					'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
-					'rejected'         => $rejected,
-					'closedNote'       => self::closed_note( $p ),
-					'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
-					'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
-					'permalink'        => get_permalink( $p->ID ),
-					'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
-					'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
-					'appCount'         => $app_count,
-					'appLabel'         => $app_count > 0
-					? sprintf(
-						/* translators: %s: number of applicants, already localised. */
-						_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
-						number_format_i18n( $app_count )
+				return self::with_snake_keys(
+					array(
+						'id'               => $p->ID,
+						'title'            => $p->post_title,
+						'status'           => $rejected ? 'rejected' : $public_status,
+						'statusLabel'      => $rejected ? __( 'Rejected', 'wp-career-board' ) : ( 'expired' === $public_status ? $status_labels['wcb_expired'] : ( $status_labels[ $p->post_status ] ?? ucfirst( $p->post_status ) ) ),
+						'rejected'         => $rejected,
+						'closedNote'       => self::closed_note( $p ),
+						'awaiting_payment' => \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ),
+						'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
+						// Core 404s a pending or draft job, even for its author: no link.
+						'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
+						'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_job_form_url ),
+						'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
+						'appCount'         => $app_count,
+						'appLabel'         => $app_count > 0
+						? sprintf(
+							/* translators: %s: number of applicants, already localised. */
+							_n( '%s applicant', '%s applicants', $app_count, 'wp-career-board' ),
+							number_format_i18n( $app_count )
+						)
+						: __( 'No applicants', 'wp-career-board' ),
+						'location'         => implode( ', ', $location_terms ),
+						'type'             => implode( ', ', $type_terms ),
+						'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
+						'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
+
 					)
-					: __( 'No applicants', 'wp-career-board' ),
-					'location'         => implode( ', ', $location_terms ),
-					'type'             => implode( ', ', $type_terms ),
-					'deadline'         => '' !== $deadline_raw ? $deadline_raw : null,
-					'deadline_day'     => '' !== $deadline_raw ? \WCB\Core\Time::date_input( $deadline_raw ) : null,
 				);
 			},
 			$query->posts
@@ -1530,7 +1618,7 @@ final class EmployersEndpoint extends RestController {
 			'description'    => $post->post_content,
 			'logo'           => $logo ? $logo : '',
 			'tagline'        => $shape['tagline'],
-			'website'        => (string) get_post_meta( $post->ID, '_wcb_website', true ),
+			'website'        => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_website', true ) ),
 			'industry'       => $shape['industry'],
 			'industry_label' => $shape['industry_label'],
 			'size'           => $shape['size'],
@@ -1538,8 +1626,8 @@ final class EmployersEndpoint extends RestController {
 			'hq'             => $shape['hq'],
 			'company_type'   => \WCB\Core\CompanyMetaShape::type_slug( (string) get_post_meta( $post->ID, '_wcb_company_type', true ) ),
 			'founded'        => (string) get_post_meta( $post->ID, '_wcb_founded', true ),
-			'linkedin'       => (string) get_post_meta( $post->ID, '_wcb_linkedin', true ),
-			'twitter'        => (string) get_post_meta( $post->ID, '_wcb_twitter', true ),
+			'linkedin'       => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_linkedin', true ) ),
+			'twitter'        => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_twitter', true ) ),
 			'trust_level'    => $trust_level,
 			'trust_label'    => $trust_info['label'] ?? '',
 			'trust_icon'     => $trust_info['icon'] ?? '',

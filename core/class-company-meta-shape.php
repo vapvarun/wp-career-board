@@ -39,11 +39,15 @@ final class CompanyMetaShape {
 	 * @since 1.8.0
 	 *
 	 * @param \WP_Post $job Job post.
-	 * @return int Company post ID, or 0.
+	 * @return int Company post ID, or 0 (none, deleted or trashed).
 	 */
 	public static function for_job( \WP_Post $job ): int {
 		$company_id = (int) get_post_meta( $job->ID, '_wcb_company_id', true );
-		return $company_id ? $company_id : (int) get_user_meta( (int) $job->post_author, '_wcb_company_id', true );
+		$company_id = $company_id ? $company_id : (int) get_user_meta( (int) $job->post_author, '_wcb_company_id', true );
+		// A deleted or trashed company brands nothing: its name, logo and
+		// schema must not keep showing on the employer's other jobs.
+		$status = $company_id ? get_post_status( $company_id ) : false;
+		return false === $status || 'trash' === $status ? 0 : $company_id;
 	}
 
 	/**
@@ -370,7 +374,7 @@ final class CompanyMetaShape {
 		if ( ! $ids ) {
 			return;
 		}
-		update_postmeta_cache( $ids );
+		_prime_post_caches( $ids, false, true ); // The company posts and their meta in two queries, so the thumbnail lookups below read from cache.
 		$images = array_values( array_filter( array_map( 'get_post_thumbnail_id', $ids ) ) );
 		if ( $images ) {
 			_prime_post_caches( $images, false, true );

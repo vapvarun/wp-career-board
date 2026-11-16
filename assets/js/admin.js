@@ -138,10 +138,10 @@
 						badge.className   = 'wcb-badge wcb-badge--' + ( toneMap[ res.status_tone ] || 'default' );
 						badge.textContent = res.status_label;
 					}
-				} ).catch( function () {
+				} ).catch( function ( err ) {
 					select.disabled = false;
 					select.value = select.dataset.original;
-					wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
+					wcbToast( failMessage( err ), 'error' );
 				} );
 			} );
 		} );
@@ -151,25 +151,94 @@
 	// Job moderation — T22a: styled modal + rejection reason
 	// -------------------------------------------------------------------------
 
-	// The status links (All / Pending / Published ...) are counted by PHP; take
-	// them from a fresh copy of this screen so they never drift from the server.
-	function refreshStatusCounts() {
-		var current = document.querySelector( '.wrap .subsubsub' );
-		if ( ! current ) {
-			return;
-		}
+	// Everything the server counts or words after a moderation action (status
+	// links, the "n items" line, the admin-bar badge, the Overview tiles and the
+	// empty states) is taken from one fresh copy of this screen, so it never drifts.
+	function refreshScreen() {
 		window.fetch( window.location.href, { credentials: 'same-origin' } )
 			.then( function ( res ) {
 				return res.ok ? res.text() : '';
 			} )
 			.then( function ( html ) {
-				var fresh = new window.DOMParser().parseFromString( html, 'text/html' ).querySelector( '.wrap .subsubsub' );
-				if ( fresh ) {
-					current.replaceWith( fresh );
+				if ( ! html ) {
+					return;
+				}
+				var doc = new window.DOMParser().parseFromString( html, 'text/html' );
+
+				// The last row of a later page was actioned: that page no longer
+				// exists, so go to the one before instead of an empty state.
+				var url   = new window.URL( window.location.href );
+				var paged = parseInt( url.searchParams.get( 'paged' ) || '1', 10 );
+				var next  = doc.querySelector( '#the-list' );
+				if ( paged > 1 && next && ! next.querySelector( 'tr:not(.no-items)' ) ) {
+					url.searchParams.set( 'paged', String( paged - 1 ) );
+					window.location.replace( url.toString() );
+					return;
+				}
+
+				var swap = function ( selector, dropWhenGone ) {
+					var now   = document.querySelectorAll( selector );
+					var fresh = doc.querySelectorAll( selector );
+					now.forEach( function ( el, i ) {
+						if ( fresh[ i ] ) {
+							el.replaceWith( document.importNode( fresh[ i ], true ) );
+						} else if ( dropWhenGone ) {
+							el.remove(); // WordPress omits it when the list is empty.
+						}
+					} );
+				};
+				swap( '.wrap .subsubsub' );
+				swap( '.tablenav .displaying-num', true );
+				swap( '#wp-admin-bar-wcb-moderation' );
+
+				// Overview tiles: numbers and the alert state, not the icons.
+				var tiles      = document.querySelectorAll( '.wcb-stats-grid .wcb-stat-box' );
+				var freshTiles = doc.querySelectorAll( '.wcb-stats-grid .wcb-stat-box' );
+				tiles.forEach( function ( tile, i ) {
+					var number = tile.querySelector( '.wcb-stat-number' );
+					var latest = freshTiles[ i ];
+					if ( number && latest ) {
+						number.textContent = latest.querySelector( '.wcb-stat-number' ).textContent;
+						tile.classList.toggle( 'wcb-stat-alert', latest.classList.contains( 'wcb-stat-alert' ) );
+					}
+				} );
+
+				// An emptied list or Pending Review widget shows the server's empty state.
+				var list = document.querySelector( '#the-list' );
+				if ( list && ! list.querySelector( 'tr:not(.no-items)' ) && doc.querySelector( '#the-list' ) ) {
+					list.replaceWith( document.importNode( doc.querySelector( '#the-list' ), true ) );
+				}
+				var panel = document.querySelector( '[data-panel="pending_review"]' );
+				var body  = panel && panel.closest( '.wcb-dashboard-panel' ).querySelector( '.wcb-panel-body' );
+				if ( body && ! body.querySelector( '.wcb-approve-job, .wcb-reject-job' ) ) {
+					var freshPanel = doc.querySelector( '[data-panel="pending_review"]' );
+					var freshBody  = freshPanel && freshPanel.closest( '.wcb-dashboard-panel' ).querySelector( '.wcb-panel-body' );
+					if ( freshBody ) {
+						body.replaceWith( document.importNode( freshBody, true ) );
+					}
 				}
 			} )
 			.catch( function () {
 				// Counts refresh on the next page load.
+			} );
+	}
+
+	// Swap one list row for its freshly rendered copy (status badge, row actions).
+	function refreshRow( row, jobId ) {
+		window.fetch( window.location.href, { credentials: 'same-origin' } )
+			.then( function ( res ) {
+				return res.ok ? res.text() : '';
+			} )
+			.then( function ( html ) {
+				var doc   = new window.DOMParser().parseFromString( html, 'text/html' );
+				var match = doc.querySelector( '#cb-select-' + jobId );
+				var fresh = match ? match.closest( 'tr' ) : null;
+				if ( fresh && row.isConnected ) {
+					row.replaceWith( document.importNode( fresh, true ) );
+				}
+			} )
+			.catch( function () {
+				// The row is corrected on the next page load.
 			} );
 	}
 
@@ -211,23 +280,43 @@
 					method: 'POST',
 					data:   data,
 				} );
-			} ).then( function () {
+			} ).then( function ( res ) {
 				var row = btn.closest( 'tr' );
-				if ( row ) {
-					row.style.opacity = '0.4';
-					setTimeout( function () { row.remove(); }, 600 );
+				if ( res && res.notice ) {
+					wcbToast( res.notice, 'warning' );
 				}
-				refreshStatusCounts();
+				// A job leaves the Pending view and the Overview widget; on All or
+				// Published it stays listed, so show its new status instead.
+				var view   = new window.URLSearchParams( window.location.search ).get( 'post_status' );
+				var inList = row && row.closest( '#the-list' );
+				if ( row && ( 'pending' === view || ! inList ) ) {
+					row.style.opacity = '0.4';
+					setTimeout( function () {
+						row.remove();
+						refreshScreen();
+					}, 600 );
+					return;
+				}
+				if ( row ) {
+					refreshRow( row, jobId );
+				}
+				refreshScreen();
 			} ).catch( function ( err ) {
 				if ( err === undefined ) {
 					return; // User cancelled.
 				}
 				btn.disabled = false;
-				wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
+				wcbToast( failMessage( err ), 'error' );
 			} );
 		} );
 	}
 
+	function failMessage( err ) {
+		// The server's own reason (e.g. "not enough credits") beats a generic line.
+		return err && 'string' === typeof err.message && err.message ? err.message : wcbAdmin.i18n.saveFailed;
+	}
+
+	
 	// -------------------------------------------------------------------------
 	// Company trust level selects — T22c
 	// -------------------------------------------------------------------------
@@ -251,10 +340,10 @@
 			} ).then( function () {
 				select.disabled = false;
 				select.dataset.original = level;
-			} ).catch( function () {
+			} ).catch( function ( err ) {
 				select.disabled = false;
 				select.value = select.dataset.original || '';
-				wcbToast( wcbAdmin.i18n.saveFailed, 'error' );
+				wcbToast( failMessage( err ), 'error' );
 			} );
 
 			select.dataset.original = level;
@@ -373,6 +462,12 @@
 						errors += res.errors.length;
 						res.errors.forEach( function ( err ) {
 							appendLog( err, 'wcb-import-log-line--error' );
+						} );
+					}
+
+					if ( res.warnings && res.warnings.length ) {
+						res.warnings.forEach( function ( warning ) {
+							appendLog( warning );
 						} );
 					}
 

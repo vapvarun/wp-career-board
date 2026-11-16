@@ -127,7 +127,7 @@ sponsors, brands, etc.):
 | `wcb_job_listings_query_args` | Modify the listings block's initial query |
 | `wcb_job_listings_board_options` | Add custom chips to the listings filter bar |
 | `wcb_job_listing_data` | Shape per-card data on the listings block |
-| `wcb_board_options_for_employer` | `(array $options, int $user_id)` - restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. |
+| `wcb_board_options_for_employer` | `(array $options, int $user_id)` - restrict the job-form Boards picker. Pro uses this to hide BuddyPress group boards the current employer is not a member of. Filter receives the full board list and returns the filtered set. Applied by `BoardsModule::options_for_employer()` (1.8.4) for both job forms and the employer dashboard, and only while Pro is active: without Pro the list is the default board alone and the picker is hidden. |
 | `wcb_page_needs_frontend_assets` | `(bool $needs)` - opt a request context into the shared `frontend.css` / `frontend-tokens.css` / `frontend-components.css` stylesheets when the post_content-based detector cannot see WCB block markup. Use for BuddyPress profile / group tabs, page-builder lazy renderers, and any surface that calls `render_block()` after `wp_head` has run. Without this, primitives like `.wcb-hidden` do not resolve and Interactivity toggles render both states stacked. |
 
 ## REST response filters (`wcb_rest_prepare_*`)
@@ -252,6 +252,7 @@ add_filter( 'wcb_pre_application_submit', function( $err, $request ) {
 |---|---|
 | `wcb_pre_job_submit` | Short-circuit job creation |
 | `wcb_pre_application_submit` | Short-circuit application submission |
+| `wcb_pre_registration` | Short-circuit a candidate or employer sign-up (the built-in anti-spam module hooks all three) |
 
 ## Job fields and terms (1.8.0)
 
@@ -306,6 +307,7 @@ Job listing sidebar chips for custom fields toggle `meta_<key>` in the listing's
 | Filter | Args | Purpose |
 |---|---|---|
 | `wcb_job_posting_schema` | `array $schema, WP_Post $job, array $data` | Change a job's JobPosting (built from the job's REST data `$data`), or return `[]` to leave the job out of Google for Jobs. |
+| `wcb_social_tags_enabled` | `bool $enabled` | Switch the Open Graph and Twitter tags on a job or company page on or off. The default is the Social sharing tags setting, off when Yoast SEO, Rank Math, All in One SEO or SEOPress is active. |
 
 `WCB\Modules\Seo\SeoModule::job_posting( $job )` and `::organization( $company_id )` return the markup arrays. Location country is term meta `_wcb_country` on `wcb_location` (REST-visible).
 
@@ -344,8 +346,7 @@ three.
 ## Sign-up and accounts (1.8.0)
 
 Both sign-up routes (`/candidates/register`, `/employers/register`) run one
-gate before an account is created: the plugin's anti-spam check (honeypot +
-CAPTCHA), a per-IP limit, then core's `registration_errors` filter so
+gate before an account is created: the plugin's honeypot check, a per-IP limit, then core's `registration_errors` filter so
 third-party anti-spam plugins see these sign-ups too. When the
 **Email Verification** setting is on (default for new installs), the new
 account stays signed out until the link in the "Confirm your email address"
@@ -440,10 +441,7 @@ Read it with `WCB\Core\Brand::color()` and `WCB\Core\Brand::logo_url( $size )`
 rather than the raw keys. The 1.3.4 upgrade moves an existing site's email
 header colour and logo into the Brand.
 
-**CAPTCHA.** `WCB\Modules\AntiSpam\AntiSpamModule::active()` answers which
-provider is in force (chosen AND both keys set): Turnstile, reCAPTCHA v3 or
-reCAPTCHA v2 (invisible badge). The web forms and app-config
-(`captcha_required`, `captcha.provider`, `captcha.site_key`) both read it.
+**Spam protection.** The plugin ships a honeypot only (`AntiSpamModule`). A CAPTCHA or spam service belongs in its own plugin: hook `wcb_pre_job_submit`, `wcb_pre_application_submit` and `wcb_pre_registration` and return a `WP_Error` to refuse. The built-in CAPTCHA (Turnstile, reCAPTCHA) and `wcb_captcha_skip` were removed in 1.8.4, and app-config no longer has `captcha_required` or `captcha`.
 
 ## Active-job quota (free tier)
 

@@ -37,43 +37,15 @@ $wcb_compact_attr  = ! empty( $attributes['compact'] );
 // sites (Pro) get a dropdown and the employer can target the post at a
 // specific board. Single-board sites skip the picker entirely; the REST
 // callback falls back to the default board when state.boardId stays 0.
-$wcb_board_options      = array();
+// Per-board credit cost + currency maps let view.js update state.creditCost
+// and state.currencyCode when the employer switches boards. Pro fulfils both
+// overrides via the wcb_board_credit_cost and wcb_board_currency filters.
 $wcb_board_credit_costs = array();
 $wcb_board_currencies   = array();
-if ( post_type_exists( 'wcb_board' ) ) {
-	$wcb_board_posts = get_posts(
-		array(
-			'post_type'      => 'wcb_board',
-			'post_status'    => 'publish',
-			'posts_per_page' => 50,
-			'no_found_rows'  => true,
-		)
-	);
-	foreach ( $wcb_board_posts as $wcb_b ) {
-		$wcb_board_options[] = array(
-			'id'    => (int) $wcb_b->ID,
-			'title' => $wcb_b->post_title,
-		);
-		// Per-board credit cost + currency maps seeded at render so view.js
-		// can update state.creditCost and state.currencyCode reactively when
-		// the employer switches boards. Pro fulfils both overrides via the
-		// wcb_board_credit_cost and wcb_board_currency filters.
-		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
-		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
-	}
-
-	/**
-	 * Filter the Boards dropdown shown to the current employer in the single-page
-	 * job form. Same filter that the multi-step wizard uses — Pro's BP-group
-	 * integration scopes the list to boards whose linked group the employer is
-	 * a member, mod, or admin of.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param array<int,array{id:int,title:string}> $wcb_board_options Default board list.
-	 * @param int                                   $wcb_user_id       Current user id.
-	 */
-	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
+$wcb_board_options      = \WCB\Modules\Boards\BoardsModule::options_for_employer( get_current_user_id() );
+foreach ( $wcb_board_options as $wcb_b ) {
+	$wcb_board_credit_costs[ (int) $wcb_b['id'] ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b['id'] );
+	$wcb_board_currencies[ (int) $wcb_b['id'] ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b['id'] );
 }
 
 // Resolve effective board id: explicit attribute → site-wide default option → first option.
@@ -166,7 +138,8 @@ foreach ( $wcb_board_credit_costs as $wcb_bid => $wcb_bcost ) {
 // ── Deadline ───────────────────────────────────────────────────────────────
 // Default from the board's listing length; the employer may pick any date up to
 // it (owner decision, 1.8.1) and REST caps it at the same maximum.
-$wcb_deadline = \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id ) );
+$wcb_deadline     = \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_resolved_board_id ) );
+$wcb_deadline_max = \WCB\Core\JobDeadline::max_days( array_merge( array( $wcb_resolved_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ) );
 
 // ── Initial Interactivity state ────────────────────────────────────────────
 /**
@@ -189,7 +162,11 @@ $wcb_state = apply_filters(
 		'salaryType'        => 'yearly',
 		'remote'            => false,
 		'deadline'          => $wcb_deadline,
-		'deadlineMax'       => $wcb_deadline,
+		// The picker clamps to the same per-board maximum JobDeadline::cap()
+		// applies on save (empty for moderators), so a date is never cut silently.
+		'deadlineMax'       => $wcb_deadline_max[ $wcb_resolved_board_id ],
+		'boardDeadlineMax'  => (object) $wcb_deadline_max,
+		'deadlineClamped'   => false,
 		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
 		// Site locale as a BCP-47 tag ("de-DE"). Sibling of 'i18n', not inside it:
 		// it is a locale tag, not a translatable string. view.js hands it to
@@ -217,6 +194,7 @@ $wcb_state = apply_filters(
 		'submitted'         => false,
 		'_aiGenerating'     => false,
 		'jobUrl'            => '',
+		'jobStatus'         => '',
 		'error'             => '',
 		'apiBase'           => untrailingslashit( rest_url( 'wcb/v1' ) ),
 		'nonce'             => wp_create_nonce( 'wp_rest' ),
@@ -279,6 +257,8 @@ $wcb_state = apply_filters(
 			// Submit-time validation + transport errors.
 			'errorTitleRequired'       => __( 'Job title is required.', 'wp-career-board' ),
 			'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
+			'errorApplyUrl'            => \WCB\Core\Text::web_url_error( true ),
+			'errorSalaryAmount'        => sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Enter a salary from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ),
 			'errorDescriptionRequired' => __( 'Job description is required.', 'wp-career-board' ),
 			'errorSessionExpired'      => __( 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.', 'wp-career-board' ),
 			/* translators: 1: pluralised credit cost ("1 credit" / "5 credits"), 2: employer's current balance. */
@@ -313,7 +293,7 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 
 	<div class="wcb-draft-notice" role="status" hidden data-wp-bind--hidden="!state.draftRestored">
 		<p class="wcb-draft-notice__text"><?php esc_html_e( 'We kept the job you were writing on this device.', 'wp-career-board' ); ?></p>
-		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.discardDraft"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
+		<button type="button" class="wcb-btn wcb-btn--ghost wcb-btn--sm" data-wp-on--click="actions.resetForm"><?php esc_html_e( 'Start over', 'wp-career-board' ); ?></button>
 	</div>
 
 	<!-- Honeypot — bots filling all fields trigger a fake success. -->
@@ -322,33 +302,45 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		<input type="text" id="wcb-hp-simple" name="wcb_hp" tabindex="-1" autocomplete="off" />
 	</label>
 
-	<!-- Success state -->
-	<div class="wcb-form-simple__success" data-wp-class--wcb-shown="state.submitted">
-		<h2 class="wcb-icon-label"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?><?php esc_html_e( 'Job posted', 'wp-career-board' ); ?></h2>
-		<p
-			class="wcb-form-simple__meta"
-			data-wp-class--wcb-hidden="!state.hasListingWindow"
-			data-wp-text="state.listingWindowMessage"
-		></p>
-		<p hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
-		<p class="wcb-form-simple__actions">
-			<a class="wcb-btn wcb-btn--primary" data-wp-class--wcb-hidden="!state.jobUrl" data-wp-bind--href="state.jobUrl" target="_blank" rel="noopener noreferrer">
-				<?php esc_html_e( 'View your job', 'wp-career-board' ); ?>
+	<!-- Success state: the multi-step form's panel (blocks/job-form/render.php), styles shared in wcb-ui.css. -->
+	<?php
+	$wcb_my_jobs_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
+	$wcb_my_jobs_url = '' !== $wcb_my_jobs_url ? $wcb_my_jobs_url . '#jobs' : '';
+	?>
+	<div class="wcb-form-success" data-wp-class--wcb-form-success--show="state.submitted">
+		<span class="wcb-form-success__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+		<div>
+			<p class="wcb-form-success__title">
+				<span data-wp-class--wcb-hidden="state.jobPending"><?php esc_html_e( 'Job posted successfully!', 'wp-career-board' ); ?></span>
+				<span data-wp-class--wcb-hidden="!state.jobPending">
+					<?php esc_html_e( 'Job submitted for review. You\'ll be notified once it\'s approved.', 'wp-career-board' ); ?>
+				</span>
+			</p>
+			<p
+				class="wcb-form-success__meta"
+				data-wp-class--wcb-hidden="!state.hasListingWindow"
+				data-wp-text="state.listingWindowMessage"
+			></p>
+			<p class="wcb-form-success__meta" hidden data-wp-bind--hidden="!state.featureError" data-wp-text="state.featureError"></p>
+			<a class="wcb-form-success__link" data-wp-bind--href="state.jobUrl" data-wp-class--wcb-hidden="!state.showJobLink">
+				<?php esc_html_e( 'View your job listing →', 'wp-career-board' ); ?>
 			</a>
-			<?php
-			$wcb_dashboard_url = \WCB\Admin\Pages::url( 'employer_dashboard_page' );
-			if ( '' !== $wcb_dashboard_url ) :
-				?>
-				<a class="wcb-btn wcb-btn--secondary" href="<?php echo esc_url( $wcb_dashboard_url . '#jobs' ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
-			<?php endif; ?>
-		</p>
+			<div class="wcb-form-success__actions">
+				<?php if ( $wcb_my_jobs_url ) : ?>
+					<a class="wcb-btn wcb-btn--primary" href="<?php echo esc_url( $wcb_my_jobs_url ); ?>"><?php esc_html_e( 'View my jobs', 'wp-career-board' ); ?></a>
+				<?php endif; ?>
+				<button type="button" class="wcb-form-success__reset" data-wp-on--click="actions.resetForm">
+					<?php esc_html_e( 'Post another job', 'wp-career-board' ); ?>
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<!-- Form -->
 	<div class="wcb-form-simple__body" data-wp-class--wcb-hidden="state.submitted">
 
 		<!-- Error banner -->
-		<p class="wcb-form-simple__error" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
+		<p class="wcb-form-simple__error" role="alert" data-wp-class--wcb-shown="state.error" data-wp-text="state.error"></p>
 		<p class="wcb-form-buy" hidden data-wp-bind--hidden="!state.buyUrl"><a class="wcb-btn wcb-btn--secondary" data-wp-bind--href="state.buyUrl"><?php esc_html_e( 'Buy credits', 'wp-career-board' ); ?></a></p>
 
 		<!-- Credit banner -->
@@ -546,8 +538,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 							</option>
 						<?php endforeach; ?>
 					</select>
-					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />
-					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Max', 'wp-career-board' ); ?>" min="0" data-wcb-field="salaryMax" data-wp-bind--value="state.salaryMax" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" />
+					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Min', 'wp-career-board' ); ?>" min="0" max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>" data-wcb-field="salaryMin" data-wp-bind--value="state.salaryMin" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Minimum salary', 'wp-career-board' ); ?>" />
+					<input type="number" class="wcb-field" placeholder="<?php esc_attr_e( 'Max', 'wp-career-board' ); ?>" min="0" max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>" data-wcb-field="salaryMax" data-wp-bind--value="state.salaryMax" data-wp-on--input="actions.updateField" aria-label="<?php esc_attr_e( 'Maximum salary', 'wp-career-board' ); ?>" />
 					<select class="wcb-field" data-wcb-field="salaryType" data-wp-bind--value="state.salaryType" data-wp-on--change="actions.updateField" aria-label="<?php esc_attr_e( 'Period', 'wp-career-board' ); ?>">
 						<option value="yearly"><?php esc_html_e( 'Year', 'wp-career-board' ); ?></option>
 						<option value="monthly"><?php esc_html_e( 'Month', 'wp-career-board' ); ?></option>
@@ -566,7 +558,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<div class="wcb-form-field wcb-form-field--deadline">
 				<label class="wcb-form-label" for="wcb-simple-deadline"><?php esc_html_e( 'Application Deadline', 'wp-career-board' ); ?></label>
 				<input id="wcb-simple-deadline" type="date" aria-describedby="wcb-simple-deadline-help" class="wcb-field" data-wp-bind--value="state.deadline" data-wp-bind--min="state.deadlineMin" data-wp-bind--max="state.deadlineMax" data-wp-on--change="actions.setDeadline" />
-				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-text="state.deadlineHelp"></span>
+				<span id="wcb-simple-deadline-help" class="wcb-form-hint" data-wp-class--wcb-hidden="!state.deadlineMax" data-wp-text="state.deadlineHelp"></span>
+				<span class="wcb-sr-only" role="status" data-wp-text="state.deadlineNotice"></span>
 				<?php // Beside the date it describes (Basecamp 10439851754). ?>
 				<span class="wcb-form-hint" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></span>
 			</div>
@@ -579,7 +572,8 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 			<div class="wcb-form-grid">
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-apply-url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
-					<input id="wcb-simple-apply-url" type="url" class="wcb-field" placeholder="<?php esc_attr_e( 'https://yourcompany.com/careers/apply', 'wp-career-board' ); ?>" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+					<input id="wcb-simple-apply-url" type="text" inputmode="url" class="wcb-field" placeholder="<?php esc_attr_e( 'https://yourcompany.com/careers/apply', 'wp-career-board' ); ?>" data-wcb-field="applyUrl" data-wp-bind--value="state.applyUrl" data-wp-on--input="actions.updateField" />
+					<p class="wcb-field-error wcb-field-error--url" id="wcb-simple-apply-url-error"><?php echo esc_html( \WCB\Core\Text::web_url_error( true ) ); ?></p>
 				</div>
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-simple-apply-email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>

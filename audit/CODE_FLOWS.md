@@ -159,7 +159,7 @@ Manually: `wp wcb job run-expiry`.
 
 ## Flow 10 — AntiSpam gate
 
-The two write hooks `wcb_pre_job_submit` and `wcb_pre_application_submit` are filtered by `AntiSpamModule::verify_request`. The active driver (`RecaptchaDriver` or `TurnstileDriver`, selected via `wcb_captcha_driver` option) verifies the token; if invalid the filter short-circuits the REST handler with a `WP_Error`.
+The two write hooks `wcb_pre_job_submit` and `wcb_pre_application_submit` are filtered by `AntiSpamModule::verify_request`. The honeypot and rate limit run there; if either trips, the filter short-circuits the REST handler with a `WP_Error`.
 
 ---
 

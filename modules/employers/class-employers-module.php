@@ -115,21 +115,21 @@ final class EmployersModule {
 	}
 
 	/**
-	 * Keep '&' in a company name as '&'.
+	 * Keep '&' in a company, job, resume or board title as '&'.
 	 *
 	 * For users without unfiltered_html, WordPress stores "Smith & Co" as
-	 * "Smith &amp; Co". Themes print titles as HTML, but company names are
-	 * copied into job meta and printed as text (cards, REST, the picker),
-	 * where the entity showed. Only the ampersand is restored, so no markup
-	 * can come back.
+	 * "Smith &amp; Co". Themes print titles as HTML, but these titles are
+	 * copied into meta, emails, CSV and REST and printed as text (cards, the
+	 * picker, notifications), where the entity showed. Only the ampersand is
+	 * restored, so no markup can come back.
 	 *
-	 * @since 1.8.1
+	 * @since 1.8.1 Companies only; 1.8.4 jobs, resumes and boards too.
 	 *
 	 * @param array<string, mixed> $data Slashed post data.
 	 * @return array<string, mixed>
 	 */
 	public static function plain_company_title( array $data ): array {
-		if ( 'wcb_company' === ( $data['post_type'] ?? '' ) && is_string( $data['post_title'] ?? null ) ) {
+		if ( in_array( $data['post_type'] ?? '', array( 'wcb_company', 'wcb_job', 'wcb_resume', 'wcb_board' ), true ) && is_string( $data['post_title'] ?? null ) ) {
 			$data['post_title'] = str_replace( array( '&amp;', '&#038;' ), '&', $data['post_title'] );
 		}
 		return $data;
@@ -911,5 +911,37 @@ final class EmployersModule {
 			'awaiting_apps'  => (int) ( $apps->awaiting ?? 0 ),
 			'jobs_with_apps' => $by_company,
 		);
+	}
+
+	/**
+	 * Whether the employer dashboard shows Credits (nav item, Overview tile, panel).
+	 *
+	 * Only where credits mean something to this employer: credits are on and they
+	 * hold some, just bought some, can buy some, or post to a board that charges.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $user_id    Employer user ID.
+	 * @param int $just_added Credits the checkout return just added (0 if none).
+	 * @return bool
+	 */
+	public static function shows_credits( int $user_id, int $just_added = 0 ): bool {
+		if ( ! apply_filters( 'wcb_credits_enabled', false ) ) {
+			return false;
+		}
+		if ( $just_added > 0
+			|| (int) apply_filters( 'wcb_employer_credit_balance', 0, $user_id ) > 0
+			|| '' !== (string) apply_filters( 'wcb_credit_purchase_url', '' ) ) {
+			return true;
+		}
+		if ( \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
+			return false;
+		}
+		foreach ( \WCB\Modules\Boards\BoardsModule::options_for_employer( $user_id ) as $board ) {
+			if ( (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $board['id'] ) > 0 ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

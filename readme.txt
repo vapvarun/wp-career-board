@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,49 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.4 - November 2026 =
+
+A fix release for 1.8.3.
+
+* New      - My Resumes rows show whether each resume is Public or Private.
+* New      - The employer dashboard shows each job's views in the last 30 days, counting one view per visitor per day.
+* New      - The Jobs list has an Applications column that links to that job's applications.
+* Improve  - The application edit screen shows only the hiring status, without core's Publish, Slug, Discussion and Custom Fields boxes.
+* Improve  - Site Health warns when the hourly job-expiry check is missing or overdue, for example when WP-Cron is off with no server cron.
+* Improve  - My Jobs, the job list and the company page read job locations and types without a query per row.
+* Improve  - The company archive and job listings load company logos in one query, so a page of 20 costs the same as a page of 3.
+* Improve  - Open Graph and Twitter tags step aside when Yoast SEO, Rank Math, All in One SEO or SEOPress is active; the wcb_social_tags_enabled filter overrides it.
+* Improve  - The setup wizard turns on visitor sign-up by default for a new install, and the sign-up page is titled Join.
+* Improve  - Setting a job deadline in the past through the REST API is refused with a message, and an existing past deadline can stay unchanged.
+* Improve  - The built-in CAPTCHA (Turnstile, reCAPTCHA) is removed; the honeypot stays, and a site that wants a CAPTCHA adds its own plugin on the wcb_pre_job_submit, wcb_pre_application_submit and wcb_pre_registration filters. Saved provider keys are deleted on upgrade, and app-config no longer lists a CAPTCHA.
+* Improve  - A job with no location publishes like any other and the Jobs list marks the ones Google for Jobs will not list; the Require a location setting is removed.
+* Fix      - The dashboard setup checklist counts the same pages as the Missing pages notice and the setup wizard.
+* Fix      - The dashboard Employers count matches the Employers list, which shows people with the Employer role.
+* Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.
+* Fix      - Logging out clears the unsent job form draft saved in the browser.
+* Fix      - The job form's board list shows every board, not only the first 50, and Free-only sites no longer show a board picker.
+* Fix      - A deadline typed past the board maximum is moved to the maximum with a notice, and the success screen shows the date that was saved.
+* Fix      - The single-page job form says when a job is held for review, keeps that message on screen, no longer links to a page the employer cannot open, and shows no "stays live until" line for a pending job.
+* Fix      - The job form's success panel spacing and alignment match the multi-step form.
+* Fix      - My Jobs hides View for jobs that have no public page yet.
+* Fix      - Custom field, company and candidate profile links keep only real web addresses, a bare domain is saved as https, the form shows an inline error, and invalid stored links no longer show as dead links.
+* Fix      - Links in the job page's Additional details are underlined and use the link colour.
+* Fix      - On right-to-left sites the job page and Post a Job no longer scroll sideways.
+* Fix      - Plugin Check prepared-SQL findings in the Applications admin search.
+* Fix      - A job whose Apply URL is not a real web address now shows on-site Apply instead of a dead link, in the job page, the REST API, the RSS feed, the job form and imports.
+* Fix      - Searching Applications by job title also finds applications to expired, closed and draft jobs.
+* Fix      - Deleting a job refreshes the job counts on the archive and company pages at once.
+* Fix      - Approving a job from the Pending list removes its row, while approving from other lists keeps the row and updates its status.
+* Fix      - Saved jobs that are expired or closed stay in the candidate's list and open their job page instead of a 404.
+* Fix      - A remote job with no default country is left out of Google for Jobs data, and the Jobs list badge says how to fix it.
+* Fix      - On multisite, the setup wizard no longer offers a sign-up toggle the network controls.
+* Fix      - The job search hero keeps the sidebar filters already chosen when a keyword is submitted.
+* Dev      - New \WCB\Core\Text::web_url(), BoardsModule::options_for_employer() and JobDeadline::max_days() helpers.
+* Dev      - The wcb_board_options_for_employer filter runs only while Pro is active.
+* Dev      - The REST permalink field is empty for jobs without a public page.
+* Dev      - New filter and hook notes are in docs/HOOKS.md.
+* Compat   - Aligned with WP Career Board Pro 1.8.4. Install both updates together.
 
 = 1.8.3 - November 2026 =
 

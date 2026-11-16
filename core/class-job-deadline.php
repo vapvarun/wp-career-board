@@ -253,6 +253,28 @@ class JobDeadline {
 	}
 
 	/**
+	 * The latest deadline day the job forms offer on each board.
+	 *
+	 * The same limit cap() applies on save, so a picked date is never cut
+	 * silently: the board's listing length, or the job's own later deadline.
+	 * Empty for moderators, whom cap() does not limit.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int[]  $board_ids Boards the form can post to.
+	 * @param string $existing  The edited job's deadline day (`Y-m-d`), if any.
+	 * @return array<int, string> `Y-m-d` display-timezone day per board ID, or ''.
+	 */
+	public static function max_days( array $board_ids, string $existing = '' ): array {
+		$uncapped = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		$days     = array();
+		foreach ( array_unique( array_map( 'intval', $board_ids ) ) as $board_id ) {
+			$days[ $board_id ] = $uncapped ? '' : max( $existing, Time::date_input( self::default_end_for_board( $board_id ) ) );
+		}
+		return $days;
+	}
+
+	/**
 	 * Cap an employer-chosen deadline at the board's listing length.
 	 *
 	 * The listing length is what paid boards charge for, so an employer may
@@ -272,5 +294,25 @@ class JobDeadline {
 			return $date;
 		}
 		return min( $date, max( Time::end_of_day_utc( $existing ), self::default_end_for_board( $board_id ) ) );
+	}
+
+	/**
+	 * Whether a requested deadline is a new date that has already passed.
+	 *
+	 * A saved job may keep the (past) deadline it already has, so editing an
+	 * ended job does not trip this; only choosing a past date does.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $input    Requested deadline (`Y-m-d` or UTC).
+	 * @param string $existing The job's current deadline, if any.
+	 * @return bool
+	 */
+	public static function is_new_past( string $input, string $existing = '' ): bool {
+		$end = Time::end_of_day_utc( $input );
+		if ( '' === $end || $end >= current_time( 'mysql', true ) ) {
+			return false;
+		}
+		return '' === $existing || ( $end !== Time::end_of_day_utc( $existing ) && $end !== Time::end_of_day_utc( Time::date_input( $existing ) ) );
 	}
 }

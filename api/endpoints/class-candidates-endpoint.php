@@ -26,6 +26,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 final class CandidatesEndpoint extends RestController {
+	/**
+	 * Profile fields that hold a web address.
+	 *
+	 * @var string[]
+	 */
+	private const LINK_FIELDS = array( 'linkedin', 'github', 'website', 'twitter' );
+
 
 	/**
 	 * Register all candidate routes.
@@ -183,7 +190,7 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
-		if ( ! get_option( 'users_can_register', false ) && ! is_multisite() ) {
+		if ( ! get_option( 'users_can_register', false ) ) {
 			return new \WP_Error(
 				'wcb_registration_disabled',
 				__( 'User registration is currently disabled.', 'wp-career-board' ),
@@ -369,6 +376,21 @@ final class CandidatesEndpoint extends RestController {
 	}
 
 	/**
+	 * One profile field for `_wcb_resume_data`: a link field keeps only a real web address.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $key   Field key as sent.
+	 * @param mixed  $value Field value as sent.
+	 * @return string
+	 */
+	private static function resume_value( string $key, mixed $value ): string {
+		return in_array( sanitize_key( $key ), self::LINK_FIELDS, true )
+			? \WCB\Core\Text::web_url( (string) $value )
+			: sanitize_textarea_field( (string) $value );
+	}
+
+	/**
 	 * Update a candidate profile (bio, visibility, resume data).
 	 *
 	 * @since 1.0.0
@@ -385,6 +407,15 @@ final class CandidatesEndpoint extends RestController {
 				__( 'Candidate not found.', 'wp-career-board' ),
 				array( 'status' => 404 )
 			);
+		}
+
+		// A profile link that is not a web address is reported, not blanked.
+		foreach ( array( 'resume', 'resume_data' ) as $wcb_param ) {
+			foreach ( (array) $request->get_param( $wcb_param ) as $wcb_key => $wcb_value ) {
+				if ( in_array( sanitize_key( (string) $wcb_key ), self::LINK_FIELDS, true ) && is_string( $wcb_value ) && \WCB\Core\Text::is_refused_url( $wcb_value ) ) {
+					return new \WP_Error( 'rest_invalid_param', \WCB\Core\Text::web_url_error(), array( 'status' => 400 ) );
+				}
+			}
 		}
 
 		$custom = $request->get_param( 'custom_fields' );
@@ -419,7 +450,7 @@ final class CandidatesEndpoint extends RestController {
 			$safe_resume = array();
 			if ( is_array( $resume_data ) ) {
 				foreach ( $resume_data as $key => $value ) {
-					$safe_resume[ sanitize_key( (string) $key ) ] = sanitize_textarea_field( (string) $value );
+					$safe_resume[ sanitize_key( (string) $key ) ] = self::resume_value( (string) $key, $value );
 				}
 			}
 			update_user_meta( $user_id, '_wcb_resume_data', $safe_resume );
@@ -433,7 +464,7 @@ final class CandidatesEndpoint extends RestController {
 			$existing = get_user_meta( $user_id, '_wcb_resume_data', true );
 			$existing = is_array( $existing ) ? $existing : array();
 			foreach ( $resume_data_partial as $key => $value ) {
-				$existing[ sanitize_key( (string) $key ) ] = sanitize_textarea_field( (string) $value );
+				$existing[ sanitize_key( (string) $key ) ] = self::resume_value( (string) $key, $value );
 			}
 			update_user_meta( $user_id, '_wcb_resume_data', $existing );
 		}
@@ -472,13 +503,15 @@ final class CandidatesEndpoint extends RestController {
 
 		foreach ( $bookmark_ids as $job_id ) {
 			$post = get_post( $job_id );
-			if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type ) {
+			// A job that went back to pending (or was rejected) has no page to open,
+			// so it is left out of the list until it is live again.
+			if ( ! $post instanceof \WP_Post || 'wcb_job' !== $post->post_type || ! in_array( $post->post_status, \WCB\Modules\Jobs\JobsMeta::VIEWABLE_STATUSES, true ) ) {
 				continue;
 			}
 
 			$loc_term_objs  = get_the_terms( $post->ID, 'wcb_location' );
 			$type_term_objs = get_the_terms( $post->ID, 'wcb_job_type' );
-			$loc_names      = \WCB\Core\Taxonomy::names( $loc_term_objs );
+			$loc_names      = \WCB\Core\Locations::place_names( $loc_term_objs );
 			$type_names     = \WCB\Core\Taxonomy::names( $type_term_objs );
 
 			$items[] = array(

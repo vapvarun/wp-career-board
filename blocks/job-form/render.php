@@ -130,7 +130,6 @@ $wcb_board_currency = $wcb_board_id > 0
 // ── Board picker options — multi-board sites (Pro) get a dropdown so the
 // employer can target the post at a specific board. Single-board sites skip
 // the picker entirely; the REST callback falls back to the default board.
-$wcb_board_options = array();
 // Per-board credit cost + currency maps: { board_id => value }. Seeded at
 // render so the JS layer can update `state.creditCost` / `state.currencyCode`
 // reactively when the employer switches boards in the picker, without a REST
@@ -138,38 +137,10 @@ $wcb_board_options = array();
 // `wcb_board_credit_cost` and `wcb_board_currency` filters.
 $wcb_board_credit_costs = array();
 $wcb_board_currencies   = array();
-if ( post_type_exists( 'wcb_board' ) ) {
-	$wcb_board_posts = get_posts(
-		array(
-			'post_type'      => 'wcb_board',
-			'post_status'    => 'publish',
-			'posts_per_page' => 50,
-			'no_found_rows'  => true,
-		)
-	);
-	foreach ( $wcb_board_posts as $wcb_b ) {
-		$wcb_board_options[]                        = array(
-			'id'    => (int) $wcb_b->ID,
-			'title' => $wcb_b->post_title,
-		);
-		$wcb_board_credit_costs[ (int) $wcb_b->ID ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b->ID );
-		$wcb_board_currencies[ (int) $wcb_b->ID ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b->ID );
-	}
-
-	/**
-	 * Filter the Boards dropdown shown to the current employer in the job form.
-	 *
-	 * Pro's BP-group integration uses this to drop boards whose linked
-	 * BuddyPress group the employer is not a member, mod, or admin of, so a
-	 * site-admin who manages every group is the only role that sees the full
-	 * list.
-	 *
-	 * @since 1.1.1
-	 *
-	 * @param array<int,array{id:int,title:string}> $wcb_board_options Default board list (every published wcb_board).
-	 * @param int                                   $wcb_user_id       Current user id (0 if logged out).
-	 */
-	$wcb_board_options = (array) apply_filters( 'wcb_board_options_for_employer', $wcb_board_options, get_current_user_id() );
+$wcb_board_options      = \WCB\Modules\Boards\BoardsModule::options_for_employer( $wcb_user_id );
+foreach ( $wcb_board_options as $wcb_b ) {
+	$wcb_board_credit_costs[ (int) $wcb_b['id'] ] = (int) apply_filters( 'wcb_board_credit_cost', 0, (int) $wcb_b['id'] );
+	$wcb_board_currencies[ (int) $wcb_b['id'] ]   = (string) apply_filters( 'wcb_board_currency', '', (int) $wcb_b['id'] );
 }
 // Editing: preselect the job's own board, or saving would move (and re-price) it.
 $wcb_edit_board_id = $wcb_edit_job ? \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( get_post_meta( $wcb_edit_id, '_wcb_board_id', true ) ) : 0;
@@ -209,6 +180,12 @@ if ( ! $wcb_edit_job && empty( $attributes['boardId'] ) && ( $wcb_board_credit_c
 		}
 	}
 }
+
+// Latest deadline per board, as JobDeadline::cap() enforces it on save.
+$wcb_deadline_max = \WCB\Core\JobDeadline::max_days(
+	array_merge( array( $wcb_board_id ), wp_list_pluck( $wcb_board_options, 'id' ) ),
+	$wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : ''
+);
 
 /**
  * Pluralised credit noun, resolved with the real count.
@@ -298,16 +275,19 @@ $wcb_initial_state = apply_filters(
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
 		'salaryType'        => $wcb_edit_job && in_array( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ), array( 'yearly', 'monthly', 'hourly' ), true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly',
-		'requireLocation'   => \WCB\Admin\Settings::bool( 'require_job_location', false ),
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// The employer may pick any deadline up to the board's listing length
 		// (owner decision, 1.8.1); REST clamps to the same maximum on save.
 		// Picker values are days in the site's timezone; the save stores the
 		// end of that day in UTC (JobsMeta::sanitize_deadline).
+		// The picker clamps to the same per-board maximum (boardDeadlineMax,
+		// empty for moderators) so a date is never cut silently.
 		'deadline'          => $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ),
-		'deadlineMax'       => max( $wcb_edit_job ? \WCB\Core\JobDeadline::day( $wcb_edit_id ) : '', \WCB\Core\Time::date_input( \WCB\Core\JobDeadline::default_end_for_board( $wcb_board_id ) ) ),
+		'deadlineMax'       => $wcb_deadline_max[ $wcb_board_id ],
+		'boardDeadlineMax'  => (object) $wcb_deadline_max,
+		'deadlineClamped'   => false,
 		'deadlineMin'       => ( new \DateTimeImmutable( \WCB\Core\Time::today() ) )->modify( '+1 day' )->format( 'Y-m-d' ),
-		'applyUrl'          => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) : '',
+		'applyUrl'          => $wcb_edit_job ? \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_edit_id, '_wcb_apply_url', true ) ) : '',
 		'applyEmail'        => $wcb_edit_job ? (string) get_post_meta( $wcb_edit_id, '_wcb_apply_email', true ) : '',
 		'locationSlug'      => ! is_wp_error( $wcb_e_locs ) && $wcb_e_locs ? $wcb_e_locs[0] : '',
 		// Manual override path for jobs whose location isn't an existing term —
@@ -423,8 +403,8 @@ $wcb_initial_state = apply_filters(
 				'errorSubmitFailed'        => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
 				'errorDescriptionRequired' => __( 'Job description is required before you can continue.', 'wp-career-board' ),
-				'errorLocationRequired'    => __( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
 				'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
+				'errorSalaryAmount'        => sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Enter a salary from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ),
 				'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
 				'errorAiFailed'            => __( 'Failed to generate description. Please try again.', 'wp-career-board' ),
 				// Count-free fallback for the credit gate; the numbered,
@@ -751,6 +731,7 @@ $wcb_step_labels = array(
 							class="wcb-field"
 							placeholder="60000"
 							min="0"
+							max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>"
 							data-wcb-field="salaryMin"
 							data-wp-bind--value="state.salaryMin"
 							data-wp-on--input="actions.updateField"
@@ -766,6 +747,7 @@ $wcb_step_labels = array(
 							class="wcb-field"
 							placeholder="90000"
 							min="0"
+							max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>"
 							data-wcb-field="salaryMax"
 							data-wp-bind--value="state.salaryMax"
 							data-wp-on--input="actions.updateField"
@@ -822,7 +804,8 @@ $wcb_step_labels = array(
 					data-wp-on--change="actions.setDeadline"
 					aria-describedby="wcb-deadline-help"
 				/>
-				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-text="state.deadlineHelp"></p>
+				<p class="wcb-form-help" id="wcb-deadline-help" data-wp-class--wcb-hidden="!state.deadlineMax" data-wp-text="state.deadlineHelp"></p>
+				<p class="wcb-sr-only" role="status" data-wp-text="state.deadlineNotice"></p>
 				<?php // Beside the date it describes, not above the first field before a board is picked (Basecamp 10439851754). ?>
 				<p class="wcb-form-help" data-wp-class--wcb-hidden="!state.hasListingWindow" data-wp-text="state.listingWindowMessage"></p>
 			</div>
@@ -834,13 +817,15 @@ $wcb_step_labels = array(
 				</label>
 				<input
 					id="wcb-apply-url"
-					type="url"
+					type="text"
+					inputmode="url"
 					class="wcb-field"
 					placeholder="https://yourcompany.com/careers/apply"
 					data-wcb-field="applyUrl"
 					data-wp-bind--value="state.applyUrl"
 					data-wp-on--input="actions.updateField"
 				/>
+				<p class="wcb-field-error wcb-field-error--url" id="wcb-apply-url-error"><?php echo esc_html( \WCB\Core\Text::web_url_error( true ) ); ?></p>
 				<span class="wcb-form-hint">
 					<?php esc_html_e( 'Link to your external ATS or application form.', 'wp-career-board' ); ?>
 				</span>
@@ -923,15 +908,10 @@ $wcb_step_labels = array(
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-location">
 						<?php esc_html_e( 'Location', 'wp-career-board' ); ?>
-						<?php if ( \WCB\Admin\Settings::bool( 'require_job_location', false ) ) : ?>
-							<span class="wcb-form-hint"><?php esc_html_e( '(required unless the job is remote)', 'wp-career-board' ); ?></span>
-						<?php endif; ?>
 					</label>
 					<select
 						id="wcb-location"
 						class="wcb-field"
-						aria-describedby="wcb-location-error"
-						data-wp-bind--aria-invalid="state.locationInvalid"
 						data-wcb-field="locationSlug"
 						data-wp-bind--value="state.locationSlug"
 						data-wp-on--change="actions.updateField"
@@ -956,7 +936,6 @@ $wcb_step_labels = array(
 						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote - Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
-					<p class="wcb-field-error" id="wcb-location-error" role="alert" hidden data-wp-bind--hidden="!state.locationInvalid" data-wp-text="state.validationError"></p>
 				</div>
 
 				<div class="wcb-form-field">

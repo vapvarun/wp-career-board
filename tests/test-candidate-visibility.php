@@ -93,6 +93,19 @@ if ( post_type_exists( 'wcb_resume' ) ) {
 	wp_set_current_user( 0 );
 	wcb_assert( ! CandidatesModule::resume_is_readable( $wcb_resume ), 'hidden from guests' );
 
+	// A listed resume that is trashed is private again, except to its owner.
+	update_post_meta( $wcb_resume, '_wcb_resume_public', '1' );
+	wp_trash_post( $wcb_resume );
+	wp_set_current_user( $wcb_other );
+	wcb_assert( ! CandidatesModule::resume_is_readable( $wcb_resume ), 'a trashed listed resume is hidden from others' );
+	wp_set_current_user( 0 );
+	wcb_assert( ! CandidatesModule::resume_is_readable( $wcb_resume ), 'a trashed listed resume is hidden from guests' );
+	wp_set_current_user( $wcb_cand );
+	wcb_assert( CandidatesModule::resume_is_readable( $wcb_resume ), 'a trashed resume stays readable by its owner' );
+	wp_untrash_post( $wcb_resume );
+	wp_update_post( array( 'ID' => $wcb_resume, 'post_status' => 'publish' ) );
+	update_post_meta( $wcb_resume, '_wcb_resume_public', '0' );
+
 	// A listed resume's page: a blocked employer gets a 404, an unblocked one does not.
 	update_post_meta( $wcb_resume, '_wcb_resume_public', '1' );
 	$wcb_blocks_cache = new ReflectionProperty( \WCB\Core\Blocks::class, 'cache' ); // hidden_author_ids() memoises per request.

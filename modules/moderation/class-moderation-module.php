@@ -359,12 +359,11 @@ class ModerationModule extends \WCB\Api\RestController {
 			);
 		}
 
-		return rest_ensure_response(
-			array(
-				'id'     => $job_id,
-				'status' => 'publish',
-			)
+		$response = array(
+			'id'     => $job_id,
+			'status' => 'publish',
 		);
+		return rest_ensure_response( $response );
 	}
 
 	/**

@@ -177,10 +177,14 @@ final class Plugin {
 		// Candidate files (resumes, generated CVs) live in private storage and
 		// download only through the gated handler.
 		\WCB\Core\PrivateFiles::boot();
+		\WCB\Core\CronRegistry::boot();
 
 		// Generated -rtl stylesheets: on RTL sites, each style of ours switches to
 		// its build-generated twin when one exists.
 		\WCB\Core\Rtl::boot();
+
+		// A page whose blocks are gone (Pro deactivated) says so instead of rendering blank.
+		\WCB\Core\MissingBlockNotice::boot();
 
 		// Mobile-app credential acquisition (Wbcom App Auth standard).
 		// AppAuthorizeAccess keeps core's authorize screen usable — the app's
@@ -333,6 +337,12 @@ final class Plugin {
 			wp_register_script_module(
 				'@wcb/fields',
 				WCB_URL . 'assets/js/modules/wcb-fields.js',
+				array(),
+				WCB_VERSION
+			);
+			wp_register_script_module(
+				'@wcb/hero-search',
+				WCB_URL . 'assets/js/modules/wcb-hero-search.js',
 				array(),
 				WCB_VERSION
 			);
@@ -1429,7 +1439,10 @@ final class Plugin {
 		\WP_CLI::add_command( 'wcb job', \WCB\Cli\JobCommands::class );
 		\WP_CLI::add_command( 'wcb application', \WCB\Cli\ApplicationCommands::class );
 		\WP_CLI::add_command( 'wcb migrate', \WCB\Cli\MigrateCommands::class );
-		\WP_CLI::add_command( 'wcb scale', \WCB\Cli\ScaleCommand::class );
+		// The seed and benchmark tool stays in the repo and out of the release zip.
+		if ( class_exists( \WCB\Cli\ScaleCommand::class ) ) {
+			\WP_CLI::add_command( 'wcb scale', \WCB\Cli\ScaleCommand::class );
+		}
 	}
 
 	/**

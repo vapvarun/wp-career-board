@@ -26,7 +26,6 @@ needs: cli
    - `notifications` → expect "Email Configuration" card with From Name / From Email / Notification Email inputs
    - `emails` → expect email brand settings + per-template table
    - `import` → expect WPJM migration card(s) render
-   - `antispam` → expect "Anti-Spam" form with CAPTCHA Provider dropdown
 4. With Pro active, also navigate to each Pro-injected tab slug:
    - `boards` → expect Boards list card or "No boards" empty state
    - `field-builder` → expect Field Builder board-selector + (empty) field canvas
@@ -48,6 +47,7 @@ needs: cli
 8d. **Integrations promise only what works (card:10407360998).** Jetonomy, Learnomy and MediaVerse cards describe the plugin itself and, when Connected, "on the same site, using the same member accounts"; none claims a link to job listings, job requirements or employer-candidate messages.
 8e. **Fields fit their column at every width (card:10431561385, card:10430704186).** Walk every tab at 1440, 1024, 900, 783 and 390: no input, select, textarea or table inside a `.wcb-settings-row-control` reaches past the control's right edge; when the tab panel is under 600px wide each row stacks the label above the field (Mobile App, Anti-Spam, Emails and Pro's AI Settings, Integrations, Job feed and Credits included; the Credits pack table keeps three equal columns with "Never" readable at 390). On Brand with no logo, the Remove button next to Choose Image is not shown. With Pro, Credits > Stripe and PayPal blocks open at 1024: every key, secret and redirect field ends inside its block (was 118px past it) and the label sits above the field; the webhook URL and event names wrap inside the block (card:10439524512).
 8f. **One save notice per tab (card:10439797157).** With Pro, Save on Resumes and on Listings shows exactly one notice, "Settings saved."; no second "Resume settings saved." below it, at 1440 and 390.
+8g. **Two proxy layers (card:10401941395).** Settings > Advanced > Visitor IP address: the help says to pick the CDN's own header behind a CDN plus load balancer (Cloudflare for CF-Connecting-IP) and names the `wcb_client_ip_trusted_hops` filter for a CDN without one. Save each option → `wcb_settings.client_ip_header` holds it, and `AppCredentials::client_ip()` reads it (`tests/test-app-auth.php` `ip.trusted-hops-two`).
 8g. **Admin controls share one height (card:10439829023, card:10439829015, card:10439829031).** At 390 the settings nav items are 40px tall. On settings tabs at 1440 and 390, a `<select>` is 40px tall like the inputs beside it. In the job editor meta box, Apply URL, Apply Email and Company fill their grid cell.
 8h. **Credits help names the Jobs tab (card:10421607738).** As `varundubey` with Pro, Settings > Credits → the help under the featured cost reads "Featured Duration under Settings > Jobs", and Settings > Jobs has Featured Duration (days), at 1440 and 390.
 9. Diff `debug.log` → expect ZERO new fatal/warning/notice lines across all tab visits

@@ -75,7 +75,7 @@ if ( empty( $wcb_featured_posts ) ) {
 				<?php endif; ?>
 
 				<?php
-				$wcb_feat_loc_terms = wp_get_object_terms( $wcb_post->ID, 'wcb_location', array( 'fields' => 'names' ) );
+				$wcb_feat_loc_terms = \WCB\Core\Locations::place_names( get_the_terms( $wcb_post->ID, 'wcb_location' ) );
 				/*
 				 * The separator between list items is user-facing punctuation, not
 				 * markup: ja/zh want the ideographic comma, ar wants the Arabic
@@ -84,9 +84,7 @@ if ( empty( $wcb_featured_posts ) ) {
 				 * resolves against core's own catalog instead of an untranslated
 				 * plugin-domain key.
 				 */
-				$wcb_feat_location = is_wp_error( $wcb_feat_loc_terms )
-					? ''
-					: implode( wp_get_list_item_separator(), $wcb_feat_loc_terms );
+				$wcb_feat_location = implode( wp_get_list_item_separator(), $wcb_feat_loc_terms );
 				if ( $wcb_feat_location ) :
 					?>
 					<p class="wcb-featured-location"><?php echo esc_html( $wcb_feat_location ); ?></p>

@@ -16,6 +16,7 @@
     "showLocationFilter": { "type": "boolean", "default": true },
     "showJobTypeFilter":  { "type": "boolean", "default": true }
   },
+  "viewScriptModule": "file:./view.js",
   "style": "file:./style.css",
   "render": "file:./render.php",
   "supports": {

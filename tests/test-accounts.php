@@ -241,6 +241,41 @@ foreach ( array( 'a', 'b', 'c' ) as $wcb_x ) {
 	}
 }
 
+WP_CLI::log( '--- registration closed: both sign-up routes refuse (single site and multisite) ---' );
+// On multisite core filters option_users_can_register from the network setting,
+// so closing the network setting is the real-world case there.
+$wcb_net_was = is_multisite() ? get_site_option( 'registration' ) : null;
+$wcb_closed  = static fn () => 0;
+if ( is_multisite() ) {
+	update_site_option( 'registration', 'none' );
+} else {
+	add_filter( 'pre_option_users_can_register', $wcb_closed );
+}
+foreach ( array( 'candidates', 'employers' ) as $wcb_kind ) {
+	$wcb_r = wcb_rest(
+		'POST',
+		"/wcb/v1/{$wcb_kind}/register",
+		array(
+			'first_name'   => 'Acc',
+			'last_name'    => 'Closed',
+			'email'        => "acc-closed-{$wcb_kind}-{$wcb_s}@example.test",
+			'company_name' => 'Closed Co',
+			'password'     => $wcb_pw,
+		),
+		0
+	);
+	wcb_assert( 403 === $wcb_r->get_status() && 'wcb_registration_disabled' === ( $wcb_r->get_data()['code'] ?? '' ), "{$wcb_kind}/register is refused with 403 when registration is closed" . ( is_multisite() ? ' (multisite)' : ' (single site; the multisite case needs a network run)' ) );
+	$wcb_u = get_user_by( 'email', "acc-closed-{$wcb_kind}-{$wcb_s}@example.test" );
+	if ( $wcb_u ) {
+		$wcb_users[] = $wcb_u->ID;
+	}
+}
+if ( is_multisite() ) {
+	update_site_option( 'registration', $wcb_net_was );
+} else {
+	remove_filter( 'pre_option_users_can_register', $wcb_closed );
+}
+
 WP_CLI::log( '--- email verification ---' );
 $wcb_new = $wcb_mk( 'new', 'wcb_candidate' );
 EmailVerification::start( $wcb_new );
@@ -286,6 +321,34 @@ wcb_assert( 403 === wcb_rest( 'POST', '/wcb/v1/account', array( 'email' => "acc-
 wcb_assert( 200 === wcb_rest( 'POST', '/wcb/v1/account', array( 'email' => "acc-c2-{$wcb_s}@example.test", 'current_password' => $wcb_pw ), $wcb_c )->get_status(), 'right password: 200' );
 wcb_assert( 200 === wcb_rest( 'POST', '/wcb/v1/account', array( 'display_name' => 'Acc C' ), $wcb_c )->get_status(), 'name-only change needs no password' );
 wp_set_current_user( 0 );
+
+WP_CLI::log( '--- logging out flags the job form drafts for removal ---' );
+$wcb_lo      = $wcb_mk( 'lo', 'wcb_employer' );
+$wcb_lo_exp  = time() + HOUR_IN_SECONDS;
+$wcb_lo_tok  = WP_Session_Tokens::get_instance( $wcb_lo )->create( $wcb_lo_exp );
+$wcb_lo_li   = wp_generate_auth_cookie( $wcb_lo, $wcb_lo_exp, 'logged_in', $wcb_lo_tok );
+$wcb_lo_auth = wp_generate_auth_cookie( $wcb_lo, $wcb_lo_exp, 'auth', $wcb_lo_tok );
+$_COOKIE[ LOGGED_IN_COOKIE ] = $wcb_lo_li;
+wp_set_current_user( $wcb_lo );
+$wcb_lo_url = add_query_arg( array( 'action' => 'logout', '_wpnonce' => wp_create_nonce( 'log-out' ) ), wp_login_url() );
+unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
+wp_set_current_user( 0 );
+$wcb_lo_res = wp_remote_get(
+	$wcb_lo_url,
+	array(
+		'timeout'     => 20,
+		'sslverify'   => false,
+		'redirection' => 0,
+		'cookies'     => array( LOGGED_IN_COOKIE => $wcb_lo_li, AUTH_COOKIE => $wcb_lo_auth ),
+	)
+);
+$wcb_lo_set = implode( "\n", (array) wp_remote_retrieve_header( $wcb_lo_res, 'set-cookie' ) );
+wcb_assert( str_contains( $wcb_lo_set, 'wcb_clear_drafts=' . get_current_blog_id() ) && ! str_contains( strtolower( $wcb_lo_set ), 'wcb_clear_drafts=' . get_current_blog_id() . '; expires=thu, 01' ), 'logging out sets the short-lived draft-cleanup cookie for this site' );
+wcb_assert( preg_match( '/wcb_clear_drafts=[^\n]*Max-Age=60/i', $wcb_lo_set ) && ! preg_match( '/wcb_clear_drafts=[^\n]*HttpOnly/i', $wcb_lo_set ), 'the cookie lives one minute and is readable by the page script' );
+$wcb_lo_page = wp_remote_get( wp_login_url(), array( 'timeout' => 20, 'sslverify' => false, 'cookies' => array( 'wcb_clear_drafts' => (string) get_current_blog_id() ) ) );
+wcb_assert( str_contains( (string) wp_remote_retrieve_body( $wcb_lo_page ), 'wcb-clear-drafts' ), 'the sign-in screen loads the draft cleanup script when the cookie is there' );
+$wcb_lo_plain = wp_remote_get( wp_login_url(), array( 'timeout' => 20, 'sslverify' => false ) );
+wcb_assert( ! str_contains( (string) wp_remote_retrieve_body( $wcb_lo_plain ), 'wcb-clear-drafts' ), 'control: no cleanup script without the cookie' );
 
 // Teardown.
 foreach ( array_unique( $wcb_users ) as $wcb_u ) {

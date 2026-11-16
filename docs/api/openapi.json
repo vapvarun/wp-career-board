@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "WP Career Board REST API",
-        "version": "1.8.3",
+        "version": "1.8.4",
         "description": "REST API for WP Career Board (Free). Namespaced under `wcb/v1`. WP Career Board Pro adds its own routes to the same namespace; those are catalogued in the Pro plugin's own spec.\n\nThis document is generated from the live route registrations and scoped to the routes this plugin registers, so it never includes routes from Pro or any other plugin on the same install.",
         "contact": {
             "name": "Wbcom Designs",
@@ -712,6 +712,25 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "type": "string",
+                                        "description": "Note text, up to 5000 characters."
+                                    }
+                                },
+                                "required": [
+                                    "text"
+                                ]
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -982,6 +1001,29 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Status slug, for example reviewing or rejected."
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "description": "Optional message kept with the status change."
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        }
+                    }
                 }
             },
             "put": {
@@ -1021,6 +1063,29 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Status slug, for example reviewing or rejected."
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "description": "Optional message kept with the status change."
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        }
+                    }
                 }
             },
             "patch": {
@@ -1059,6 +1124,29 @@
                     },
                     "404": {
                         "description": "Not found."
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Status slug, for example reviewing or rejected."
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "description": "Optional message kept with the status change."
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        }
                     }
                 }
             }
@@ -1386,6 +1474,38 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bio": {
+                                        "type": "string",
+                                        "description": "Profile bio."
+                                    },
+                                    "profile_visibility": {
+                                        "type": "string",
+                                        "description": "Who can see the profile: public or private."
+                                    },
+                                    "resume": {
+                                        "type": "object",
+                                        "description": "Full resume data object, replaces the stored one."
+                                    },
+                                    "resume_data": {
+                                        "type": "object",
+                                        "description": "Partial resume data, merged into the stored one."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "put": {
@@ -1425,6 +1545,38 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bio": {
+                                        "type": "string",
+                                        "description": "Profile bio."
+                                    },
+                                    "profile_visibility": {
+                                        "type": "string",
+                                        "description": "Who can see the profile: public or private."
+                                    },
+                                    "resume": {
+                                        "type": "object",
+                                        "description": "Full resume data object, replaces the stored one."
+                                    },
+                                    "resume_data": {
+                                        "type": "object",
+                                        "description": "Partial resume data, merged into the stored one."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "patch": {
@@ -1463,6 +1615,38 @@
                     },
                     "404": {
                         "description": "Not found."
+                    }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bio": {
+                                        "type": "string",
+                                        "description": "Profile bio."
+                                    },
+                                    "profile_visibility": {
+                                        "type": "string",
+                                        "description": "Who can see the profile: public or private."
+                                    },
+                                    "resume": {
+                                        "type": "object",
+                                        "description": "Full resume data object, replaces the stored one."
+                                    },
+                                    "resume_data": {
+                                        "type": "object",
+                                        "description": "Partial resume data, merged into the stored one."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1843,6 +2027,37 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Company name."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Company description."
+                                    },
+                                    "hq": {
+                                        "type": "string",
+                                        "description": "Headquarters location."
+                                    },
+                                    "make_main": {
+                                        "type": "boolean",
+                                        "description": "Make this the main company of the account."
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -2002,6 +2217,21 @@
                             "default": 0
                         },
                         "description": ""
+                    },
+                    {
+                        "name": "orderby",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "applicants",
+                                "deadline"
+                            ],
+                            "default": "date"
+                        },
+                        "description": "Sort order: newest first, most applicants first, or soonest closing date first."
                     }
                 ],
                 "responses": {
@@ -2142,6 +2372,34 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Company name."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Company description."
+                                    },
+                                    "hq": {
+                                        "type": "string",
+                                        "description": "Headquarters location."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "put": {
@@ -2181,6 +2439,34 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Company name."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Company description."
+                                    },
+                                    "hq": {
+                                        "type": "string",
+                                        "description": "Headquarters location."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "patch": {
@@ -2219,6 +2505,34 @@
                     },
                     "404": {
                         "description": "Not found."
+                    }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Company name."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Company description."
+                                    },
+                                    "hq": {
+                                        "type": "string",
+                                        "description": "Headquarters location."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -2883,6 +3197,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -2917,8 +3234,59 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Job title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Job description as HTML."
+                                    },
+                                    "remote": {
+                                        "type": "boolean",
+                                        "description": "Remote job."
+                                    },
+                                    "location_custom": {
+                                        "type": "string",
+                                        "description": "Free-text location, used when no location term fits."
+                                    },
+                                    "locations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Location term ids or names."
+                                    },
+                                    "job_types": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Job type term ids or names."
+                                    },
+                                    "experience": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Experience term ids or names."
+                                    },
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Tag term ids or names."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
                                     }
                                 }
                             }
@@ -3014,6 +3382,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -3048,8 +3419,59 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Job title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Job description as HTML."
+                                    },
+                                    "remote": {
+                                        "type": "boolean",
+                                        "description": "Remote job."
+                                    },
+                                    "location_custom": {
+                                        "type": "string",
+                                        "description": "Free-text location, used when no location term fits."
+                                    },
+                                    "locations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Location term ids or names."
+                                    },
+                                    "job_types": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Job type term ids or names."
+                                    },
+                                    "experience": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Experience term ids or names."
+                                    },
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Tag term ids or names."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
                                     }
                                 }
                             }
@@ -3111,6 +3533,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -3145,8 +3570,59 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Job title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Job description as HTML."
+                                    },
+                                    "remote": {
+                                        "type": "boolean",
+                                        "description": "Remote job."
+                                    },
+                                    "location_custom": {
+                                        "type": "string",
+                                        "description": "Free-text location, used when no location term fits."
+                                    },
+                                    "locations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Location term ids or names."
+                                    },
+                                    "job_types": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Job type term ids or names."
+                                    },
+                                    "experience": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Experience term ids or names."
+                                    },
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Tag term ids or names."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
                                     }
                                 }
                             }
@@ -3208,6 +3684,9 @@
                                     "salary_max": {
                                         "type": "string"
                                     },
+                                    "apply_url": {
+                                        "type": "string"
+                                    },
                                     "salary_currency": {
                                         "type": "string"
                                     },
@@ -3242,8 +3721,59 @@
                                     "categories": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "type": [
+                                                "string",
+                                                "integer"
+                                            ]
                                         }
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Job title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Job description as HTML."
+                                    },
+                                    "remote": {
+                                        "type": "boolean",
+                                        "description": "Remote job."
+                                    },
+                                    "location_custom": {
+                                        "type": "string",
+                                        "description": "Free-text location, used when no location term fits."
+                                    },
+                                    "locations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Location term ids or names."
+                                    },
+                                    "job_types": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Job type term ids or names."
+                                    },
+                                    "experience": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Experience term ids or names."
+                                    },
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Tag term ids or names."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
                                     }
                                 }
                             }
@@ -3452,6 +3982,42 @@
                     },
                     "404": {
                         "description": "Not found."
+                    }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "cover_letter": {
+                                        "type": "string",
+                                        "description": "Cover letter text."
+                                    },
+                                    "resume_id": {
+                                        "type": "integer",
+                                        "description": "Resume to attach."
+                                    },
+                                    "resume_attachment_id": {
+                                        "type": "integer",
+                                        "description": "An earlier uploaded CV of the applicant to reuse."
+                                    },
+                                    "guest_name": {
+                                        "type": "string",
+                                        "description": "Name, for a visitor who is not signed in."
+                                    },
+                                    "guest_email": {
+                                        "type": "string",
+                                        "description": "Email, for a visitor who is not signed in."
+                                    },
+                                    "custom_fields": {
+                                        "type": "object",
+                                        "description": "Custom field values keyed by field key."
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

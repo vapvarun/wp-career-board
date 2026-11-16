@@ -2,7 +2,7 @@
  * Job Form Simple block — Interactivity API store.
  *
  * Single-page sibling of blocks/job-form. Same /wcb/v1/jobs endpoint,
- * same body shape, same honeypot + captcha hooks. Drops step navigation,
+ * same body shape, same honeypot hook. Drops step navigation,
  * preview, and edit mode by design — keep this store small and focused.
  *
  * @package WP_Career_Board
@@ -12,7 +12,7 @@
 import { store, getContext } from '@wordpress/interactivity';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, isWebAddress, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
 
 /**
  * Translated-string reader.
@@ -90,12 +90,14 @@ const showDescription = ( value ) => {
 const clearForm = () => {
 	state.submitted     = false;
 	state.jobUrl        = '';
+	state.jobStatus     = '';
 	state.error         = '';
 	state.title         = '';
 	state.description   = '';
 	state.salaryMin     = '';
 	state.salaryMax     = '';
-	state.deadline      = state.deadlineMax;
+	state.deadline      = state.deadlineMax || state.deadline;
+	state.deadlineClamped = false;
 	state.applyUrl      = '';
 	state.applyEmail    = '';
 	state.locationSlug  = '';
@@ -156,8 +158,18 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				.replace( '%3$s', nf( balance ) );
 		},
 
+		// Same rule as the multi-step job form: a pending job has no public page yet.
+		get jobPending() {
+			return state.jobStatus === 'pending';
+		},
+
+		get showJobLink() {
+			return !! state.jobUrl && ! state.jobPending;
+		},
+
 		get hasListingWindow() {
-			return ! ! state.deadline;
+			// A job waiting for review is not live yet, so promise no date.
+			return ! ! state.deadline && ! state.jobPending;
 		},
 
 		get listingWindowMessage() {
@@ -169,8 +181,16 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		},
 
 		get deadlineHelp() {
+			if ( ! state.deadlineMax ) {
+				return '';
+			}
 			return t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' )
 				.replace( '%s', formatSiteDate( state.deadlineMax, state.locale ) );
+		},
+
+		// Announced when a picked date was moved into range.
+		get deadlineNotice() {
+			return state.deadlineClamped ? state.deadlineHelp : '';
 		},
 
 		get locationIsCustom() {
@@ -180,7 +200,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 	actions: {
 		setDeadline( event ) {
-			state.deadline = event.target.value;
+			// Write back too: an unchanged state value would not re-render the field.
+			event.target.value = fitDeadline( state, event.target.value );
 		},
 
 		updateField( event ) {
@@ -206,6 +227,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					if ( curMap[ boardKey ] ) {
 						state.currencyCode = curMap[ boardKey ];
 					}
+					fitDeadline( state );
 				}
 			}
 		},
@@ -274,9 +296,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 		},
 
 		* submitJob() {
-			// Set before the first yield (the CAPTCHA wait below): a second
-			// click during that wait used to pass this check because the flag
-			// wasn't set until after it resolved (Basecamp 10350213909).
+			// Set before the first yield: a second click during a wait must not
+			// pass this check (Basecamp 10350213909).
 			if ( state.submitting ) {
 				return;
 			}
@@ -301,8 +322,20 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					state.error = t( 'errorDescriptionRequired', 'Job description is required.' );
 					return;
 				}
+				if ( salaryOutOfRange( state.salaryMin, state.salaryMax ) ) {
+					state.error = t( 'errorSalaryAmount', 'Enter a salary from 0 to 1,000,000,000.' );
+					return;
+				}
 				if ( salaryInverted( state.salaryMin, state.salaryMax ) ) {
 					state.error = t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' );
+					return;
+				}
+				if ( ! isWebAddress( state.applyUrl ) ) {
+					state.error = t( 'errorApplyUrl', 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.' );
+					const field = document.getElementById( 'wcb-simple-apply-url' );
+					field?.setAttribute( 'aria-invalid', 'true' );
+					field?.setAttribute( 'aria-describedby', 'wcb-simple-apply-url-error' );
+					field?.focus();
 					return;
 				}
 
@@ -313,11 +346,6 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 						.replace( '%2$s', nf( state.creditBalance ) );
 					return;
 				}
-
-				// Optional CAPTCHA token (Turnstile / reCAPTCHA via Free antispam module).
-				const captchaToken = window.wcbCaptchaGetToken
-					? yield window.wcbCaptchaGetToken()
-					: '';
 
 				state.error = '';
 				const tagSlugs = state.tags
@@ -345,7 +373,6 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					company_id:        Number( state.companyId ) || 0,
 					custom_fields:     state.customFields,
 					hp:                hpEl ? hpEl.value : '',
-					wcb_captcha_token: captchaToken,
 				};
 
 				const response = yield wcbFetch( state.apiBase + '/jobs', {
@@ -362,9 +389,14 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 					if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
 						state.error = t( 'errorSessionExpired', 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.' );
 					} else {
-						state.error = ( err && err.message )
-							? err.message
-							: t( 'errorGeneric', 'Job could not be posted. Please try again.' );
+						state.error = restErrorMessage( err, t( 'errorGeneric', 'Job could not be posted. Please try again.' ) );
+						// The server refused the Apply URL: put the cursor in that field, as the job form does.
+						if ( err?.data?.params?.apply_url ) {
+							const field = document.getElementById( 'wcb-simple-apply-url' );
+							field?.setAttribute( 'aria-invalid', 'true' );
+							field?.setAttribute( 'aria-describedby', 'wcb-simple-apply-url-error' );
+							field?.focus();
+						}
 					}
 					// Not enough credits: offer the Credits tab right there.
 					state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';
@@ -373,21 +405,23 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 
 				const json = yield response.json();
 				state.jobUrl    = json && json.permalink ? json.permalink : '';
+				// Show the day the server saved, not the one typed.
+				state.deadline  = ( json && json.deadline_day ) || state.deadline;
 				state.featureError = ( json && json.feature_error ) || '';
+				state.jobStatus = ( json && json.status ) || 'publish';
 				state.submitted = true;
 				// The job is saved: drop the draft and its notice together.
 				state.draftRestored = false;
 				draft().clear();
 
-				if ( window.wcbCaptchaReset ) {
-					window.wcbCaptchaReset();
-				}
 
 				// Auto-dismiss the success state after 8 seconds and clear
 				// volatile fields so the user gets a fresh form instead of a
 				// stuck banner — same UX rule as the multi-step job-form.
+				// A job held for review keeps its message: it is the only
+				// place the employer learns the job is not live yet.
 				setTimeout( () => {
-					if ( state.submitted ) {
+					if ( state.submitted && ! state.jobPending ) {
 						clearForm();
 					}
 				}, 8000 );
@@ -398,7 +432,8 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			}
 		},
 
-		discardDraft() {
+		// "Post another job" and the draft notice's "Start over".
+		resetForm() {
 			clearForm();
 			showDescription( '' );
 		},
@@ -417,6 +452,7 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 				}
 			} );
 			state.companyName   = ( state.companyNames || {} )[ state.companyId ] || '';
+			fitDeadline( state );
 			state.draftRestored = true;
 			showDescription( state.description || '' );
 		},

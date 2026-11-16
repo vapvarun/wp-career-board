@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.8.3
+ * Version:     1.8.4
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.8.3' );
+define( 'WCB_VERSION', '1.8.4' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -210,17 +210,6 @@ function wcb_get_email_settings(): array {
 		return $emails;
 	}
 	return (array) get_option( 'wcb_email_settings', array() );
-}
-
-/**
- * The CAPTCHA provider in force, or '' when only the honeypot runs (no
- * provider chosen, or its keys are missing).
- *
- * @since  1.2.0
- * @return string
- */
-function wcb_get_captcha_driver(): string {
-	return \WCB\Modules\AntiSpam\AntiSpamModule::active()['provider'] ?? '';
 }
 
 register_activation_hook( WCB_FILE, array( 'WCB\\Core\\Install', 'activate' ) );

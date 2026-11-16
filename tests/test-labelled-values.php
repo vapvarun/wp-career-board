@@ -82,6 +82,18 @@ $wcb_groups = array(
 				'type'  => 'text',
 				'label' => 'Note',
 			),
+			array(
+				'key'    => 'qa_rft_budget',
+				'type'   => 'number',
+				'label'  => 'Equipment budget',
+				'prefix' => '$',
+				'suffix' => 'per year',
+			),
+			array(
+				'key'   => 'qa_rft_seats',
+				'type'  => 'number',
+				'label' => 'Team size',
+			),
 		),
 	),
 );
@@ -90,6 +102,8 @@ update_post_meta( $wcb_post, 'qa_rft_kit', 'Laptop,Monitor' );
 update_post_meta( $wcb_post, 'qa_rft_shift', 'night' );
 update_post_meta( $wcb_post, 'qa_rft_days', 'mon,tue' );
 update_post_meta( $wcb_post, 'qa_rft_note', 'a,b' );
+update_post_meta( $wcb_post, 'qa_rft_budget', '500' );
+update_post_meta( $wcb_post, 'qa_rft_seats', '12' );
 
 $wcb_rows = array_column( \WCB\Core\FormCustomFields::labelled_values( $wcb_groups, $wcb_post ), null, 'key' );
 $wcb_sep  = wp_get_list_item_separator();
@@ -99,6 +113,8 @@ wcb_lv_assert( array( 'Laptop', 'Monitor' ) === ( $wcb_rows['qa_rft_kit']['items
 wcb_lv_assert( 'Night shift' === ( $wcb_rows['qa_rft_shift']['value'] ?? '' ), 'select answer shows its label, not its stored key' );
 wcb_lv_assert( 'Monday' . $wcb_sep . 'Tuesday' === ( $wcb_rows['qa_rft_days']['value'] ?? '' ), 'checkbox with choices lists its labels' );
 wcb_lv_assert( 'a,b' === ( $wcb_rows['qa_rft_note']['value'] ?? '' ) && array() === $wcb_rows['qa_rft_note']['items'], 'a text answer with a comma is left as typed' );
+wcb_lv_assert( '$500 per year' === ( $wcb_rows['qa_rft_budget']['value'] ?? '' ), 'a number answer carries its field prefix and unit' );
+wcb_lv_assert( '12' === ( $wcb_rows['qa_rft_seats']['value'] ?? '' ), 'control: a number field with no prefix or unit shows the bare number' );
 
 wp_delete_post( $wcb_post, true );
 

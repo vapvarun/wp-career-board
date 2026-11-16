@@ -26,7 +26,7 @@ If a page is blank, it may not hold the right block. Edit the page in the block 
 |---|---|
 | Find Jobs | **Job Search** + **Job Listings** |
 | Post a Job | **Job Form** |
-| Employer Registration | **Employer Registration** |
+| Employer Registration | **Join** |
 | Employer Dashboard | **Employer Dashboard** |
 | Candidate Dashboard | **Candidate Dashboard** |
 | Find Companies | **Company Archive** |

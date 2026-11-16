@@ -22,6 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class JobsMeta {
 
 	/**
+	 * Statuses whose job page a visitor can open. An ended job keeps its page;
+	 * a pending, draft or rejected one does not (404).
+	 *
+	 * @since 1.8.4
+	 */
+	public const VIEWABLE_STATUSES = array( 'publish', 'wcb_expired', 'wcb_closed' );
+
+	/**
 	 * Boot the meta registration.
 	 *
 	 * @since 1.0.0
@@ -52,7 +60,7 @@ final class JobsMeta {
 			'_wcb_featured'        => array( 'string', array( self::class, 'sanitize_flag' ) ),
 			'_wcb_board_id'        => array( 'integer', array( self::class, 'sanitize_board_id' ) ),
 			'_wcb_salary_type'     => array( 'string', array( self::class, 'sanitize_salary_type' ) ),
-			'_wcb_apply_url'       => array( 'string', 'esc_url_raw' ),
+			'_wcb_apply_url'       => array( 'string', array( \WCB\Core\Text::class, 'web_url' ) ),
 			'_wcb_apply_email'     => array( 'string', 'sanitize_email' ),
 			'_wcb_company_id'      => array( 'integer', 'absint' ),
 			'_wcb_company_name'    => array( 'string', 'sanitize_text_field' ),
@@ -142,14 +150,22 @@ final class JobsMeta {
 	}
 
 	/**
-	 * Keep a non-negative number, drop anything else.
+	 * The largest salary figure accepted, per period. Far above any real pay in
+	 * any currency; it only stops typos like 99999999999.
+	 *
+	 * @since 1.8.4
+	 */
+	public const MAX_SALARY = 1000000000;
+
+	/**
+	 * Keep a number from 0 to MAX_SALARY, drop anything else.
 	 *
 	 * @since  1.8.0
 	 * @param  mixed $value Raw value.
 	 * @return string
 	 */
 	public static function sanitize_amount( mixed $value ): string {
-		return ( is_numeric( $value ) && (float) $value >= 0 ) ? (string) ( 0 + $value ) : '';
+		return ( is_numeric( $value ) && (float) $value >= 0 && (float) $value <= self::MAX_SALARY ) ? (string) ( 0 + $value ) : '';
 	}
 
 	/**

@@ -78,8 +78,9 @@ wp user update "$SARAH_ID" --user_pass="<original test password>"
   dashboards, so this settings coverage doubles for the employer side.
 - If the install requires email verification before the role is granted, step 3 may return `subscriber` instead
   of `wcb_candidate` — record which, and confirm the unverified state does not grant `wcb_apply_jobs`.
-- Registration is gated by WP's `users_can_register` option unless multisite (`class-candidates-endpoint.php:187`);
-  if step 2 returns a registration-disabled error, enable open registration first.
+- Registration is gated by WP's `users_can_register` option (`class-candidates-endpoint.php:186`); on multisite core
+  reads it from the network registration setting (1.8.4). If step 2 returns a registration-disabled error, enable open
+  registration first (network admin on multisite).
 - The autologin mu-plugin is the login trigger — append `?autologin=<login>` to any URL.
 </content>
 </invoke>

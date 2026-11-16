@@ -755,6 +755,7 @@
 
 .wcb-meta-row input[type="text"],
 .wcb-meta-row input[type="url"],
+.wcb-meta-row input[inputmode="url"],
 .wcb-meta-row input[type="number"],
 .wcb-meta-row select {
 	width: 100%;
@@ -779,6 +780,22 @@
 	margin: 0;
 }
 
+/* Web-address inputs: the message shows while @wcb/fields marks the input invalid. */
+.wcb-field-error--url {
+	display: none;
+	margin: 4px 0 0;
+	font-size: 12px;
+	color: var(--wcb-danger, #b91c1c);
+}
+
+[aria-invalid="true"] ~ .wcb-field-error--url {
+	display: block;
+}
+
+[aria-invalid="true"][inputmode="url"] {
+	border-color: var(--wcb-danger, #dc2626);
+}
+
 /* Social Links sidebar box */
 .wcb-social-links {
 	display: flex;
@@ -797,7 +814,8 @@
 	margin-bottom: 4px;
 }
 
-.wcb-social-row input[type="url"] {
+.wcb-social-row input[type="url"],
+.wcb-social-row input[inputmode="url"] {
 	width: 100%;
 	padding: 6px 10px;
 	border: 1px solid var(--wcb-border, #e2e8f0);

@@ -362,7 +362,7 @@ final class AppCredentials {
 		/**
 		 * Filter which `$_SERVER` key carries the real client IP, for every
 		 * per-IP limit and count in the plugin. Defaults to the owner's choice
-		 * in Settings > Anti-Spam > Visitor IP address.
+		 * in Settings > Advanced > Visitor IP address.
 		 *
 		 * @since 1.8.0
 		 *

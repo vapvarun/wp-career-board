@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.5';
+	const DB_VERSION = '1.4.7';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -264,7 +264,6 @@ final class Install {
 				$new_site = array(
 					'require_email_verification' => true,
 					'deadline_auto_close'        => true,
-					'require_job_location'       => true,
 				);
 				if ( array_diff_key( $new_site, $settings ) ) {
 					update_option( 'wcb_settings', $settings + $new_site );
@@ -599,6 +598,18 @@ final class Install {
 				}
 			}
 
+			// 1.4.6 - titles saved by members without unfiltered_html carry "&amp;"
+			// for "&"; store the plain ampersand, as new saves now do.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.6', '<' ) ) {
+				self::migrate_plain_ampersand_titles();
+			}
+
+			// 1.4.7 - the built-in CAPTCHA is gone: drop its provider choice and keys
+			// (the secrets must not stay in the options table).
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.7', '<' ) ) {
+				self::remove_captcha_settings();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -610,6 +621,24 @@ final class Install {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
 		}
+	}
+
+	/**
+	 * Remove the CAPTCHA provider choice and keys the plugin used to store.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	public static function remove_captcha_settings(): void {
+		$settings = get_option( 'wcb_settings', array() );
+		if ( ! is_array( $settings ) ) {
+			return;
+		}
+		$gone = array( 'captcha', 'captcha_provider', 'turnstile_site_key', 'turnstile_secret_key', 'recaptcha_site_key', 'recaptcha_secret_key', 'recaptcha_threshold', 'recaptcha_v2_site_key', 'recaptcha_v2_secret_key' );
+		if ( array_intersect_key( $settings, array_flip( $gone ) ) ) {
+			update_option( 'wcb_settings', array_diff_key( $settings, array_flip( $gone ) ) );
+		}
+		delete_option( 'wcb_captcha_driver' );
 	}
 
 	/**
@@ -775,6 +804,41 @@ final class Install {
 
 				if ( $repaired !== (string) $row->meta_value ) {
 					update_post_meta( $job_id, '_wcb_company_name', $repaired );
+				}
+			}
+		} while ( 500 === $batch_size );
+	}
+
+	/**
+	 * Store "&" instead of "&amp;" in existing company, job, resume and board titles.
+	 *
+	 * Bounded drain by ascending post_id with an always-advancing cursor, so a
+	 * row that is skipped can never loop. Only the ampersand entity is
+	 * replaced, so no markup can appear.
+	 *
+	 * @since 1.8.4
+	 * @return void
+	 */
+	private static function migrate_plain_ampersand_titles(): void {
+		global $wpdb;
+
+		$after = 0;
+		$types = array( 'wcb_company', 'wcb_job', 'wcb_resume', 'wcb_board' );
+		$in    = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+
+		do {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one-off upgrade routine; the placeholder list is built from a fixed array.
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type IN ($in) AND (post_title LIKE %s OR post_title LIKE %s) AND ID > %d ORDER BY ID ASC LIMIT %d", array_merge( $types, array( '%&amp;%', '%&#038;%', $after, 500 ) ) ) );
+
+			$batch_size = is_array( $rows ) ? count( $rows ) : 0;
+
+			foreach ( (array) $rows as $row ) {
+				$after = max( $after, (int) $row->ID );
+				$clean = str_replace( array( '&amp;', '&#038;' ), '&', (string) $row->post_title );
+				if ( $clean !== (string) $row->post_title ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct write keeps modified dates and revisions untouched.
+					$wpdb->update( $wpdb->posts, array( 'post_title' => $clean ), array( 'ID' => (int) $row->ID ) );
+					clean_post_cache( (int) $row->ID );
 				}
 			}
 		} while ( 500 === $batch_size );

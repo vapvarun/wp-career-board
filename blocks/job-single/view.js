@@ -195,6 +195,10 @@ const { state } = store( 'wcb-job-single', {
 			state.resumeFileName = state.resumeFile ? state.resumeFile.name : '';
 		},
 
+		replaceLastResume() {
+			state.useLastResume = false;
+		},
+
 		*createAlertFromJob() {
 			if ( state.alertFromJobSaved || state.alertFromJobSaving ) {
 				return;
@@ -241,9 +245,8 @@ const { state } = store( 'wcb-job-single', {
 		},
 
 		*submitApplication() {
-			// Set before the first yield (the CAPTCHA wait below): a second
-			// click during that wait used to pass this check because the flag
-			// wasn't set until after it resolved (Basecamp 10350213909).
+			// Set before the first yield: a second click during a wait must not
+			// pass this check (Basecamp 10350213909).
 			if ( state.submitting ) {
 				return;
 			}
@@ -258,11 +261,6 @@ const { state } = store( 'wcb-job-single', {
 					return;
 				}
 
-				// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
-				const captchaToken = window.wcbCaptchaGetToken
-					? yield window.wcbCaptchaGetToken()
-					: '';
-
 				// Guest validation — require name + email before submitting.
 				if ( ! state.isLoggedIn ) {
 					if ( ! state.guestName.trim() || ! state.guestEmail.trim() ) {
@@ -272,7 +270,7 @@ const { state } = store( 'wcb-job-single', {
 				}
 
 				// Resume requirement check (server enforces too).
-				if ( state.resumeRequired && ! state.resumeFile && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
+				if ( state.resumeRequired && ! state.resumeFile && ! ( state.useLastResume && state.lastResumeId > 0 ) && ! ( state.proActive && state.selectedResumeId > 0 ) ) {
 					state.error = t( 'resumeRequiredError', 'Please attach your resume to apply.' );
 					return;
 				}
@@ -283,7 +281,6 @@ const { state } = store( 'wcb-job-single', {
 				const formData = new FormData();
 				formData.append( 'cover_letter', state.coverLetter );
 				formData.append( 'hp', hpEl ? hpEl.value : '' );
-				formData.append( 'wcb_captcha_token', captchaToken || '' );
 
 				if ( ! state.isLoggedIn ) {
 					formData.append( 'guest_name', state.guestName );
@@ -296,6 +293,8 @@ const { state } = store( 'wcb-job-single', {
 
 				if ( state.resumeFile ) {
 					formData.append( 'resume_file', state.resumeFile );
+				} else if ( state.useLastResume && state.lastResumeId > 0 ) {
+					formData.append( 'resume_attachment_id', String( state.lastResumeId ) );
 				}
 
 				// Custom application fields registered by site code via the
@@ -335,9 +334,6 @@ const { state } = store( 'wcb-job-single', {
 
 				state.submitted = true;
 				state.panelOpen = false;
-				if ( window.wcbCaptchaReset ) {
-					window.wcbCaptchaReset();
-				}
 			} catch {
 				state.error = t( 'connectionError', 'Connection error. Please check your network and try again.' );
 			} finally {

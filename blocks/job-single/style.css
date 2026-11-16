@@ -787,6 +787,22 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	color: var(--wcb-primary-text);
 }
 
+.wcb-apply-last-cv {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wcb-space-md);
+	margin: 0;
+	padding: var(--wcb-space-md);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-surface);
+	font-size: var(--wcb-text-base);
+	color: var(--wcb-contrast);
+	overflow-wrap: anywhere;
+}
+
 .wcb-apply-or-divider {
 	display: flex;
 	align-items: center;
@@ -804,10 +820,11 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-/* 1024, not 768: at 800-1023 the two-column hero/body was still forced
-   into two cramped columns (a squeezed Apply button in the hero), while
-   resume-single (before its own fix) collapsed at a different width
-   entirely. One tablet breakpoint for every detail page. */
+/* 1024, not 768: at 800-1023 the two-column hero was still forced into
+   two cramped columns (a squeezed Apply button), while resume-single
+   (before its own fix) collapsed at a different width entirely. One tablet
+   breakpoint for every detail page; only the job body keeps its sidebar
+   down to 768 (below). */
 @media (max-width: 1024px) {
 	.wcb-job-hero {
 		grid-template-columns: minmax(0, 1fr);
@@ -824,6 +841,16 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 		width: 100%;
 	}
 
+	/* Tablet keeps the Job details beside the description (a narrower
+	   sidebar), so salary, location and the apply-by date stay in view
+	   instead of dropping below the whole description. */
+	.wcb-job-body {
+		grid-template-columns: minmax(0, 1fr) 280px; /* component-specific sidebar width */
+		gap: var(--wcb-space-xl);
+	}
+}
+
+@media (max-width: 767px) {
 	.wcb-job-body {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -891,7 +918,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
  * cannot beat a theme's `!important` - we mirror the keyword. Same
  * pattern as company-profile/style.css and resume-single/style.css. */
 .wcb-job-page #secondary,
-.wcb-job-page .widget-area,
+.wcb-job-page .widget-area:not(.footer-widget-area),
 .wcb-job-page aside.sidebar,
 .wcb-job-page .sidebar-area,
 .wcb-job-page .site-sidebar,
@@ -993,7 +1020,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 /* ── Honeypot anti-spam ──────────────────────────────────────────────────── */
 .wcb-hp-wrap {
 	position: absolute;
-	left: -9999px; /* off-screen honeypot */
+	inset-inline-start: -9999px; /* off-screen honeypot */
 	overflow: hidden;
 	width: 1px;
 	height: 1px;
@@ -1100,6 +1127,12 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 	margin: 0;
 	color: var(--wcb-contrast);
 	overflow-wrap: anywhere;
+}
+
+/* A link answer reads as a link, like the description's links. */
+.wcb-job-details__row dd a {
+	color: var(--wcb-primary-text);
+	text-decoration: underline;
 }
 
 @media (max-width: 640px) {

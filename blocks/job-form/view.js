@@ -4,7 +4,7 @@
  * Actions:
  *   updateField  — generic field updater via data-wcb-field attribute.
  *   toggleRemote — flip the remote boolean.
- *   setDeadline  — employer-picked deadline (REST caps it at the board maximum).
+ *   setDeadline  — employer-picked deadline, clamped to the board maximum REST keeps.
  *   nextStep     — advance step; validates title on step 1.
  *   prevStep     — go back one step.
  *   submitJob    — POST job data to /wcb/v1/jobs.
@@ -18,13 +18,13 @@
  *   salaryDisplay              — formatted salary string for preview.
  *   hasCompany, isRemote, hasType, hasExp, hasLocation, hasCategory — preview card conditionals.
  *   hasSalary, hasDeadline, hasApplyUrl, hasApplyEmail              — preview meta conditionals.
- *   hasError, titleInvalid, descriptionInvalid, locationInvalid      — error banner / per-field error conditionals.
+ *   hasError, titleInvalid, descriptionInvalid      — error banner / per-field error conditionals.
  *
  * @package WP_Career_Board
  */
 import { store, getContext } from '@wordpress/interactivity';
 import { wcbFetch } from '@wcb/fetch';
-import { customFieldValue, groupOnBoard, jobLocation, jobLocationLabel, salaryInverted } from '@wcb/fields';
+import { customFieldValue, fitDeadline, groupOnBoard, isWebAddress, jobLocation, jobLocationLabel, restErrorMessage, salaryInverted, salaryOutOfRange } from '@wcb/fields';
 import { flushEditors, formatSiteDate, formDraft } from '@wcb/ui';
 
 /**
@@ -385,10 +385,6 @@ const { state } = store(
 				doc.querySelectorAll( 'p, li, h1, h2, h3, h4, h5, h6, blockquote, div' ).forEach( ( el ) => el.append( '\n' ) );
 				return doc.body.textContent.replace( /\n{3,}/g, '\n\n' ).trim();
 			},
-			get locationInvalid() {
-				const { state } = store( 'wcb-job-form' );
-				return 'location' === state.validationField && ! ! state.validationError;
-			},
 			get salaryInvalid() {
 				const { state } = store( 'wcb-job-form' );
 				return 'salary' === state.validationField && ! ! state.validationError;
@@ -473,6 +469,9 @@ const { state } = store(
 
 			get deadlineHelp() {
 				const { state } = store( 'wcb-job-form' );
+				if ( ! state.deadlineMax ) {
+					return '';
+				}
 				return fill(
 					t( 'deadlineHelp', 'Pick any date up to %s, the longest this board allows.' ),
 					'%s',
@@ -480,9 +479,16 @@ const { state } = store(
 				);
 			},
 
+			// Announced when a picked date was moved into range.
+			get deadlineNotice() {
+				const { state } = store( 'wcb-job-form' );
+				return state.deadlineClamped ? state.deadlineHelp : '';
+			},
+
 			get hasListingWindow() {
 				const { state } = store( 'wcb-job-form' );
-				return ! ! state.deadline;
+				// A job waiting for review is not live yet, so promise no date.
+				return ! ! state.deadline && ! state.jobPending;
 			},
 
 			// One format string, not "Apply by" + a value node — the date must be
@@ -526,7 +532,8 @@ const { state } = store(
 		actions: {
 			setDeadline( event ) {
 				const { state } = store( 'wcb-job-form' );
-				state.deadline  = event.target.value;
+				// Write back too: an unchanged state value would not re-render the field.
+				event.target.value = fitDeadline( state, event.target.value );
 			},
 
 			updateField( event ) {
@@ -555,6 +562,7 @@ const { state } = store(
 						if ( cur ) {
 							state.currencyCode = cur;
 						}
+						fitDeadline( state );
 					}
 				}
 			},
@@ -644,14 +652,21 @@ const { state } = store(
 							return;
 						}
 					}
+					if ( state.step === 2 && salaryOutOfRange( state.salaryMin, state.salaryMax ) ) {
+						setValidation( state, 'salary', t( 'errorSalaryAmount', 'Enter a salary from 0 to 1,000,000,000.' ) );
+						focusField( 'wcb-salary-min' );
+						return;
+					}
 					if ( state.step === 2 && salaryInverted( state.salaryMin, state.salaryMax ) ) {
 						setValidation( state, 'salary', t( 'errorSalaryRange', 'The minimum salary is more than the maximum.' ) );
 						focusField( 'wcb-salary-max' );
 						return;
 					}
-					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
-						setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
-						focusField( 'wcb-location' );
+					if ( state.step === 2 && ! isWebAddress( state.applyUrl ) ) {
+						const field = document.getElementById( 'wcb-apply-url' );
+						field?.setAttribute( 'aria-invalid', 'true' );
+						field?.setAttribute( 'aria-describedby', 'wcb-apply-url-error' );
+						field?.focus();
 						return;
 					}
 
@@ -729,11 +744,6 @@ const { state } = store(
 					return;
 				}
 
-				// Optional CAPTCHA token (Turnstile / reCAPTCHA). Empty when provider is 'none'.
-				const captchaToken = window.wcbCaptchaGetToken
-					? yield window.wcbCaptchaGetToken()
-					: '';
-
 				state.error = '';
 
 				try {
@@ -763,7 +773,6 @@ const { state } = store(
 						company_id:        Number( state.companyId ) || 0,
 						custom_fields:     state.customFields || {},
 						hp:                hpEl ? hpEl.value : '',
-						wcb_captcha_token: captchaToken,
 					};
 
 					const isEdit   = state.editJobId > 0;
@@ -786,9 +795,7 @@ const { state } = store(
 						if ( err && err.code === 'rest_cookie_invalid_nonce' ) {
 							state.error = t( 'errorSessionExpired', 'You have been signed out. Sign in again in a new tab, then submit again here. Your job details are still on this page.' );
 						} else {
-							state.error = ( err && err.message )
-								? err.message
-								: t( 'errorSubmitFailed', 'Job could not be posted. Please try again.' );
+							state.error = restErrorMessage( err, t( 'errorSubmitFailed', 'Job could not be posted. Please try again.' ) );
 						}
 						// Not enough credits: offer the Credits tab right there.
 						state.buyUrl = ( err && err.code === 'wcb_insufficient_credits' && err.data && err.data.purchase_url ) || '';
@@ -797,6 +804,8 @@ const { state } = store(
 
 					const data      = yield response.json();
 					state.jobUrl    = data.permalink || '';
+					// Show the day the server saved, not the one typed.
+					state.deadline  = data.deadline_day || state.deadline;
 					state.featureError = data.feature_error || '';
 					state.jobStatus = data.status    || 'publish';
 					state.submitted = true;
@@ -816,10 +825,11 @@ const { state } = store(
 
 					// Auto-reset the success state after 8 seconds so a returning
 					// user sees a fresh form instead of a stuck success banner —
-					// matches the spec on Basecamp card 9817915492.
+					// matches the spec on Basecamp card 9817915492. A job held
+					// for review keeps its message: it says the job is not live yet.
 					setTimeout( () => {
 						const live = store( 'wcb-job-form' );
-						if ( live && live.state && live.state.submitted ) {
+						if ( live && live.state && live.state.submitted && ! live.state.jobPending ) {
 							if ( typeof live.actions?.resetForm === 'function' ) {
 								live.actions.resetForm();
 							} else {
@@ -883,6 +893,7 @@ const { state } = store(
 					}
 				} );
 				state.companyName   = ( state.companyNames || {} )[ state.companyId ] || '';
+				fitDeadline( state );
 				state.draftRestored = true;
 				showDescription( state.description || '' );
 			},

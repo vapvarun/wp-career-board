@@ -11,8 +11,16 @@
 
 .wcb-featured-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+	/* auto-fit: a handful of featured cards share the row instead of leaving an empty track. */
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 	gap: var(--wcb-space-xl);
+}
+
+/* Below ~858px (3 x 260px floor + gaps + page gutters) the grid is 2 columns: an odd last card spans the row. */
+@media (min-width: 560px) and (max-width: 857px) {
+	.wcb-featured-grid > :last-child:nth-child(odd) {
+		grid-column: 1 / -1;
+	}
 }
 
 .wcb-featured-card {

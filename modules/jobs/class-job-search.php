@@ -292,6 +292,10 @@ final class JobSearch {
 		}
 		$sort = self::sort( $params );
 		unset( $args['orderby'], $args['order'] );
+		// Recommended (no sort chosen): jobs past their deadline go last.
+		if ( '' === (string) ( $params['sort'] ?? '' ) && 'oldest' !== $sort ) {
+			$args['wcb_closed_last'] = true;
+		}
 		if ( 'newest' === $sort ) {
 			$args = JobsMeta::featured_first( $args );
 		} elseif ( 'oldest' === $sort ) {
@@ -370,7 +374,8 @@ final class JobSearch {
 		$sort       = (string) $query->get( 'wcb_sort' );
 		$salary_min = (int) $query->get( 'wcb_salary_min' );
 		$salary_max = (int) $query->get( 'wcb_salary_max' );
-		if ( ( '' === $term && '' === $sort && ! $salary_min && ! $salary_max ) || 'wcb_job' !== $query->get( 'post_type' ) ) {
+		$closed     = (bool) $query->get( 'wcb_closed_last' );
+		if ( ( '' === $term && '' === $sort && ! $salary_min && ! $salary_max && ! $closed ) || 'wcb_job' !== $query->get( 'post_type' ) ) {
 			return $clauses;
 		}
 		global $wpdb;
@@ -422,6 +427,11 @@ final class JobSearch {
 			// Soonest first among jobs still open; jobs without a deadline next; jobs already past it last.
 			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_dl ON ( wcb_dl.post_id = {$posts}.ID AND wcb_dl.meta_key = '_wcb_deadline' AND wcb_dl.meta_value <> '' )";
 			$clauses['orderby'] = $wpdb->prepare( "CASE WHEN wcb_dl.meta_value IS NULL THEN 1 WHEN wcb_dl.meta_value < %s THEN 2 ELSE 0 END, wcb_dl.meta_value ASC, {$posts}.post_date DESC, {$posts}.ID DESC", current_time( 'mysql', true ) );
+		}
+		if ( $closed ) {
+			// Same instant compare as the closing sort; no deadline counts as open.
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} wcb_cl ON ( wcb_cl.post_id = {$posts}.ID AND wcb_cl.meta_key = '_wcb_deadline' AND wcb_cl.meta_value <> '' )";
+			$clauses['orderby'] = $wpdb->prepare( 'COALESCE( wcb_cl.meta_value < %s, 0 ) ASC, ', current_time( 'mysql', true ) ) . $clauses['orderby'];
 		}
 		if ( $by_pay ) {
 			// No exchange rates: pay in the site currency comes first, and pay in

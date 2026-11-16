@@ -195,6 +195,28 @@ html[data-bn-theme="dark"],
 	}
 }
 
+/*
+ * Filled buttons in dark mode: a darker fill, the label stays white. The light
+ * cap (0.54, frontend-tokens.css) turns a light dark-mode accent such as Reign's
+ * #97c0ee into a pale grey-blue at 5.0:1; 0.48 gives 6.5:1 (the default blue
+ * #2563eb goes from 5.3:1 to 6.9:1). Inside @supports so a browser without
+ * relative colour keeps the light-mode fill instead of losing the background.
+ */
+@supports ( color: oklch( from red l c h ) ) {
+	html.dark-mode,
+	html[data-bx-mode="dark"],
+	html[data-bn-theme="dark"],
+	[data-theme="dark"] {
+		--wcb-primary-strong: oklch( from var( --wcb-primary ) min( l, 0.48 ) c h );
+	}
+
+	@media ( prefers-color-scheme: dark ) {
+		html[data-bx-mode="auto"] {
+			--wcb-primary-strong: oklch( from var( --wcb-primary ) min( l, 0.48 ) c h );
+		}
+	}
+}
+
 /* Suppress the theme's page title on WCB app / archive pages. The block-theme
  * title is `.wp-block-post-title`, which a Query Loop also uses for every
  * entry it lists, so leave the ones inside `.wp-block-post-template` alone. */
@@ -224,9 +246,10 @@ body:is(.single-wcb_job, .single-wcb_company, .single-wcb_resume) .wp-block-grou
 	margin-block-start: 0;
 }
 
-/* Suppress the theme sidebar on WCB app / archive pages. */
+/* Suppress the theme sidebar on WCB app / archive pages. The footer widget
+   area also carries .widget-area on Reign, Astra and Kadence, so it is excluded. */
 .wcb-page #secondary,
-.wcb-page .widget-area,
+.wcb-page .widget-area:not(.footer-widget-area),
 .wcb-page aside.sidebar,
 .wcb-page .sidebar-area,
 .wcb-page .site-sidebar,

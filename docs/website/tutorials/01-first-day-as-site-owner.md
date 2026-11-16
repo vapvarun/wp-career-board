@@ -40,14 +40,13 @@ The admin menu is hidden while the wizard runs. Click **Exit setup** at the top 
    - Candidate Dashboard
    - Find Companies
    - Post a Job
-   - Employer Registration
+   - Join (the sign-up page for both employers and candidates)
 
    If a page that already contains the matching Career Board block exists, the wizard reuses it.
 2. **Sign-ups** - turn on **Let people sign up** so candidates and employers can create their own accounts, and turn on **Confirm email addresses** to hold new accounts until they click a link in their inbox.
 3. **Jobs** - choose whether jobs publish immediately and set the default listing length in days.
 4. **Emails** - set the sender name, sender email and the address for admin alerts.
-5. **Spam Protection** - keep the hidden honeypot only, or add Cloudflare Turnstile or Google reCAPTCHA and enter its keys.
-6. **Sample data** - install demo categories, job types, companies and jobs so the board is not empty while you test.
+5. **Sample data** - install demo categories, job types, companies and jobs so the board is not empty while you test.
 
 Each settings step has **Save & Continue** and **Skip for now**. You can change every answer later under **Career Board > Settings**.
 

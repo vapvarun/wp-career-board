@@ -342,5 +342,17 @@ else
 	ok "Rule 16: admin notices carry wcb-notice"
 fi
 
+# --- Rule 17: no physical off-screen offsets in block CSS ---
+# `left: -9999px` hides a honeypot in LTR but in RTL the same box sits off the
+# right edge of the page, and 1.8.4 smoke measured a 10,389px sideways scroll on the
+# job page. Use inset-inline-start (or a clip pattern) so the offset follows the direction.
+PHYS_OFFSET=$(git ls-files 'blocks/*.css' 'assets/css/*.css' 2>/dev/null | grep -vE '(-rtl|\.min)\.css$' | xargs grep -nE '(^|[^-a-z])(left|right) *: *-[0-9]{4,}px' 2>/dev/null || true)
+if [ -n "$PHYS_OFFSET" ]; then
+	echo "$PHYS_OFFSET" | sed 's/^/    /'
+	report "Rule 17: physical off-screen offset - use inset-inline-start so RTL pages do not scroll sideways"
+else
+	ok "Rule 17: no physical off-screen offsets"
+fi
+
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"
 exit "$FAILED"

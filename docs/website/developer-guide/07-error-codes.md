@@ -26,7 +26,6 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | `wcb_account_pending_deletion` | 403 | The account is waiting for deletion; cancel it on the website first |
 | `wcb_email_unverified` | none | Returned to the WordPress login when **Email Verification** is on and the member has not confirmed their address. It is a login error, not a REST status |
 | `wcb_rate_limited` | 429 | The hourly per-address limit for sign-ups, guest applications or confirmation re-sends. See [Abuse prevention](03-rest-api.md#abuse-prevention) |
-| `wcb_captcha_failed` | 400 | The CAPTCHA check failed |
 | `wcb_spam` | 400 | The honeypot caught the request |
 | `wcb_registration_rejected` | 400 | A `wcb_pre_registration` or `registration_errors` listener refused the sign-up; the message is theirs |
 
@@ -39,7 +38,6 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | `wcb_missing_title` | 400 | `POST /jobs` without a title, or `PATCH /jobs/{id}` with an empty one. Also the block editor's answer when a job, company, resume or board is published untitled |
 | `wcb_missing_name` | 400 | `PATCH /employers/{id}` with an empty company name |
 | `wcb_salary_range` | 400 | The minimum salary is above the maximum, after the request. A `PATCH` of one side is checked against the saved other side |
-| `wcb_location_required` | 400 | **Require a location** is on and the job has neither a location nor the remote flag |
 | `wcb_active_job_limit` | 403 | The employer is at the cap set with `wcb_employer_active_job_limit`. `data.limit` and `data.count` carry the numbers |
 | `wcb_insufficient_credits` | 402 | The board charges credits and the balance is too low (Pro). `data` carries `cost`, `balance` and `purchase_url` |
 | `wcb_awaiting_payment` | 402 | A moderator approved a job whose employer cannot pay yet; the job stays pending |

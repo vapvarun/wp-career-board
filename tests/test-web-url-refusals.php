@@ -1,0 +1,108 @@
+<?php
+/**
+ * A refused web address is reported and never wipes the stored one (1.8.4).
+ *
+ * Run: wp eval-file wp-content/plugins/wp-career-board/tests/test-web-url-refusals.php
+ *
+ * @package WP_Career_Board
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+	return;
+}
+
+$pass = 0;
+$fail = 0;
+$ok   = static function ( bool $c, string $l ) use ( &$pass, &$fail ): void {
+	$c ? ++$pass : ++$fail;
+	WP_CLI::log( ( $c ? '  PASS: ' : '  FAIL: ' ) . $l );
+};
+
+use WCB\Core\Text;
+
+// One rule, one sentence.
+$ok( Text::is_refused_url( 'name@company.com' ) && Text::is_refused_url( 'https://name@company.com' ), 'an email, bare or with a scheme, is refused' );
+$ok( ! Text::is_refused_url( '' ) && ! Text::is_refused_url( '   ' ), 'empty and whitespace-only mean not set, not refused' );
+$ok( ! Text::is_refused_url( 'careers.example.com/x' ), 'a web address is not refused' );
+
+// REST: apply_url.
+$params = ( new \WCB\Api\Endpoints\JobsEndpoint() )->get_write_params();
+$check  = $params['apply_url']['validate_callback'];
+$ok( true === $check( '   ' ), 'REST accepts a whitespace-only Apply URL, as the form does' );
+$err = $check( 'name@company.com' );
+$ok( $err instanceof WP_Error && Text::web_url_error( true ) === $err->get_error_message(), 'REST refuses an email with the Apply Email sentence' );
+
+// REST: company links keep the stored value and say so.
+wp_set_current_user( 1 );
+$company = (int) wp_insert_post( array( 'post_type' => 'wcb_company', 'post_status' => 'publish', 'post_title' => 'WUR Co', 'post_author' => 1 ) );
+update_post_meta( $company, '_wcb_website', 'https://harbor.example' );
+$req = new WP_REST_Request( 'PUT', '/wcb/v1/employers/' . $company );
+$req->set_param( 'id', $company );
+$req->set_param( 'website', 'name@company.com' );
+$res = rest_do_request( $req );
+$ok( 400 === $res->get_status(), 'PUT website=email returns 400, not 200' );
+$ok( Text::web_url_error() === ( $res->get_data()['message'] ?? '' ), 'the 400 carries the web-address sentence' );
+$ok( 'https://harbor.example' === get_post_meta( $company, '_wcb_website', true ), 'the stored website is kept' );
+
+// wp-admin editors, through the real save hooks.
+$boxes = new \WCB\Admin\AdminMetaBoxes();
+$boxes->boot();
+$_POST['wcb_job_meta_nonce'] = wp_create_nonce( 'wcb_job_meta_boxes' );
+$job = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'draft', 'post_title' => 'WUR Job', 'post_author' => 1 ) );
+update_post_meta( $job, '_wcb_apply_url', 'https://careers.example/apply' );
+$_POST['wcb_apply_url'] = 'https://name@company.com';
+wp_update_post( array( 'ID' => $job, 'post_title' => 'WUR Job 2' ) );
+$ok( 'https://careers.example/apply' === get_post_meta( $job, '_wcb_apply_url', true ), 'job editor keeps the stored Apply URL when the typed one is refused' );
+$ok( false !== strpos( $boxes->flag_refused_values( 'post.php?post=1' ), 'wcb_bad_url=apply_url' ), 'job editor redirect carries the refusal flag' );
+
+$boxes2 = new \WCB\Admin\AdminMetaBoxes();
+$boxes2->boot();
+$_POST['wcb_company_meta_nonce'] = wp_create_nonce( 'wcb_company_meta_boxes' );
+$_POST['wcb_website']            = 'name@company.com';
+wp_update_post( array( 'ID' => $company, 'post_title' => 'WUR Co 2' ) );
+$ok( 'https://harbor.example' === get_post_meta( $company, '_wcb_website', true ), 'company editor keeps the stored website when the typed one is refused' );
+$ok( false !== strpos( $boxes2->flag_refused_values( 'post.php?post=1' ), 'wcb_bad_url=wcb_website' ), 'company editor redirect carries the refusal flag' );
+
+// Sign-up and candidate profile links are reported too, not saved empty.
+wp_set_current_user( 0 );
+$req = new WP_REST_Request( 'POST', '/wcb/v1/employers/register' );
+$req->set_header( 'content-type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'first_name' => 'A', 'last_name' => 'B', 'email' => 'wur' . wp_rand() . '@example.com', 'company_name' => 'WUR Signup', 'password' => wp_generate_password(), 'website' => 'mailto:hr@acme.com' ) ) );
+$res = rest_do_request( $req );
+$ok( 400 === $res->get_status() && 'rest_invalid_param' === ( $res->get_data()['code'] ?? '' ), 'employer sign-up refuses a website that is not a web address' );
+wp_set_current_user( 1 );
+$req = new WP_REST_Request( 'PUT', '/wcb/v1/candidates/1' );
+$req->set_header( 'content-type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'resume_data' => array( 'linkedin' => 'name@company.com' ) ) ) );
+$res = rest_do_request( $req );
+$ok( 400 === $res->get_status(), 'candidate profile refuses a link that is not a web address' );
+
+// The block editor saves meta boxes without a page load, so each web-address box checks the value as it is typed.
+$render = static function ( string $method, int $id ): string {
+	ob_start();
+	( new \WCB\Admin\AdminMetaBoxes() )->$method( get_post( $id ) );
+	return (string) ob_get_clean();
+};
+$job_html     = $render( 'render_job_details_box', $job );
+$company_html = $render( 'render_company_details_box', $company ) . $render( 'render_company_social_box', $company );
+foreach ( array( 'wcb_apply_url' => $job_html, 'wcb_website' => $company_html, 'wcb_linkedin' => $company_html, 'wcb_twitter' => $company_html ) as $field => $html ) {
+	$ok(
+		str_contains( $html, 'id="' . $field . '"' ) && str_contains( $html, 'inputmode="url"' ) && str_contains( $html, 'id="' . $field . '-error"' ),
+		$field . ' is checked as typed (inputmode=url with an error element)'
+	);
+}
+$ok( str_contains( $job_html, 'For an email address, use Apply Email.' ), 'Apply URL error carries the Apply Email hint' );
+
+unset( $_POST['wcb_apply_url'], $_POST['wcb_website'], $_POST['wcb_job_meta_nonce'], $_POST['wcb_company_meta_nonce'] );
+wp_delete_post( $job, true );
+wp_delete_post( $company, true );
+
+WP_CLI::log( '  Total: ' . ( $pass + $fail ) . "  Pass: {$pass}  Fail: {$fail}" );
+if ( $fail ) {
+	WP_CLI::error( "{$fail} test(s) failed." );
+}
+WP_CLI::success( 'Web-address refusal tests passed.' );

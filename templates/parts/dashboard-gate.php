@@ -30,7 +30,7 @@ if ( is_user_logged_in() && \WCB\Core\Abilities::is_banned( get_current_user_id(
 	$wcb_gate['actions'] = array();
 	unset( $wcb_gate['signup'] );
 }
-if ( ! empty( $wcb_gate['signup'] ) && ( get_option( 'users_can_register' ) || is_multisite() ) ) {
+if ( ! empty( $wcb_gate['signup'] ) && get_option( 'users_can_register' ) ) {
 	$wcb_gate['actions'][] = array(
 		'label' => __( 'Create an account', 'wp-career-board' ),
 		'url'   => (string) get_permalink( (int) $wcb_gate['signup'] ),

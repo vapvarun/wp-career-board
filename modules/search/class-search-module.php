@@ -54,7 +54,7 @@ final class SearchModule {
 			return;
 		}
 		$args = \WCB\Modules\Jobs\JobSearch::query_args( \WCB\Modules\Jobs\JobSearch::from_url() );
-		foreach ( array( 'tax_query', 'meta_query', 'wcb_search_term', 'wcb_sort', 'wcb_featured_first', 'orderby' ) as $key ) {
+		foreach ( array( 'tax_query', 'meta_query', 'wcb_search_term', 'wcb_sort', 'wcb_featured_first', 'wcb_closed_last', 'orderby' ) as $key ) {
 			if ( isset( $args[ $key ] ) ) {
 				$query->set( $key, $args[ $key ] );
 			}

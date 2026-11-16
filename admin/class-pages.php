@@ -84,9 +84,10 @@ final class Pages {
 				'desc'    => __( 'Contains the wcb/job-form block. Employers use this to post new jobs.', 'wp-career-board' ),
 			),
 			'employer_registration_page' => array(
-				// The block is a dual role picker (Find a Job / Hire Talent); the
-				// key and slug stay "employer" because the docs link to them.
-				'title'   => _x( 'Employer Registration', 'page title', 'wp-career-board' ),
+				// The block is a dual role picker (Find a Job / Hire Talent), so the
+				// page is titled "Join" on new installs; existing titles are never
+				// rewritten. The key and slug stay "employer" because the docs link to them.
+				'title'   => _x( 'Join', 'page title', 'wp-career-board' ),
 				'slug'    => 'employer-registration',
 				'content' => '<!-- wp:wp-career-board/employer-registration /-->',
 				'label'   => __( 'Employer Registration Page', 'wp-career-board' ),

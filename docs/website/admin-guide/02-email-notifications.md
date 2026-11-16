@@ -10,6 +10,8 @@ Free sends these emails. Each one can be switched off and edited under **Career 
 |---|---|---|
 | **New Job Pending Review** | Admin | An employer submits a job that needs approval |
 | **Report Received** | Admin | A job or member is reported for the first time, and when reports hide a job |
+| **New Employer** | Admin | A new employer signs up (on by default) |
+| **New Candidate** | Admin | A new candidate signs up (off by default; switch it on if you want every sign-up) |
 | **Job approved** | Employer | A moderator approves a pending job |
 | **Job Rejected** | Employer | A moderator rejects a pending job |
 | **Job Ending Soon (Employer)** | Employer | 3 days before a job's deadline, once per deadline, with a link to extend it |
@@ -73,6 +75,7 @@ Use placeholders in subjects and bodies. They are replaced when the email sends.
 | Job Expired | `{job_title}` `{repost_url}` |
 | New Job Pending Review | `{job_title}` `{approve_url}` |
 | Report Received | `{item}` `{reason}` `{report_count}` `{hidden_note}` `{review_url}` |
+| New Employer, New Candidate | `{user_name}` `{user_email}` `{site_name}` `{review_url}` |
 | Confirm Your Email | `{display_name}` `{verify_url}` |
 | Welcome, Account Deletion Cancelled, Account Deleted | `{user_name}` `{site_name}` `{login_url}` |
 | Account Deletion Requested | `{user_name}` `{delete_date}` `{login_url}` |

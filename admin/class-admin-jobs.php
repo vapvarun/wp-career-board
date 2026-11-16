@@ -33,6 +33,14 @@ class AdminJobs extends \WP_List_Table {
 	use ListEmptyState;
 
 	/**
+	 * Application counts for the jobs on this page, keyed by job ID.
+	 *
+	 * @since 1.8.4
+	 * @var array<int,int>
+	 */
+	private array $application_counts = array();
+
+	/**
 	 * Constructor — configure singular/plural labels.
 	 *
 	 * @since 1.0.0
@@ -117,13 +125,14 @@ class AdminJobs extends \WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'      => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all jobs', 'wp-career-board' ) ),
-			'title'   => __( 'Title', 'wp-career-board' ),
-			'status'  => __( 'Status', 'wp-career-board' ),
-			'flags'   => __( 'Flags', 'wp-career-board' ),
-			'company' => __( 'Company', 'wp-career-board' ),
-			'author'  => __( 'Author', 'wp-career-board' ),
-			'date'    => __( 'Date', 'wp-career-board' ),
+			'cb'           => sprintf( '<input type="checkbox" aria-label="%s" />', esc_attr__( 'Select all jobs', 'wp-career-board' ) ),
+			'title'        => __( 'Title', 'wp-career-board' ),
+			'status'       => __( 'Status', 'wp-career-board' ),
+			'flags'        => __( 'Flags', 'wp-career-board' ),
+			'company'      => __( 'Company', 'wp-career-board' ),
+			'applications' => __( 'Applications', 'wp-career-board' ),
+			'author'       => __( 'Author', 'wp-career-board' ),
+			'date'         => __( 'Date', 'wp-career-board' ),
 		);
 	}
 
@@ -238,6 +247,8 @@ class AdminJobs extends \WP_List_Table {
 
 		$query       = new \WP_Query( $query_args );
 		$this->items = $query->posts;
+
+		$this->application_counts = self::application_counts( wp_list_pluck( $this->items, 'ID' ) );
 
 		$this->set_pagination_args(
 			array(
@@ -642,7 +653,7 @@ class AdminJobs extends \WP_List_Table {
 		if ( 'publish' === $status && '' === $hidden && \WCB\Admin\Settings::bool( 'job_schema_enabled', true ) && ! \WCB\Modules\Seo\SeoModule::has_location( $item ) ) {
 			$badge .= sprintf(
 				' <span class="wcb-badge wcb-badge--warn" title="%s">%s</span>',
-				esc_attr__( 'Not in Google for Jobs: add a location or mark the job as remote.', 'wp-career-board' ),
+				esc_attr__( 'Google will not list this job until you add a city or mark it remote.', 'wp-career-board' ),
 				esc_html__( 'No location', 'wp-career-board' )
 			);
 		}
@@ -691,8 +702,114 @@ class AdminJobs extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_company( $item ): string {
-		$name = (string) get_post_meta( $item->ID, '_wcb_company_name', true );
+		return self::company_cell( (int) $item->ID );
+	}
+
+	/**
+	 * Count the applications for a page of jobs in one grouped query.
+	 *
+	 * Counts published applications, the set the Applications screen lists as All.
+	 *
+	 * @since 1.8.4
+	 * @param int[] $job_ids Job IDs on the page.
+	 * @return array<int,int> Count keyed by job ID; jobs with none are absent.
+	 */
+	private static function application_counts( array $job_ids ): array {
+		$job_ids = array_map( 'intval', $job_ids );
+		if ( ! $job_ids ) {
+			return array();
+		}
+		global $wpdb;
+		$in = implode( ',', array_fill( 0, count( $job_ids ), '%d' ) );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one grouped read for the page; placeholders are generated.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT pm.meta_value AS job_id, COUNT(*) AS n FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id WHERE pm.meta_key = '_wcb_job_id' AND pm.meta_value IN ( {$in} ) AND p.post_type = 'wcb_application' AND p.post_status = 'publish' GROUP BY pm.meta_value", $job_ids ) );
+		// phpcs:enable
+		$counts = array();
+		foreach ( (array) $rows as $row ) {
+			$counts[ (int) $row->job_id ] = (int) $row->n;
+		}
+		return $counts;
+	}
+
+	/**
+	 * Applications column: the count, linking to that job's applications.
+	 *
+	 * @since 1.8.4
+	 * @param \WP_Post $item Current row post object.
+	 * @return string
+	 */
+	protected function column_applications( $item ): string {
+		return self::applications_cell( (int) $item->ID, $this->application_counts[ (int) $item->ID ] ?? 0 );
+	}
+
+	/**
+	 * A job's company name for a list cell.
+	 *
+	 * @since 1.8.4
+	 * @param int $job_id Job ID.
+	 * @return string Escaped HTML.
+	 */
+	private static function company_cell( int $job_id ): string {
+		$name = (string) get_post_meta( $job_id, '_wcb_company_name', true );
 		return $name ? esc_html( $name ) : '—';
+	}
+
+	/**
+	 * A job's application count for a list cell, linking to its applications.
+	 *
+	 * @since 1.8.4
+	 * @param int $job_id Job ID.
+	 * @param int $count  Application count.
+	 * @return string Escaped HTML.
+	 */
+	private static function applications_cell( int $job_id, int $count ): string {
+		if ( 0 === $count ) {
+			return '0';
+		}
+		return sprintf(
+			'<a href="%s">%s</a>',
+			esc_url( admin_url( 'admin.php?page=wcb-applications&job_id=' . $job_id ) ),
+			esc_html( number_format_i18n( $count ) )
+		);
+	}
+
+	/**
+	 * Company and Applications on the WordPress Jobs list (edit.php?post_type=wcb_job),
+	 * after the title, so both job lists show them.
+	 *
+	 * @since 1.8.4
+	 * @param array<string,string> $columns Columns.
+	 * @return array<string,string>
+	 */
+	public static function core_list_columns( array $columns ): array {
+		$out = array();
+		foreach ( $columns as $key => $label ) {
+			$out[ $key ] = $label;
+			if ( 'title' === $key ) {
+				$out['wcb_company']      = __( 'Company', 'wp-career-board' );
+				$out['wcb_applications'] = __( 'Applications', 'wp-career-board' );
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Print a Company or Applications cell on the WordPress Jobs list. The
+	 * counts for the whole page come from one grouped query on the first cell.
+	 *
+	 * @since 1.8.4
+	 * @param string $column  Column key.
+	 * @param int    $post_id Job ID.
+	 * @return void
+	 */
+	public static function core_list_column( string $column, int $post_id ): void {
+		static $counts = null;
+		if ( 'wcb_company' === $column ) {
+			echo self::company_cell( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in company_cell().
+		} elseif ( 'wcb_applications' === $column ) {
+			$counts ??= self::application_counts( wp_list_pluck( (array) ( $GLOBALS['wp_query']->posts ?? array() ), 'ID' ) );
+			echo self::applications_cell( $post_id, $counts[ $post_id ] ?? 0 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in applications_cell().
+		}
 	}
 
 	/**
@@ -806,7 +923,8 @@ class AdminJobs extends \WP_List_Table {
 		}
 
 		// Back to the view the action ran on, so a Trash cleanup stays in Trash.
-		wp_safe_redirect( add_query_arg( $this->view_args(), admin_url( 'admin.php?page=wcb-jobs' ) ) );
+		$args = $this->view_args();
+		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php?page=wcb-jobs' ) ) );
 		exit;
 	}
 

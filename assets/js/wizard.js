@@ -195,15 +195,17 @@
 		var save = e.target.closest( '[data-wcb-wizard-save]' );
 		var skip = e.target.closest( '[data-wcb-wizard-skip]' );
 
-		if ( skip ) {
+		if ( skip && ! skip.hasAttribute( 'data-wcb-skip-saves' ) ) {
 			dispatchComplete( getStepNum( skip ) );
 			return;
 		}
-		if ( ! save ) {
+		var trigger = save || skip;
+		if ( ! trigger ) {
 			return;
 		}
 
-		var stepNum = getStepNum( save );
+		var stepNum = getStepNum( trigger );
+		save = trigger;
 		save.disabled = true;
 		showError( save, '' );
 
@@ -218,18 +220,6 @@
 			save.disabled = false;
 			showError( save, ( err && err.message ) || wcbWizard.i18n.saveFailed );
 		} );
-	} );
-
-	// CAPTCHA step: show only the chosen provider's key fields.
-	container.addEventListener( 'change', function ( e ) {
-		if ( ! e.target.matches( '[data-wcb-captcha-provider]' ) ) {
-			return;
-		}
-		var groups = container.querySelectorAll( '[data-wcb-provider-fields]' );
-		var i;
-		for ( i = 0; i < groups.length; i++ ) {
-			groups[ i ].hidden = groups[ i ].getAttribute( 'data-wcb-provider-fields' ) !== e.target.value;
-		}
 	} );
 
 	// Step: Sample Data.

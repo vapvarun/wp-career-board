@@ -167,7 +167,7 @@ class EmailSettings {
 		foreach ( $emails as $email ) :
 			$id      = $email->get_id();
 			$saved   = isset( $settings[ $id ] ) ? (array) $settings[ $id ] : array();
-			$enabled = isset( $saved['enabled'] ) ? (bool) $saved['enabled'] : true;
+			$enabled = isset( $saved['enabled'] ) ? (bool) $saved['enabled'] : $email->default_enabled();
 			$subject = isset( $saved['subject'] ) ? $saved['subject'] : '';
 			?>
 						<tr>

@@ -229,6 +229,10 @@ final class FormCustomFields {
 	 * @return \WP_Error|null
 	 */
 	public static function required_error( array $groups, array $submitted, int $owner_id = 0, string $reader = 'post_meta', string $key_prefix = '' ): ?\WP_Error {
+		$bad_link = self::refused_link( $groups, $submitted );
+		if ( $bad_link ) {
+			return $bad_link;
+		}
 		$missing = self::missing_required( $groups, array_merge( self::load_values( $groups, $owner_id, $reader, $key_prefix ), $submitted ) );
 		if ( ! $missing ) {
 			return null;
@@ -242,6 +246,39 @@ final class FormCustomFields {
 				'fields' => array_keys( $missing ),
 			)
 		);
+	}
+
+	/**
+	 * Refuse a link answer that is not a web address, instead of saving it empty.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<int, array<string, mixed>> $groups    Field groups the form shows.
+	 * @param array<string, mixed>             $submitted Submitted values.
+	 * @return \WP_Error|null
+	 */
+	private static function refused_link( array $groups, array $submitted ): ?\WP_Error {
+		foreach ( $groups as $group ) {
+			foreach ( (array) ( is_array( $group ) ? ( $group['fields'] ?? array() ) : array() ) as $raw_field ) {
+				if ( ! is_array( $raw_field ) ) {
+					continue;
+				}
+				$field = self::normalise_field( $raw_field );
+				$value = $submitted[ $field['key'] ] ?? null;
+				if ( in_array( $field['type'], array( 'url', 'video_url' ), true ) && is_string( $value ) && Text::is_refused_url( $value ) ) {
+					return new \WP_Error(
+						'rest_invalid_param',
+						/* translators: 1: field label, 2: the sentence explaining what a web address looks like. */
+						sprintf( __( '%1$s: %2$s', 'wp-career-board' ), $field['label'], Text::web_url_error() ),
+						array(
+							'status' => 400,
+							'fields' => array( $field['key'] ),
+						)
+					);
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -279,7 +316,7 @@ final class FormCustomFields {
 	 * @since 1.1.1
 	 *
 	 * @param array<string, mixed> $field Raw field row.
-	 * @return array{key:string,type:string,label:string,required:bool,placeholder:string,description:string,options:array<string,string>}
+	 * @return array{key:string,type:string,label:string,required:bool,placeholder:string,description:string,options:array<string,string>,prefix:string,suffix:string}
 	 */
 	private static function normalise_field( array $field ): array {
 		$key  = (string) ( $field['key'] ?? $field['field_key'] ?? '' );
@@ -311,6 +348,9 @@ final class FormCustomFields {
 			'placeholder' => (string) ( $field['placeholder'] ?? '' ),
 			'description' => (string) ( $field['description'] ?? '' ),
 			'options'     => $options,
+			// Number fields only: shown around the answer, "$" 500 "per year".
+			'prefix'      => sanitize_text_field( (string) ( $field['prefix'] ?? '' ) ),
+			'suffix'      => sanitize_text_field( (string) ( $field['suffix'] ?? '' ) ),
 		);
 	}
 
@@ -556,11 +596,20 @@ final class FormCustomFields {
 			$resolved   = $type_map[ $type ] ?? $type;
 			$allowed    = array( 'text', 'email', 'tel', 'url', 'number', 'date' );
 			$input_type = in_array( $resolved, $allowed, true ) ? $resolved : 'text';
-			echo '<input type="' . esc_attr( $input_type ) . '" id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
+			// A web address is a text input: the browser's url check rejects a bare
+			// domain the server accepts, so @wcb/fields checks it with the server rule.
+			echo '<input type="' . esc_attr( 'url' === $input_type ? 'text' : $input_type ) . '"'
+				. ( 'url' === $input_type ? ' inputmode="url"' : '' )
+				. ' id="' . esc_attr( $dom_id ) . '" class="wcb-field"'
 				. ' data-wp-on--input="actions.' . esc_attr( $update_fn ) . '"'
 				. ' data-wcb-field="' . esc_attr( $key ) . '"'
 				. ' ' . $value_bind
 				. $placeholder_attr . $required_attr . ' />';
+			if ( 'url' === $input_type ) {
+				wp_enqueue_script_module( '@wcb/fields' );
+				// Shown while @wcb/fields marks the input aria-invalid; the save drops the value.
+				echo '<p class="wcb-field-error wcb-field-error--url" id="' . esc_attr( $dom_id . '-error' ) . '">' . esc_html__( 'Enter a full web address, like https://example.com', 'wp-career-board' ) . '</p>';
+			}
 			if ( 'file' === $type ) {
 				echo '<span class="wcb-field-hint">' . esc_html__( 'Paste a link to your file.', 'wp-career-board' ) . '</span>';
 			}
@@ -761,7 +810,7 @@ final class FormCustomFields {
 		return match ( $type ) {
 			'textarea'             => sanitize_textarea_field( $str ),
 			'email'                => sanitize_email( $str ),
-			'url', 'video_url', 'file' => esc_url_raw( $str ),
+			'url', 'video_url', 'file' => Text::web_url( $str ),
 			'number'               => is_numeric( $str ) ? (string) (float) $str : '',
 			'date'                 => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $str ) ? $str : '',
 			default                => sanitize_text_field( $str ),
@@ -844,6 +893,7 @@ final class FormCustomFields {
 	 *
 	 * @since 1.7.1
 	 * @since 1.8.2 Choice answers show their labels; multi-choice answers are listed one label per item.
+	 * @since 1.8.4 A number answer carries its field's prefix and unit.
 	 *
 	 * @param array<int, array<string, mixed>> $groups     Same shape as render_groups().
 	 * @param int                              $owner_id   Post / user / row id whose meta to read.
@@ -882,9 +932,18 @@ final class FormCustomFields {
 				} else {
 					$value = (string) ( $values[ $key ] ?? '' );
 				}
+				// A link answer saved before 1.8.4 may be a dead "http://my%20site".
+				if ( in_array( $normalised['type'], array( 'url', 'video_url', 'file' ), true ) ) {
+					$value = Text::web_url( $value );
+				}
 
 				if ( '' === $value ) {
 					continue;
+				}
+
+				if ( 'number' === $normalised['type'] && ( '' !== $normalised['prefix'] || '' !== $normalised['suffix'] ) ) {
+					/* translators: 1: prefix such as "$", 2: the number, 3: unit such as "per year". */
+					$value = trim( sprintf( __( '%1$s%2$s %3$s', 'wp-career-board' ), $normalised['prefix'], $value, $normalised['suffix'] ) );
 				}
 
 				// A choice shows its label; a multi-choice answer (stored

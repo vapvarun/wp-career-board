@@ -539,9 +539,9 @@ final class JobsEndpoint extends RestController {
 			return $wcb_spam;
 		}
 
-		$wcb_location_error = $this->location_error( $request );
-		if ( $wcb_location_error ) {
-			return $wcb_location_error;
+		$wcb_deadline_error = $this->deadline_error( $request );
+		if ( $wcb_deadline_error ) {
+			return $wcb_deadline_error;
 		}
 
 		$wcb_category_error = $this->category_limit_error( $request );
@@ -653,7 +653,7 @@ final class JobsEndpoint extends RestController {
 		}
 
 		// Apply destination.
-		$wcb_apply_url = esc_url_raw( (string) ( $request->get_param( 'apply_url' ) ?? '' ) );
+		$wcb_apply_url = \WCB\Core\Text::web_url( (string) ( $request->get_param( 'apply_url' ) ?? '' ) );
 		if ( $wcb_apply_url ) {
 			update_post_meta( $job_id, '_wcb_apply_url', $wcb_apply_url );
 		}
@@ -758,9 +758,9 @@ final class JobsEndpoint extends RestController {
 			);
 		}
 
-		$wcb_location_error = $this->location_error( $request, $post );
-		if ( $wcb_location_error ) {
-			return $wcb_location_error;
+		$wcb_deadline_error = $this->deadline_error( $request, $post );
+		if ( $wcb_deadline_error ) {
+			return $wcb_deadline_error;
 		}
 
 		$wcb_category_error = $this->category_limit_error( $request, $post );
@@ -997,7 +997,7 @@ final class JobsEndpoint extends RestController {
 		// Apply destination — sanitize identically to create_item().
 		$apply_url = $request->get_param( 'apply_url' );
 		if ( null !== $apply_url ) {
-			update_post_meta( $post->ID, '_wcb_apply_url', esc_url_raw( (string) $apply_url ) );
+			update_post_meta( $post->ID, '_wcb_apply_url', \WCB\Core\Text::web_url( (string) $apply_url ) );
 		}
 		$apply_email = $request->get_param( 'apply_email' );
 		if ( null !== $apply_email ) {
@@ -1229,7 +1229,7 @@ final class JobsEndpoint extends RestController {
 
 		$message = sprintf(
 			/* translators: 1: maximum number of active jobs allowed, 2: number the employer currently has live. */
-			__( 'You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one.', 'wp-career-board' ),
+			_n( 'You can have %1$d active job at a time and currently have %2$d. Close or expire a listing to post a new one.', 'You can have %1$d active jobs at a time and currently have %2$d. Close or expire a listing to post a new one.', $limit, 'wp-career-board' ),
 			$limit,
 			$count
 		);
@@ -1600,52 +1600,24 @@ final class JobsEndpoint extends RestController {
 	// --- Helpers ----------------------------------------------------------------
 
 	/**
-	 * Settings > Jobs "Require a location": a job needs a location or Remote.
+	 * Refuse a new deadline that has already passed.
 	 *
-	 * On update the rule runs only when the request touches the location or
-	 * Remote, so older jobs without one stay editable.
+	 * Checked before anything is written, so a refused request leaves no job
+	 * behind and no half-applied update. A job keeping the deadline it already
+	 * has passes, so an ended job stays editable.
 	 *
-	 * @since 1.8.0
+	 * @since 1.8.4
 	 *
 	 * @param \WP_REST_Request $request Request.
 	 * @param \WP_Post|null    $job     Job being updated, null on create.
 	 * @return \WP_Error|null
 	 */
-	private function location_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
-		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
+	private function deadline_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
+		$deadline = $request->get_param( 'deadline' );
+		if ( empty( $deadline ) || ! \WCB\Core\JobDeadline::is_new_past( (string) $deadline, $job ? (string) get_post_meta( $job->ID, '_wcb_deadline', true ) : '' ) ) {
 			return null;
 		}
-		$remote    = $request->get_param( 'remote' );
-		$locations = $request->get_param( 'locations' );
-		$custom    = $request->get_param( 'location_custom' );
-		if ( $job && null === $remote && null === $locations && null === $custom ) {
-			return null;
-		}
-		if ( $job ) {
-			$remote    = $remote ?? '1' === get_post_meta( $job->ID, '_wcb_remote', true );
-			$locations = $locations ?? wp_get_object_terms( $job->ID, 'wcb_location', array( 'fields' => 'slugs' ) );
-			$custom    = $custom ?? get_post_meta( $job->ID, '_wcb_location_custom', true );
-		}
-		$locations = is_array( $locations ) ? array_filter( array_map( 'strval', $locations ) ) : ( is_string( $locations ) && '' !== $locations ? array( $locations ) : array() );
-		$remote    = rest_sanitize_boolean( $remote );
-		// A location that counts: Remote, or a term that exists. The reserved
-		// Other only stands for a typed location, and an unknown slug is nothing.
-		$usable = false;
-		foreach ( $locations as $slug ) {
-			if ( 'remote' === $slug ) {
-				$remote = true;
-			} elseif ( 'other' !== $slug && term_exists( $slug, 'wcb_location' ) ) {
-				$usable = true;
-			}
-		}
-		if ( $remote || $usable || '' !== trim( (string) $custom ) ) {
-			return null;
-		}
-		return new \WP_Error(
-			'wcb_location_required',
-			__( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
-			array( 'status' => 400 )
-		);
+		return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -1773,7 +1745,7 @@ final class JobsEndpoint extends RestController {
 		$cat_term_objs  = get_the_terms( $post->ID, 'wcb_category' );
 		$tag_term_objs  = get_the_terms( $post->ID, 'wcb_tag' );
 
-		$loc_names  = \WCB\Core\Taxonomy::names( $loc_term_objs );
+		$loc_names  = \WCB\Core\Locations::place_names( $loc_term_objs );
 		$type_names = \WCB\Core\Taxonomy::names( $type_term_objs );
 		$exp_names  = \WCB\Core\Taxonomy::names( $exp_term_objs );
 		$cat_names  = \WCB\Core\Taxonomy::names( $cat_term_objs );
@@ -1877,7 +1849,7 @@ final class JobsEndpoint extends RestController {
 			'experience_slugs'       => $exp_slugs,
 			'tags'                   => $tag_slugs,
 			'thumbnail'              => false !== $thumbnail_url ? (string) $thumbnail_url : '',
-			'apply_url'              => (string) get_post_meta( $post->ID, '_wcb_apply_url', true ),
+			'apply_url'              => \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_apply_url', true ) ),
 			// apply_email intentionally NOT exposed via REST. Anonymous scrapers
 			// were harvesting recruiter inboxes in bulk (F-1 in
 			// plan/role-data-baseline-2026-05-07.md). The apply submission
@@ -2002,7 +1974,7 @@ final class JobsEndpoint extends RestController {
 	public function get_write_params(): array {
 		$rule = static function ( callable $is_valid, string $message ): callable {
 			return static function ( $value ) use ( $is_valid, $message ) {
-				return ( null === $value || '' === $value || $is_valid( $value ) )
+				return ( null === $value || '' === ( is_string( $value ) ? trim( $value ) : $value ) || $is_valid( $value ) )
 					? true
 					: new \WP_Error( 'rest_invalid_param', $message, array( 'status' => 400 ) );
 			};
@@ -2014,10 +1986,14 @@ final class JobsEndpoint extends RestController {
 				'type' => 'boolean',
 			),
 			'salary_min'      => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Minimum salary must be a positive number.', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Minimum salary must be a number from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ) ),
 			),
 			'salary_max'      => array(
-				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), __( 'Maximum salary must be a positive number.', 'wp-career-board' ) ),
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Modules\Jobs\JobsMeta::sanitize_amount( $v ), sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Maximum salary must be a number from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ) ),
+			),
+			// Refuse an address the server would drop, so the poster is told.
+			'apply_url'       => array(
+				'validate_callback' => $rule( static fn ( $v ): bool => '' !== \WCB\Core\Text::web_url( (string) $v ), \WCB\Core\Text::web_url_error( true ) ),
 			),
 			'salary_currency' => array(
 				'validate_callback' => $rule( static fn ( $v ): bool => array_key_exists( strtoupper( (string) $v ), \WCB\Admin\AdminSettings::get_currency_catalog() ), __( 'Unknown salary currency.', 'wp-career-board' ) ),

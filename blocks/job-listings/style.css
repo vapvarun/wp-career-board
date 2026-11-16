@@ -824,9 +824,21 @@
 
 /* "Applications closed" pill on a listing card. Hidden until the Interactivity
    binding adds .wcb-shown, matching how the card's other conditional footer
-   items (salary, deadline) behave. */
+   items (salary, deadline) behave. The wrapper takes a full footer line of
+   its own, first, at every card width; the inner span is the pill. */
 .wcb-card-closed {
 	display: none;
+	order: -1;
+	flex-basis: 100%;
+}
+
+.wcb-card-closed.wcb-shown {
+	display: flex;
+}
+
+.wcb-card-closed__pill {
+	display: inline-flex;
+	align-items: center;
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-muted, var(--wcb-contrast));
@@ -835,11 +847,6 @@
 	border-radius: var(--wcb-radius-full);
 	padding: 2px var(--wcb-space-sm);
 	white-space: nowrap;
-}
-
-.wcb-card-closed.wcb-shown {
-	display: inline-flex;
-	align-items: center;
 }
 
 /* "Alert me" with the guest email field (Pro) */

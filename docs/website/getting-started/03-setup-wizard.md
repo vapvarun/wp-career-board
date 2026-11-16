@@ -6,7 +6,7 @@ You can set up your job board in the Setup Wizard. It creates your pages, sets y
 
 A stepper runs across the top of the wizard. The WordPress admin menu is hidden while the wizard runs. Click **Exit setup** in the wizard header to leave at any time. You can click a step you have already reached in the stepper to reopen it.
 
-The Sign-ups, Jobs, Emails and Spam Protection steps have **Save & Continue** and **Skip for now**. Every answer can be changed later in **Settings**.
+The Sign-ups, Jobs, Emails and Spam Protection steps have **Save & Continue** and **Skip for now**. **Skip for now** on Sign-ups keeps the setting as the screen shows it (sign-ups on). Every answer can be changed later in **Settings**.
 
 ## The steps
 
@@ -18,7 +18,7 @@ Creates the pages your board needs, each with the correct block already placed. 
 |---|---|---|
 | Find Jobs | Heading + Job Search + Job Listings | Main job board browse page |
 | Post a Job | Job Form | Multi-step form for employers to submit listings |
-| Employer Registration | Employer Registration | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
+| Employer Registration | Join | Unified registration for both employers and candidates (users choose "Find a Job" or "Hire Talent") |
 | Employer Dashboard | Employer Dashboard | Employer manages jobs + applications |
 | Candidate Dashboard | Candidate Dashboard | Candidate tracks applications + saved jobs |
 | Find Companies | Company Archive | Browsable company directory |
@@ -40,13 +40,9 @@ Creates the pages your board needs, each with the correct block already placed. 
 - **Sender email** - use an address on your own domain so emails don't land in spam.
 - **Send admin alerts to** - new jobs waiting for review, reports, and other admin notices go here.
 
-### 5. Spam protection
+### 5. Sample data
 
-Choose a CAPTCHA option and enter its site key and secret key. The options are None (hidden honeypot only), Cloudflare Turnstile, Google reCAPTCHA v3 and Google reCAPTCHA v2 (invisible badge). A hidden honeypot always protects the sign-up, apply and post-a-job forms. See [Settings > Anti-spam](../admin-guide/01-settings.md#anti-spam).
-
-### 6. Sample data
-
-Optionally install sample categories, job types, companies and demo jobs, so you can see how the board looks before you add real data. Click **Finish Setup** to complete.
+The sample data box starts unticked. Tick it to install sample categories, job types, companies and demo jobs, so you can see how the board looks before you add real data. Click **Finish Setup** to complete.
 
 ### Extra steps with Pro
 

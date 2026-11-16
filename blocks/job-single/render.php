@@ -31,7 +31,7 @@ if ( ! $wcb_job || 'wcb_job' !== $wcb_job->post_type ) {
 $wcb_is_staff = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 if (
 	! empty( $attributes['jobId'] )
-	&& ! in_array( $wcb_job->post_status, array( 'publish', 'wcb_expired', 'wcb_closed' ), true )
+	&& ! in_array( $wcb_job->post_status, \WCB\Modules\Jobs\JobsMeta::VIEWABLE_STATUSES, true )
 	&& ! ( get_current_user_id() > 0 && get_current_user_id() === (int) $wcb_job->post_author )
 	&& ! $wcb_is_staff
 ) {
@@ -39,7 +39,7 @@ if (
 }
 
 // ── Taxonomies — full term objects for link generation ───────────────────────
-$wcb_location_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_location' );
+$wcb_location_terms   = \WCB\Core\Locations::place_terms( wp_get_object_terms( $wcb_job_id, 'wcb_location' ) );
 $wcb_type_terms       = wp_get_object_terms( $wcb_job_id, 'wcb_job_type' );
 $wcb_experience_terms = wp_get_object_terms( $wcb_job_id, 'wcb_experience' );
 $wcb_category_terms   = wp_get_object_terms( $wcb_job_id, 'wcb_category' );
@@ -53,7 +53,6 @@ $wcb_categories = ! is_wp_error( $wcb_category_terms ) ? $wcb_category_terms : a
 $wcb_tags       = ! is_wp_error( $wcb_tag_terms ) ? $wcb_tag_terms : array();
 
 // Normalize to arrays for safe iteration.
-$wcb_location_terms   = is_wp_error( $wcb_location_terms ) ? array() : $wcb_location_terms;
 $wcb_type_terms       = is_wp_error( $wcb_type_terms ) ? array() : $wcb_type_terms;
 $wcb_experience_terms = is_wp_error( $wcb_experience_terms ) ? array() : $wcb_experience_terms;
 
@@ -69,11 +68,9 @@ $wcb_deadline_formatted = \WCB\Core\JobDeadline::label( $wcb_job_id );
 $wcb_featured           = '1' === (string) get_post_meta( $wcb_job_id, '_wcb_featured', true );
 
 // External apply routing — URL wins (ATS redirect), email is a passive contact channel.
-// Strict URL validation runs at save-time in Jobs_Endpoint; here we only confirm a usable http(s) scheme.
-$wcb_apply_url      = (string) get_post_meta( $wcb_job_id, '_wcb_apply_url', true );
+// Text::web_url() is the one web-address rule; a value saved before it existed is re-checked here.
+$wcb_apply_url      = \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_job_id, '_wcb_apply_url', true ) );
 $wcb_apply_email    = sanitize_email( (string) get_post_meta( $wcb_job_id, '_wcb_apply_email', true ) );
-$wcb_apply_scheme   = $wcb_apply_url ? strtolower( (string) wp_parse_url( $wcb_apply_url, PHP_URL_SCHEME ) ) : '';
-$wcb_apply_url      = in_array( $wcb_apply_scheme, array( 'http', 'https' ), true ) ? esc_url_raw( $wcb_apply_url ) : '';
 $wcb_apply_external = '' !== $wcb_apply_url;
 
 // ── Salary display ────────────────────────────────────────────────────────────
@@ -95,12 +92,8 @@ $wcb_salary_str = \WCB\Core\SalaryFormat::format(
 
 // ── Company ───────────────────────────────────────────────────────────────────
 $wcb_company_name = (string) get_post_meta( $wcb_job_id, '_wcb_company_name', true );
-// Prefer the company ID stored on the job post (set at submission time); fall back to the employer's user meta.
-$wcb_company_id = (int) get_post_meta( $wcb_job_id, '_wcb_company_id', true );
-if ( ! $wcb_company_id ) {
-	$wcb_author_id  = (int) $wcb_job->post_author;
-	$wcb_company_id = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
-}
+// The job's own company, else the employer's; a trashed or deleted one counts as none.
+$wcb_company_id   = \WCB\Core\CompanyMetaShape::for_job( $wcb_job );
 $wcb_company_post = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 
 if ( ! $wcb_company_name && $wcb_company_post instanceof \WP_Post ) {
@@ -118,7 +111,7 @@ $wcb_company_tagline = $wcb_company_id ? (string) get_post_meta( $wcb_company_id
 $wcb_company_desc     = $wcb_company_post instanceof \WP_Post && '' !== trim( wp_strip_all_tags( $wcb_company_post->post_content ) )
 	? \WCB\Core\Text::excerpt( $wcb_company_post->post_content, 40 )
 	: $wcb_company_tagline;
-$wcb_company_site     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) : '';
+$wcb_company_site     = $wcb_company_id ? \WCB\Core\Text::web_url( (string) get_post_meta( $wcb_company_id, '_wcb_website', true ) ) : '';
 $wcb_company_trust    = $wcb_company_id ? sanitize_key( (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', true ) ) : '';
 $wcb_company_industry = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_industry', true ) : '';
 $wcb_company_size     = $wcb_company_id ? (string) get_post_meta( $wcb_company_id, '_wcb_company_size', true ) : '';
@@ -262,6 +255,7 @@ $wcb_is_bookmarked = in_array( $wcb_job_id, $wcb_bookmarks, true );
 
 // ── Resume data for apply panel ───────────────────────────────────────────────
 $wcb_user_resumes            = array();
+$wcb_last_cv                 = array();
 $wcb_resume_page_url         = '';
 $wcb_career_board_pro_active = (bool) apply_filters( 'wcb_pro_active', false );
 // Gated on the Pro filter, not post_type_exists(): Free registers wcb_resume
@@ -321,6 +315,34 @@ $wcb_can_report       = is_user_logged_in() && ! $wcb_is_job_owner;
 $wcb_flag_reporters   = array_map( 'intval', (array) get_post_meta( $wcb_job_id, '_wcb_flag_reporters', true ) );
 $wcb_already_reported = in_array( $wcb_current_user_id, $wcb_flag_reporters, true );
 
+// A signed-in candidate with no saved resume reuses the CV from their latest
+// application, so the second application is one click. Ownership is checked
+// again by the apply endpoint (resolve_resume_attachment).
+if ( $wcb_current_user_id > 0 && empty( $wcb_user_resumes ) ) {
+	$wcb_past_apps = get_posts(
+		array(
+			'post_type'      => 'wcb_application',
+			'post_status'    => 'any',
+			'author'         => $wcb_current_user_id,
+			'posts_per_page' => 5,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'no_found_rows'  => true,
+			'meta_key'       => '_wcb_resume_attachment_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- five rows, author-scoped.
+		)
+	);
+	foreach ( $wcb_past_apps as $wcb_past_app ) {
+		$wcb_past_cv = get_post( (int) get_post_meta( $wcb_past_app->ID, '_wcb_resume_attachment_id', true ) );
+		if ( $wcb_past_cv && 'attachment' === $wcb_past_cv->post_type && (int) $wcb_past_cv->post_author === $wcb_current_user_id ) {
+			$wcb_last_cv = array(
+				'id'   => $wcb_past_cv->ID,
+				'name' => wp_basename( (string) get_attached_file( $wcb_past_cv->ID ) ),
+			);
+			break;
+		}
+	}
+}
+
 wp_interactivity_state(
 	'wcb-job-single',
 	array(
@@ -356,6 +378,9 @@ wp_interactivity_state(
 		'guestName'            => '',
 		'guestEmail'           => '',
 		'resumeFileName'       => '',
+		'lastResumeId'         => (int) ( $wcb_last_cv['id'] ?? 0 ),
+		'lastResumeName'       => (string) ( $wcb_last_cv['name'] ?? '' ),
+		'useLastResume'        => ! empty( $wcb_last_cv ),
 		'resumeRequired'       => $wcb_resume_required,
 		'resumeMaxMb'          => $wcb_resume_max_mb,
 		'alertFromJobSaved'    => false,
@@ -584,7 +609,8 @@ wp_interactivity_state(
 					<?php
 					// Convert common markdown patterns (bold, italic, headings, lists) that users
 					// naturally type in the frontend textarea to HTML before rendering.
-					$wcb_job_desc     = \WCB\Core\Text::dash_lists( (string) $wcb_job->post_content );
+					// Block-editor descriptions carry <!-- wp:* --> comments; wpautop turns each into an empty paragraph.
+					$wcb_job_desc     = \WCB\Core\Text::dash_lists( (string) preg_replace( '/<!--\s*\/?wp:.*?-->\s*/s', '', (string) $wcb_job->post_content ) );
 					$wcb_job_desc     = (string) preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/(?<!\*)\*(?![\*\s])(.+?)(?<!\s)\*(?!\*)/m', '<em>$1</em>', $wcb_job_desc );
 					$wcb_job_desc     = (string) preg_replace( '/^## (.+)$/m', '<h4>$1</h4>', $wcb_job_desc );
@@ -1149,7 +1175,18 @@ wp_interactivity_state(
 						</label>
 					<?php endif; ?>
 
-					<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFileName">
+					<?php if ( ! empty( $wcb_last_cv ) ) : ?>
+					<p class="wcb-apply-last-cv" data-wp-class--wcb-hidden="!state.useLastResume">
+						<span>
+						<?php
+						/* translators: %s: file name of the candidate's last CV. */
+						printf( esc_html__( 'Using your last CV: %s', 'wp-career-board' ), '<strong>' . esc_html( $wcb_last_cv['name'] ) . '</strong>' );
+						?>
+						</span>
+						<button type="button" class="wcb-btn wcb-btn--ghost" data-wp-on--click="actions.replaceLastResume"><?php esc_html_e( 'Replace', 'wp-career-board' ); ?></button>
+					</p>
+					<?php endif; ?>
+					<label class="wcb-upload-zone" for="wcb-resume-file" data-wp-class--wcb-has-file="state.resumeFileName" data-wp-class--wcb-hidden="state.useLastResume">
 						<span class="wcb-upload-icon">&#8593;</span>
 						<span class="wcb-upload-text"><?php esc_html_e( 'Click to upload resume', 'wp-career-board' ); ?></span>
 						<span class="wcb-upload-hint">
@@ -1165,7 +1202,7 @@ wp_interactivity_state(
 							class="wcb-apply-resume-file"
 							accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 							data-wp-on--change="actions.selectResumeFile"
-		<?php echo $wcb_resume_required ? 'required' : ''; ?>
+		<?php echo $wcb_resume_required && empty( $wcb_last_cv ) ? 'required' : ''; ?>
 						/>
 					</label>
 				</div>

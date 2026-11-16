@@ -43,7 +43,7 @@ Write commands check the WordPress Abilities API before acting. The check runs a
 | `wp wcb job expire` | `wcb/moderate-jobs` |
 | `wp wcb job run-expiry` | `wcb/manage-settings` |
 | `wp wcb application update` | `wcb/view-applications` |
-| `wp wcb scale seed`, `benchmark`, `teardown` | `wcb/manage-settings` |
+| `wp wcb scale seed`, `benchmark`, `teardown` (repository checkout only, not in the release zip) | `wcb/manage-settings` |
 | `wp wcb migrate ...` | None |
 | All `list` and `status` commands | None |
 

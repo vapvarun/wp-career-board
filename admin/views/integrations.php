@@ -95,18 +95,14 @@ $wcb_install_msg   = isset( $_GET['wcb_msg'] ) ? sanitize_text_field( wp_unslash
 						<i data-lucide="check" aria-hidden="true"></i>
 						<?php esc_html_e( 'Connected', 'wp-career-board' ); ?>
 					</span>
-				<?php else : ?>
+				<?php elseif ( 'installed_inactive' === $wcb_status ) : ?>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 						<input type="hidden" name="action" value="wcb_install_companion">
 						<input type="hidden" name="companion" value="<?php echo esc_attr( $wcb_slug ); ?>">
 						<input type="hidden" name="tier" value="free">
 						<?php wp_nonce_field( 'wcb_install_companion_nonce_' . $wcb_slug ); ?>
 						<button type="submit" class="wcb-btn wcb-btn--primary">
-							<?php
-							echo 'installed_inactive' === $wcb_status
-								? esc_html__( 'Activate', 'wp-career-board' )
-								: esc_html__( 'Install free', 'wp-career-board' );
-							?>
+							<?php esc_html_e( 'Activate', 'wp-career-board' ); ?>
 						</button>
 					</form>
 				<?php endif; ?>

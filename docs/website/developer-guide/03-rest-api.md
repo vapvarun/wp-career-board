@@ -19,7 +19,7 @@ For server-to-server calls, generate an application password
 
 A small set of endpoints permit guest access: the read-only jobs, companies, candidates, employers and search endpoints, the candidate and employer registration endpoints, and the apply endpoint. A guest can apply unless **Require login to apply** is on under **Settings > Sign-ups**; then a logged-out request gets `401 wcb_login_required`. A logged-in user must hold the `wcb/apply-jobs` ability. A guest whose `guest_email` belongs to an account gets `409 wcb_guest_has_account` (the client should send them to sign in). A repeat guest application for the same job and email within 24 hours returns the same `200` body and application `id` as the first, so the route never reveals whether an email applied.
 
-Abuse prevention on submission endpoints comes from the anti-spam module: an always-on honeypot field plus an optional CAPTCHA provider (Cloudflare Turnstile, Google reCAPTCHA v3 or v2). Some public routes also have hourly per-IP limits. See [Abuse prevention](#abuse-prevention).
+Abuse prevention on submission endpoints comes from the anti-spam module: an always-on honeypot field. Some public routes also have hourly per-IP limits. See [Abuse prevention](#abuse-prevention).
 
 ## Response envelope
 
@@ -265,7 +265,7 @@ You inherit the response envelope, `current_user_id()`, `permission_error()` (40
 
 ## Abuse prevention
 
-Job, application and sign-up submissions are checked by the anti-spam module: an always-on honeypot field plus an optional CAPTCHA provider (Cloudflare Turnstile, Google reCAPTCHA v3 or v2), configured under **Settings > Anti-Spam**. It hooks `wcb_pre_job_submit`, `wcb_pre_application_submit` and `wcb_pre_registration`, and rejects a spam request before the record is created.
+Job, application and sign-up submissions are checked by the anti-spam module: an always-on honeypot field. A site that wants a CAPTCHA or a spam service adds one with its own plugin on the same hooks. It hooks `wcb_pre_job_submit`, `wcb_pre_application_submit` and `wcb_pre_registration`, and rejects a spam request before the record is created.
 
 Public routes that cost something also have hourly per-IP limits, answered with `429 wcb_rate_limited`:
 
@@ -276,7 +276,7 @@ Public routes that cost something also have hourly per-IP limits, answered with 
 | `POST /auth/verify-email/resend` | 5 | - |
 | `POST /auth/app-password` | 20 attempts, 5 failures per bucket | `wcb_app_password_max_attempts_per_ip`, `wcb_app_password_max_failures` |
 
-Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Anti-Spam > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The rightmost address in the header is used (the one your own proxy appended; the client controls everything to its left), and an invalid one falls back to `REMOTE_ADDR`.
+Every limit counts per visitor IP address. By default that is `REMOTE_ADDR`, which behind a proxy or CDN is the proxy's address. Choose the proxy in **Settings > Advanced > Visitor IP address**, or set the `$_SERVER` key in code with `wcb_client_ip_header`. The rightmost address in the header is used (the one your own proxy appended; the client controls everything to its left), and an invalid one falls back to `REMOTE_ADDR`.
 
 Both sign-up routes also run `wcb_pre_registration` and core's `registration_errors` filter before an account is created.
 

@@ -23,7 +23,6 @@ Every option the code reads, with the default it falls back to. **A blank defaul
 | `wcb_companies_cache_v` | `0` | 3 |  | api/endpoints/class-companies-endpoint.php |
 | `wcb_db_version` | `'0'` | 2 |  | core/class-install.php |
 | `wcb_sample_data_ids` | `array(` | 2 |  | admin/class-setup-wizard.php |
-| `wcb_captcha_driver` | `null` | 1 |  | core/class-install.php |
 | `wcb_posts_fulltext_supported` | `false` | 1 |  | core/class-title-search.php |
 | `wcb_defaults_version` | `` | 1 |  | admin/class-admin.php |
 | `wcb_setup_complete` | `false` | 1 |  | admin/class-setup-wizard.php |

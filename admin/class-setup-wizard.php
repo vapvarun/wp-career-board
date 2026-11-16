@@ -232,11 +232,6 @@ class SetupWizard extends \WCB\Api\RestController {
 					'template'    => WCB_DIR . 'admin/views/wizard-steps/emails.php',
 					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
 				),
-				'anti-spam'    => array(
-					'title'       => __( 'Spam Protection', 'wp-career-board' ),
-					'template'    => WCB_DIR . 'admin/views/wizard-steps/anti-spam.php',
-					'button_text' => __( 'Save & Continue', 'wp-career-board' ),
-				),
 				'sample-data'  => array(
 					'title'       => __( 'Sample data', 'wp-career-board' ),
 					'template'    => WCB_DIR . 'admin/views/wizard-steps/sample-data.php',
@@ -400,7 +395,8 @@ class SetupWizard extends \WCB\Api\RestController {
 	public function settings_handler( \WP_REST_Request $request ): \WP_REST_Response {
 		$input = (array) $request->get_param( 'settings' );
 
-		if ( array_key_exists( 'users_can_register', $input ) ) {
+		// On multisite core reads the network's setting, so a subsite value would only mislead.
+		if ( array_key_exists( 'users_can_register', $input ) && ! is_multisite() ) {
 			update_option( 'users_can_register', rest_sanitize_boolean( $input['users_can_register'] ) ? 1 : 0 );
 		}
 
@@ -604,7 +600,7 @@ class SetupWizard extends \WCB\Api\RestController {
 
 		$company_ids = array();
 		foreach ( $companies as $co ) {
-			$existing = get_page_by_path( $co['slug'], OBJECT, 'wcb_company' );
+			$existing = self::find_sample_post( $co['slug'], 'wcb_company' );
 			if ( $existing ) {
 				$company_ids[ $co['slug'] ] = (int) $existing->ID;
 				// Re-track on re-run so wcb_sample_data_ids stays complete
@@ -618,7 +614,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				array(
 					'post_type'     => 'wcb_company',
 					'post_title'    => $co['title'],
-					'post_name'     => $co['slug'],
+					'post_name'     => self::free_sample_slug( $co['slug'], 'wcb_company' ),
 					'post_status'   => 'publish',
 					'post_author'   => $author_id,
 					'post_date_gmt' => $joined_gmt,
@@ -676,7 +672,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		// job read as fake on a fresh board.
 		$job_age = array( 1, 2, 4, 6, 9, 12, 15, 19 );
 		foreach ( $jobs as $job_index => $job ) {
-			$existing = get_page_by_path( $job['slug'], OBJECT, 'wcb_job' );
+			$existing = self::find_sample_post( $job['slug'], 'wcb_job' );
 			if ( $existing ) {
 				// Re-track on re-run so wcb_sample_data_ids stays complete.
 				$created_ids['jobs'][] = (int) $existing->ID;
@@ -689,7 +685,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				array(
 					'post_type'     => 'wcb_job',
 					'post_title'    => $job['title'],
-					'post_name'     => $job['slug'],
+					'post_name'     => self::free_sample_slug( $job['slug'], 'wcb_job' ),
 					'post_content'  => self::sample_content_to_html( $job['content'] ),
 					'post_status'   => 'publish',
 					'post_author'   => $author_id,
@@ -851,6 +847,98 @@ class SetupWizard extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * SQL condition for a job post (alias `p`) that is the owner's own, not wizard
+	 * sample data: no `_wcb_sample` marker, not a tracked sample id, and not one
+	 * of the `wcb-sample-` slugs older installs created without the marker.
+	 *
+	 * The one definition behind the Getting started checklist and the Employers
+	 * count, so sample jobs never make their author an employer.
+	 *
+	 * @since 1.8.4
+	 * @return string SQL starting with AND.
+	 */
+	public static function own_job_sql(): string {
+		global $wpdb;
+		$sql = $wpdb->prepare(
+			" AND NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} sm WHERE sm.post_id = p.ID AND sm.meta_key = %s AND sm.meta_value = %s ) AND p.post_name NOT LIKE %s",
+			'_wcb_sample',
+			'1',
+			'wcb-sample-%'
+		);
+		$ids = array_filter( array_map( 'absint', (array) get_option( 'wcb_sample_data_ids', array() ) ) );
+		return $ids ? $sql . ' AND p.ID NOT IN ( ' . implode( ',', $ids ) . ' )' : $sql;
+	}
+
+	/**
+	 * Whether a post is wizard sample data: marked, tracked, or one of the old
+	 * `wcb-sample-` slugs. The same rule as own_job_sql(), for a single post.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public static function is_sample_post( int $post_id ): bool {
+		if ( '1' === (string) get_post_meta( $post_id, '_wcb_sample', true ) || str_starts_with( (string) get_post_field( 'post_name', $post_id ), 'wcb-sample-' ) ) {
+			return true;
+		}
+		$tracked = (array) get_option( 'wcb_sample_data_ids', array() );
+		foreach ( array( 'jobs', 'companies', 'candidates' ) as $bucket ) {
+			if ( in_array( $post_id, array_map( 'intval', (array) ( $tracked[ $bucket ] ?? array() ) ), true ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * The sample post for a slug, or null. A post that merely shares the slug
+	 * (the owner's own "roastworks") is never adopted, so Remove Sample Data
+	 * cannot delete it. A sample whose slug was taken lives under `wcb-sample-{slug}`.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $slug      Sample slug.
+	 * @param string $post_type wcb_company or wcb_job.
+	 * @return \WP_Post|null
+	 */
+	private static function find_sample_post( string $slug, string $post_type ): ?\WP_Post {
+		foreach ( array( $slug, 'wcb-sample-' . $slug ) as $candidate ) {
+			$post = get_page_by_path( $candidate, OBJECT, $post_type );
+			if ( $post && self::is_sample_post( (int) $post->ID ) ) {
+				return $post;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * The slug a new sample post is saved under: the plain slug, or the
+	 * `wcb-sample-` form when the owner already uses the plain one.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $slug      Sample slug.
+	 * @param string $post_type wcb_company or wcb_job.
+	 * @return string
+	 */
+	private static function free_sample_slug( string $slug, string $post_type ): string {
+		return get_page_by_path( $slug, OBJECT, $post_type ) ? 'wcb-sample-' . $slug : $slug;
+	}
+
+	/**
+	 * How many published jobs are the owner's own (see own_job_sql()).
+	 *
+	 * @since 1.8.4
+	 * @return int
+	 */
+	public static function count_own_published_jobs(): int {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- the fragment is prepared in own_job_sql().
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM ( SELECT 1 FROM {$wpdb->posts} p WHERE p.post_type = 'wcb_job' AND p.post_status = 'publish'" . self::own_job_sql() . ' LIMIT 1 ) t' );
+	}
+
+	/**
 	 * Detect whether wizard sample data still exists on the site.
 	 *
 	 * Considers four signals so the cleanup button never silently
@@ -917,6 +1005,38 @@ class SetupWizard extends \WCB\Api\RestController {
 	}
 
 	/**
+	 * Delete one sample company without closing the owner's real jobs.
+	 *
+	 * The job editor pre-selects the only company on a fresh site, which is a
+	 * sample one, so a real job can point at it. Deleting the company closes
+	 * every job attached to it; real ones are detached first and stay live.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param int $company_id Sample company post ID.
+	 * @return int[] The real jobs that were detached and kept live.
+	 */
+	private static function delete_sample_company( int $company_id ): array {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- the own-job fragment is prepared in own_job_sql().
+		$real = (array) $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} cm ON cm.post_id = p.ID AND cm.meta_key = %s AND cm.meta_value = %s WHERE p.post_type = %s",
+				'_wcb_company_id',
+				(string) $company_id,
+				'wcb_job'
+			) . self::own_job_sql()
+		);
+		$real = wp_parse_id_list( $real );
+		foreach ( $real as $job_id ) {
+			delete_post_meta( $job_id, '_wcb_company_id' );
+			delete_post_meta( $job_id, '_wcb_company_name' );
+		}
+		wp_delete_post( $company_id, true );
+		return $real;
+	}
+
+	/**
 	 * Remove all sample data created by the wizard, plus any wizard-shaped
 	 * orphans (slug prefix `wcb-sample-`, company website containing
 	 * `example.com`) and any post explicitly tagged with `_wcb_sample = 1`
@@ -926,9 +1046,10 @@ class SetupWizard extends \WCB\Api\RestController {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array{jobs: int, companies: int, candidates: int, terms: int} Counts of removed items.
+	 * @return array{jobs: int, companies: int, candidates: int, terms: int, notice?: string} Counts of removed items, plus a notice when real jobs were detached from a sample company.
 	 */
 	public function remove_sample_data(): array {
+		$kept    = array();
 		$ids     = (array) get_option( 'wcb_sample_data_ids', array() );
 		$removed = array(
 			'jobs'       => 0,
@@ -956,7 +1077,7 @@ class SetupWizard extends \WCB\Api\RestController {
 		foreach ( $ids['companies'] ?? array() as $cid ) {
 			$cid = (int) $cid;
 			if ( $cid && get_post( $cid ) ) {
-				wp_delete_post( $cid, true );
+				$kept                           = array_merge( $kept, self::delete_sample_company( $cid ) );
 				$deleted['wcb_company'][ $cid ] = true;
 				++$removed['companies'];
 			}
@@ -997,7 +1118,11 @@ class SetupWizard extends \WCB\Api\RestController {
 			if ( ! get_post( $post_id ) ) {
 				continue;
 			}
-			wp_delete_post( $post_id, true );
+			if ( 'wcb_company' === $post_type ) {
+				$kept = array_merge( $kept, self::delete_sample_company( $post_id ) );
+			} else {
+				wp_delete_post( $post_id, true );
+			}
 			$deleted[ $post_type ][ $post_id ] = true;
 			$bucket                            = 'wcb_job' === $post_type ? 'jobs' : ( 'wcb_company' === $post_type ? 'companies' : 'candidates' );
 			++$removed[ $bucket ];
@@ -1048,7 +1173,7 @@ class SetupWizard extends \WCB\Api\RestController {
 				continue;
 			}
 			if ( get_post( $wcb_orphan_co_id ) ) {
-				wp_delete_post( $wcb_orphan_co_id, true );
+				$kept                                        = array_merge( $kept, self::delete_sample_company( $wcb_orphan_co_id ) );
 				$deleted['wcb_company'][ $wcb_orphan_co_id ] = true;
 				++$removed['companies'];
 			}
@@ -1070,6 +1195,18 @@ class SetupWizard extends \WCB\Api\RestController {
 		 * @since 1.3.1
 		 */
 		do_action( 'wcb_sample_data_removed' );
+
+		$kept = array_unique( $kept );
+		if ( $kept ) {
+			// The notice is plain text: the stored title, not get_the_title(), which encodes & and curls quotes.
+			$titles = array_map( static fn( $id ) => wp_specialchars_decode( (string) get_post_field( 'post_title', $id ), ENT_QUOTES ), array_slice( $kept, 0, 3 ) );
+			if ( count( $kept ) > 3 ) {
+				/* translators: %d: number of jobs not named in the list */
+				$titles[] = sprintf( __( 'and %d more', 'wp-career-board' ), count( $kept ) - 3 );
+			}
+			/* translators: 1: number of jobs, 2: their titles */
+			$removed['notice'] = sprintf( _n( '%1$d of your own jobs was linked to a sample company. It stays published without a company: %2$s. Choose a company for it in the job editor.', '%1$d of your own jobs were linked to a sample company. They stay published without a company: %2$s. Choose a company for each in the job editor.', count( $kept ), 'wp-career-board' ), count( $kept ), implode( ', ', $titles ) );
+		}
 
 		return $removed;
 	}

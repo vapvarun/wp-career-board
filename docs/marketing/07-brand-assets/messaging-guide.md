@@ -60,7 +60,7 @@ The free version covers the full employer-to-hire workflow. When you need more â
 | Privacy | WP Privacy API â€” GDPR export and erasure built in |
 | Notifications | `wp_mail()` with customizable email templates |
 | Scheduling | WP-Cron for job auto-expiry |
-| Spam protection | reCAPTCHA v3 (score-based, invisible) |
+| Spam protection | Honeypot, with hooks for a CAPTCHA plugin |
 
 **What we deliberately avoided:**
 - No shortcodes
@@ -79,7 +79,7 @@ The free version covers the full employer-to-hire workflow. When you need more â
 | BuddyPress integration | First-class | None | None |
 | Reign/BuddyX bundling | Yes | No | No |
 | Guest applications | Yes (free) | Add-on | Add-on |
-| reCAPTCHA (free) | Yes | No | No |
+| Honeypot spam protection (free) | Yes | No | No |
 | GDPR (free) | Yes | No | Partial |
 | Application pipeline | Pro (Kanban) | Add-on | Pro |
 | Multi-board | Pro | No | Pro |
@@ -94,7 +94,7 @@ The free version covers the full employer-to-hire workflow. When you need more â
 - Full application tracking: 5 statuses in free, unlimited custom pipeline stages in Pro
 - `JobPosting` schema.org outputs valid structured data on every job single page
 - GDPR compliance built in â€” personal data export and erasure in WP Admin â†’ Tools â†’ Privacy
-- reCAPTCHA v3 spam protection on both the job form and the application form (free)
+- Honeypot spam protection on the job form and application form (free)
 - Guest applications â€” candidates can apply with email only, no registration required
 
 ---

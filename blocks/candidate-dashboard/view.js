@@ -15,7 +15,7 @@
  * @package WP_Career_Board
  */
 import { store, getConfig, getContext, withScope } from '@wordpress/interactivity';
-import { wcbFetch } from '@wcb/fetch';
+import { wcbFetch, wcbUrl } from '@wcb/fetch';
 import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, tabRouter } from '@wcb/ui';
 
 /**
@@ -25,7 +25,20 @@ import { flushEditors, relativeTime, rowMenuActions, savedMetaLine, showError, t
 // Tabs whose panel rendered, decided in render.php (Pro-only tabs drop out without Pro).
 const VALID_TABS = getConfig( 'wcb-candidate-dashboard' ).tabs;
 
+// Retired hashes (#saved, #saved-jobs, #saved-resumes) => the tab that replaced them.
+const TAB_ALIASES = getConfig( 'wcb-candidate-dashboard' ).aliases || {};
+
 const tabs = tabRouter( VALID_TABS, 'wcb_candidate_tab' );
+
+/**
+ * Rewrite a retired tab hash to its current tab before the router reads it.
+ */
+function resolveTabAlias() {
+	const target = TAB_ALIASES[ window.location.hash.replace( /^#/, '' ) ];
+	if ( target ) {
+		window.history.replaceState( null, '', window.location.pathname + window.location.search + '#' + target );
+	}
+}
 
 /**
  * Translation reader.
@@ -146,6 +159,21 @@ function buildFilterPills( filters, labels ) {
 	return pills;
 }
 
+/**
+ * One /alerts row as the Job alerts list shows it.
+ *
+ * @param {Object} a Alert row from GET /wcb/v1/alerts.
+ * @return {Object} Row for the template.
+ */
+function toAlertRow( a ) {
+	return {
+		id:          a.id,
+		label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
+		frequency:   a.frequency,
+		filterPills: buildFilterPills( a.filters, a.filter_labels ),
+	};
+}
+
 const { state, actions } = store( 'wcb-candidate-dashboard', {
 	state: {
 		navOpen: false,
@@ -157,9 +185,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			const map = {
 				overview:           t( 'tabOverview', 'Overview' ),
 				applications:       t( 'tabApplications', 'My Applications' ),
-				bookmarks:          t( 'tabBookmarks', 'Saved jobs' ),
-				'saved-companies':  t( 'tabSavedCompanies', 'Saved companies' ),
-				'saved-resumes':    t( 'tabSavedResumes', 'Saved resumes' ),
+				bookmarks:          t( 'tabSaved', 'Saved' ),
+				'saved-companies':  t( 'tabSaved', 'Saved' ),
 				resumes:            t( 'tabResumes', 'My Resumes' ),
 				alerts:             t( 'tabAlerts', 'Job alerts' ),
 				'resume-builder':   t( 'tabResumeBuilder', 'Edit Resume' ),
@@ -199,8 +226,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get isTabSavedCompanies() {
 			return state.tab === 'saved-companies';
 		},
-		get isTabSavedResumes() {
-			return state.tab === 'saved-resumes';
+		// Saved jobs and companies are one sidebar tab; the tab slug picks the switch.
+		get isTabSaved() {
+			return state.isTabBookmarks || state.isTabSavedCompanies;
+		},
+		get savedCount() {
+			return state.bookmarksCount + state.savedCompaniesCount;
 		},
 		get alertsCount() {
 			return state.alerts.length;
@@ -219,9 +250,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				return '';
 			}
 			// Label form: one string fits every count in every locale.
-			return t( 'resumeCap', 'Resumes: %1$s of %2$s' )
+			const label = t( 'resumeCap', 'Resumes: %1$s of %2$s' )
 				.replace( '%1$s', formatNumber( state.resumeCount ) )
 				.replace( '%2$s', formatNumber( state.maxResumes ) );
+			// At the limit the buttons are off: say why and what frees a slot.
+			return state.isAtResumesCap ? label + '. ' + t( 'resumeCapReached', 'Delete a resume to add another.' ) : label;
 		},
 
 		// Sidebar display.
@@ -241,16 +274,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get bookmarksCount() {
 			return state.bookmarksLoaded ? state.bookmarks.length : Number( state.savedJobsCount ) || 0;
 		},
-		// `savedCompaniesCountSeed` + `savedResumesCountSeed` are bootstrapped
-		// from PHP at render time so the sidebar badges show the correct
-		// total BEFORE the user clicks the tab (the lazy fetch only kicks
-		// in on tab open). Once the user has fetched, the live array length
-		// is the source of truth.
+		// Same rule for saved companies, fetched when their switch first opens.
 		get savedCompaniesCount() {
-			return state.savedCompanies.length || ( state.savedCompaniesCountSeed || 0 );
-		},
-		get savedResumesCount() {
-			return state.savedResumes.length || ( state.savedResumesCountSeed || 0 );
+			return state.savedCompaniesLoaded ? state.savedCompanies.length : Number( state.savedCompaniesCountSeed ) || 0;
 		},
 
 		// Empty / populated state per panel.
@@ -272,12 +298,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noSavedCompanies() {
 			return ! state.savedCompaniesLoading && ! state.savedCompaniesError && state.savedCompanies.length === 0;
 		},
-		get hasSavedResumes() {
-			return ! state.savedResumesLoading && state.savedResumes.length > 0;
-		},
-		get noSavedResumes() {
-			return ! state.savedResumesLoading && ! state.savedResumesError && state.savedResumes.length === 0;
-		},
 		// Before the list arrives: a skeleton, not an empty pane under 'N of M'.
 		get resumesPending() {
 			return ! state.resumesLoaded && ! state.error;
@@ -297,6 +317,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		},
 		get appWithdrawLabel() {
 			return t( 'withdrawFor', 'Withdraw application for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
+		},
+		get appTimelineOpen() {
+			return !! getContext().application?.timelineOpen;
 		},
 		get appRemoveLabel() {
 			return t( 'removeFor', 'Remove application for %s' ).replace( '%s', getContext().application?.jobTitle || '' );
@@ -359,6 +382,20 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		get noRecentSavedJobs() {
 			return state.overviewRecentSavedJobs.length === 0;
 		},
+		// Overview next step: the first thing missing, one line at most.
+		get nextStepResume() {
+			return state.resumesEnabled && Number( state.resumeCount ) === 0;
+		},
+		get nextStepSkills() {
+			return state.resumesEnabled && Number( state.resumeCount ) > 0 && ! state.resumeHasSkills;
+		},
+		get nextStepAlert() {
+			return state.alertsEnabled && state.alertsLoaded && state.alerts.length === 0
+				&& ! state.nextStepResume && ! state.nextStepSkills;
+		},
+		get nextStep() {
+			return ! state.isFirstTime && ( state.nextStepResume || state.nextStepSkills || state.nextStepAlert );
+		},
 		get showRecommendations() {
 			return state.aiMatching && state.recommendations.length > 0;
 		},
@@ -368,6 +405,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		...rowMenuActions,
 
 		*init() {
+			resolveTabAlias();
 			state.tab = tabs.initial( state.tab );
 			tabs.go( state.tab );
 
@@ -378,9 +416,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				bookmarks:         actions.switchToBookmarks,
 				resumes:           actions.switchToResumes,
 				'saved-companies': actions.switchToSavedCompanies,
-				'saved-resumes':   actions.switchToSavedResumes,
 			};
 			window.addEventListener( 'hashchange', withScope( () => {
+				resolveTabAlias();
 				const next = tabs.read();
 				if ( ! next || next === state.tab ) {
 					return;
@@ -412,19 +450,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			// Prefetch alerts count for Overview stat card and nav badge.
 			if ( state.alertsEnabled ) {
 				try {
-					const alertsRes = yield wcbFetch(
-						state.apiBase + '/alerts',
-						{ headers: { 'X-WP-Nonce': state.nonce } }
-					);
-					if ( alertsRes.ok ) {
-						const raw = yield alertsRes.json();
-						state.alerts = raw.map( ( a ) => ( {
-							id:          a.id,
-							label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
-							frequency:   a.frequency,
-							filterPills: buildFilterPills( a.filters, a.filter_labels ),
-						} ) );
-					}
+					yield actions.loadAlerts();
 				} catch {
 					// wcb-allow-silent: background prefetch; Non-critical.
 				}
@@ -442,9 +468,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			// first navigation.
 			if ( state.tab === 'saved-companies' && state.savedCompanies.length === 0 ) {
 				yield actions.switchToSavedCompanies();
-			}
-			if ( state.tab === 'saved-resumes' && state.savedResumes.length === 0 ) {
-				yield actions.switchToSavedResumes();
 			}
 
 			if ( state.bellEnabled ) {
@@ -522,7 +545,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.savedCompaniesError = '';
 			tabs.go( 'saved-companies' );
 
-			if ( state.savedCompanies.length ) {
+			if ( state.savedCompaniesLoaded ) {
 				return;
 			}
 			state.savedCompaniesLoading = true;
@@ -536,44 +559,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 					return;
 				}
 				const data = yield response.json();
-				state.savedCompanies = Array.isArray( data ) ? data : ( data?.items ?? [] );
+				state.savedCompanies       = Array.isArray( data ) ? data : ( data?.items ?? [] );
+				state.savedCompaniesLoaded = true;
 			} catch {
 				state.savedCompaniesError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
 			} finally {
 				state.savedCompaniesLoading = false;
-			}
-		},
-
-		/**
-		 * Saved Resumes tab. Same shape as Saved Companies; Pro-only data
-		 * source but the endpoint exists in Free and returns an empty list
-		 * when the wcb_resume CPT isn't registered.
-		 */
-		*switchToSavedResumes() {
-			state.tab     = 'saved-resumes';
-			state.navOpen = false;
-			state.savedResumesError = '';
-			tabs.go( 'saved-resumes' );
-
-			if ( state.savedResumes.length ) {
-				return;
-			}
-			state.savedResumesLoading = true;
-			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/candidates/' + String( state.candidateId ) + '/saved-resumes',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
-				if ( ! response.ok ) {
-					state.savedResumesError = t( 'errLoadSavedResumes', 'Could not load saved resumes.' );
-					return;
-				}
-				const data = yield response.json();
-				state.savedResumes = Array.isArray( data ) ? data : ( data?.items ?? [] );
-			} catch {
-				state.savedResumesError = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
-			} finally {
-				state.savedResumesLoading = false;
 			}
 		},
 
@@ -625,36 +616,6 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				if ( response.ok ) {
 					state.savedCompanies = state.savedCompanies.filter( function( c ) {
 						return c.id !== companyId;
-					} );
-				}
-			} catch {
-				showError( t( 'errConnectionFull', 'Connection error. Please check your network and try again.' ) );
-			}
-		},
-
-		/**
-		 * Remove a resume bookmark. Mirrors `unbookmark` for jobs.
-		 */
-		*unbookmarkResume() {
-			const ctx = getContext();
-			if ( ! ctx?.resume ) {
-				return;
-			}
-			const resumeId = ctx.resume.id;
-			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/resumes/' + String( resumeId ) + '/bookmark',
-					{
-						method:  'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							'X-WP-Nonce':   state.nonce,
-						},
-					}
-				);
-				if ( response.ok ) {
-					state.savedResumes = state.savedResumes.filter( function( r ) {
-						return r.id !== resumeId;
 					} );
 				}
 			} catch {
@@ -857,34 +818,75 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.navOpen = false;
 			tabs.go( 'alerts' );
 
-			if ( state.alerts.length ) {
+			if ( state.alertsLoaded ) {
 				return;
 			}
 
 			state.alertsLoading = true;
 
 			try {
-				const response = yield wcbFetch(
-					state.apiBase + '/alerts',
-					{ headers: { 'X-WP-Nonce': state.nonce } }
-				);
-
-				if ( ! response.ok ) {
+				if ( ! ( yield actions.loadAlerts() ) ) {
 					state.error = t( 'errLoadAlerts', 'Could not load your alerts.' );
-					return;
 				}
-
-				const raw = yield response.json();
-				state.alerts = raw.map( ( a ) => ( {
-					id:          a.id,
-					label:       a.search_query || t( 'alertLabelAllJobs', 'All jobs' ),
-					frequency:   a.frequency,
-					filterPills: buildFilterPills( a.filters, a.filter_labels ),
-				} ) );
 			} catch {
 				state.error = t( 'errConnectionShort', 'Connection error.' );
 			} finally {
 				state.alertsLoading = false;
+			}
+		},
+
+		// GET /alerts into the list; false when the request failed.
+		*loadAlerts() {
+			const response = yield wcbFetch(
+				state.apiBase + '/alerts',
+				{ headers: { 'X-WP-Nonce': state.nonce } }
+			);
+			if ( ! response.ok ) {
+				return false;
+			}
+			const raw          = yield response.json();
+			state.alerts       = raw.map( toAlertRow );
+			state.alertsLoaded = true;
+			return true;
+		},
+
+		// New alert form: the endpoint applies the per-member limit and says why it refused.
+		*createAlert( event ) {
+			event?.preventDefault();
+			state.alertSaving = true;
+			state.alertMsg    = '';
+			try {
+				const response = yield wcbFetch(
+					state.apiBase + '/alerts',
+					{
+						method:  'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce':   state.nonce,
+						},
+						body: JSON.stringify( {
+							search_query: state.newAlertKeywords.trim(),
+							filters:      state.newAlertLocation ? { location: state.newAlertLocation } : {},
+							frequency:    state.newAlertFrequency,
+						} ),
+					}
+				);
+				const data = yield response.json();
+				if ( ! response.ok ) {
+					state.alertMsgType = 'error';
+					state.alertMsg     = data?.message || t( 'errSaveAlert', 'Could not save the alert. Please try again.' );
+					return;
+				}
+				state.newAlertKeywords = '';
+				state.newAlertLocation = '';
+				state.alertMsgType     = 'success';
+				state.alertMsg         = t( 'alertCreated', 'Alert saved. We will email you when matching jobs are posted.' );
+				yield actions.loadAlerts();
+			} catch {
+				state.alertMsgType = 'error';
+				state.alertMsg     = t( 'errConnectionRetry', 'Connection error. Please try again.' );
+			} finally {
+				state.alertSaving = false;
 			}
 		},
 
@@ -940,6 +942,9 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 		setNewResumeTitle( event ) {
 			state.newResumeTitle = event.target.value;
+			if ( state.newResumeTitle.trim() ) {
+				state.error = '';
+			}
 		},
 
 		*switchToResumes() {
@@ -948,11 +953,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			state.navOpen = false;
 			tabs.go( 'resumes' );
 
-			if ( state.resumes.length ) {
-				return;
-			}
-
-			state.loading = true;
+			// Always re-read: a change made in the resume builder (title,
+			// public/private) shows without a reload. Rows already on screen
+			// stay put while it loads, and stay if the refresh fails.
+			const refreshing = state.resumes.length > 0;
+			state.loading    = ! refreshing;
 
 			try {
 				const response = yield wcbFetch(
@@ -961,14 +966,18 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				);
 
 				if ( ! response.ok ) {
-					state.error = t( 'errLoadResumes', 'Could not load your resumes.' );
+					if ( ! refreshing ) {
+						state.error = t( 'errLoadResumes', 'Could not load your resumes.' );
+					}
 					return;
 				}
 
 				state.resumes = yield response.json();
 				state.resumesLoaded = true;
 			} catch {
-				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+				if ( ! refreshing ) {
+					state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
+				}
 			} finally {
 				state.loading = false;
 			}
@@ -1010,7 +1019,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			}
 			// When embedded resume builder is active, reload current page with resume_id param.
 			if ( state.resumeBuilderEmbedded ) {
-				window.location.href = state.dashboardUrl + '?resume_id=' + String( ctx.resume.id );
+				window.location.href = wcbUrl( state.dashboardUrl, { resume_id: ctx.resume.id } );
 			}
 		},
 
@@ -1054,6 +1063,8 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*createResume() {
 			const title = state.newResumeTitle.trim();
 			if ( ! title ) {
+				state.error = t( 'errorResumeTitleRequired', 'Give the resume a title first.' );
+				document.getElementById( 'wcb-new-resume-title' )?.focus();
 				return;
 			}
 			state.showNewResumeForm = false;
@@ -1085,7 +1096,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 				state.resumeCount = state.resumeCount + 1;
 
 				if ( state.resumeBuilderEmbedded ) {
-					window.location.href = state.dashboardUrl + '?resume_id=' + String( resume.id );
+					window.location.href = wcbUrl( state.dashboardUrl, { resume_id: resume.id } );
 				}
 			} catch {
 				state.error = t( 'errConnectionFull', 'Connection error. Please check your network and try again.' );
@@ -1202,7 +1213,7 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 		*fetchBellNotifications() {
 			state.bellLoading = true;
 			try {
-				const res = yield wcbFetch( state.apiBase + '/notifications?per_page=20', {
+				const res = yield wcbFetch( wcbUrl( state.apiBase + '/notifications', { per_page: 20 } ), {
 					headers: { 'X-WP-Nonce': state.nonce },
 				} );
 				if ( res.ok ) {
@@ -1310,6 +1321,11 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 
 		*loadMoreApplications() {
 			yield actions.fetchApplications( true );
+		},
+
+		toggleAppTimeline() {
+			const application = getContext().application;
+			application.timelineOpen = ! application.timelineOpen;
 		},
 
 		*withdrawApplication() {

@@ -145,6 +145,10 @@ class SeoModule {
 		// location, or Remote. Leave such a job out (owner decision, 1.8.0); the
 		// Jobs list marks it so the owner can fix it.
 		list( $places, $remote ) = self::locations( $job, (bool) $data['remote'] );
+		// Google also requires the countries a remote worker may live in, which is
+		// the default country; without one a remote job has no valid place (owner
+		// decision, 1.8.4), and a job with real places is posted as on-site only.
+		$remote = $remote && '' !== self::default_country();
 		if ( ! $places && ! $remote ) {
 			return array();
 		}
@@ -181,13 +185,11 @@ class SeoModule {
 		);
 
 		if ( $remote ) {
-			$schema['jobLocationType'] = 'TELECOMMUTE';
-			if ( '' !== $default ) {
-				$schema['applicantLocationRequirements'] = array(
-					'@type' => 'Country',
-					'name'  => $default,
-				);
-			}
+			$schema['jobLocationType']               = 'TELECOMMUTE';
+			$schema['applicantLocationRequirements'] = array(
+				'@type' => 'Country',
+				'name'  => $default,
+			);
 		}
 
 		$min = (float) $data['salary_min'];
@@ -243,7 +245,7 @@ class SeoModule {
 				'name'        => self::plain( get_the_title( $company_id ) ),
 				// A draft or trashed company's permalink is a guest 404.
 				'url'         => in_array( get_post_status( $company_id ), \WCB\Modules\Employers\EmployersModule::LIVE_COMPANY, true ) ? (string) get_permalink( $company_id ) : '',
-				'sameAs'      => esc_url_raw( (string) get_post_meta( $company_id, '_wcb_website', true ) ),
+				'sameAs'      => \WCB\Core\Text::web_url( (string) get_post_meta( $company_id, '_wcb_website', true ) ),
 				'logo'        => (string) get_the_post_thumbnail_url( $company_id, 'medium' ),
 				'description' => $meta['tagline'],
 				'address'     => '' !== $meta['hq'] ? self::place( $meta['hq'], self::default_country() )['address'] : '',
@@ -276,11 +278,15 @@ class SeoModule {
 			if ( 'other' === $term->slug ) {
 				continue;
 			}
-			$country                                  = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
-			$places[ self::place_key( $term->name ) ] = self::place( $term->name, '' !== $country ? $country : $default );
+			$country = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
+			$country = '' !== $country ? $country : $default;
+			if ( '' === $country ) {
+				continue; // Google rejects a JobPosting address with no country.
+			}
+			$places[ self::place_key( $term->name ) ] = self::place( $term->name, $country );
 		}
 		$custom = trim( (string) get_post_meta( $job->ID, '_wcb_location_custom', true ) );
-		if ( '' !== $custom && ! isset( $places[ self::place_key( $custom ) ] ) ) {
+		if ( '' !== $custom && '' !== $default && ! isset( $places[ self::place_key( $custom ) ] ) ) {
 			$places[ self::place_key( $custom ) ] = self::place( $custom, $default );
 		}
 		return array( array_values( $places ), $remote );
@@ -297,7 +303,7 @@ class SeoModule {
 	 */
 	public static function has_location( \WP_Post $job ): bool {
 		list( $places, $remote ) = self::job_places( $job );
-		return $places || $remote;
+		return $places || ( $remote && '' !== self::default_country() );
 	}
 
 	/**
@@ -380,14 +386,23 @@ class SeoModule {
 	/**
 	 * Output Open Graph and Twitter tags on job and company pages.
 	 *
-	 * Skipped when Yoast SEO or Rank Math is active: they print their own,
-	 * and two sets of og:title confuse every share preview.
+	 * Skipped when Yoast SEO, Rank Math, All in One SEO, SEOPress, The SEO Framework or Slim SEO is active:
+	 * they print their own, and two sets of og:title confuse every share
+	 * preview. The `wcb_social_tags_enabled` filter can switch it off for any
+	 * other plugin that does the same.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function inject_og_tags(): void {
-		if ( ! Settings::bool( 'social_tags_enabled', true ) || defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+		$seo_plugin = defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || defined( 'AIOSEO_VERSION' ) || defined( 'SEOPRESS_VERSION' ) || defined( 'THE_SEO_FRAMEWORK_VERSION' ) || defined( 'SLIM_SEO_VER' );
+		/**
+		 * Whether the plugin prints its own Open Graph and Twitter tags.
+		 *
+		 * @since 1.8.4
+		 * @param bool $enabled The Social sharing tags setting, off when an SEO plugin prints its own.
+		 */
+		if ( ! apply_filters( 'wcb_social_tags_enabled', Settings::bool( 'social_tags_enabled', true ) && ! $seo_plugin ) ) {
 			return;
 		}
 		$post = get_post();

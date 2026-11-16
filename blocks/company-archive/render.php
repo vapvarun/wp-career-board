@@ -43,6 +43,7 @@ $wcb_companies_query = new \WP_Query(
 	)
 );
 $wcb_companies_raw   = $wcb_companies_query->posts;
+update_post_thumbnail_cache( $wcb_companies_query ); // One query for every logo instead of one per card.
 $wcb_companies_total = (int) $wcb_companies_query->found_posts;
 
 // ── Build company_id → job count map ─────────────────────────────────────────

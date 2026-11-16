@@ -291,6 +291,41 @@ $wcb_resp = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/jobs/' . $wcb_
 $wcb_data = $wcb_resp->get_data();
 wcb_jl_assert( true === ( $wcb_data['accepting_applications'] ?? null ) && array_key_exists( 'closes_at', $wcb_data ), 'job payload carries accepting_applications and closes_at' );
 
+// ── Deadline past the board maximum (1.8.4) ─────────────────────────────
+// The forms clamp to the same per-board maximum the server's cap() applies,
+// and show the saved day from the reply.
+$wcb_board = \WCB\Modules\Boards\BoardsModule::get_default_board_id();
+$wcb_max   = \WCB\Core\Time::date_input( JobDeadline::default_end_for_board( $wcb_board ) );
+wp_set_current_user( (int) $wcb_employer );
+add_filter( 'wcb_job_payment_exempt', '__return_true' ); // A site's paid default board is not what this pins.
+$wcb_req = new WP_REST_Request( 'POST', '/wcb/v1/jobs' );
+$wcb_req->set_body_params(
+	array(
+		'title'           => 'Senior Product Designer',
+		'description'     => 'Design the hiring flow for a growing team.',
+		'deadline'        => gmdate( 'Y-m-d', strtotime( $wcb_today . ' +400 days' ) ),
+		'board_id'        => $wcb_board,
+		'location_custom' => 'Lisbon, PT',
+	)
+);
+$wcb_resp = rest_do_request( $wcb_req );
+remove_filter( 'wcb_job_payment_exempt', '__return_true' );
+$wcb_data = (array) $wcb_resp->get_data();
+if ( ! empty( $wcb_data['id'] ) ) {
+	$wcb_made[] = (int) $wcb_data['id'];
+}
+wcb_jl_assert( 201 === $wcb_resp->get_status() && $wcb_max === ( $wcb_data['deadline_day'] ?? '' ), 'an employer deadline past the board maximum is saved and echoed as the board maximum (status ' . $wcb_resp->get_status() . ', ' . ( $wcb_data['deadline_day'] ?? ( $wcb_data['code'] ?? 'no deadline_day' ) ) . ", max {$wcb_max})" );
+$wcb_has_max = method_exists( JobDeadline::class, 'max_days' );
+wcb_jl_assert( $wcb_has_max, 'JobDeadline::max_days() seeds the forms\' per-board maximum' );
+if ( $wcb_has_max ) {
+	wcb_jl_assert( array( $wcb_board => $wcb_max ) === JobDeadline::max_days( array( $wcb_board, $wcb_board ) ), 'an employer\'s form maximum is the date the server caps at' );
+	$wcb_later = gmdate( 'Y-m-d', strtotime( $wcb_max . ' +5 days' ) );
+	wcb_jl_assert( array( $wcb_board => $wcb_later ) === JobDeadline::max_days( array( $wcb_board ), $wcb_later ), 'a job\'s own later deadline raises its maximum, as cap() keeps it' );
+	wp_set_current_user( 1 );
+	wcb_jl_assert( array( $wcb_board => '' ) === JobDeadline::max_days( array( $wcb_board ) ), 'a moderator gets no maximum, as cap() does not cap them' );
+}
+wp_set_current_user( 0 );
+
 // Teardown.
 update_option( 'wcb_settings', $wcb_settings );
 foreach ( $wcb_apps as $wcb_set ) {

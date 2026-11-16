@@ -51,6 +51,8 @@ Import legacy job-board content into Career Board, and move files.
 
 Create a large synthetic dataset and time the main queries against a budget, to check how the plugin performs on a big site.
 
+This is a development tool: it is in the plugin repository, not in the release zip, so it is available in a checkout and absent on a site installed from the zip.
+
 | Subcommand | Purpose |
 |---|---|
 | `wp wcb scale seed [--candidates=<n>] [--employers=<n>] [--companies=<n>] [--jobs=<n>] [--applications=<n>]` | Generate a synthetic dataset. Defaults: 10,000 candidates, 1,000 employers, 500 companies, 5,000 jobs, 50,000 applications. Running it again only creates what is missing |

@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Plain-text derivations of user-authored HTML.
+ * Plain-text derivations of user-authored HTML, and the typed web-address rule.
  *
  * @since 1.7.1
  */
@@ -114,5 +114,61 @@ final class Text {
 		$text = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$text = (string) preg_replace( '/[ \t]+\n/', "\n", $text );
 		return trim( (string) preg_replace( "/\n{3,}/", "\n\n", $text ) );
+	}
+
+	/**
+	 * A web address someone typed, as a usable http(s) URL, or '' when it is not one.
+	 *
+	 * A bare domain gets https (core would add http); plain words ("my site")
+	 * and other schemes give ''. Every save path and every display uses it, so
+	 * a value stored before 1.8.4 shows no dead link without a data rewrite.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $raw Typed value.
+	 * @return string
+	 */
+	public static function web_url( string $raw ): string {
+		$raw = trim( $raw );
+		$url = esc_url_raw( $raw, array( 'http', 'https' ) );
+		// esc_url_raw() added http:// to a bare domain; nearly every site serves https.
+		if ( str_starts_with( $url, 'http://' ) && 0 !== stripos( $raw, 'http://' ) ) {
+			$url = 'https://' . substr( $url, 7 );
+		}
+		$host = (string) wp_parse_url( $url, PHP_URL_HOST );
+		// An email typed into a web-address field parses as user@host and would pass the host check below.
+		if ( null !== wp_parse_url( $url, PHP_URL_USER ) ) {
+			return '';
+		}
+		// A host is dot-separated labels; esc_url_raw() turns a space into %20, which no host has.
+		return preg_match( '/^[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?(?:\.[a-z0-9\x80-\xff](?:[a-z0-9\x80-\xff-]*[a-z0-9\x80-\xff])?)+$/i', $host ) ? $url : '';
+	}
+
+	/**
+	 * Whether a typed value is something web_url() would drop: not empty, but not a web address.
+	 *
+	 * Callers that store a value use this to tell the person instead of clearing the field silently.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $raw Typed value.
+	 * @return bool
+	 */
+	public static function is_refused_url( string $raw ): bool {
+		return '' !== trim( $raw ) && '' === self::web_url( $raw );
+	}
+
+	/**
+	 * The one sentence shown when a web address is refused.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param bool $apply True for the Apply URL field, which also points to Apply Email.
+	 * @return string
+	 */
+	public static function web_url_error( bool $apply = false ): string {
+		return $apply
+			? __( 'Enter a web address, like https://example.com/apply. For an email address, use Apply Email.', 'wp-career-board' )
+			: __( 'Enter a full web address, like https://example.com', 'wp-career-board' );
 	}
 }

@@ -12,6 +12,59 @@
  * @module @wcb/fields
  */
 
+const HOST_LABEL = '[a-z0-9\u0080-￿](?:[a-z0-9\u0080-￿-]*[a-z0-9\u0080-￿])?';
+const WEB_HOST   = new RegExp( '^' + HOST_LABEL + '(?:\\.' + HOST_LABEL + ')+$', 'i' );
+
+/**
+ * Whether a typed web address passes the server rule (\WCB\Core\Text::web_url()).
+ *
+ * An http(s) URL or a bare domain ("northwind.example/careers", saved with
+ * https) with a dotted host. Empty is fine; whether a field is required is
+ * checked elsewhere. Keep in step with Text::web_url().
+ *
+ * @param {string} raw Typed value.
+ * @return {boolean} True when the server would keep it.
+ */
+export function isWebAddress( raw ) {
+	const value = String( raw ?? '' ).trim();
+	if ( '' === value ) {
+		return true;
+	}
+	const scheme = /^([a-z][a-z0-9+.-]*):\/\//i.exec( value );
+	if ( scheme ? ! /^https?$/i.test( scheme[ 1 ] ) : value.includes( ':' ) ) {
+		return false;
+	}
+	const rest      = scheme ? value.slice( scheme[ 0 ].length ) : value;
+	const authority = rest.split( /[/?#]/ )[ 0 ];
+	// An email is not a web address: user@host is refused, as Text::web_url() does.
+	if ( authority.includes( '@' ) ) {
+		return false;
+	}
+	return WEB_HOST.test( authority.replace( /:\d+$/, '' ) );
+}
+
+/*
+ * Web-address inputs (inputmode="url" with a .wcb-field-error--url after
+ * them): marked aria-invalid and pointed at the error when the field is
+ * left with an address the server would drop; cleared as soon as it is fixed.
+ */
+const markWebAddress = ( event ) => {
+	const el    = event.target;
+	const error = el.nextElementSibling;
+	if ( ! el.matches?.( 'input[inputmode="url"]' ) || ! error?.classList.contains( 'wcb-field-error--url' ) ) {
+		return;
+	}
+	if ( isWebAddress( el.value ) ) {
+		el.removeAttribute( 'aria-invalid' );
+		el.removeAttribute( 'aria-describedby' );
+	} else if ( 'focusout' === event.type || el.hasAttribute( 'aria-invalid' ) ) {
+		el.setAttribute( 'aria-invalid', 'true' );
+		el.setAttribute( 'aria-describedby', error.id );
+	}
+};
+document.addEventListener( 'focusout', markWebAddress );
+document.addEventListener( 'input', markWebAddress );
+
 /**
  * Read a custom field's value from the element that changed.
  *
@@ -64,6 +117,35 @@ export function jobLocationLabel( slug, custom ) {
 }
 
 /**
+ * The reason a REST error gives. A rejected field comes back as the generic
+ * "Invalid parameter(s): salary_min"; its own message sits in data.params.
+ *
+ * @param {Object|null} err      Decoded REST error body.
+ * @param {string}      fallback Text when the body has no message.
+ * @return {string}
+ */
+export function restErrorMessage( err, fallback ) {
+	const field = err && err.data && err.data.params ? Object.values( err.data.params )[ 0 ] : '';
+	if ( 'string' === typeof field && field ) {
+		return field;
+	}
+	return err && err.message ? err.message : fallback;
+}
+
+export const SALARY_MAX = 1000000000; // Same as JobsMeta::MAX_SALARY.
+
+/**
+ * Whether a typed salary is negative or above the largest accepted figure.
+ *
+ * @param {string|number} min Minimum salary as typed.
+ * @param {string|number} max Maximum salary as typed.
+ * @return {boolean}
+ */
+export function salaryOutOfRange( min, max ) {
+	return [ min, max ].some( ( v ) => '' !== String( v ?? '' ).trim() && ( Number( v ) < 0 || Number( v ) > SALARY_MAX ) );
+}
+
+/**
  * Whether a typed salary range runs backwards (both ends set, min above max).
  *
  * @param {string|number} min Minimum salary.
@@ -83,4 +165,35 @@ export function salaryInverted( min, max ) {
  */
 export function groupOnBoard( groupBoards, boardId ) {
 	return groupBoards.includes( Number( boardId ) );
+}
+
+/**
+ * Hold a job form's deadline inside the range the server keeps on save.
+ *
+ * Reads the selected board's maximum from the per-board map seeded by
+ * JobDeadline::max_days() (empty for moderators: no maximum), then clamps the
+ * day to [deadlineMin, deadlineMax]. Days are `Y-m-d` in the site's timezone,
+ * so they compare as strings. Sets deadlineClamped when the day was moved so
+ * the form can say why.
+ *
+ * @param {Object} state Job form state (deadline, deadlineMin, deadlineMax, boardDeadlineMax, boardId).
+ * @param {string} day   Picked day; defaults to the current deadline.
+ * @return {string} The day kept.
+ */
+export function fitDeadline( state, day = state.deadline ) {
+	const maxes = state.boardDeadlineMax || {};
+	const board = String( state.boardId || 0 );
+	if ( board in maxes ) {
+		state.deadlineMax = maxes[ board ];
+	}
+	let kept = day;
+	if ( kept && state.deadlineMin && kept < state.deadlineMin ) {
+		kept = state.deadlineMin;
+	}
+	if ( kept && state.deadlineMax && kept > state.deadlineMax ) {
+		kept = state.deadlineMax;
+	}
+	state.deadlineClamped = kept !== day;
+	state.deadline = kept;
+	return kept;
 }

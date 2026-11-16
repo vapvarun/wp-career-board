@@ -234,8 +234,9 @@
 	min-height: var(--wcb-control-h);
 }
 
-/* My Jobs status pills: one group that wraps on desktop and scrolls as a
- * single row on phones, so the filter reads as one control (Basecamp 10439833707). */
+/* My Jobs status pills: one group, so the filter reads as one control
+ * (Basecamp 10439833707). On phones it takes its own row and wraps: a row
+ * scrolled sideways cut the last chip with no sign there was more. */
 .wcb-filter-pills {
 	display: flex;
 	flex-wrap: wrap;
@@ -246,13 +247,6 @@
 @media (max-width: 640px) {
 	.wcb-filter-pills {
 		flex: 1 1 100%;
-		flex-wrap: nowrap;
-		overflow-x: auto;
-		scrollbar-width: none;
-	}
-
-	.wcb-filter-pills .wcb-filter-pill {
-		flex-shrink: 0;
 	}
 }
 
@@ -261,6 +255,7 @@
 @media (max-width: 640px) {
 	.wcb-dashboard .wcb-page-header .wcb-company-filter,
 	.wcb-dashboard .wcb-filter-bar .wcb-company-filter,
+	.wcb-dashboard .wcb-filter-bar .wcb-job-sort,
 	.wcb-filter-bar .wcb-job-search {
 		width: 100%;
 		max-width: none;
@@ -323,6 +318,16 @@
 	align-items: center;
 	gap: var(--wcb-space-xs) var(--wcb-space-sm);
 	min-width: 0;
+}
+
+/* The 30-day view count sits beside the status badge; keep "1,204 views" on one line. */
+.wcb-job-views {
+	white-space: nowrap;
+}
+
+/* What a job that is not live yet waits for ("Waiting for review · submitted ..."). */
+.wcb-job-status-note {
+	flex-basis: 100%;
 }
 
 /* Why a job closed when its owner didn't close it ("company removed"). */
@@ -1152,28 +1157,48 @@
 	display: inline;
 }
 
+/* Back to the list exists only where the detail replaces it (1024 and below). */
+.wcb-dashboard .wcb-detail-back {
+	display: none;
+}
+
 @media (max-width: 1024px) {
+	/* One pane: a 280px list beside the detail needs the desktop width; narrower, the detail replaces the list.
+	   One pane: the list, or the picked applicant in its place (Back returns). */
 	.wcb-split-panel.wcb-shown {
-		display: flex;
-		flex-direction: column;
+		display: block;
 	}
 
-	/* Stacked: the list grows with the page (paged at 50) instead of a short
-	   box scrolling inside the page's own scroll. */
+	/* The list grows with the page (paged at 50) instead of a short box
+	   scrolling inside the page's own scroll. */
 	.wcb-applicant-list {
 		border-inline-end: none;
-		border-bottom: 1px solid var(--wcb-border);
 		overflow-y: visible;
 	}
 
-	/* Picking an applicant scrolls here; clear the theme's sticky header.
-	   shortcut: fixed 9rem covers Reign/BuddyX headers; read the header height if a theme exceeds it. */
-	.wcb-applicant-detail {
-		scroll-margin-top: 9rem;
+	.wcb-split-panel--detail .wcb-applicant-list,
+	.wcb-split-panel:not(.wcb-split-panel--detail) .wcb-applicant-detail {
+		display: none;
 	}
 
-	/* The dashboard main area is narrower than the viewport, so its field
-	   rows stack at tablet width, earlier than the shared 640 step. */
+	.wcb-applicant-detail {
+		padding: var(--wcb-space-lg);
+	}
+
+	.wcb-dashboard .wcb-detail-back {
+		display: inline-flex;
+		margin-bottom: var(--wcb-space-lg);
+	}
+
+	/* Picking an applicant scrolls to the panel; clear the theme's sticky header.
+	   shortcut: fixed 9rem covers Reign/BuddyX headers; read the header height if a theme exceeds it. */
+	.wcb-split-panel {
+		scroll-margin-top: 9rem;
+	}
+}
+
+@media (max-width: 767px) {
+	/* Short profile fields pair up from 768; below that one per row. */
 	.wcb-dashboard .wcb-field-row {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -1200,13 +1225,14 @@
 		white-space: normal;
 	}
 
-	/* Title on its own line, then status/applicants and the two actions on
-	   one line: about 110px a job instead of a 2x3 button grid. */
+	/* Title with Pipeline and the menu beside it, then status and counts on
+	   the line below: two rows a job instead of four. */
 	.wcb-jobs-list .wcb-job-row {
 		grid-template-columns: minmax(0, 1fr) auto;
 		grid-template-areas:
-			"info info"
-			"facts actions";
+			"info actions"
+			"facts facts";
+		align-items: start;
 		row-gap: var(--wcb-space-sm);
 		column-gap: var(--wcb-space-sm);
 		padding: var(--wcb-space-md);
@@ -1271,8 +1297,10 @@
 }
 
 .wcb-rating__star--on {
-	color: var(--wcb-warning, #d97706);
-	-webkit-text-stroke-color: var(--wcb-warning, #d97706);
+	/* Amber pulled toward the warning text tone so the star reads on the panel (4.5:1). */
+	--wcb-star-on: color-mix(in srgb, var(--wcb-warning, #d97706) 40%, var(--wcb-warning-fg, #92400e));
+	color: var(--wcb-star-on);
+	-webkit-text-stroke-color: var(--wcb-star-on);
 }
 
 .wcb-rating__none {
@@ -1290,7 +1318,7 @@
 }
 
 .wcb-rating__star--on:is(:hover, :focus) {
-	color: var(--wcb-warning, #d97706);
+	color: var(--wcb-star-on);
 }
 
 .wcb-rating__star:focus-visible {

@@ -57,6 +57,23 @@ class AdminMetaBoxes {
 	 */
 	const COMPANY_NONCE_NAME = 'wcb_company_meta_nonce';
 
+
+	/**
+	 * Whether a past deadline was refused during this request.
+	 *
+	 * @since 1.8.4
+	 * @var bool
+	 */
+	private bool $past_deadline = false;
+
+	/**
+	 * Fields whose typed web address was refused during this request.
+	 *
+	 * @since 1.8.4
+	 * @var string[]
+	 */
+	private array $refused_urls = array();
+
 	/**
 	 * Boot the meta box module.
 	 *
@@ -66,7 +83,10 @@ class AdminMetaBoxes {
 	public function boot(): void {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ) );
 		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
+		add_filter( 'redirect_post_location', array( $this, 'flag_refused_values' ) );
+		add_action( 'admin_notices', array( $this, 'render_refused_notice' ) );
 		add_action( 'save_post_wcb_company', array( $this, 'save_company_meta' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'keep_company_owner' ), 10, 2 );
 		// wcb_application is managed via REST; no save_post hook needed.
 	}
 
@@ -139,6 +159,14 @@ class AdminMetaBoxes {
 			'side',
 			'high'
 		);
+
+		// An application is never published: its one status is the hiring status
+		// above. Core's Publish (Status, Visibility), Slug, Discussion and Custom
+		// Fields boxes only add a second status and controls that do nothing here.
+		foreach ( array( 'submitdiv', 'slugdiv', 'commentstatusdiv', 'commentsdiv', 'postcustom' ) as $core_box ) {
+			remove_meta_box( $core_box, 'wcb_application', 'normal' );
+			remove_meta_box( $core_box, 'wcb_application', 'side' );
+		}
 	}
 
 	/**
@@ -211,6 +239,7 @@ class AdminMetaBoxes {
 	 * @return void
 	 */
 	public function render_job_details_box( \WP_Post $post ): void {
+		wp_enqueue_script_module( '@wcb/fields' ); // Checks the Apply URL as it is typed; the block editor saves without a page load.
 		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
 
 		$wcb_salary_min          = (string) get_post_meta( $post->ID, '_wcb_salary_min', true );
@@ -225,7 +254,7 @@ class AdminMetaBoxes {
 		$wcb_deadline            = \WCB\Core\JobDeadline::day( $post->ID ); // The picker shows the day in the site's timezone.
 		// A saved job without a deadline was made evergreen; a new one starts on the default.
 		$wcb_no_expiry    = '' === $wcb_deadline && 'auto-draft' !== $post->post_status;
-		$wcb_apply_url    = (string) get_post_meta( $post->ID, '_wcb_apply_url', true );
+		$wcb_apply_url    = \WCB\Core\Text::web_url( (string) get_post_meta( $post->ID, '_wcb_apply_url', true ) );
 		$wcb_apply_email  = (string) get_post_meta( $post->ID, '_wcb_apply_email', true );
 		$wcb_company_id   = (int) get_post_meta( $post->ID, '_wcb_company_id', true );
 		$wcb_company_name = (string) get_post_meta( $post->ID, '_wcb_company_name', true );
@@ -234,7 +263,8 @@ class AdminMetaBoxes {
 		// yet. Resolved through CompanyMetaShape so an employer whose company was
 		// created by import/admin/migration (post-side link only) still
 		// pre-selects correctly instead of landing on "- Select a company -".
-		if ( ! $wcb_company_id ) {
+		$wcb_company_guessed = ! $wcb_company_id;
+		if ( $wcb_company_guessed ) {
 			$wcb_company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( (int) $post->post_author );
 		}
 
@@ -261,6 +291,13 @@ class AdminMetaBoxes {
 			if ( count( $wcb_batch ) < 100 ) {
 				break;
 			}
+		}
+
+		// A guessed company that is wizard sample data is not offered while a real one exists:
+		// the owner would save a real job against a company that Remove Sample Data deletes.
+		if ( $wcb_company_guessed && $wcb_company_id && \WCB\Admin\SetupWizard::is_sample_post( $wcb_company_id )
+			&& array_filter( array_keys( $wcb_companies ), static fn ( $wcb_id ) => ! \WCB\Admin\SetupWizard::is_sample_post( (int) $wcb_id ) ) ) {
+			$wcb_company_id = 0;
 		}
 
 		// The list is published-only, so a job linked to a pending/draft company
@@ -304,6 +341,7 @@ class AdminMetaBoxes {
 					name="wcb_salary_min"
 					value="<?php echo esc_attr( $wcb_salary_min ); ?>"
 					min="0"
+					max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>"
 					step="any"
 					placeholder="e.g. 60000"
 				/>
@@ -316,6 +354,7 @@ class AdminMetaBoxes {
 					name="wcb_salary_max"
 					value="<?php echo esc_attr( $wcb_salary_max ); ?>"
 					min="0"
+					max="<?php echo esc_attr( (string) \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ); ?>"
 					step="any"
 					placeholder="e.g. 90000"
 				/>
@@ -327,6 +366,7 @@ class AdminMetaBoxes {
 					id="wcb_deadline"
 					name="wcb_deadline"
 					value="<?php echo esc_attr( $wcb_deadline ); ?>"
+					<?php echo '' === $wcb_deadline || $wcb_deadline >= \WCB\Core\Time::today() ? 'min="' . esc_attr( \WCB\Core\Time::today() ) . '"' : ''; ?>
 				/>
 				<p class="description"><?php esc_html_e( 'Leave empty to use the board\'s listing length.', 'wp-career-board' ); ?></p>
 				<label>
@@ -336,7 +376,8 @@ class AdminMetaBoxes {
 			</div>
 			<div>
 				<label for="wcb_apply_url"><?php esc_html_e( 'Apply URL', 'wp-career-board' ); ?></label>
-				<input type="url" id="wcb_apply_url" name="wcb_apply_url" value="<?php echo esc_attr( $wcb_apply_url ); ?>" placeholder="https://" />
+				<input type="text" inputmode="url" id="wcb_apply_url" name="wcb_apply_url" value="<?php echo esc_attr( $wcb_apply_url ); ?>" placeholder="https://" />
+				<p class="wcb-field-error wcb-field-error--url" id="wcb_apply_url-error" role="alert"><?php echo esc_html( \WCB\Core\Text::web_url_error( true ) ); ?></p>
 			</div>
 			<div>
 				<label for="wcb_apply_email"><?php esc_html_e( 'Apply Email', 'wp-career-board' ); ?></label>
@@ -402,6 +443,8 @@ class AdminMetaBoxes {
 	 */
 	public function render_company_details_box( \WP_Post $post ): void {
 		wp_nonce_field( self::COMPANY_NONCE_ACTION, self::COMPANY_NONCE_NAME );
+		// The block editor saves meta boxes without a page load, so the redirect notice never shows: check the address as it is typed.
+		wp_enqueue_script_module( '@wcb/fields' );
 
 		$wcb_company_featured = '1' === (string) get_post_meta( $post->ID, '_wcb_featured', true );
 		$wcb_website          = (string) get_post_meta( $post->ID, '_wcb_website', true );
@@ -455,12 +498,14 @@ class AdminMetaBoxes {
 			<div class="wcb-meta-row wcb-meta-full">
 				<label for="wcb_website"><?php esc_html_e( 'Website URL', 'wp-career-board' ); ?></label>
 				<input
-					type="url"
+					type="text"
+					inputmode="url"
 					id="wcb_website"
 					name="wcb_website"
 					value="<?php echo esc_attr( $wcb_website ); ?>"
 					placeholder="https://"
 				/>
+				<p class="wcb-field-error wcb-field-error--url" id="wcb_website-error" role="alert"><?php echo esc_html( \WCB\Core\Text::web_url_error() ); ?></p>
 			</div>
 
 			<div class="wcb-meta-row">
@@ -541,14 +586,16 @@ class AdminMetaBoxes {
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
 					<?php esc_html_e( 'LinkedIn URL', 'wp-career-board' ); ?>
 				</label>
-				<input type="url" id="wcb_linkedin" name="wcb_linkedin" value="<?php echo esc_attr( $wcb_linkedin ); ?>" placeholder="https://linkedin.com/company/…" />
+				<input type="text" inputmode="url" id="wcb_linkedin" name="wcb_linkedin" value="<?php echo esc_attr( $wcb_linkedin ); ?>" placeholder="https://linkedin.com/company/…" />
+				<p class="wcb-field-error wcb-field-error--url" id="wcb_linkedin-error" role="alert"><?php echo esc_html( \WCB\Core\Text::web_url_error() ); ?></p>
 			</div>
 			<div class="wcb-social-row">
 				<label for="wcb_twitter">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="#000" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
 					<?php esc_html_e( 'X (Twitter) URL', 'wp-career-board' ); ?>
 				</label>
-				<input type="url" id="wcb_twitter" name="wcb_twitter" value="<?php echo esc_attr( $wcb_twitter ); ?>" placeholder="https://x.com/…" />
+				<input type="text" inputmode="url" id="wcb_twitter" name="wcb_twitter" value="<?php echo esc_attr( $wcb_twitter ); ?>" placeholder="https://x.com/…" />
+				<p class="wcb-field-error wcb-field-error--url" id="wcb_twitter-error" role="alert"><?php echo esc_html( \WCB\Core\Text::web_url_error() ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -622,6 +669,11 @@ class AdminMetaBoxes {
 				delete_post_meta( $post_id, '_wcb_' . $field );
 				continue;
 			}
+			// Keep the stored address and say so, rather than saving an empty field.
+			if ( 'apply_url' === $field && \WCB\Core\Text::is_refused_url( $value ) ) {
+				$this->refused_urls[] = 'apply_url';
+				continue;
+			}
 			update_post_meta( $post_id, '_wcb_' . $field, $value );
 		}
 		\WCB\Modules\Jobs\JobsMeta::order_salary( $post_id );
@@ -634,7 +686,18 @@ class AdminMetaBoxes {
 		} elseif ( '' === $deadline ) {
 			$deadline = \WCB\Core\JobDeadline::default_end_for_board( (int) get_post_meta( $post_id, '_wcb_board_id', true ) );
 		}
-		update_post_meta( $post_id, '_wcb_deadline', $deadline );
+		// A new past date is refused, as REST and the front form do; the job keeps
+		// the deadline it had, so an ended job stays editable.
+		if ( \WCB\Core\JobDeadline::is_new_past( $deadline, (string) get_post_meta( $post_id, '_wcb_deadline', true ) ) ) {
+			$this->past_deadline = true;
+			// A new job with nothing stored gets the board default, as an empty
+			// field does, so a refused date never leaves a job that cannot expire.
+			if ( ! metadata_exists( 'post', $post_id, '_wcb_deadline' ) ) {
+				update_post_meta( $post_id, '_wcb_deadline', \WCB\Core\JobDeadline::default_end_for_board( (int) get_post_meta( $post_id, '_wcb_board_id', true ) ) );
+			}
+		} else {
+			update_post_meta( $post_id, '_wcb_deadline', $deadline );
+		}
 
 		// Company — prefer the select dropdown; fall back to the text input shown when no companies exist.
 		$company_id = isset( $_POST['wcb_company_id'] ) ? absint( $_POST['wcb_company_id'] ) : 0;
@@ -687,6 +750,69 @@ class AdminMetaBoxes {
 	}
 
 	/**
+	 * Keep a company's owner when an admin saves it in wp-admin.
+	 *
+	 * A company has no author box, and core's edit_post() hands a post with no author
+	 * field to the person saving it, so any admin edit (a typo, a trust level) made the
+	 * admin the owner and locked the employer out of their own company. A real owner
+	 * change goes through post_author_override or code, which this leaves alone.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param array<string, mixed> $data    Slashed post data about to be saved.
+	 * @param array<string, mixed> $postarr Raw data passed to wp_insert_post().
+	 * @return array<string, mixed>
+	 */
+	public function keep_company_owner( array $data, array $postarr ): array {
+		$id = (int) ( $postarr['ID'] ?? 0 );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- reads which form is saving; the form's own nonce is checked by core.
+		$from_form = isset( $_POST['action'] ) && in_array( $_POST['action'], array( 'editpost', 'inline-save' ), true ) && empty( $_POST['post_author_override'] );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		if ( $id > 0 && 'wcb_company' === ( $data['post_type'] ?? '' ) && $from_form ) {
+			$data['post_author'] = (int) get_post_field( 'post_author', $id );
+		}
+		return $data;
+	}
+
+	/**
+	 * Flag the redirect when a web address or a past deadline was refused.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @param string $location Redirect URL after the save.
+	 * @return string
+	 */
+	public function flag_refused_values( string $location ): string {
+		if ( $this->refused_urls ) {
+			$location = add_query_arg( 'wcb_bad_url', implode( ',', $this->refused_urls ), $location );
+		}
+		return $this->past_deadline ? add_query_arg( 'wcb_deadline_past', 1, $location ) : $location;
+	}
+
+	/**
+	 * Tell the admin why a web address or deadline was not saved.
+	 *
+	 * @since 1.8.4
+	 *
+	 * @return void
+	 */
+	public function render_refused_notice(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || ! in_array( $screen->post_type, array( 'wcb_job', 'wcb_company' ), true ) ) {
+			return;
+		}
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- display flags only.
+		if ( isset( $_GET['wcb_bad_url'] ) ) {
+			$wcb_apply = in_array( 'apply_url', explode( ',', sanitize_text_field( wp_unslash( $_GET['wcb_bad_url'] ) ) ), true );
+			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The web address was not saved, so the previous one is kept.', 'wp-career-board' ) . ' ' . esc_html( \WCB\Core\Text::web_url_error( $wcb_apply ) ) . '</p></div>';
+		}
+		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_deadline_past'] ) ) {
+			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The deadline is in the past, so it was not saved. Choose today or a later date.', 'wp-career-board' ) . '</p></div>';
+		}
+		// phpcs:enable
+	}
+
+	/**
 	 * Save company meta values when the post is saved.
 	 *
 	 * @since 1.0.0
@@ -726,6 +852,13 @@ class AdminMetaBoxes {
 		);
 		foreach ( $wcb_text_fields as $wcb_post_key => $wcb_meta_key ) {
 			$wcb_value = isset( $_POST[ $wcb_post_key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $wcb_post_key ] ) ) : '';
+			if ( in_array( $wcb_post_key, array( 'wcb_website', 'wcb_linkedin', 'wcb_twitter' ), true ) ) {
+				if ( \WCB\Core\Text::is_refused_url( $wcb_value ) ) {
+					$this->refused_urls[] = $wcb_post_key;
+					continue;
+				}
+				$wcb_value = \WCB\Core\Text::web_url( $wcb_value );
+			}
 			update_post_meta( $post_id, $wcb_meta_key, $wcb_value );
 		}
 

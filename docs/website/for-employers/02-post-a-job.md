@@ -42,7 +42,7 @@ When the site sells featured placement (Pro), this step also shows a checkbox su
 - **Moderation on (the default):** you see "Job submitted for review. You'll be notified once it's approved." The job goes live when a moderator approves it.
 - **Moderation off:** the job is published straight away and you see "Job posted successfully!" with a link to the listing.
 
-Either way the confirmation shows when the listing stays live (for example "Your listing stays live until June 12, 2026. You can renew it from your dashboard."), a **View my jobs** button and a **Post another job** button.
+A published job's confirmation also shows when the listing stays live (for example "Your listing stays live until June 12, 2026. You can renew it from your dashboard."). Either way you get a **View my jobs** button and a **Post another job** button.
 
 You get an email when a moderator approves or rejects a job. If the site charges credits and your balance is too short when the moderator approves, the job stays Pending and shows **Awaiting payment** in My Jobs until your balance covers it.
 

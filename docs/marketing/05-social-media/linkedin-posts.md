@@ -14,7 +14,7 @@ What the free version includes:
 - Application tracking: Submitted → Reviewing → Shortlisted → Rejected / Hired
 - Guest applications (no account required)
 - BuddyPress activity stream integration
-- reCAPTCHA v3, GDPR compliance, and JobPosting schema — all included
+- Honeypot spam protection, GDPR compliance, and JobPosting schema — all included
 
 If you're running a BuddyPress community or a Reign Theme site and want to add a job board, this is it.
 

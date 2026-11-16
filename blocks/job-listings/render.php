@@ -170,10 +170,10 @@ $wcb_site_currency = \WCB\Modules\Jobs\JobsMeta::default_currency();
 \WCB\Core\CompanyMetaShape::prime_logos( array_map( static fn ( $wcb_p ): int => (int) get_post_meta( $wcb_p->ID, '_wcb_company_id', true ), $wcb_jobs_raw ) );
 
 foreach ( $wcb_jobs_raw as $wcb_job_post ) {
-	$wcb_location_terms   = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_location', array( 'fields' => 'names' ) ) );
-	$wcb_type_terms       = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_job_type', array( 'fields' => 'names' ) ) );
-	$wcb_exp_terms        = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_experience', array( 'fields' => 'names' ) ) );
-	$wcb_cat_terms        = \WCB\Core\Taxonomy::names( wp_get_object_terms( $wcb_job_post->ID, 'wcb_category', array( 'fields' => 'names' ) ) );
+	$wcb_location_terms   = \WCB\Core\Locations::place_names( get_the_terms( $wcb_job_post->ID, 'wcb_location' ) );
+	$wcb_type_terms       = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_job_type' ) );
+	$wcb_exp_terms        = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_experience' ) );
+	$wcb_cat_terms        = \WCB\Core\Taxonomy::names( get_the_terms( $wcb_job_post->ID, 'wcb_category' ) );
 	$wcb_salary_min       = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_min', true );
 	$wcb_salary_max       = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_max', true );
 	$wcb_salary_currency  = (string) get_post_meta( $wcb_job_post->ID, '_wcb_salary_currency', true );
@@ -185,10 +185,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	// company, which is the wrong badge when an admin posts on an employer's
 	// behalf, and is empty for employers whose reciprocal meta was never written.
 	// Read-only on purpose: this runs once per card, so no self-healing write here.
-	$wcb_company_post_id = (int) get_post_meta( $wcb_job_post->ID, '_wcb_company_id', true );
-	if ( ! $wcb_company_post_id ) {
-		$wcb_company_post_id = (int) get_user_meta( $wcb_author_id, '_wcb_company_id', true );
-	}
+	$wcb_company_post_id = \WCB\Core\CompanyMetaShape::for_job( $wcb_job_post );
 	$wcb_trust      = $wcb_company_post_id ? sanitize_key( (string) get_post_meta( $wcb_company_post_id, '_wcb_trust_level', true ) ) : '';
 	$wcb_trust_info = $wcb_trust_badges[ $wcb_trust ] ?? null;
 
@@ -237,7 +234,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 	/**
 	 * Filter job card data before it's passed to the Interactivity API state.
 	 *
-	 * Pro uses this to inject board_name and auto-feature premium board jobs.
+	 * Pro uses this to inject board_name.
 	 *
 	 * @since 1.0.0
 	 * @param array<string,mixed> $data Job card data array.
@@ -885,7 +882,8 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<span class="wcb-card-salary" data-wp-class--wcb-shown="context.job.salary_label" data-wp-text="context.job.salary_label"></span>
 						<?php // Labelled, or a future date beside "3 weeks ago" reads as a mistake (Basecamp 10431286004). ?>
 						<span class="wcb-card-deadline" data-wp-class--wcb-shown="context.job.deadline_label"><?php esc_html_e( 'Apply by', 'wp-career-board' ); ?> <span data-wp-text="context.job.deadline_label"></span></span>
-						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span>
+						<?php // Its own line above the salary row (style.css), so closed cards side by side match. ?>
+						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><span class="wcb-card-closed__pill"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
 						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
 					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>

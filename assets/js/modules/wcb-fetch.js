@@ -15,6 +15,23 @@
  */
 
 /**
+ * Add query parameters to a URL that may already have a query string.
+ *
+ * On plain permalinks the REST base is `site/?rest_route=/wcb/v1` and the
+ * dashboard URL can carry a `?page_id=`, so gluing `'?per_page=20'` on the
+ * end made a second `?`. Every caller that adds parameters goes through here.
+ *
+ * @param {string} url    Base URL, with or without a query string.
+ * @param {Object} params Parameter name to value.
+ * @return {string} The URL with the parameters set.
+ */
+export function wcbUrl( url, params ) {
+	const target = new URL( url, window.location.href );
+	Object.entries( params ).forEach( ( [ key, value ] ) => target.searchParams.set( key, String( value ) ) );
+	return target.toString();
+}
+
+/**
  * Default request timeout in milliseconds. Same-origin REST calls that take
  * longer than this are almost certainly a stalled connection, not real work.
  */

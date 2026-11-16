@@ -193,6 +193,11 @@ $wcb_c_none  = wcb_jsx_job( "{$wcb_t2} none", 'x', array( '_wcb_deadline' => '' 
 $wcb_c_past  = wcb_jsx_job( "{$wcb_t2} past", 'x', array( '_wcb_deadline' => gmdate( 'Y-m-d', strtotime( '-60 days' ) ) ) );
 wcb_assert( array( $wcb_c_soon, $wcb_c_later, $wcb_c_none, $wcb_c_past ) === array_values( array_intersect( $wcb_ids( array( 'search' => $wcb_t2, 'sort' => 'closing' ) ), array( $wcb_c_soon, $wcb_c_later, $wcb_c_none, $wcb_c_past ) ) ), 'Closing soonest: open jobs by deadline, then no deadline, jobs already past it last' );
 
+// Recommended (no sort chosen): a job past its deadline follows open ones, even a newer one.
+$wcb_rec_ids = static fn ( array $params ): array => array_map( 'intval', JobSearch::run( JobSearch::query_args( $params, array( 'post__in' => array( $wcb_c_soon, $wcb_c_past ), 'fields' => 'ids', 'no_found_rows' => true ) ) )->posts );
+wcb_assert( array( $wcb_c_soon, $wcb_c_past ) === $wcb_rec_ids( array() ), 'Recommended: a closed job is listed after an open one, though it is newer' );
+wcb_assert( array( $wcb_c_past, $wcb_c_soon ) === $wcb_rec_ids( array( 'sort' => 'newest' ) ), 'control: Newest first keeps date order, closed or not' );
+
 // A keyword with no word of two letters is nothing to search for, not "everything".
 wcb_assert( array() === $wcb_ids( array( 'search' => 'Q' ) ) && array() === $wcb_ids( array( 'search' => 'C R' ) ), 'a one-letter keyword returns nothing instead of every job' );
 wcb_assert( array() !== $wcb_ids( array( 'search' => $wcb_t2 ) ), 'control: a real keyword still finds jobs' );

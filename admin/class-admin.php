@@ -48,6 +48,8 @@ class Admin {
 		add_action( 'admin_notices', array( $this, 'notice_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_safer_defaults' ) );
 		add_action( 'admin_init', array( $this, 'enable_job_expiry' ) );
+		add_filter( 'manage_wcb_job_posts_columns', array( AdminJobs::class, 'core_list_columns' ) );
+		add_action( 'manage_wcb_job_posts_custom_column', array( AdminJobs::class, 'core_list_column' ), 10, 2 );
 		( new EmailSettings() )->boot();
 
 		// Boot settings so its admin_init hook fires.
@@ -101,13 +103,6 @@ class Admin {
 		if ( ! \WCB\Admin\Settings::bool( 'deadline_auto_close', false ) ) {
 			$items[] = array(
 				__( 'Jobs past their deadline still appear in your listings and feeds. New sites now end every job at its deadline: it leaves the listings and keeps its page as an expired page.', 'wp-career-board' ),
-				add_query_arg( 'tab', 'listings', $settings ),
-			);
-		}
-
-		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
-			$items[] = array(
-				__( 'New sites ask employers for a location on every job that is not remote, which Google for Jobs needs to list it. Turn on "Require a location" under Jobs to do the same here.', 'wp-career-board' ),
 				add_query_arg( 'tab', 'listings', $settings ),
 			);
 		}
@@ -454,21 +449,16 @@ class Admin {
 		$total_apps   = isset( $apps_count->publish ) ? (int) $apps_count->publish : 0;
 		$pending_jobs = isset( $jobs_count->pending ) ? (int) $jobs_count->pending : 0;
 
-		// Getting Started card: hide once setup complete AND at least one job is published.
+		// Getting Started card: hide once setup is complete AND the owner has published a
+		// job of their own. The wizard's sample jobs must not count as that first job.
 		$wcb_setup_done = SetupWizard::is_setup_complete();
-		$wcb_show_gs    = ! ( $wcb_setup_done && $total_jobs > 0 );
+		$wcb_own_jobs   = $total_jobs > 0 ? SetupWizard::count_own_published_jobs() : 0;
+		$wcb_show_gs    = ! ( $wcb_setup_done && $wcb_own_jobs > 0 );
 
 		if ( $wcb_show_gs ) {
-			$wcb_page_keys     = array(
-				'employer_registration_page',
-				'employer_dashboard_page',
-				'candidate_dashboard_page',
-				'jobs_archive_page',
-				'company_archive_page',
-				'post_job_page',
-			);
-			$wcb_pages_created = count( array_filter( array_map( static fn( string $k ): int => \WCB\Admin\Settings::int( $k, 0 ), $wcb_page_keys ) ) );
-			$wcb_total_pages   = count( $wcb_page_keys );
+			// The same page set the Missing pages notice and the wizard use.
+			$wcb_total_pages   = count( Pages::known_keys() );
+			$wcb_pages_created = $wcb_total_pages - count( Pages::missing() );
 		}
 		$count_role = static fn ( string $role ): int => ( new \WP_User_Query(
 			array(
@@ -478,7 +468,7 @@ class Admin {
 				'count_total' => true,
 			)
 		) )->get_total();
-		$total_emp  = $count_role( 'wcb_employer' );
+		$total_emp  = AdminEmployers::count_employers();
 		$total_cand = $count_role( 'wcb_candidate' );
 
 		// Pending jobs for inline moderation queue.
@@ -559,11 +549,11 @@ class Admin {
 			<?php endif; ?>
 						</span>
 					</li>
-					<li class="wcb-gs-item <?php echo $total_jobs > 0 ? 'wcb-gs-done' : ''; ?>">
-						<i data-lucide="<?php echo $total_jobs > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
+					<li class="wcb-gs-item <?php echo $wcb_own_jobs > 0 ? 'wcb-gs-done' : ''; ?>">
+						<i data-lucide="<?php echo $wcb_own_jobs > 0 ? 'circle-check' : 'circle'; ?>" class="wcb-gs-icon"></i>
 						<span class="wcb-gs-label">
 			<?php esc_html_e( 'Add your first job', 'wp-career-board' ); ?>
-			<?php if ( 0 === $total_jobs ) : ?>
+			<?php if ( 0 === $wcb_own_jobs ) : ?>
 								&mdash; <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=wcb_job' ) ); ?>"><?php esc_html_e( '+ Add Job', 'wp-career-board' ); ?></a>
 			<?php endif; ?>
 						</span>
@@ -914,8 +904,6 @@ class Admin {
 						'duplicate'   => __( 'That industry already exists.', 'wp-career-board' ),
 						'saving'      => __( 'Saving…', 'wp-career-board' ),
 						'saved'       => __( 'Industries saved.', 'wp-career-board' ),
-						/* translators: %d: number of companies moved to another industry. */
-						'savedMoved'  => __( 'Industries saved. %d companies updated.', 'wp-career-board' ),
 						'error'       => __( 'Could not save industries. Please try again.', 'wp-career-board' ),
 						'loadError'   => __( 'Could not load industries.', 'wp-career-board' ),
 						'emptyList'   => __( 'Keep at least one industry.', 'wp-career-board' ),

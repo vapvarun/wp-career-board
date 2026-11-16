@@ -65,8 +65,6 @@ function wcb_wv_rest( string $method, string $route, array $params = array() ): 
 WP_CLI::log( 'Write validation' );
 wp_set_current_user( 1 );
 
-$wcb_settings = static fn ( $v ) => array_merge( (array) $v, array( 'require_job_location' => false ) );
-add_filter( 'option_wcb_settings', $wcb_settings );
 \WCB\Admin\Settings::flush_cache();
 
 $wcb_posts = array();
@@ -271,7 +269,6 @@ foreach ( array( 'wcb_job_form_fields', 'wcb_company_form_fields', 'wcb_candidat
 }
 
 // Cleanup.
-remove_filter( 'option_wcb_settings', $wcb_settings );
 \WCB\Admin\Settings::flush_cache();
 foreach ( array_filter( $wcb_posts ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );

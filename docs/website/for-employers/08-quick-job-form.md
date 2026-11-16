@@ -54,7 +54,7 @@ When the site sells featured placement (Pro), a checkbox lets the employer featu
 
 The form posts to `POST /wcb/v1/jobs`, the same route as the multi-step form.
 
-- When the site moderates jobs, the job goes to Pending. Otherwise it is published.
+- When the site moderates jobs, the job goes to Pending and the form says "Job submitted for review. You'll be notified once it's approved." with a **View my jobs** button. Otherwise it is published and the form says "Job posted" with **View your job** and **View my jobs** buttons.
 - The form has no preview step. The employer can edit the job afterwards from **My Jobs**.
 - Editing always uses the 4-step form in the Employer Dashboard.
 - Company logos and banners are not part of this form. Employers set them in the company profile.
