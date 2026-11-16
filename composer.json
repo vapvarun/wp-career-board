@@ -58,6 +58,7 @@
         "journeys:dry-run": "bin/run-journeys.sh --dry-run",
         "journeys:list": "bin/run-journeys.sh --list",
         "journeys:stale": "bin/run-journeys.sh --audit-stale",
+        "journeys:stale-gate": "bin/run-journeys.sh --audit-stale --fail-on-critical",
         "ci": [
             "@ci:no-journeys",
             "@journeys"

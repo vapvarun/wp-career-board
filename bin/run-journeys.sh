@@ -13,7 +13,8 @@
 #   --priority=critical       filter by priority (default: critical)
 #   --area=customer|admin|... filter by sub-directory
 #   --id=apply-to-job         run a single journey
-#   --audit-stale             list journeys with last_verified > 90 days ago
+#   --audit-stale             list journeys with last_verified > 90 days ago, with their priority
+#   --fail-on-critical        with --audit-stale: exit 1 when a critical journey is stale (a date moves only when someone walks the journey)
 #
 # Output: per-journey JSON in audit/journey-runs/<id>-<timestamp>.json
 #         summary table on stdout
@@ -38,6 +39,7 @@ mkdir -p "$RUNS_DIR"
 
 # --- arg parsing ---
 MODE=""
+FAIL_CRITICAL=0
 PRIORITY="critical"
 AREA=""
 ID=""
@@ -46,6 +48,7 @@ while [ $# -gt 0 ]; do
 		--list)            MODE="list";       shift ;;
 		--dry-run)         MODE="dry-run";    shift ;;
 		--audit-stale)     MODE="stale";      shift ;;
+		--fail-on-critical) FAIL_CRITICAL=1;  shift ;;
 		--priority=*)      PRIORITY="${1#*=}"; shift ;;
 		--area=*)          AREA="${1#*=}";     shift ;;
 		--id=*)            ID="${1#*=}";       shift ;;
@@ -98,6 +101,7 @@ if [ "$MODE" = "stale" ]; then
 	NOW=$(date +%s)
 	THRESHOLD=$((NOW - 90 * 86400))
 	stale=0
+	stale_critical=0
 	while IFS= read -r f; do
 		[ -z "$f" ] && continue
 		lv=$(fm_field "$f" last_verified)
@@ -105,12 +109,15 @@ if [ "$MODE" = "stale" ]; then
 		ts=$(date -j -f "%Y-%m-%d" "$lv" "+%s" 2>/dev/null || echo 0)
 		if [ "$ts" -lt "$THRESHOLD" ] && [ "$ts" -gt 0 ]; then
 			id=$(fm_field "$f" id)
-			echo "  STALE  $id (last_verified: $lv)"
+			pri=$(fm_field "$f" priority)
+			echo "  STALE  [$pri] $id (last_verified: $lv)"
 			stale=$((stale + 1))
+			[ "$pri" = "critical" ] && stale_critical=$((stale_critical + 1))
 		fi
 	done < <(collect)
 	echo
-	echo "$stale stale journey(s)"
+	echo "$stale stale journey(s), $stale_critical critical"
+	[ "$FAIL_CRITICAL" -eq 1 ] && [ "$stale_critical" -gt 0 ] && exit 1
 	exit 0
 fi
 

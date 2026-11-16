@@ -30,6 +30,10 @@ if [ -f wp-content/plugins/wp-career-board-pro/tests/test-route-authority.php ];
 fi
 echo ""
 
+echo "=== Block query budget ==="
+wp eval-file wp-content/plugins/wp-career-board/tests/test-block-query-budget.php
+echo ""
+
 echo "=== WP-CLI Command Tests ==="
 wp eval-file wp-content/plugins/wp-career-board/tests/test-cli-commands.php
 echo ""
