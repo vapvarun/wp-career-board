@@ -595,7 +595,7 @@
 /* ── Honeypot (anti-spam) ────────────────────────────────────────────── */
 .wcb-hp-wrap {
 	position: absolute;
-	left: -10000px; /* off-screen honeypot */
+	inset-inline-start: -10000px; /* off-screen honeypot */
 	top: auto;
 	width: 1px;
 	height: 1px;

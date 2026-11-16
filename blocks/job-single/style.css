@@ -1020,7 +1020,7 @@ body:has(.wcb-apply-panel.wcb-open) [class*="theme-toggler"] {
 /* ── Honeypot anti-spam ──────────────────────────────────────────────────── */
 .wcb-hp-wrap {
 	position: absolute;
-	left: -9999px; /* off-screen honeypot */
+	inset-inline-start: -9999px; /* off-screen honeypot */
 	overflow: hidden;
 	width: 1px;
 	height: 1px;

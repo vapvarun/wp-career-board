@@ -114,7 +114,7 @@
 
 .wcb-form-simple .wcb-hp {
 	position: absolute;
-	left: -10000px; /* off-screen honeypot */
+	inset-inline-start: -10000px; /* off-screen honeypot */
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
