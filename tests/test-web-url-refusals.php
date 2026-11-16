@@ -57,7 +57,7 @@ update_post_meta( $job, '_wcb_apply_url', 'https://careers.example/apply' );
 $_POST['wcb_apply_url'] = 'https://name@company.com';
 wp_update_post( array( 'ID' => $job, 'post_title' => 'WUR Job 2' ) );
 $ok( 'https://careers.example/apply' === get_post_meta( $job, '_wcb_apply_url', true ), 'job editor keeps the stored Apply URL when the typed one is refused' );
-$ok( false !== strpos( $boxes->flag_held_job( 'post.php?post=1' ), 'wcb_bad_url=apply_url' ), 'job editor redirect carries the refusal flag' );
+$ok( false !== strpos( $boxes->flag_refused_values( 'post.php?post=1' ), 'wcb_bad_url=apply_url' ), 'job editor redirect carries the refusal flag' );
 
 $boxes2 = new \WCB\Admin\AdminMetaBoxes();
 $boxes2->boot();
@@ -65,7 +65,7 @@ $_POST['wcb_company_meta_nonce'] = wp_create_nonce( 'wcb_company_meta_boxes' );
 $_POST['wcb_website']            = 'name@company.com';
 wp_update_post( array( 'ID' => $company, 'post_title' => 'WUR Co 2' ) );
 $ok( 'https://harbor.example' === get_post_meta( $company, '_wcb_website', true ), 'company editor keeps the stored website when the typed one is refused' );
-$ok( false !== strpos( $boxes2->flag_held_job( 'post.php?post=1' ), 'wcb_bad_url=wcb_website' ), 'company editor redirect carries the refusal flag' );
+$ok( false !== strpos( $boxes2->flag_refused_values( 'post.php?post=1' ), 'wcb_bad_url=wcb_website' ), 'company editor redirect carries the refusal flag' );
 
 // Sign-up and candidate profile links are reported too, not saved empty.
 wp_set_current_user( 0 );

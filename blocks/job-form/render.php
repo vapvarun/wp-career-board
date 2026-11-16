@@ -275,7 +275,6 @@ $wcb_initial_state = apply_filters(
 			? ( get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_currency', true ) : $wcb_default_currency )
 			: ( $wcb_board_currency ? $wcb_board_currency : $wcb_default_currency ),
 		'salaryType'        => $wcb_edit_job && in_array( get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ), array( 'yearly', 'monthly', 'hourly' ), true ) ? get_post_meta( $wcb_edit_id, '_wcb_salary_type', true ) : 'yearly',
-		'requireLocation'   => \WCB\Admin\Settings::bool( 'require_job_location', false ),
 		'remote'            => $wcb_edit_job && '1' === (string) get_post_meta( $wcb_edit_id, '_wcb_remote', true ),
 		// The employer may pick any deadline up to the board's listing length
 		// (owner decision, 1.8.1); REST clamps to the same maximum on save.
@@ -404,7 +403,6 @@ $wcb_initial_state = apply_filters(
 				'errorSubmitFailed'        => __( 'Job could not be posted. Please try again.', 'wp-career-board' ),
 				'errorTitleRequired'       => __( 'Job title is required before you can continue.', 'wp-career-board' ),
 				'errorDescriptionRequired' => __( 'Job description is required before you can continue.', 'wp-career-board' ),
-				'errorLocationRequired'    => __( 'Add a location, or mark the job as remote.', 'wp-career-board' ),
 				'errorSalaryRange'         => __( 'The minimum salary is more than the maximum.', 'wp-career-board' ),
 				'errorSalaryAmount'        => sprintf( /* translators: %s: the largest salary accepted, e.g. 1,000,000,000 */ __( 'Enter a salary from 0 to %s.', 'wp-career-board' ), number_format_i18n( \WCB\Modules\Jobs\JobsMeta::MAX_SALARY ) ),
 				'errorAiNoTitle'           => __( 'Enter a job title first so AI can generate a description.', 'wp-career-board' ),
@@ -910,15 +908,10 @@ $wcb_step_labels = array(
 				<div class="wcb-form-field">
 					<label class="wcb-form-label" for="wcb-location">
 						<?php esc_html_e( 'Location', 'wp-career-board' ); ?>
-						<?php if ( \WCB\Admin\Settings::bool( 'require_job_location', false ) ) : ?>
-							<span class="wcb-form-hint"><?php esc_html_e( '(required unless the job is remote)', 'wp-career-board' ); ?></span>
-						<?php endif; ?>
 					</label>
 					<select
 						id="wcb-location"
 						class="wcb-field"
-						aria-describedby="wcb-location-error"
-						data-wp-bind--aria-invalid="state.locationInvalid"
 						data-wcb-field="locationSlug"
 						data-wp-bind--value="state.locationSlug"
 						data-wp-on--change="actions.updateField"
@@ -943,7 +936,6 @@ $wcb_step_labels = array(
 						placeholder="<?php esc_attr_e( 'e.g. Berlin, DE or Remote - Europe', 'wp-career-board' ); ?>"
 						maxlength="120"
 					/>
-					<p class="wcb-field-error" id="wcb-location-error" role="alert" hidden data-wp-bind--hidden="!state.locationInvalid" data-wp-text="state.validationError"></p>
 				</div>
 
 				<div class="wcb-form-field">

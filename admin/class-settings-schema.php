@@ -69,7 +69,6 @@ final class SettingsSchema {
 			),
 			'jobs_expire_days'           => array( 30, static fn ( $v ): int => max( 1, (int) $v ) ),
 			'deadline_auto_close'        => array( false, $bool ),
-			'require_job_location'       => array( false, $bool ),
 			'job_schema_enabled'         => array( true, $bool ),
 			'social_tags_enabled'        => array( true, $bool ),
 			'default_country'            => array( '', $text ),

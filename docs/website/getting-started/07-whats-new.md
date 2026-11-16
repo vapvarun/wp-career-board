@@ -16,7 +16,7 @@ You can use this page to see recent changes that affect how you set up and run y
 * **Job page.** Links in Additional details are underlined and use the link colour.
 * **Plain permalinks.** The notification bell, the applications export and the resume links work when permalinks are Plain.
 * **Deadlines.** A past deadline is refused before anything is saved, in the admin editor as well, so a refused job no longer leaves a Pending job behind.
-* **Require a location.** The admin job editor now follows it: a job without a location or Remote is saved as a draft with a notice. The Apply URL field refuses an email address, and the overview Getting started checklist no longer counts the sample jobs as your first job.
+* **Apply URL.** The field refuses an email address, and the overview Getting started checklist no longer counts the sample jobs as your first job.
 * **For developers.** New helpers `Text::web_url()`, `BoardsModule::options_for_employer()` and `JobDeadline::max_days()`. The REST `permalink` is empty for a job without a public page. See [Hooks reference](../developer-guide/02-hooks-reference.md).
 
 ## In 1.8.3
@@ -77,7 +77,7 @@ You can use this page to see recent changes that affect how you set up and run y
 * **Ratings and notes.** Employers can rate an applicant and keep private notes on an application.
 * **Applicant export.** Employers can export applicants to CSV from the employer dashboard, and administrators can export from the Applications screen.
 * **Job end dates.** Jobs end at their deadline when **End jobs at their deadline** is on under **Career Board > Settings > Jobs**. Employers get an email 3 days before a job ends.
-* **Google for Jobs.** Under **Career Board > Settings > Jobs** you can set **Require a location**, **Default country** and **Social sharing tags**.
+* **Google for Jobs.** Under **Career Board > Settings > Jobs** you can set **Default country** and **Social sharing tags**.
 * **Job order.** **Default order** under **Career Board > Settings > Jobs** sets how listings are sorted.
 * **Emails.** There are emails for Welcome, Account deletion requested, cancelled and completed, Application not selected, Application withdrawn, Report received and Confirm your email address. Members can turn off the optional deadline reminder and job ending soon emails in the Settings section of their dashboard.
 * **Closed jobs.** When a job closes, undecided applicants move to Position closed.

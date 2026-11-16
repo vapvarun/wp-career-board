@@ -136,9 +136,6 @@ final class Plugin {
 		// the insert when they do.
 		if ( class_exists( \WCB\Core\Locations::class ) ) {
 			add_action( 'init', array( \WCB\Core\Locations::class, 'seed_reserved_terms' ), 20 );
-			add_filter( 'wp_insert_post_data', array( \WCB\Core\Locations::class, 'guard_publish' ), 20, 2 );
-			add_action( 'transition_post_status', array( \WCB\Core\Locations::class, 'hold_scheduled' ), 10, 3 );
-			add_filter( 'rest_pre_insert_wcb_job', array( \WCB\Core\Locations::class, 'guard_core_rest' ), 10, 2 );
 			add_action( 'set_object_terms', array( \WCB\Core\Locations::class, 'flag_remote_on_terms' ), 10, 4 );
 			add_action( 'before_delete_post', array( \WCB\Core\Locations::class, 'forget_company_hq' ) );
 			add_filter( 'update_post_metadata', array( \WCB\Core\Locations::class, 'keep_remote_flag' ), 10, 4 );

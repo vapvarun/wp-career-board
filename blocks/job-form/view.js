@@ -18,7 +18,7 @@
  *   salaryDisplay              — formatted salary string for preview.
  *   hasCompany, isRemote, hasType, hasExp, hasLocation, hasCategory — preview card conditionals.
  *   hasSalary, hasDeadline, hasApplyUrl, hasApplyEmail              — preview meta conditionals.
- *   hasError, titleInvalid, descriptionInvalid, locationInvalid      — error banner / per-field error conditionals.
+ *   hasError, titleInvalid, descriptionInvalid      — error banner / per-field error conditionals.
  *
  * @package WP_Career_Board
  */
@@ -385,10 +385,6 @@ const { state } = store(
 				doc.querySelectorAll( 'p, li, h1, h2, h3, h4, h5, h6, blockquote, div' ).forEach( ( el ) => el.append( '\n' ) );
 				return doc.body.textContent.replace( /\n{3,}/g, '\n\n' ).trim();
 			},
-			get locationInvalid() {
-				const { state } = store( 'wcb-job-form' );
-				return 'location' === state.validationField && ! ! state.validationError;
-			},
 			get salaryInvalid() {
 				const { state } = store( 'wcb-job-form' );
 				return 'salary' === state.validationField && ! ! state.validationError;
@@ -671,11 +667,6 @@ const { state } = store(
 						field?.setAttribute( 'aria-invalid', 'true' );
 						field?.setAttribute( 'aria-describedby', 'wcb-apply-url-error' );
 						field?.focus();
-						return;
-					}
-					if ( state.step === 3 && state.requireLocation && ! state.remote && ! state.hasLocation ) {
-						setValidation( state, 'location', t( 'errorLocationRequired', 'Add a location, or mark the job as remote.' ) );
-						focusField( 'wcb-location' );
 						return;
 					}
 

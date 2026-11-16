@@ -89,20 +89,6 @@ class AdminJobs extends \WP_List_Table {
 				</div>
 			</div>
 
-			<?php
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display flag only.
-			$wcb_unlocated = isset( $_GET['wcb_unlocated'] ) ? absint( wp_unslash( $_GET['wcb_unlocated'] ) ) : 0;
-			if ( $wcb_unlocated > 0 ) {
-				echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html(
-					sprintf(
-						/* translators: %d: number of jobs */
-						_n( 'Approved. %d job has no location, so it will not show in location filters.', 'Approved. %d jobs have no location, so they will not show in location filters.', $wcb_unlocated, 'wp-career-board' ),
-						$wcb_unlocated
-					)
-				) . '</p></div>';
-			}
-			?>
-
 			<?php $this->views(); ?>
 
 			<?php if ( $this->author_filter() > 0 ) : ?>
@@ -667,7 +653,7 @@ class AdminJobs extends \WP_List_Table {
 		if ( 'publish' === $status && '' === $hidden && \WCB\Admin\Settings::bool( 'job_schema_enabled', true ) && ! \WCB\Modules\Seo\SeoModule::has_location( $item ) ) {
 			$badge .= sprintf(
 				' <span class="wcb-badge wcb-badge--warn" title="%s">%s</span>',
-				esc_attr__( 'Not in Google for Jobs: add a location, or set a default country in Settings for a remote job.', 'wp-career-board' ),
+				esc_attr__( 'Google will not list this job until you add a city or mark it remote.', 'wp-career-board' ),
 				esc_html__( 'No location', 'wp-career-board' )
 			);
 		}
@@ -895,7 +881,6 @@ class AdminJobs extends \WP_List_Table {
 		// wcb_manage_settings — only admins clear pending submissions.
 		$can_approve = wp_is_ability_granted( 'wcb/moderate-jobs' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
 		$can_trash   = wp_is_ability_granted( 'wcb/manage-settings' ); // phpcs:ignore -- ability polyfill, see core/abilities-api-polyfill.php
-		$unlocated   = 0;
 		foreach ( $job_ids as $job_id ) {
 			// The IDs come from the request: a moderator's approve used to
 			// publish any post on the site, not only jobs.
@@ -905,11 +890,6 @@ class AdminJobs extends \WP_List_Table {
 			if ( 'approve' === $action ) {
 				if ( ! $can_approve ) {
 					continue;
-				}
-				// Same call as the single Approve: publish, then say what is missing.
-				if ( 'publish' !== get_post_status( $job_id ) && \WCB\Core\Locations::job_lacks_location( $job_id ) ) {
-					\WCB\Core\Locations::trust( $job_id );
-					++$unlocated;
 				}
 				// wcb_job_approved fires via EmailJobApproved::on_status_transition()
 				// on the transition_post_status hook triggered by wp_update_post().
@@ -944,9 +924,6 @@ class AdminJobs extends \WP_List_Table {
 
 		// Back to the view the action ran on, so a Trash cleanup stays in Trash.
 		$args = $this->view_args();
-		if ( $unlocated > 0 ) {
-			$args['wcb_unlocated'] = $unlocated;
-		}
 		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php?page=wcb-jobs' ) ) );
 		exit;
 	}

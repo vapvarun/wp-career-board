@@ -701,7 +701,7 @@ class AdminSettings {
 					<div class="wcb-settings-section" id="section-listings">
 						<form method="post" action="options.php">
 		<?php settings_fields( 'wcb_settings_group' ); ?>
-		<?php SettingsSchema::form_fields( array( 'auto_publish_jobs', 'job_schema_enabled', 'require_job_location', 'social_tags_enabled' ) ); ?>
+		<?php SettingsSchema::form_fields( array( 'auto_publish_jobs', 'job_schema_enabled', 'social_tags_enabled' ) ); ?>
 							<div class="wcb-card">
 								<div class="wcb-card__head">
 									<p class="wcb-card__title"><?php esc_html_e( 'Jobs', 'wp-career-board' ); ?></p>
@@ -815,19 +815,6 @@ class AdminSettings {
 												<?php esc_html_e( 'Add job and company details for search engines', 'wp-career-board' ); ?>
 											</label>
 											<span class="description"><?php esc_html_e( 'Adds JobPosting markup to open jobs and Organization markup to company pages, so jobs can appear in Google for Jobs. Stays on alongside Yoast SEO and Rank Math, which do not add job markup. Turn off only if another plugin already adds it.', 'wp-career-board' ); ?></span>
-										</div>
-									</div>
-									<div class="wcb-settings-row">
-										<div class="wcb-settings-row-label"><?php esc_html_e( 'Require a location', 'wp-career-board' ); ?></div>
-										<div class="wcb-settings-row-control">
-											<label class="wcb-toggle-label">
-												<span class="wcb-toggle">
-													<input type="checkbox" name="wcb_settings[require_job_location]" value="1" <?php checked( \WCB\Admin\Settings::bool( 'require_job_location' ) ); ?>>
-													<span class="wcb-toggle-slider"></span>
-												</span>
-												<?php esc_html_e( 'Ask for a location on every job that is not remote', 'wp-career-board' ); ?>
-											</label>
-											<span class="description"><?php esc_html_e( 'Google for Jobs leaves out jobs with no location unless they are remote. When on, a job cannot be posted without a location or the Remote option. New sites start with this on; sites set up earlier keep their previous setting.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">

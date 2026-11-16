@@ -57,13 +57,6 @@ class AdminMetaBoxes {
 	 */
 	const COMPANY_NONCE_NAME = 'wcb_company_meta_nonce';
 
-	/**
-	 * Job held back as a draft during this request, 0 when none.
-	 *
-	 * @since 1.8.4
-	 * @var int
-	 */
-	private int $held_job = 0;
 
 	/**
 	 * Whether a past deadline was refused during this request.
@@ -90,9 +83,8 @@ class AdminMetaBoxes {
 	public function boot(): void {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ) );
 		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
-		add_action( 'wp_after_insert_post', array( $this, 'hold_job_without_location' ), 10, 4 );
-		add_filter( 'redirect_post_location', array( $this, 'flag_held_job' ) );
-		add_action( 'admin_notices', array( $this, 'render_held_job_notice' ) );
+		add_filter( 'redirect_post_location', array( $this, 'flag_refused_values' ) );
+		add_action( 'admin_notices', array( $this, 'render_refused_notice' ) );
 		add_action( 'save_post_wcb_company', array( $this, 'save_company_meta' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( $this, 'keep_company_owner' ), 10, 2 );
 		// wcb_application is managed via REST; no save_post hook needed.
@@ -758,44 +750,6 @@ class AdminMetaBoxes {
 	}
 
 	/**
-	 * Hold a job back as a draft when "Require a location" is on and it has none.
-	 *
-	 * Mirrors the REST and frontend rule for the admin editor. Runs once the
-	 * location terms and meta are saved, and only for a job moving into
-	 * Published, so older published jobs without a location stay editable.
-	 *
-	 * @since 1.8.4
-	 *
-	 * @param int           $post_id     Post ID.
-	 * @param \WP_Post      $post        Post as saved.
-	 * @param bool          $update      Whether this updated an existing post.
-	 * @param \WP_Post|null $post_before Post before the save, null on create.
-	 * @return void
-	 */
-	public function hold_job_without_location( int $post_id, \WP_Post $post, bool $update, ?\WP_Post $post_before ): void {
-		if ( 'wcb_job' !== $post->post_type || ! in_array( $post->post_status, array( 'publish', 'future' ), true ) || ( $update && $post_before && 'publish' === $post_before->post_status ) ) {
-			return;
-		}
-		$nonce = isset( $_POST[ self::NONCE_NAME ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) || ! Settings::bool( 'require_job_location', false ) ) {
-			return;
-		}
-		$slugs = wp_get_object_terms( $post_id, 'wcb_location', array( 'fields' => 'slugs' ) );
-		if ( \WCB\Core\Locations::has_usable_location( '1' === get_post_meta( $post_id, '_wcb_remote', true ), is_array( $slugs ) ? $slugs : array(), (string) get_post_meta( $post_id, '_wcb_location_custom', true ) ) ) {
-			return;
-		}
-		remove_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10 );
-		wp_update_post(
-			array(
-				'ID'          => $post_id,
-				'post_status' => 'draft',
-			)
-		);
-		add_action( 'save_post_wcb_job', array( $this, 'save_job_meta' ), 10, 2 );
-		$this->held_job = $post_id;
-	}
-
-	/**
 	 * Keep a company's owner when an admin saves it in wp-admin.
 	 *
 	 * A company has no author box, and core's edit_post() hands a post with no author
@@ -821,17 +775,14 @@ class AdminMetaBoxes {
 	}
 
 	/**
-	 * Flag the redirect when a job was held back or a past deadline was refused.
+	 * Flag the redirect when a web address or a past deadline was refused.
 	 *
 	 * @since 1.8.4
 	 *
 	 * @param string $location Redirect URL after the save.
 	 * @return string
 	 */
-	public function flag_held_job( string $location ): string {
-		if ( $this->held_job > 0 ) {
-			$location = add_query_arg( 'wcb_location_required', 1, $location );
-		}
+	public function flag_refused_values( string $location ): string {
 		if ( $this->refused_urls ) {
 			$location = add_query_arg( 'wcb_bad_url', implode( ',', $this->refused_urls ), $location );
 		}
@@ -839,13 +790,13 @@ class AdminMetaBoxes {
 	}
 
 	/**
-	 * Tell the admin why the job was saved as a draft.
+	 * Tell the admin why a web address or deadline was not saved.
 	 *
 	 * @since 1.8.4
 	 *
 	 * @return void
 	 */
-	public function render_held_job_notice(): void {
+	public function render_refused_notice(): void {
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->post_type, array( 'wcb_job', 'wcb_company' ), true ) ) {
 			return;
@@ -854,19 +805,6 @@ class AdminMetaBoxes {
 		if ( isset( $_GET['wcb_bad_url'] ) ) {
 			$wcb_apply = in_array( 'apply_url', explode( ',', sanitize_text_field( wp_unslash( $_GET['wcb_bad_url'] ) ) ), true );
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The web address was not saved, so the previous one is kept.', 'wp-career-board' ) . ' ' . esc_html( \WCB\Core\Text::web_url_error( $wcb_apply ) ) . '</p></div>';
-		}
-		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_held'] ) ) {
-			$wcb_held = absint( wp_unslash( $_GET['wcb_held'] ) );
-			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html(
-				sprintf(
-					/* translators: %d: number of jobs */
-					_n( '%d job was kept as a draft because it has no location. Add a location, or tick Remote, then publish it.', '%d jobs were kept as drafts because they have no location. Add a location, or tick Remote, then publish them.', $wcb_held, 'wp-career-board' ),
-					$wcb_held
-				)
-			) . '</p></div>';
-		}
-		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_location_required'] ) ) {
-			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'Saved as a draft. Add a location, or tick Remote, before publishing this job.', 'wp-career-board' ) . '</p></div>';
 		}
 		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_deadline_past'] ) ) {
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The deadline is in the past, so it was not saved. Choose today or a later date.', 'wp-career-board' ) . '</p></div>';

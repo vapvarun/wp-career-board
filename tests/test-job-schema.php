@@ -128,8 +128,8 @@ wcb_js_settings( array( 'job_schema_enabled' => false ) );
 $wcb_page = wp_remote_get( (string) get_permalink( $wcb_onsite ), array( 'timeout' => 20, 'sslverify' => false ) );
 wcb_assert( ! str_contains( (string) wp_remote_retrieve_body( $wcb_page ), '"@type":"JobPosting"' ), 'turning the setting off removes it' );
 
-WP_CLI::log( '--- require a location ---' );
-wcb_js_settings( array( 'require_job_location' => true, 'auto_publish_jobs' => true ) );
+WP_CLI::log( '--- location is optional ---' );
+wcb_js_settings( array( 'auto_publish_jobs' => true ) );
 wp_set_current_user( $wcb_admin );
 $wcb_req = static function ( string $method, string $route, array $params ): WP_REST_Response {
 	$request = new WP_REST_Request( $method, $route );
@@ -138,29 +138,20 @@ $wcb_req = static function ( string $method, string $route, array $params ): WP_
 	}
 	return rest_do_request( $request );
 };
-$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS no location', 'description' => 'x' ) );
-wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ) && 400 === $r->get_status(), 'create without a location or Remote is refused' );
-$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS remote', 'description' => 'x', 'remote' => true ) );
-$wcb_made = (int) ( $r->get_data()['id'] ?? 0 );
-wcb_assert( $wcb_made > 0, 'a remote job needs no location' );
-$r = $wcb_req( 'PUT', '/wcb/v1/jobs/' . $wcb_remote, array( 'title' => 'JS renamed' ) );
-wcb_assert( 200 === $r->get_status(), 'editing an older job without touching its location still works' );
-$r = $wcb_req( 'PUT', '/wcb/v1/jobs/' . $wcb_remote, array( 'remote' => false ) );
-wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'unticking Remote with no location is refused' );
-$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS other', 'description' => 'x', 'locations' => array( 'other' ) ) );
-wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'Require a location: the Other placeholder with no typed location is refused' );
-$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS bogus', 'description' => 'x', 'locations' => array( 'no-such-place-' . wp_generate_password( 6, false ) ) ) );
-wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'Require a location: a slug that does not exist is refused' );
-$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS blank custom', 'description' => 'x', 'locations' => array( 'other' ), 'location_custom' => '   ' ) );
-wcb_assert( 'wcb_location_required' === ( $r->get_data()['code'] ?? '' ), 'Require a location: Other with a blank typed location is refused' );
-$wcb_slug = (string) get_term( $wcb_term_id )->slug;
-$r        = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS real place', 'description' => 'x', 'locations' => array( $wcb_slug ) ) );
-$wcb_made3 = (int) ( $r->get_data()['id'] ?? 0 );
-wcb_assert( $wcb_made3 > 0, 'control: an existing location term satisfies the rule' );
-wcb_js_settings( array( 'require_job_location' => false ) );
-$r = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS optional', 'description' => 'x' ) );
+$r         = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS no location', 'description' => 'x' ) );
 $wcb_made2 = (int) ( $r->get_data()['id'] ?? 0 );
-wcb_assert( $wcb_made2 > 0, 'with the setting off a location stays optional' );
+wcb_assert( $wcb_made2 > 0 && 201 === $r->get_status(), 'a job with no location and not remote posts' );
+wcb_assert( 'publish' === get_post_status( $wcb_made2 ), 'it publishes, it is not held as a draft' );
+wcb_assert( array() === \WCB\Modules\Seo\SeoModule::job_posting( get_post( $wcb_made2 ) ), 'the Google for Jobs feed leaves it out' );
+$r         = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS remote', 'description' => 'x', 'remote' => true ) );
+$wcb_made  = (int) ( $r->get_data()['id'] ?? 0 );
+wcb_assert( $wcb_made > 0, 'a remote job posts' );
+$r = $wcb_req( 'PUT', '/wcb/v1/jobs/' . $wcb_remote, array( 'remote' => false ) );
+wcb_assert( 200 === $r->get_status(), 'unticking Remote with no location is not refused' );
+$wcb_slug  = (string) get_term( $wcb_term_id )->slug;
+$r         = $wcb_req( 'POST', '/wcb/v1/jobs', array( 'title' => 'JS real place', 'description' => 'x', 'locations' => array( $wcb_slug ) ) );
+$wcb_made3 = (int) ( $r->get_data()['id'] ?? 0 );
+wcb_assert( $wcb_made3 > 0, 'control: a job with a location term posts' );
 
 WP_CLI::log( '--- a place Google can use ---' );
 $wcb_reserved = static function ( string $slug, string $name ): int {

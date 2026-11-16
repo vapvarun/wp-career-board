@@ -76,6 +76,7 @@ A fix release for 1.8.3.
 * Improve  - The setup wizard turns on visitor sign-up by default for a new install, and the sign-up page is titled Join.
 * Improve  - Setting a job deadline in the past through the REST API is refused with a message, and an existing past deadline can stay unchanged.
 * Improve  - The built-in CAPTCHA (Turnstile, reCAPTCHA) is removed; the honeypot stays, and a site that wants a CAPTCHA adds its own plugin on the wcb_pre_job_submit, wcb_pre_application_submit and wcb_pre_registration filters. Saved provider keys are deleted on upgrade, and app-config no longer lists a CAPTCHA.
+* Improve  - A job with no location publishes like any other and the Jobs list marks the ones Google for Jobs will not list; the Require a location setting is removed.
 * Fix      - The dashboard setup checklist counts the same pages as the Missing pages notice and the setup wizard.
 * Fix      - The dashboard Employers count matches the Employers list, which includes people who only posted a job.
 * Fix      - On multisite, candidate and employer sign-up follows the network registration setting, so subsites whose network closes registration refuse sign-up.

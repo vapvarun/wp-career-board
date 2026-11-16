@@ -539,11 +539,6 @@ final class JobsEndpoint extends RestController {
 			return $wcb_spam;
 		}
 
-		$wcb_location_error = $this->location_error( $request );
-		if ( $wcb_location_error ) {
-			return $wcb_location_error;
-		}
-
 		$wcb_deadline_error = $this->deadline_error( $request );
 		if ( $wcb_deadline_error ) {
 			return $wcb_deadline_error;
@@ -761,11 +756,6 @@ final class JobsEndpoint extends RestController {
 				__( 'Job not found.', 'wp-career-board' ),
 				array( 'status' => 404 )
 			);
-		}
-
-		$wcb_location_error = $this->location_error( $request, $post );
-		if ( $wcb_location_error ) {
-			return $wcb_location_error;
 		}
 
 		$wcb_deadline_error = $this->deadline_error( $request, $post );
@@ -1628,44 +1618,6 @@ final class JobsEndpoint extends RestController {
 			return null;
 		}
 		return new \WP_Error( 'wcb_deadline_past', __( 'The deadline is in the past. Choose today or a later date.', 'wp-career-board' ), array( 'status' => 400 ) );
-	}
-
-	/**
-	 * Settings > Jobs "Require a location": a job needs a location or Remote.
-	 *
-	 * On update the rule runs only when the request touches the location or
-	 * Remote, so older jobs without one stay editable.
-	 *
-	 * @since 1.8.0
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @param \WP_Post|null    $job     Job being updated, null on create.
-	 * @return \WP_Error|null
-	 */
-	private function location_error( \WP_REST_Request $request, ?\WP_Post $job = null ): ?\WP_Error {
-		if ( ! \WCB\Admin\Settings::bool( 'require_job_location', false ) ) {
-			return null;
-		}
-		$remote    = $request->get_param( 'remote' );
-		$locations = $request->get_param( 'locations' );
-		$custom    = $request->get_param( 'location_custom' );
-		// An update only checks the location when it touches it or publishes the job.
-		$publishes = $job && 'publish' === $request->get_param( 'status' ) && 'publish' !== $job->post_status;
-		if ( $job && null === $remote && null === $locations && null === $custom && ! $publishes ) {
-			return null;
-		}
-		if ( $job ) {
-			$remote    = $remote ?? '1' === get_post_meta( $job->ID, '_wcb_remote', true );
-			$locations = $locations ?? wp_get_object_terms( $job->ID, 'wcb_location', array( 'fields' => 'slugs' ) );
-			$custom    = $custom ?? get_post_meta( $job->ID, '_wcb_location_custom', true );
-		}
-		$locations = is_array( $locations ) ? array_filter( array_map( 'strval', $locations ) ) : ( is_string( $locations ) && '' !== $locations ? array( $locations ) : array() );
-		if ( \WCB\Core\Locations::has_usable_location( rest_sanitize_boolean( $remote ), $locations, (string) $custom ) ) {
-			// The request applies these values after the status, so the publish guard trusts it.
-			$job && \WCB\Core\Locations::trust( $job->ID );
-			return null;
-		}
-		return \WCB\Core\Locations::required_error();
 	}
 
 	/**

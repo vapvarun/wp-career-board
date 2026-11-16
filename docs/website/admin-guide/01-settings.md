@@ -29,7 +29,7 @@ WP Career Board Pro adds more tabs to this group (Boards, Field Builder and Job 
 
 To change how a single job is saved from wp-admin (deadline, **No expiry**, **Apply URL**, **Apply Email**), see [Edit a job in wp-admin](./20-edit-a-job-in-admin.md). To order and nest the category, type, location and experience lists, see [Categories, types, locations and experience levels](./19-job-terms.md).
 
-The **Search engines and sharing** card on the same tab holds four more settings. They are covered in [Google for Jobs and Social Sharing](./17-google-for-jobs.md): **Google for Jobs** (on), **Require a location** (off; on for new sites), **Default country** (your site language's country) and **Social sharing tags** (on).
+The **Search engines and sharing** card on the same tab holds three more settings. They are covered in [Google for Jobs and Social Sharing](./17-google-for-jobs.md): **Google for Jobs** (on), **Default country** (your site language's country) and **Social sharing tags** (on).
 
 ### Applications
 
