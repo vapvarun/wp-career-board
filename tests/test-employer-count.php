@@ -28,11 +28,11 @@ $wcb_chk( $wcb_same(), 'tile count = list set on the current data (' . \WCB\Admi
 
 $wcb_author = wp_insert_user( array( 'user_login' => 'qa_empc_' . wp_rand(), 'user_pass' => wp_generate_password(), 'role' => 'subscriber' ) );
 $wcb_job    = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_author' => $wcb_author, 'post_title' => 'Employer count probe' ) );
-$wcb_chk( $wcb_same(), 'a job author without the employer role is counted by both' );
+$wcb_chk( $wcb_same(), 'a job author without the employer role is not an employer, and both counts agree' );
 
 $wcb_before = \WCB\Admin\AdminEmployers::count_employers();
 wp_trash_post( $wcb_job );
-$wcb_chk( \WCB\Admin\AdminEmployers::count_employers() === $wcb_before - 1 && $wcb_same(), 'a trashed job no longer makes its author an employer' );
+$wcb_chk( \WCB\Admin\AdminEmployers::count_employers() === $wcb_before && $wcb_same(), 'trashing a job leaves the employer count unchanged' );
 
 wp_delete_post( $wcb_job, true );
 wp_delete_user( $wcb_author );

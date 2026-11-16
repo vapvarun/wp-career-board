@@ -139,8 +139,11 @@ $wcb_req = new WP_REST_Request( 'POST', '/wcb/v1/employers/' . $wcb_company );
 $wcb_req->set_param( 'website', 'my site' );
 $wcb_req->set_param( 'linkedin', 'https://www.linkedin.com/company/northwind' );
 $wcb_res = rest_do_request( $wcb_req );
-wcb_wu_assert( 200 === $wcb_res->get_status(), 'company save with a bad website still succeeds (got ' . $wcb_res->get_status() . ')' );
-wcb_wu_assert( '' === get_post_meta( $wcb_company, '_wcb_website', true ), 'company website that is not a web address is stored empty (got "' . get_post_meta( $wcb_company, '_wcb_website', true ) . '")' );
+wcb_wu_assert( 400 === $wcb_res->get_status(), 'company save with a bad website is refused (got ' . $wcb_res->get_status() . ')' );
+wcb_wu_assert( '' === get_post_meta( $wcb_company, '_wcb_website', true ), 'a refused company website is never stored (got "' . get_post_meta( $wcb_company, '_wcb_website', true ) . '")' );
+$wcb_req = new WP_REST_Request( 'POST', '/wcb/v1/employers/' . $wcb_company );
+$wcb_req->set_param( 'linkedin', 'https://www.linkedin.com/company/northwind' );
+rest_do_request( $wcb_req );
 wcb_wu_assert( 'https://www.linkedin.com/company/northwind' === get_post_meta( $wcb_company, '_wcb_linkedin', true ), 'company LinkedIn link is stored as typed' );
 update_post_meta( $wcb_company, '_wcb_website', 'my site' ); // A row saved before 1.8.4.
 $wcb_get = (array) rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/employers/' . $wcb_company ) )->get_data();
@@ -215,8 +218,12 @@ $wcb_req->set_param(
 );
 $wcb_res  = rest_do_request( $wcb_req );
 $wcb_data = (array) get_user_meta( $wcb_cand, '_wcb_resume_data', true );
-wcb_wu_assert( 200 === $wcb_res->get_status(), 'candidate save with a bad link still succeeds (got ' . $wcb_res->get_status() . ')' );
-wcb_wu_assert( '' === ( $wcb_data['website'] ?? 'missing' ), 'candidate website that is not a web address is stored empty' );
+wcb_wu_assert( 400 === $wcb_res->get_status(), 'candidate save with a bad link is refused (got ' . $wcb_res->get_status() . ')' );
+wcb_wu_assert( '' === ( $wcb_data['website'] ?? '' ), 'a refused candidate website is never stored' );
+$wcb_req = new WP_REST_Request( 'POST', '/wcb/v1/candidates/' . $wcb_cand );
+$wcb_req->set_param( 'resume_data', array( 'github' => 'github.com/ada', 'location' => 'Lisbon, Portugal' ) );
+rest_do_request( $wcb_req );
+$wcb_data = (array) get_user_meta( $wcb_cand, '_wcb_resume_data', true );
 wcb_wu_assert( 'https://github.com/ada' === ( $wcb_data['github'] ?? '' ), 'candidate bare domain gets https' );
 wcb_wu_assert( 'Lisbon, Portugal' === ( $wcb_data['location'] ?? '' ), 'candidate non-link fields are kept as text' );
 

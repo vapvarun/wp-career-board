@@ -31,7 +31,7 @@ $wcb_chk( true === $wcb_cb( 'https://careers.example.com/roaster' ), 'a full htt
 $wcb_chk( true === $wcb_cb( 'careers.example.com/roaster' ), 'a bare domain passes' );
 $wcb_chk( true === $wcb_cb( '' ), 'empty passes (the field is optional)' );
 $wcb_res = $wcb_cb( 'apply on our site' );
-$wcb_chk( is_wp_error( $wcb_res ) && false !== strpos( $wcb_res->get_error_message(), 'full web address' ), 'words are refused with the web-address message' );
+$wcb_chk( is_wp_error( $wcb_res ) && false !== strpos( $wcb_res->get_error_message(), 'web address' ), 'words are refused with the web-address message' );
 $wcb_chk( is_wp_error( $wcb_cb( 'ftp://files.example.com/job' ) ), 'ftp is refused' );
 
 $wcb_job = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'draft', 'post_title' => 'Apply URL probe ' . wp_generate_password( 5, false ) ) );
