@@ -53,7 +53,7 @@ Open **Employer Dashboard > Post a Job**. The form has four steps.
 
 ### Classify Your Job
 
-- **Category**, **Job type** and **Location**. Location is required unless the job is remote. Choose **Other (enter manually)** if your city is not in the list.
+- **Category**, **Job type** and **Location**. Location is optional, and a job with no location still publishes. Google for Jobs lists only jobs that have a place (or are Remote on a site with a default country), and the Jobs list in the admin marks the ones it leaves out. Choose **Other (enter manually)** if your city is not in the list.
 - **Experience Level**
 - **Skills / Tags** - comma-separated. These help candidates find your job by keyword.
 
