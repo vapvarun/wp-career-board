@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.7';
+	const DB_VERSION = '1.4.8';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -610,6 +610,12 @@ final class Install {
 				self::remove_captcha_settings();
 			}
 
+			// 1.4.8 - a job no longer needs a location, so the "Require a location"
+			// setting is gone; drop the stale stored value.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.8', '<' ) ) {
+				self::remove_location_requirement_setting();
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -639,6 +645,20 @@ final class Install {
 			update_option( 'wcb_settings', array_diff_key( $settings, array_flip( $gone ) ) );
 		}
 		delete_option( 'wcb_captcha_driver' );
+	}
+
+	/**
+	 * Remove the stored "Require a location" setting; nothing reads it any more.
+	 *
+	 * @since 1.8.5
+	 * @return void
+	 */
+	public static function remove_location_requirement_setting(): void {
+		$settings = get_option( 'wcb_settings', array() );
+		if ( is_array( $settings ) && array_key_exists( 'require_job_location', $settings ) ) {
+			unset( $settings['require_job_location'] );
+			update_option( 'wcb_settings', $settings );
+		}
 	}
 
 	/**

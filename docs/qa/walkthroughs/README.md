@@ -36,7 +36,7 @@ these walkthroughs are the *how*, step by step, grounded in real `file:line`.
 | Walkthrough | Covers |
 |---|---|
 | [setup-wizard](admin/setup-wizard.md) | First-run setup wizard |
-| [settings-tabs](admin/settings-tabs.md) | General/Jobs/Antispam save · save-merge |
+| [settings-tabs](admin/settings-tabs.md) | General/Jobs/Advanced save · save-merge |
 | [jobs-and-moderation](admin/jobs-and-moderation.md) | Jobs list · bulk actions · moderation queue |
 | [emails](admin/emails.md) | Templates · merge tags · **1.5.1 configurable message body** |
 | [applications-and-candidates](admin/applications-and-candidates.md) | Applications list + export · candidates list |

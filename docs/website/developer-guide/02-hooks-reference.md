@@ -258,7 +258,7 @@ Two more filters shape API output: `wcb_admin_email_log_response` (`$response, $
 | `wcb_overridable_templates` | Filter | Add a theme-overridable template to the Site Health version check. See [Template Overrides](./06-template-overrides.md). |
 | `wcb_companions` | Filter | Add an entry to the companion-plugin catalog. |
 
-`wcb_settings_tab_emails` and `wcb_settings_tab_antispam` are the built-in renderers for those two tabs. Do not use them to add settings; add your own tab instead.
+`wcb_settings_tab_emails`, `wcb_settings_tab_industries`, `wcb_settings_tab_import` and `wcb_settings_tab_mobile-app` are the built-in renderers for those tabs. Do not use them to add settings; add your own tab instead.
 
 ## Notifications
 

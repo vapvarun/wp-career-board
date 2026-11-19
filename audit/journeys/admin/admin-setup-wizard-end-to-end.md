@@ -94,7 +94,7 @@ wp option update wcb_setup_complete 1
 
 ## Notes
 
-- Since 1.8.0 Free has 6 steps: `create-pages`, `registration`, `jobs`, `emails`, `anti-spam`, `sample-data`. Pro inserts `license` and `credits` ("How Employers Pay") before `sample-data` via `wcb_wizard_steps`. Enumerate via `wcbWizard.steps` in the page source.
+- Since 1.8.4 Free has 5 steps: `create-pages`, `registration`, `jobs`, `emails`, `sample-data` (the anti-spam step went with the CAPTCHA). Pro inserts `license` and `credits` ("How Employers Pay") before `sample-data` via `wcb_wizard_steps`. Enumerate via `wcbWizard.steps` in the page source.
 - The "Skip" path for each step is handled in the frontend JS (user clicks "Skip" → still calls the step endpoint but ignores the response). For this journey, the REST calls simulate "Skip" behavior (steps execute with minimal side effects).
 - The wizard page slug is `wcb-setup` (registered under `options.php` parent to hide from the submenu), not `wcb-setup-wizard`.
 - `SetupWizard::is_setup_complete()` checks the `wcb_setup_complete` flag AND falls back to checking if any core page IDs are set. Setting the flag to 0 is enough to reopen the wizard only if no pages are configured.

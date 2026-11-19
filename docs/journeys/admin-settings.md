@@ -8,7 +8,7 @@ last_walked: 2026-06-26
 # Settings — full browser walkthrough
 
 **What it is:** The single Settings screen with a left sidebar nav. Core groups are Job Listings, Pages, and Notifications; Emails and Import hang off the same sidebar, with greyed Pro teasers below.
-**Where it lives:** `wp-admin/admin.php?page=wcb-settings` (cap `wcb_manage_settings`). Sidebar items are hash links (`#listings`, `#pages`, `#notifications`, `#emails`, `#import`, `#antispam`) toggled client-side by `settings-nav.js` — all panels are in the DOM at once.
+**Where it lives:** `wp-admin/admin.php?page=wcb-settings` (cap `wcb_manage_settings`). Sidebar items are hash links (`#listings`, `#applications`, `#industries`, `#import`, `#signups`, `#privacy`, `#brand`, `#emails`, `#mobile-app`, `#pages`, `#integrations`, `#advanced`) toggled client-side by `settings-nav.js` — all panels are in the DOM at once.
 
 ## As admin
 1. `?autologin=1` → `wp-admin/admin.php?page=wcb-settings` → expect 200, the sidebar with the briefcase brand mark, and Lucide icons per item (list / file-text / bell / send / upload / shield), not raw glyphs.
