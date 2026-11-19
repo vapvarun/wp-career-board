@@ -350,31 +350,25 @@ final class CandidatesModule {
 	}
 
 	/**
-	 * Frontend resume an admin or employer should open for a candidate: the
-	 * one attached to the application, else their latest published resume.
+	 * Frontend resume an admin or employer should open for an application: the
+	 * resume sent with that application, nothing else.
+	 *
+	 * An application sent with only a file has no resume to open (its file is
+	 * linked from the application itself), so this returns '' rather than the
+	 * candidate's latest resume, which was a different resume or an empty page.
 	 *
 	 * @since 1.8.1
+	 * @since 1.8.5 No fallback to the candidate's latest resume.
 	 *
 	 * @param int $user_id        Candidate user ID.
-	 * @param int $application_id Application the link is for (optional).
+	 * @param int $application_id Application the link is for.
 	 * @return string Resume URL, or '' when there is none.
 	 */
 	public static function resume_url( int $user_id, int $application_id = 0 ): string {
 		$resume_id = $application_id ? (int) get_post_meta( $application_id, '_wcb_resume_id', true ) : 0;
-		if ( ! $resume_id || 'publish' !== get_post_status( $resume_id ) ) {
-			$latest    = $user_id ? get_posts(
-				array(
-					'post_type'      => 'wcb_resume',
-					'post_status'    => 'publish',
-					'author'         => $user_id,
-					'posts_per_page' => 1,
-					'fields'         => 'ids',
-					'no_found_rows'  => true,
-				)
-			) : array();
-			$resume_id = (int) ( $latest[0] ?? 0 );
-		}
-		$url = $resume_id && self::resume_is_readable( $resume_id ) ? (string) get_permalink( $resume_id ) : '';
+		$url       = $resume_id > 0 && 'wcb_resume' === get_post_type( $resume_id ) && 'publish' === get_post_status( $resume_id ) && self::resume_is_readable( $resume_id )
+			? (string) get_permalink( $resume_id )
+			: '';
 
 		/**
 		 * Filters the resume link shown for a candidate in admin.

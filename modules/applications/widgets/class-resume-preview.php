@@ -73,7 +73,7 @@ final class ResumePreview extends AbstractWidget {
 		$resume_post   = (int) get_post_meta( $post->ID, '_wcb_resume_id', true );
 
 		if ( ! $attachment_id && $resume_post ) {
-			$linked = (int) get_post_meta( $resume_post, '_wcb_attachment_id', true );
+			$linked = (int) get_post_meta( $resume_post, '_wcb_resume_attachment_id', true );
 			if ( $linked ) {
 				$attachment_id = $linked;
 			}

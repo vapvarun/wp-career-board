@@ -474,7 +474,7 @@ hydrated result set (an agency account can hold thousands of listings).
 |---|---|---|
 | `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
 | `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
-| `wcb_candidate_resume_url` | `$url, $user_id, $application_id` | The **View resume** link on the Applications list, the application screen and the Candidates list. Return `''` to hide it. |
+| `wcb_candidate_resume_url` | `$url, $user_id, $application_id` | The **View resume** link on the Applications list and the application screen: the resume sent with that application, or `''` when none was. Return `''` to hide it. |
 | `wcb_job_pipeline_url` | `$url, $job_id` | The **Pipeline** link on each My Jobs row. Empty in Free; Pro fills it. |
 | `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
 

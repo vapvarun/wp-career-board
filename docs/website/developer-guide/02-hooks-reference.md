@@ -117,7 +117,7 @@ A ban (the `_wcb_employer_banned` user meta, from any writer) hides the member's
 | `wcb_application_form_fields_groups` | Filter | Add field groups to the apply form. The plugin renders, validates and saves them as `_wcb_application_field_<key>`. Args: `$groups, $job_id`. |
 | `wcb_guest_applications_claimed` | Action | An account took over the guest applications sent from its email address. This happens once the address is proven (email confirmed, or a password set from an emailed link), or at once for an account an admin or WP-CLI created. Args: `$user_id, $claimed_application_ids`. |
 | `wcb_resume_pdf_attachment_id` | Filter | The attachment ID used as a candidate's resume PDF. Args: `$id` (0), `$resume_id, $candidate_id`. |
-| `wcb_candidate_resume_url` | Filter | The frontend resume link that admins and employers get as **View resume** on the Applications list, the application screen and the Candidates list. By default it is the resume attached to the application, else the candidate's latest published resume, and empty when the viewer may not read it. Return `''` to hide the link or another URL to point it elsewhere. Args: `$url, $user_id, $application_id` (`0` outside an application). |
+| `wcb_candidate_resume_url` | Filter | The frontend resume link that admins and employers get as **View resume** on the Applications list and the application screen. By default it is the resume sent with the application, and empty when none was sent or the viewer may not read it. Return `''` to hide the link or another URL to point it elsewhere. Args: `$url, $user_id, $application_id`. |
 
 Application statuses are `submitted`, `reviewing`, `shortlisted`, `rejected`, `hired`, `withdrawn`, `job_removed` and `position_closed`.
 
