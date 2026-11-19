@@ -283,7 +283,10 @@ final class JobsMeta {
 	}
 
 	/**
-	 * Keep an existing board ID, else the default board.
+	 * Keep a published board ID, else the default board.
+	 *
+	 * Every `_wcb_board_id` write runs through this (it is the meta's sanitize
+	 * callback), so a trashed or deleted board never gets a new job.
 	 *
 	 * @since  1.8.0
 	 * @param  mixed $value Raw value.
@@ -291,7 +294,7 @@ final class JobsMeta {
 	 */
 	public static function sanitize_board_id( mixed $value ): int {
 		$board_id = absint( $value );
-		if ( $board_id > 0 && 'wcb_board' === get_post_type( $board_id ) ) {
+		if ( $board_id > 0 && 'wcb_board' === get_post_type( $board_id ) && 'publish' === get_post_status( $board_id ) ) {
 			return $board_id;
 		}
 		return (int) \WCB\Modules\Boards\BoardsModule::get_default_board_id();

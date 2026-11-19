@@ -31,6 +31,14 @@ final class BoardsModule {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( self::class, 'ensure_default_board' ), 20 );
 		add_action( 'save_post_wcb_job', array( self::class, 'stamp_default_board' ), 99 );
+		// Core restores a trashed post as a draft; a draft board leaves the Boards
+		// screen and the job forms, so a restored board comes back published.
+		add_filter(
+			'wp_untrash_post_status',
+			static fn( string $status, int $post_id, string $previous ): string => 'wcb_board' === get_post_type( $post_id ) ? $previous : $status,
+			10,
+			3
+		);
 	}
 
 	/**
