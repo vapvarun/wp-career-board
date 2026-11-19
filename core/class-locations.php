@@ -326,7 +326,14 @@ final class Locations {
 	/**
 	 * The location terms that are real places, as term objects for links.
 	 *
+	 * Remote is a work mode, never a place. Besides the reserved slugs this
+	 * skips the "Remote" term the setup wizard seeded before 1.8.5: on a
+	 * translated site the reserved term carries the translated name, so the
+	 * wizard's "Remote" landed on a second term (remote-2) and printed next to
+	 * the Remote chip. Matching the name fixes those sites with no data change.
+	 *
 	 * @since 1.8.4
+	 * @since 1.8.5 Skips a "Remote" term on any slug.
 	 * @param mixed $terms get_the_terms() or wp_get_object_terms() result.
 	 * @return \WP_Term[]
 	 */
@@ -334,10 +341,12 @@ final class Locations {
 		if ( ! is_array( $terms ) ) {
 			return array();
 		}
+		$remote = array( 'remote', mb_strtolower( __( 'Remote', 'wp-career-board' ) ) );
 		return array_values(
 			array_filter(
 				$terms,
-				static fn( $t ): bool => ! ( $t instanceof \WP_Term ) || ! isset( self::RESERVED[ $t->slug ] )
+				static fn( $t ): bool => ! ( $t instanceof \WP_Term )
+					|| ! ( isset( self::RESERVED[ $t->slug ] ) || in_array( mb_strtolower( $t->name ), $remote, true ) )
 			)
 		);
 	}
