@@ -186,8 +186,11 @@ final class JobsEndpoint extends RestController {
 		if ( $saved_by > 0 ) {
 			// A member's bookmarks are theirs: anyone else (including a
 			// logged-out visitor) gets an empty list, not someone's saved jobs.
+			// Any narrowing a search filter already made (Pro's exact choice
+			// match) is kept.
 			$can_read         = $saved_by === get_current_user_id() || $this->check_ability( 'wcb/manage-settings' );
 			$bookmark_ids     = $can_read ? array_map( 'intval', (array) get_user_meta( $saved_by, '_wcb_bookmark', false ) ) : array();
+			$bookmark_ids     = isset( $args['post__in'] ) ? array_values( array_intersect( $bookmark_ids, array_map( 'intval', (array) $args['post__in'] ) ) ) : $bookmark_ids;
 			$args['post__in'] = ! empty( $bookmark_ids ) ? $bookmark_ids : array( 0 );
 		}
 

@@ -259,6 +259,12 @@ final class ApplicationsEndpoint extends RestController {
 			return new \WP_Error( 'wcb_own_job', __( 'You cannot apply to your own job.', 'wp-career-board' ), array( 'status' => 403 ) );
 		}
 
+		// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
+		// Counted before any answer is read, so a flood is refused cheaply.
+		if ( $is_guest && $this->ip_limit_reached( 'wcb_guest_apply_', 10 ) ) {
+			return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
+		}
+
 		// Required screening questions, checked here and not only in the
 		// browser (a request without JavaScript skipped them).
 		$wcb_missing = \WCB\Core\FormCustomFields::required_error(
@@ -270,10 +276,6 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		if ( $is_guest ) {
-			// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
-			if ( $this->ip_limit_reached( 'wcb_guest_apply_', 10 ) ) {
-				return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
-			}
 
 			// Guest submission: require name + valid email.
 			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );

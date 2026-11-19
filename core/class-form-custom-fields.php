@@ -75,6 +75,14 @@ final class FormCustomFields {
 	public const CHOICE_TYPES = array( 'select', 'radio', 'multiselect' );
 
 	/**
+	 * Most pieces split_choices() reads from one answer.
+	 *
+	 * @since 1.8.5
+	 * @var int
+	 */
+	public const MAX_CHOICE_PARTS = 200;
+
+	/**
 	 * Whether a field type's answer is a web address.
 	 *
 	 * @since 1.8.5
@@ -94,6 +102,10 @@ final class FormCustomFields {
 	 * choices, longest first, instead of being cut at every comma. Fragments
 	 * that match no choice are kept as typed; with no choices it is a plain split.
 	 *
+	 * The value can come from a guest request, so the work is bounded: at most
+	 * MAX_CHOICE_PARTS pieces are read (the rest is dropped), and a join only
+	 * spans as many commas as the longest choice holds.
+	 *
 	 * @since 1.8.5
 	 *
 	 * @param mixed                $value   Array of choices, or the stored comma-joined string.
@@ -101,21 +113,27 @@ final class FormCustomFields {
 	 * @return string[]
 	 */
 	public static function split_choices( mixed $value, array $options = array() ): array {
+		$cap = min( self::MAX_CHOICE_PARTS, $options ? 2 * count( $options ) + 20 : self::MAX_CHOICE_PARTS );
 		if ( is_array( $value ) ) {
-			$items = array_map( static fn ( $v ): string => trim( is_scalar( $v ) ? (string) $v : '' ), $value );
+			$items = array_map( static fn ( $v ): string => trim( is_scalar( $v ) ? (string) $v : '' ), array_slice( $value, 0, $cap ) );
 			return array_values( array_filter( $items, static fn ( string $v ): bool => '' !== $v ) );
 		}
-		$parts = explode( ',', is_scalar( $value ) ? (string) $value : '' );
-		$known = array_map( 'strval', array_keys( $options ) );
+		// The limit keeps the unread rest in one last piece, which is dropped.
+		$parts = array_slice( explode( ',', is_scalar( $value ) ? (string) $value : '', $cap + 1 ), 0, $cap );
+		if ( ! $options ) {
+			return array_values( array_filter( array_map( 'trim', $parts ), static fn ( string $v ): bool => '' !== $v ) );
+		}
+		$known = array_flip( array_map( 'strval', array_keys( $options ) ) );
+		$width = max( array_map( static fn ( $choice ): int => substr_count( (string) $choice, ',' ), array_keys( $options ) ) );
 		$items = array();
 		$count = count( $parts );
 		$next  = 0;
 		for ( $i = 0; $i < $count; $i = $next ) {
 			$next = $i + 1;
 			$item = trim( $parts[ $i ] );
-			for ( $j = $count; $j > $next; --$j ) {
+			for ( $j = min( $count, $i + $width + 1 ); $j > $next; --$j ) {
 				$joined = trim( implode( ',', array_slice( $parts, $i, $j - $i ) ) );
-				if ( in_array( $joined, $known, true ) ) {
+				if ( isset( $known[ $joined ] ) ) {
 					$item = $joined;
 					$next = $j;
 					break;

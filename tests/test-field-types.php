@@ -125,6 +125,15 @@ $ok( 2 === substr_count( $html, 'class="wcb-tag"' ) && str_contains( $html, 'Dal
 
 wp_delete_post( $post, true );
 
+// A guest can send any string: splitting a flood of commas stays bounded and fast.
+$office_options = array( 'Dallas, TX' => 'Dallas, TX', 'Austin, TX' => 'Austin, TX' );
+$started        = microtime( true );
+$flood          = FormCustomFields::split_choices( str_repeat( ',', 2000000 ), $office_options );
+$elapsed        = ( microtime( true ) - $started ) * 1000;
+$ok( $elapsed < 100 && array() === $flood, sprintf( 'a 2,000,000-comma answer splits in under 100 ms (%.1f ms)', $elapsed ) );
+$ok( array( 'Dallas, TX', 'Austin, TX' ) === FormCustomFields::split_choices( 'Dallas, TX, Austin, TX', $office_options ), '"Dallas, TX, Austin, TX" still splits into its two choices' );
+$ok( array( 'Laptop', 'Monitor' ) === FormCustomFields::split_choices( 'Laptop, Monitor' ), 'with no choices it is a plain split' );
+
 WP_CLI::log( '  Total: ' . ( $pass + $fail ) . "  Pass: {$pass}  Fail: {$fail}" );
 if ( $fail ) {
 	WP_CLI::error( "{$fail} test(s) failed." );
