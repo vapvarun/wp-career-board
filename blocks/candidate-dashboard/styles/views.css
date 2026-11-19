@@ -23,18 +23,7 @@
 	flex-wrap: wrap; /* the status history opens on its own line */
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-surface);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-cd-app-row:last-child {
-	border-bottom: none;
-}
-
-.wcb-cd-app-row:hover {
-	background: var( --wcb-bg-subtle );
+	gap: var(--wcb-space-md); /* card paint: shared dashboard row in wcb-ui.css */
 }
 
 .wcb-cd-app-main {
@@ -104,13 +93,17 @@
 	transform: rotate(-135deg) translateY(-25%);
 }
 
-/* Status history: one step per line, newest last, a rail on the start side. */
-.wcb-cd-app-timeline {
+/* Status history: one step per line, newest last, a rail on the start side,
+   on its own tinted strip inside the card so it reads as this application's.
+   (0,2,0) beats the block-scope list reset that zeroes list padding. */
+.wcb-cd-app-row .wcb-cd-app-timeline {
 	flex: 1 1 100%;
+	align-self: stretch; /* full card width when the row stacks on phones */
 	margin: 0;
-	padding: 0;
-	padding-inline-start: var(--wcb-space-md);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+	background: var(--wcb-bg-hover);
 	border-inline-start: 2px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-sm);
 	list-style: none;
 	display: flex;
 	flex-direction: column;
@@ -257,65 +250,8 @@
 	color: var(--wcb-text-secondary);
 }
 
-/* ── Bookmark rows ────────────────────────────────────────────────────────── */
-.wcb-cd-bookmark-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-surface);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-cd-bookmark-row:last-child {
-	border-bottom: none;
-}
-
-.wcb-cd-bookmark-row:hover {
-	background: var( --wcb-bg-subtle );
-}
-
-.wcb-cd-bookmark-main {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--wcb-space-xs);
-}
-
-.wcb-cd-bookmark-title {
-	font-size: var(--wcb-text-md);
-	font-weight: var(--wcb-font-semibold);
-	color: var(--wcb-contrast);
-	margin: 0;
-}
-
-.wcb-cd-bookmark-title a {
-	color: inherit;
-	text-decoration: none;
-}
-
-.wcb-cd-bookmark-title a:hover {
-	color: var(--wcb-primary-text);
-	text-decoration: underline;
-}
-
-.wcb-cd-bookmark-meta {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: var(--wcb-space-xs);
-	font-size: var(--wcb-text-sm);
-	color: var(--wcb-text-secondary);
-}
-
-.wcb-cd-bookmark-actions {
-	display: flex;
-	align-items: center;
-	gap: var(--wcb-space-sm);
-	flex-shrink: 0;
-}
+/* Bookmark rows (Saved jobs, companies, resumes) live once in assets/css/wcb-ui.css,
+   shared with the employer dashboard. */
 
 /* ── Resume cards (kept from original) ───────────────────────────────────── */
 .wcb-resumes-header {
@@ -371,26 +307,12 @@
 	}
 }
 
-/* Resume row inside the `.wcb-panel` outer card. Drop the per-row background
- * + bottom border so we don't render a card inside a card (the visible
- * "double border" the audit flagged). Hairline divider between rows lives
- * on the row itself; the panel supplies the outer container chrome. */
+/* My Resumes row: a card of its own, like every dashboard list row (the tab
+ * strips the panel's frame, so there is no card inside a card). */
 .wcb-resume-card {
 	display: flex;
 	align-items: center;
-	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
-	background: transparent;
-	border-bottom: 1px solid var(--wcb-border);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-resume-card:last-child {
-	border-bottom: none;
-}
-
-.wcb-resume-card:hover {
-	background: var( --wcb-bg-subtle );
+	gap: var(--wcb-space-md); /* card paint: shared dashboard row in wcb-ui.css */
 }
 
 .wcb-resume-card-info {
@@ -479,7 +401,9 @@
 /* ── Status badge (overview panels) ─────────────────────────────────────── */
 /* ── Job Alerts tab ────────────────────────────────────────────────────── */
 /* New alert: keywords wide, location and frequency narrow, Save at the end. */
-.wcb-cd-alert-form {
+/* (0,4,0), after wcb-ui.css: the tab's frame strip zeroes a panel's margin,
+   and the form card must not touch the first alert card. */
+.wcb-dashboard .wcb-view-panel .wcb-panel.wcb-cd-alert-form {
 	margin-block-end: var(--wcb-space-lg);
 }
 
@@ -514,13 +438,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--wcb-space-lg);
-	padding: var(--wcb-space-lg) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-surface, var(--wp--preset--color--wcb-surface));
-}
-
-.wcb-alert-row:last-child {
-	border-bottom: none;
+	gap: var(--wcb-space-lg); /* card paint: shared dashboard row in wcb-ui.css */
 }
 
 .wcb-alert-main {
@@ -605,7 +523,6 @@
 	   (Basecamp 10439832512). */
 	.wcb-cd-bookmark-row {
 		gap: var(--wcb-space-sm);
-		padding-inline: var(--wcb-space-lg);
 	}
 
 	.wcb-cd-bookmark-meta {

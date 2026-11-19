@@ -273,20 +273,11 @@
 	display: flex;
 }
 
+/* Card paint (border, radius, hover) is the shared dashboard row in wcb-ui.css. */
 .wcb-job-row {
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	margin-bottom: var(--wcb-space-sm);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-job-row:hover {
-	background: var(--wcb-bg-subtle);
 }
 
 /* A closed or expired job stays readable and keeps usable actions (Reopen): the status
