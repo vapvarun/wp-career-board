@@ -640,6 +640,14 @@
 	cursor: pointer;
 	transition: background 0.1s;
 	border-inline-start: 2px solid transparent;
+	/* The AI score and status badges wrap under the text in the narrow
+	   280px list instead of squeezing it to one letter per line. */
+	flex-wrap: wrap;
+	row-gap: var(--wcb-space-sm);
+}
+
+.wcb-applicant-row .wcb-app-info {
+	flex: 1 1 9rem;
 }
 
 .wcb-applicant-row:hover {

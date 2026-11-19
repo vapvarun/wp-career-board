@@ -284,6 +284,32 @@ foreach ( array( $wcb_logo_job, $wcb_nologo_job, $wcb_logo_co ) as $wcb_id ) {
 }
 wp_delete_attachment( $wcb_logo_at, true );
 
+WP_CLI::log( '--- ?board= reaches the client state (Basecamp 10516901346) ---' );
+$wcb_b1      = (int) wp_insert_post( array( 'post_type' => 'wcb_board', 'post_status' => 'publish', 'post_title' => "{$wcb_tag} Engineering Board" ) );
+$wcb_b2      = (int) wp_insert_post( array( 'post_type' => 'wcb_board', 'post_status' => 'publish', 'post_title' => "{$wcb_tag} Design Board" ) );
+$wcb_on_b1   = wcb_jsx_job( "{$wcb_tag} Board One Engineer", 'x', array( '_wcb_board_id' => $wcb_b1 ) );
+$wcb_on_b2   = wcb_jsx_job( "{$wcb_tag} Board Two Engineer", 'x', array( '_wcb_board_id' => $wcb_b2 ) );
+$wcb_jl_seed = static function ( array $get, string $block ): array {
+	$_GET = $get;
+	$html = do_blocks( $block );
+	$_GET = array();
+	$st   = wp_interactivity_state( 'wcb-job-listings' );
+	return array( $html, (array) $st['activeFilters'], (array) $st['baseFilters'] );
+};
+list( $wcb_html, $wcb_active ) = $wcb_jl_seed( array( 'board' => (string) $wcb_b1, 'search' => $wcb_tag ), '<!-- wp:wp-career-board/job-listings /-->' );
+wcb_assert( array( "board_{$wcb_b1}" => (string) $wcb_b1 ) === array_intersect_key( $wcb_active, array( "board_{$wcb_b1}" => 1 ) ), '?board=<id> seeds activeFilters[board_<id>], so the checkbox ticks, the pill shows and the next fetch keeps it' );
+wcb_assert( str_contains( $wcb_html, 'Board One Engineer' ) && ! str_contains( $wcb_html, 'Board Two Engineer' ), 'the first paint is filtered to that board' );
+list( , $wcb_active ) = $wcb_jl_seed( array( 'board_id' => (string) $wcb_b1 ), '<!-- wp:wp-career-board/job-listings /-->' );
+wcb_assert( isset( $wcb_active[ "board_{$wcb_b1}" ] ), '?board_id= (the alias) seeds the same key' );
+list( , $wcb_active ) = $wcb_jl_seed( array( 'board' => 'abc' ), '<!-- wp:wp-career-board/job-listings /-->' );
+wcb_assert( array() === array_filter( array_keys( $wcb_active ), static fn ( $k ) => str_starts_with( (string) $k, 'board_' ) ), 'a non-numeric ?board= seeds nothing' );
+list( $wcb_html, $wcb_active, $wcb_base ) = $wcb_jl_seed( array( 'board' => (string) $wcb_b1, 'search' => $wcb_tag ), '<!-- wp:wp-career-board/job-listings {"boardId":' . $wcb_b2 . '} /-->' );
+wcb_assert( ! isset( $wcb_active[ "board_{$wcb_b1}" ] ) && isset( $wcb_base[ "board_{$wcb_b2}" ] ), 'a block fixed to a board keeps that scope (not removable) and ignores ?board=' );
+wcb_assert( str_contains( $wcb_html, 'Board Two Engineer' ) && ! str_contains( $wcb_html, 'Board One Engineer' ), 'the fixed block still shows its own board jobs, not an empty list' );
+foreach ( array( $wcb_on_b1, $wcb_on_b2, $wcb_b1, $wcb_b2 ) as $wcb_id ) {
+	wp_delete_post( $wcb_id, true );
+}
+
 // Teardown.
 foreach ( array( $wcb_title, $wcb_body, $wcb_comp ) as $wcb_id ) {
 	wp_delete_post( $wcb_id, true );

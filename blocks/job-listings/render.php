@@ -114,6 +114,10 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 // fetches, so the first paint already shows the filtered results. Dashboard
 // lists (author, saved) are scoped by the block and ignore the URL.
 $wcb_url_params = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr ) ? \WCB\Modules\Jobs\JobSearch::from_url() : array();
+// A block fixed to one board (boardId) keeps that scope; a ?board= link cannot override it.
+if ( $wcb_board_id_attr > 0 ) {
+	unset( $wcb_url_params['board'] );
+}
 $wcb_query_args = \WCB\Modules\Jobs\JobSearch::query_args( $wcb_url_params, $wcb_query_args );
 unset( $wcb_query_args['numberposts'] );
 $wcb_query_args['posts_per_page'] = $wcb_per_page;
@@ -385,6 +389,11 @@ foreach ( array(
 	foreach ( array_filter( explode( ',', (string) ( $wcb_url_params[ $wcb_param ] ?? '' ) ) ) as $wcb_slug ) {
 		$wcb_chip_filters[ $wcb_prefix . $wcb_slug ] = $wcb_slug;
 	}
+}
+// ?board= (or ?board_id=) is one board: the same board_<id> key its sidebar checkbox sets.
+$wcb_url_board = absint( $wcb_url_params['board'] ?? 0 );
+if ( $wcb_url_board > 0 ) {
+	$wcb_chip_filters[ 'board_' . $wcb_url_board ] = (string) $wcb_url_board;
 }
 
 $wcb_state = array(
