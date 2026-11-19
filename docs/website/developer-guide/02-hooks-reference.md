@@ -219,11 +219,11 @@ Two more filters shape API output: `wcb_admin_email_log_response` (`$response, $
 | `wcb_company_sidebar_after` | Action | Company profile, after the sidebar cards. Args: `$company_id`. |
 | `wcb_company_sidebar_blocks` | Filter | Change the sidebar block list. Default: Similar Companies and Job Alerts. Each entry is a block comment string. Args: `$blocks, $company_id`. |
 | `wcb_shortcode_attr_aliases` | Filter | Add to the lowercase to camelCase attribute map, so `[wcb_job_listings boardId="1"]` works. |
-| `wcb_search_active_shortcodes` | Filter | Shortcode prefixes (default `wcb_`, `wcbp_`) that mark a page as a Career Board page. |
+| `wcb_search_active_shortcodes` | Filter | Shortcode prefixes (default `wcb_`, `wcbp_`) that load the Career Board frontend styles on a page. |
 | `wcb_page_needs_frontend_assets` | Filter | Return `true` to load the Career Board frontend styles on a request the plugin does not detect (for example blocks rendered outside the post content). |
 | `wcb_app_page_ids` | Filter | Add page IDs that get the `wcb-page` body class and page template. |
 | `wcb_apply_page_class` | Filter | Return `false` to keep a page from getting the `wcb-page` body class and the plugin page template. Args: `$is_wcb_page, $page_id`. |
-| `wcb_fullwidth_block_names` | Filter | Add a block name (`namespace/slug`) that triggers the full-width page template. |
+| `wcb_fullwidth_block_names` | Filter | Add a block name (`namespace/slug`) that triggers the full-width page template, as a block or its shortcode. By default only app blocks do (dashboards, forms, registration, job listings, company archive and profile, resume archive); display blocks such as Recent Jobs, Featured Jobs and Job Search Hero keep the theme's template. |
 | `wcb_container_max_width` | Filter | The content column width in pixels. The value is kept between 720 and 1920. |
 | `wcb_theme_accent_primary` | Filter | The primary accent colour blocks use. Args: `$accent, $template`. |
 | `wcb_industries` | Filter | Add or rename the industries offered on the company profile. |

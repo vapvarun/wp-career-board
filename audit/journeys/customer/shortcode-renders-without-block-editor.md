@@ -14,7 +14,7 @@ last_verified: 2026-05-12
 
 1. As admin, create a Page with `post_content` = `[wcb_job_listings]` (no block markup wrapping it). Pick a title and a slug.
 2. Navigate to the published page → expect HTTP 200.
-3. Confirm `<body class="...">` contains `wcb-page` → proves Path 3 shortcode detection fired (`apply_filters('wcb_search_active_shortcodes', ...)`).
+3. Confirm `<body class="...">` contains `wcb-page` → proves Path 3 shortcode detection fired (an app-block shortcode from `wcb_fullwidth_block_names`; a display shortcode like `[wcb_recent_jobs]` alone must NOT add it).
 4. Confirm `document.querySelector('.wcb-job-listings')` exists and `document.querySelector('[data-wp-interactive="wcb-job-listings"]')` exists → block render path ran.
 5. Confirm at least one `.wcb-job-card` exists → REST query against `wcb_job` succeeded.
 6. Confirm the block's stylesheet auto-enqueued → `document.querySelector('style#wp-career-board-job-listings-style-inline-css')` exists.
