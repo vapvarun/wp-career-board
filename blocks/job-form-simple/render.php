@@ -109,6 +109,9 @@ $wcb_initial_currency = $wcb_board_currency && array_key_exists( $wcb_board_curr
 // Credit cost for the board the form opens on, plus a per-board map so view.js
 // can swap the banner when the employer switches boards.
 $wcb_credit_cost = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_resolved_board_id );
+// A paid board's price includes one featured period (Pro), so the form offers
+// it as included, not for sale. Read before admins' free posting zeroes the prices.
+$wcb_board_feature_included = array_map( static fn( int $cost ): bool => $cost > 0, $wcb_board_credit_costs + array( $wcb_resolved_board_id => $wcb_credit_cost ) );
 // Site admins post for free (JobPayment::is_exempt()).
 if ( \WCB\Modules\Jobs\JobPayment::is_exempt() ) {
 	$wcb_credit_cost        = 0;
@@ -223,6 +226,9 @@ $wcb_state = apply_filters(
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'buyUrl'            => '',
 		'featured'          => false,
+		// Boards whose price includes featuring; view.js `featureIncluded` reads the picked one.
+		'featureBoards'     => (object) $wcb_board_feature_included,
+		'featureIncluded'   => static fn (): bool => ! empty( $wcb_board_feature_included[ $wcb_resolved_board_id ] ),
 		'featureError'      => '',
 		// Server half of view.js `isGroupOnBoard` (custom-field groups per board).
 		'isGroupOnBoard'    => static fn (): bool => \WCB\Core\FormCustomFields::group_on_board( $wcb_resolved_board_id ),
@@ -620,8 +626,19 @@ $wcb_wrapper_class = 'wcb-form-simple' . ( $wcb_compact_attr ? ' wcb-form-simple
 		endif;
 		?>
 
+<?php if ( in_array( true, $wcb_board_feature_included, true ) ) : ?>
+		<p class="wcb-form-feature wcb-form-feature--included" data-wp-bind--hidden="!state.featureIncluded">
+			<?php
+			printf(
+				/* translators: %d: number of days */
+				esc_html( _n( 'Featured is included with this board: it lists first for %d day.', 'Featured is included with this board: it lists first for %d days.', $wcb_featured_days, 'wp-career-board' ) ),
+				(int) $wcb_featured_days
+			);
+			?>
+		</p>
+		<?php endif; ?>
 <?php if ( $wcb_featured_cost > 0 ) : ?>
-		<label class="wcb-form-feature">
+		<label class="wcb-form-feature" data-wp-bind--hidden="state.featureIncluded">
 			<input type="checkbox" data-wp-on--change="actions.toggleFeatured" />
 			<span>
 			<?php

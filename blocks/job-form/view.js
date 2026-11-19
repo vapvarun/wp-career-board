@@ -429,6 +429,11 @@ const { state } = store(
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
 			},
+			// A paid board's price includes one featured period (Pro).
+			get featureIncluded() {
+				const { state } = store( 'wcb-job-form' );
+				return !! ( state.featureBoards || {} )[ String( state.boardId || 0 ) ];
+			},
 			// Only a board that charges gets the banner; a free board shows nothing.
 			get hasCreditBanner() {
 				const { state } = store( 'wcb-job-form' );
@@ -753,7 +758,8 @@ const { state } = store(
 					: [];
 
 					const body = {
-						featured:        state.featured,
+						// Edits leave Featured alone: a moderator's save must not clear it.
+						...( state.editJobId > 0 ? {} : { featured: state.featured } ),
 						title:           state.title,
 						description:     state.description,
 						salary_min:      state.salaryMin,

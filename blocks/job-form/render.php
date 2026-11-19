@@ -172,6 +172,9 @@ $wcb_credit_balance = (int) apply_filters( 'wcb_employer_credit_balance', 0, $wc
 if ( ! array_key_exists( $wcb_board_id, $wcb_board_credit_costs ) ) {
 	$wcb_board_credit_costs[ $wcb_board_id ] = (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_board_id );
 }
+// A paid board's price includes one featured period (Pro), so the form offers
+// it as included, not for sale. Read before admins' free posting zeroes the prices.
+$wcb_board_feature_included = array_map( static fn( int $cost ): bool => $cost > 0, $wcb_board_credit_costs );
 // Site admins post for free (JobPayment::is_exempt()), so every board reads as free to them.
 if ( \WCB\Modules\Jobs\JobPayment::is_exempt( $wcb_edit_id ) ) {
 	$wcb_board_credit_costs = array_map( '__return_zero', $wcb_board_credit_costs );
@@ -351,6 +354,9 @@ $wcb_initial_state = apply_filters(
 		'creditPurchaseUrl' => (string) apply_filters( 'wcb_credit_purchase_url', '' ),
 		'buyUrl'            => '',
 		'featured'          => false,
+		// Boards whose price includes featuring; view.js `featureIncluded` reads the picked one.
+		'featureBoards'     => (object) $wcb_board_feature_included,
+		'featureIncluded'   => static fn (): bool => ! empty( $wcb_board_feature_included[ $wcb_board_id ] ),
 		'featureError'      => '',
 		// Board picker — only meaningful when more than one board exists, since
 		// a single-board site has nothing to pick from. The REST callback falls
@@ -1084,8 +1090,19 @@ $wcb_step_labels = array(
 				<?php esc_html_e( 'Review the details above. Go back to make changes before submitting.', 'wp-career-board' ); ?>
 			</p>
 
-<?php if ( $wcb_featured_cost > 0 ) : ?>
-			<label class="wcb-form-feature">
+<?php if ( ! $wcb_edit_job && in_array( true, $wcb_board_feature_included, true ) ) : ?>
+			<p class="wcb-form-feature wcb-form-feature--included" data-wp-bind--hidden="!state.featureIncluded">
+				<?php
+				printf(
+					/* translators: %d: number of days */
+					esc_html( _n( 'Featured is included with this board: it lists first for %d day.', 'Featured is included with this board: it lists first for %d days.', $wcb_featured_days, 'wp-career-board' ) ),
+					(int) $wcb_featured_days
+				);
+				?>
+			</p>
+			<?php endif; ?>
+<?php if ( ! $wcb_edit_job && $wcb_featured_cost > 0 ) : ?>
+			<label class="wcb-form-feature" data-wp-bind--hidden="state.featureIncluded">
 				<input type="checkbox" data-wp-on--change="actions.toggleFeatured" />
 				<span>
 				<?php

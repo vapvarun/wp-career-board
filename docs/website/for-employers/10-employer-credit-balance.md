@@ -22,10 +22,10 @@ If a moderator approves your job while your balance is too short, the job stays 
 
 If your site sells featured placement, you can spend credits to make a job list first. There are two ways:
 
-- **When you post** - on the last step of the job form, tick "Feature this job: it lists first for N days (X credits)". If the featuring charge fails, the job is still posted and you are told why it was not featured.
+- **When you post** - on the last step of the job form, tick "Feature this job: it lists first for N days (X credits)". If the featuring charge fails, the job is still posted and you are told why it was not featured. On a board that charges to post, the step reads "Featured is included with this board" instead: the job is featured for one period at no extra cost.
 - **Later** - click **Feature** on a live job in **My Jobs**. You confirm the cost ("Featured jobs list first. This uses N credits from your balance.") and the job gets a **Featured** badge.
 
-The checkbox and the **Feature** button appear only when the site prices featuring. Featured status ends after the length of time the site owner set (30 days by default). The job stays live and only loses the boost. Click **Feature** again to renew it.
+The checkbox and the **Feature** button appear only when the site prices featuring. Featured status ends after the length of time the site owner set (30 days by default). The job stays live and only loses the boost. Click **Feature** again to renew it. Renewing costs credits, including on a board where the first period was included.
 
 ## Read more
 

@@ -11,7 +11,7 @@ The length is counted from the day the job was marked Featured, using the value 
 ## Feature a job
 
 - **As an administrator or moderator:** tick **Featured listing** on the job's edit screen.
-- **As an employer, when Pro prices it:** tick the Feature checkbox on the job form, or use the **Feature** button on the job in **My Jobs**. If the featuring charge cannot be paid, the job is still posted and the employer is told why.
+- **As an employer, when Pro prices it:** tick the Feature checkbox on the job form (a board that charges to post includes the first period, and the form says so), or use the **Feature** button on the job in **My Jobs**. If the featuring charge cannot be paid, the job is still posted and the employer is told why.
 
 ## Where featured jobs list
 
