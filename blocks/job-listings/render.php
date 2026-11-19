@@ -786,8 +786,9 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			}
 
 			// Panel-bottom extension point. Moved out of the Salary group so it
-			// always fires regardless of filter order/visibility.
-			do_action( 'wcb_job_listings_filters_bottom' );
+			// always fires regardless of filter order/visibility. Passes the
+			// block's board scope (0 = every board) so filters can follow it.
+			do_action( 'wcb_job_listings_filters_bottom', $wcb_board_id_attr );
 			?>
 		</aside>
 

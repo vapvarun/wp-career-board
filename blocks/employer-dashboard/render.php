@@ -1059,7 +1059,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<template data-wp-each--answer="state.selectedAppCustomFields" data-wp-each-key="context.answer.key">
 								<div class="wcb-app-answer">
 									<span class="wcb-app-answer__label" data-wp-text="context.answer.label"></span>
-									<span class="wcb-app-answer__value" data-wp-text="context.answer.value"></span>
+									<span class="wcb-app-answer__value" data-wp-text="context.answer.value" data-wp-bind--hidden="context.answer.url"></span>
+									<span class="wcb-app-answer__value" data-wp-bind--hidden="!context.answer.url"><a data-wp-bind--href="context.answer.url" data-wp-text="context.answer.value" target="_blank" rel="nofollow noopener"></a></span>
 								</div>
 							</template>
 						</div>

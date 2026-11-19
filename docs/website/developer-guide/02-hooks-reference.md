@@ -50,7 +50,7 @@ Use these actions and filters to change how WP Career Board behaves, react to ev
 | `wcb_job_listing_data` | Filter | Change the data of one listing card. Args: `$card, $post`. |
 | `wcb_default_filter_order` | Filter | Reorder or extend the listings filter groups. Default `['type', 'experience', 'category', 'tags', 'location', 'board', 'salary']`. A block's saved `filterOrder` is intersected with this list, so a group missing here is never shown. |
 | `wcb_job_listings_filters_top` | Action | Top of the listings filter panel. No arguments. |
-| `wcb_job_listings_filters_bottom` | Action | Bottom of the listings filter panel. No arguments. |
+| `wcb_job_listings_filters_bottom` | Action | Bottom of the listings filter panel. Argument: `$board_id` (int), the block's board scope, 0 for every board. |
 | `wcb_before_card_footer` | Action | Inside each job card, before the footer row. Args: `$job_card, $job_post`. |
 | `wcb_after_card_footer` | Action | Inside each job card, after the footer row. Args: `$job_card, $job_post`. |
 | `wcb_job_single_after_description` | Action | Right after the description on the job page. Args: `$job_id`. Pro prints its custom-field details here. |
