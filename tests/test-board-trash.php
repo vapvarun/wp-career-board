@@ -35,7 +35,7 @@ $board   = (int) wp_insert_post(
 	array(
 		'post_type'   => 'wcb_board',
 		'post_status' => 'publish',
-		'post_title'  => 'Design Leadership',
+		'post_title'  => 'Kestrel Design Leadership',
 	)
 );
 $ok( $board === JobsMeta::sanitize_board_id( $board ), 'a published board is kept' );
@@ -68,6 +68,18 @@ $upd  = new WP_REST_Request( 'POST', '/wcb/v1/jobs/' . $job2 );
 $upd->set_body_params( array( 'board_id' => $board ) );
 rest_do_request( $upd );
 $ok( $default === (int) get_post_meta( $job2, '_wcb_board_id', true ), 'moving a job to a trashed board keeps it on the default board' );
+
+// Job forms placed with boardId set to a board that was since trashed.
+$employer = get_users( array( 'role' => 'wcb_employer', 'number' => 1, 'fields' => 'ID' ) );
+if ( $employer ) {
+	wp_set_current_user( (int) $employer[0] );
+	foreach ( array( 'job-form-simple', 'job-form' ) as $block ) {
+		do_blocks( '<!-- wp:wp-career-board/' . $block . ' {"boardId":' . $board . '} /-->' );
+		$state = wp_interactivity_state( 'wcb-' . $block );
+		$ok( isset( $state['boardId'] ) && $board !== (int) $state['boardId'], $block . ' with a trashed boardId does not open on that board' );
+	}
+	wp_set_current_user( 1 );
+}
 
 wp_untrash_post( $board );
 $ok( 'publish' === get_post_status( $board ), 'a restored board comes back published' );

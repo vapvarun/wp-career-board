@@ -122,7 +122,14 @@ $wcb_default_currency = array_key_exists( $wcb_preferred, $wcb_currency_catalog 
 	: ( array_key_exists( 'USD', $wcb_currency_catalog ) ? 'USD' : (string) array_key_first( $wcb_currency_catalog ) );
 
 // ── Board currency — Pro returns the per-board currency when boardId is set ──
-$wcb_board_id       = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
+$wcb_board_id = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
+// A board picked in the editor that was since trashed or deleted takes no jobs
+// (sanitize_board_id() is the one check), so the form opens like an unscoped one.
+if ( $wcb_board_id > 0 && \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_board_id ) !== $wcb_board_id ) {
+	$wcb_board_id = 0;
+}
+$wcb_board_fixed = $wcb_board_id > 0;
+
 $wcb_board_currency = $wcb_board_id > 0
 	? (string) apply_filters( 'wcb_board_currency', '', $wcb_board_id )
 	: '';
@@ -172,7 +179,7 @@ if ( \WCB\Modules\Jobs\JobPayment::is_exempt( $wcb_edit_id ) ) {
 
 // A new job opens on a board the employer can afford, not on a paid default
 // that greets a 0-credit employer with "This board requires 3 credits".
-if ( ! $wcb_edit_job && empty( $attributes['boardId'] ) && ( $wcb_board_credit_costs[ $wcb_board_id ] ?? 0 ) > $wcb_credit_balance ) {
+if ( ! $wcb_edit_job && ! $wcb_board_fixed && ( $wcb_board_credit_costs[ $wcb_board_id ] ?? 0 ) > $wcb_credit_balance ) {
 	foreach ( $wcb_board_options as $wcb_opt ) {
 		if ( ( $wcb_board_credit_costs[ (int) $wcb_opt['id'] ] ?? 0 ) <= $wcb_credit_balance ) {
 			$wcb_board_id = (int) $wcb_opt['id'];

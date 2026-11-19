@@ -31,6 +31,11 @@ if ( ! is_user_logged_in() || ! $wcb_can_post_job ) {
 }
 
 $wcb_board_id_attr = isset( $attributes['boardId'] ) ? (int) $attributes['boardId'] : 0;
+// A board picked in the editor that was since trashed or deleted takes no jobs
+// (sanitize_board_id() is the one check), so the form opens like an unscoped one.
+if ( $wcb_board_id_attr > 0 && \WCB\Modules\Jobs\JobsMeta::sanitize_board_id( $wcb_board_id_attr ) !== $wcb_board_id_attr ) {
+	$wcb_board_id_attr = 0;
+}
 $wcb_compact_attr  = ! empty( $attributes['compact'] );
 
 // ── Board picker options — mirrors blocks/job-form/render.php so multi-board
