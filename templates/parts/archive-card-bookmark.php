@@ -89,6 +89,9 @@ $wcb_bookmark_static_class = '' === (string) $wcb_bookmark['bookmarked_class_bin
 	data-wp-on--click="actions.toggleBookmark"
 	<?php if ( '' !== (string) $wcb_bookmark['bookmarked_class_bind'] ) : ?>
 	data-wp-class--wcb-bookmarked="<?php echo esc_attr( (string) $wcb_bookmark['bookmarked_class_bind'] ); ?>"
+	data-wp-bind--aria-pressed="<?php echo esc_attr( (string) $wcb_bookmark['bookmarked_class_bind'] ); ?>"
+	<?php else : ?>
+	aria-pressed="<?php echo ! empty( $wcb_bookmark['bookmarked_ssr'] ) ? 'true' : 'false'; ?>"
 	<?php endif; ?>
 	<?php if ( '' !== (string) $wcb_bookmark['aria_label_bind'] ) : ?>
 	data-wp-bind--aria-label="<?php echo esc_attr( (string) $wcb_bookmark['aria_label_bind'] ); ?>"

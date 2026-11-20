@@ -119,6 +119,8 @@ $ok( isset( $rows[ $co ] ) && false === $rows[ $co ]['is_bookmarked'], 'R4: a se
 // guest and no heart is saved after a sort or Load more (card 10533239078, second round).
 $js = (string) file_get_contents( dirname( __DIR__ ) . '/blocks/company-archive/view.js' );
 $ok( 3 === substr_count( $js, 'wcbReadInit()' ) && str_contains( $js, "'X-WP-Nonce': nonce" ), 'R5: both company list fetches (first page / sort and Load more) send the REST nonce' );
+$part = (string) file_get_contents( dirname( __DIR__ ) . '/templates/parts/archive-card-bookmark.php' );
+$ok( str_contains( $part, 'data-wp-bind--aria-pressed' ) && str_contains( $part, 'aria-pressed="' ), 'R6: the heart exposes its saved state with aria-pressed (bound for list cards, static otherwise)' );
 
 wp_set_current_user( 0 );
 require_once ABSPATH . 'wp-admin/includes/user.php';
