@@ -350,6 +350,73 @@ final class CandidatesModule {
 	}
 
 	/**
+	 * Resume each card takes its photo from, batched for the whole page.
+	 *
+	 * The resume sent with the application, else the candidate's latest public
+	 * resume. One query for the fallback and one cache prime each for resume
+	 * meta and photo attachments, so photo_url() runs no query per card.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param array<int,\WP_Post> $posts Application posts (postmeta already primed).
+	 * @return array<int,int> Application ID => resume ID.
+	 */
+	public static function application_photo_resumes( array $posts ): array {
+		$map     = array();
+		$pending = array();
+		foreach ( $posts as $app ) {
+			$resume_id = (int) get_post_meta( $app->ID, '_wcb_resume_id', true );
+			$cid       = (int) get_post_meta( $app->ID, '_wcb_candidate_id', true );
+			if ( $resume_id > 0 ) {
+				$map[ $app->ID ] = $resume_id;
+			} elseif ( $cid > 0 ) {
+				$pending[ $app->ID ] = $cid;
+			}
+		}
+
+		if ( $pending ) {
+			$latest = array();
+			foreach ( get_posts(
+				array(
+					'post_type'              => 'wcb_resume',
+					'post_status'            => 'publish',
+					'author__in'             => array_values( array_unique( $pending ) ),
+					'posts_per_page'         => -1, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded by the page's candidates (at most stage_limit()).
+					'orderby'                => 'date',
+					'order'                  => 'DESC',
+					'no_found_rows'          => true,
+					'update_post_term_cache' => false,
+					'meta_key'               => '_wcb_resume_public', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'             => '1',                  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			) as $resume ) {
+				$latest[ (int) $resume->post_author ] ??= (int) $resume->ID;
+			}
+			foreach ( $pending as $app_id => $cid ) {
+				if ( isset( $latest[ $cid ] ) ) {
+					$map[ $app_id ] = $latest[ $cid ];
+				}
+			}
+		}
+
+		if ( $map ) {
+			update_postmeta_cache( array_values( array_unique( $map ) ) );
+			$photos = array();
+			foreach ( array_unique( $map ) as $resume_id ) {
+				$photo = (int) get_post_meta( $resume_id, '_wcb_resume_photo_id', true );
+				if ( $photo > 0 ) {
+					$photos[] = $photo;
+				}
+			}
+			if ( $photos ) {
+				_prime_post_caches( $photos, false, true );
+			}
+		}
+
+		return $map;
+	}
+
+	/**
 	 * Frontend resume an admin or employer should open for an application: the
 	 * resume sent with that application, nothing else.
 	 *

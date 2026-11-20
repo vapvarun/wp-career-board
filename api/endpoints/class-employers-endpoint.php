@@ -1236,9 +1236,10 @@ final class EmployersEndpoint extends RestController {
 		// hit the DB (Pro Field Builder), and a 500-row page must not re-run it
 		// once per application.
 		$wcb_groups_memo = array();
+		$wcb_photos      = \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( array_filter( array_map( 'get_post', $wcb_app_ids ) ) );
 
 		$items = array_map(
-			static function ( object $row ) use ( $request, &$wcb_groups_memo ): array {
+			static function ( object $row ) use ( $request, &$wcb_groups_memo, $wcb_photos ): array {
 				$app_id = (int) $row->ID;
 				$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
@@ -1249,7 +1250,7 @@ final class EmployersEndpoint extends RestController {
 				$prepared = array(
 					'job_id'    => $job_id,
 					'job_title' => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
-				) + JobsEndpoint::employer_application_item( get_post( $app_id ), $wcb_groups_memo[ $job_id ] );
+				) + JobsEndpoint::employer_application_item( get_post( $app_id ), $wcb_groups_memo[ $job_id ], $wcb_photos );
 
 				$application_post = get_post( $app_id );
 

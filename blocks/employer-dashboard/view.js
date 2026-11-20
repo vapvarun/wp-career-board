@@ -726,6 +726,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppHasResume() {
 			return !! ( state.selectedApp?.resume_permalink || state.selectedApp?.resume_url );
 		},
+		get selectedAppAvatar() {
+			return state.selectedApp?.avatar_url ?? '';
+		},
 		get selectedAppInitials() {
 			const n = state.selectedAppName;
 			return n
@@ -1691,6 +1694,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		setAppsLayout( event ) {
 			state.appsLayout = event.target.dataset.layout === 'board' ? 'board' : 'list';
+			// The board has no width until it is shown: measure it on the next frame.
+			requestAnimationFrame( () => actions.syncBoardEdges() );
+		},
+
+		// Edge fades on the board say there are more stages off to one side.
+		syncBoardEdges( event ) {
+			const board = event?.target?.classList?.contains( 'wcb-apps-board' )
+				? event.target
+				: document.querySelector( '.wcb-apps-board' );
+			if ( ! board ) {
+				return;
+			}
+			const max = board.scrollWidth - board.clientWidth;
+			const pos = Math.abs( board.scrollLeft ); // Negative in RTL.
+			board.classList.toggle( 'wcb-has-more-start', max > 2 && pos > 2 );
+			board.classList.toggle( 'wcb-has-more-end', max > 2 && pos < max - 2 );
 		},
 
 		onCardDragStart( event ) {

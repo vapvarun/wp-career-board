@@ -78,6 +78,8 @@
 	--wcb-text-secondary: #667085;
 	--wcb-text-tertiary:  #9ca3af;
 	--wcb-bg-subtle:      #f8fafc;
+	/* Company logo tile: a light neutral so a white or transparent logo stays visible. */
+	--wcb-logo-bg:        color-mix(in srgb, var(--wcb-contrast, #0f172a) 7%, var(--wcb-base, #ffffff));
 	--wcb-bg-hover:       #f1f5f9;
 
 	/* A 1px border for a control that needs to read against the page

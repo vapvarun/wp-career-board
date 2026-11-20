@@ -1437,11 +1437,13 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		$wcb_photos = \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( $posts );
+
 		// The questions this job asked, looked up once for every row.
 		$wcb_question_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 
 		$items = array_map(
-			static fn ( \WP_Post $p ): array => self::employer_application_item( $p, $wcb_question_groups ),
+			static fn ( \WP_Post $p ): array => self::employer_application_item( $p, $wcb_question_groups, $wcb_photos ),
 			$posts
 		);
 
@@ -1472,16 +1474,20 @@ final class JobsEndpoint extends RestController {
 	 *
 	 * @param \WP_Post             $p      Application post.
 	 * @param array<int, mixed>    $groups The job's question groups (wcb_application_form_fields_groups).
+	 * @param array<int, int>|null $photos Application ID => resume ID for the photo, batched by the caller (CandidatesModule::application_photo_resumes()); null looks up this one row.
 	 * @return array<string, mixed>
 	 */
-	public static function employer_application_item( \WP_Post $p, array $groups ): array {
+	public static function employer_application_item( \WP_Post $p, array $groups, ?array $photos = null ): array {
 		$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
 		$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
 		$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
+		$photos       ??= \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( array( $p ) );
 
 		return array(
 			'id'                 => $p->ID,
 			'candidate_id'       => $candidate_id,
+			// Resume photo, else '' (the board shows initials; never the grey Gravatar silhouette).
+			'avatar_url'         => isset( $photos[ $p->ID ] ) ? \WCB\Modules\Candidates\CandidatesModule::photo_url( $candidate_id, 48, $photos[ $p->ID ] ) : '',
 			'applicant_name'     => $candidate_user
 				? \WCB\Modules\Candidates\CandidatesModule::public_name( $candidate_id )
 				: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),

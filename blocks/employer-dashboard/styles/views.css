@@ -369,8 +369,12 @@
 .wcb-company-card__logo img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
-	border-radius: inherit;
+	box-sizing: border-box;
+	padding: 6px;
+	object-fit: contain;
+	background: var(--wcb-logo-bg, #f1f5f9);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
 }
 
 .wcb-company-card__body {
@@ -746,12 +750,38 @@
 	padding-bottom: var(--wcb-space-md);
 }
 
-/* Desktop + tablet: five columns, each at least 220px so a name never breaks
-   mid-word; when the dashboard's content width is narrower the board scrolls. */
+/* Desktop + tablet: the five columns share the width (150px at the least, so a
+   name wraps at a space, never mid-word). When they cannot all fit the board
+   scrolls and view.js adds the edge fades that say there is more. */
 .wcb-apps-board.wcb-shown {
 	display: grid;
-	grid-template-columns: repeat(5, minmax(220px, 1fr));
+	grid-template-columns: repeat(5, minmax(160px, 1fr));
 	overflow-x: auto;
+	scrollbar-width: thin;
+}
+
+.wcb-apps-board.wcb-has-more-end {
+	mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+}
+
+.wcb-apps-board.wcb-has-more-start {
+	mask-image: linear-gradient(to right, transparent, #000 40px);
+}
+
+.wcb-apps-board.wcb-has-more-start.wcb-has-more-end {
+	mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+}
+
+.wcb-apps-board:dir(rtl).wcb-has-more-end {
+	mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent);
+}
+
+.wcb-apps-board:dir(rtl).wcb-has-more-start {
+	mask-image: linear-gradient(to left, transparent, #000 40px);
+}
+
+.wcb-apps-board:dir(rtl).wcb-has-more-start.wcb-has-more-end {
+	mask-image: linear-gradient(to left, transparent, #000 40px, #000 calc(100% - 40px), transparent);
 }
 
 .wcb-board-col {
@@ -767,7 +797,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	padding: var(--wcb-space-md);
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
@@ -777,7 +807,7 @@
 .wcb-board-col-cards {
 	flex: 1 1 auto;
 	min-height: 80px;
-	padding: var(--wcb-space-md);
+	padding: var(--wcb-space-sm);
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-md);
@@ -789,7 +819,7 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-md);
+	padding: var(--wcb-space-sm);
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -812,11 +842,11 @@
 /* Move control: a quiet "..." button over the real <select> (keyboard, screen
    readers and the phone's own picker keep working). Drag stays the main way. */
 .wcb-board-card-move-wrap {
-	position: absolute;
-	inset-block-start: var(--wcb-space-xs);
-	inset-inline-end: var(--wcb-space-xs);
-	width: 36px;
-	height: 36px;
+	position: relative;
+	flex: none;
+	margin-inline-start: auto;
+	width: 28px;
+	height: 28px;
 	border-radius: var(--wcb-radius-sm);
 	color: var(--wcb-text-secondary);
 	opacity: 0.65;
@@ -872,18 +902,38 @@
 
 .wcb-board-card-head {
 	display: flex;
+	flex-wrap: wrap; /* a name that cannot fit beside the photo drops under it, whole */
 	align-items: center;
-	gap: var(--wcb-space-sm);
+	gap: var(--wcb-space-xs) var(--wcb-space-sm);
 	width: 100%;
-	padding-inline-end: 32px; /* room for the move button */
 }
 
 .wcb-board-card .wcb-app-avatar {
-	--wcb-avatar-size: 26px;
+	--wcb-avatar-size: 28px;
+	flex: none;
 }
 
+/* Date on the left, the quiet move button on the right. */
+.wcb-board-card-foot {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+	min-width: 0;
+}
+
+.wcb-board-card-foot .wcb-app-date {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+}
+
+
 .wcb-board-card .wcb-app-name {
-	font-size: var(--wcb-text-base);
+	flex: 1 1 84px;
+	min-width: 0;
+	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
 	white-space: normal;

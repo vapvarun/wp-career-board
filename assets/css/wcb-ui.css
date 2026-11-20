@@ -385,8 +385,14 @@
 .wcb-avatar--round { --wcb-avatar-radius: var(--wcb-radius-full); }
 
 .wcb-avatar--logo {
-	background: var(--wcb-surface, #ffffff);
+	background: var(--wcb-logo-bg, #f1f5f9);
 	border: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+/* Contained and padded, never cropped to the edge of the tile. */
+.wcb-avatar--logo img {
+	box-sizing: border-box;
+	padding: 12%;
 }
 
 .wcb-avatar--sm { --wcb-avatar-size: var(--wcb-avatar-sm); }
