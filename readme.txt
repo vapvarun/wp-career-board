@@ -76,6 +76,7 @@ A release for 1.8.4 that tightens CV privacy and speeds up large sites.
 * Fix      - View resume opens the resume sent with that application, not the candidate's latest one.
 * Fix      - A remote job shows Remote once, and a second Remote place folds into the built-in one.
 * Fix      - The job form preview shows Remote once when a remote job also has the Remote place picked.
+* Fix      - The save heart on job and company cards tells screen readers whether the item is saved.
 * Fix      - Every list route sends the standard X-WP-Total and X-WP-TotalPages headers, so apps and headless clients can page.
 * Fix      - The status updated message in Applications stays with the applicant it was saved for.
 * Fix      - Saved jobs and companies show as saved on every card, including cards from Load more and after a sort or filter change, and a heart can no longer remove a save.
