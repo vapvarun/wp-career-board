@@ -122,7 +122,7 @@ class EmailSettings {
 							<?php
 							printf(
 								/* translators: %s: link to the Brand tab. */
-								esc_html__( 'Emails use your Brand colour and logo, set once for emails, the mobile app and the installable app under %s.', 'wp-career-board' ),
+								esc_html__( 'Emails use your Brand colour and logo, set once for emails and the mobile app under %s.', 'wp-career-board' ),
 								'<a href="#brand" data-wcb-goto-section="brand">' . esc_html__( 'Brand', 'wp-career-board' ) . '</a>'
 							);
 							?>

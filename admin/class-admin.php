@@ -94,7 +94,7 @@ class Admin {
 				add_query_arg( 'tab', 'signups', $settings ),
 			),
 			array(
-				__( 'Emails, the mobile app and the installable app now share one Brand colour and logo. Yours was taken from your email header, so emails look the same.', 'wp-career-board' ),
+				__( 'Emails and the mobile app now share one Brand colour and logo, and the installable app uses the colour. Yours was taken from your email header, so emails look the same.', 'wp-career-board' ),
 				add_query_arg( 'tab', 'brand', $settings ),
 			),
 		);

@@ -1126,7 +1126,7 @@ class AdminSettings {
 							<div class="wcb-card">
 								<div class="wcb-card__head">
 									<p class="wcb-card__title"><?php esc_html_e( 'Brand', 'wp-career-board' ); ?></p>
-									<p class="wcb-card__desc"><?php esc_html_e( 'One colour and one logo for your Career Board emails, the mobile app and the installable app. Your website follows your theme.', 'wp-career-board' ); ?></p>
+									<p class="wcb-card__desc"><?php esc_html_e( 'One colour and one logo for your Career Board emails and the mobile app. The installable app takes its icon from your Site Icon (Settings > General). Your website follows your theme.', 'wp-career-board' ); ?></p>
 								</div>
 								<div class="wcb-card__body">
 									<div class="wcb-settings-row">

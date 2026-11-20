@@ -72,7 +72,7 @@ See [GDPR & Privacy](./04-gdpr.md).
 
 | Tab | What it controls |
 |---|---|
-| **Brand** | One colour and one logo used by every Career Board email, the mobile app and the installable app (PWA). Your website itself follows your theme |
+| **Brand** | One colour and one logo used by every Career Board email and the mobile app. The installable app (PWA) uses the colour, and its icon comes from your Site Icon under Settings > General. Your website itself follows your theme |
 | **Emails** | Sender, footer text, and each email's on/off switch, subject and body. See [Email Notifications](./02-email-notifications.md) |
 | **Mobile App** | Sign-in background, dark mode, legal links and password sign-in for the companion app |
 
