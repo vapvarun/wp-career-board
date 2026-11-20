@@ -235,7 +235,7 @@ abstract class RestController extends \WP_REST_Controller {
 	/**
 	 * Record a job view in the wcb_job_views table.
 	 *
-	 * IP is hashed (SHA-256) for GDPR compliance — not stored in plaintext.
+	 * The IP is stored as a keyed hash (AppCredentials::client_ip_hash()), never in plaintext.
 	 *
 	 * @since 1.0.0
 	 *
@@ -250,15 +250,13 @@ abstract class RestController extends \WP_REST_Controller {
 
 		global $wpdb;
 
-		$ip = \WCB\Auth\AppCredentials::client_ip();
-
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_job_views table; no caching needed for write-only analytics.
 		$wpdb->insert(
 			$wpdb->prefix . 'wcb_job_views',
 			array(
 				'job_id'    => $job_id,
 				'viewed_at' => current_time( 'mysql', true ),
-				'ip_hash'   => hash( 'sha256', $ip ),
+				'ip_hash'   => \WCB\Auth\AppCredentials::client_ip_hash(),
 			),
 			array( '%d', '%s', '%s' )
 		);

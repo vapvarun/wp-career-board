@@ -406,6 +406,23 @@ final class AppCredentials {
 	}
 
 	/**
+	 * The visitor IP as stored in the job-view and GDPR logs: a keyed hash.
+	 *
+	 * A bare sha256 of an IPv4 address can be reversed by trying all 4 billion
+	 * values; keying it with the site's own secret makes the stored value
+	 * useless without the site. The same IP gives the same value on the same
+	 * site, so the one-view-per-visitor-per-day count still works. Never store
+	 * the raw IP.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @return string 64 hex characters.
+	 */
+	public static function client_ip_hash(): string {
+		return hash_hmac( 'sha256', self::client_ip(), wp_salt( 'auth' ) );
+	}
+
+	/**
 	 * Count one attempt against the per-IP ceiling.
 	 *
 	 * Runs for EVERY attempt, right or wrong, so a slow probe that never
