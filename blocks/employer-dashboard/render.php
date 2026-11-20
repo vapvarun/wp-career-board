@@ -1086,11 +1086,11 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<template data-wp-each--app="context.column.apps" data-wp-each-key="context.app.id">
 								<div class="wcb-board-card" draggable="true" tabindex="0" role="button" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--dragstart="actions.onCardDragStart" data-wp-on--click="actions.openFromBoard" data-wp-on--keydown="actions.openFromBoardKey">
 									<div class="wcb-board-card-head">
-										<span class="wcb-avatar wcb-avatar--round wcb-app-avatar" aria-hidden="true"><img alt="" loading="lazy" data-wp-class--wcb-hidden="!context.app.avatar_url" data-wp-bind--src="context.app.avatar_url" /><span data-wp-class--wcb-hidden="context.app.avatar_url" data-wp-text="context.app.initials"></span></span>
 										<span class="wcb-app-name" data-wp-text="context.app.applicant_name"></span>
 									</div>
 									<div class="wcb-board-card-foot">
-										<span class="wcb-app-date" data-wp-text="context.app.submitted_at_label"></span>
+										<span class="wcb-avatar wcb-avatar--round wcb-app-avatar" aria-hidden="true"><img alt="" loading="lazy" data-wp-class--wcb-hidden="!context.app.avatar_url" data-wp-bind--src="context.app.avatar_url" /><span data-wp-class--wcb-hidden="context.app.avatar_url" data-wp-text="context.app.initials"></span></span>
+										<span class="wcb-app-date" data-wp-text="context.app.submitted_at_short"></span>
 										<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
 										<?php // Keyboard and touch: move without dragging. ?>
 										<span class="wcb-board-card-move-wrap"><select class="wcb-board-card-move" aria-label="<?php esc_attr_e( 'Move to', 'wp-career-board' ); ?>" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--change="actions.updateAppStatus">

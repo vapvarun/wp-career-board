@@ -927,17 +927,20 @@
 	min-width: 0;
 	font-size: var(--wcb-text-xs);
 	color: var(--wcb-text-secondary);
+	white-space: nowrap;
 }
 
 
 .wcb-board-card .wcb-app-name {
-	flex: 1 1 84px;
+	flex: 1 1 100%;
 	min-width: 0;
 	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
-	white-space: normal;
-	overflow-wrap: break-word;
+	/* One line so every card is the same height; a very long name ends in an ellipsis. */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	line-height: 1.3;
 }
 

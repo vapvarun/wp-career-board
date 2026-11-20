@@ -42,6 +42,7 @@ update_post_meta( $app, '_wcb_resume_id', $resume );
 $post = get_post( $app );
 $none = JobsEndpoint::employer_application_item( $post, array() );
 $ok( array_key_exists( 'avatar_url', $none ), 'item has an avatar_url key' );
+$ok( isset( $none['submitted_at_short'] ) && ! str_contains( $none['submitted_at_short'], 'T' ) && strlen( $none['submitted_at_short'] ) <= 12, 'board card gets a short date that fits one line' );
 $ok( '' === $none['avatar_url'], 'no photo on the resume gives an empty avatar_url' );
 
 update_post_meta( $resume, '_wcb_resume_photo_id', $photo );

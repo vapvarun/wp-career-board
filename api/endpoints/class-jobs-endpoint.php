@@ -1505,6 +1505,8 @@ final class JobsEndpoint extends RestController {
 			// for display. Never hand a translated date string to new Date().
 			'submitted_at'       => $p->post_date_gmt,
 			'submitted_at_label' => \WCB\Core\Time::date_label( $p->post_date_gmt ),
+			// Short form for the narrow board card ("Oct 7, 2026"); same formatter and timezone.
+			'submitted_at_short' => \WCB\Core\Time::date_label( $p->post_date_gmt, '—', 'M j, Y' ),
 			'resume_url'         => ( static function () use ( $p ): ?string {
 				$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 				if ( $att_id <= 0 ) {
