@@ -666,7 +666,12 @@ final class Install {
 			),
 		);
 		foreach ( $defaults as $taxonomy => $names ) {
-			if ( ! taxonomy_exists( $taxonomy ) || 0 !== (int) wp_count_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false ) ) ) {
+			if ( ! taxonomy_exists( $taxonomy ) || 0 !== (int) wp_count_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'hide_empty' => false,
+				)
+			) ) {
 				continue;
 			}
 			foreach ( $names as $name ) {
