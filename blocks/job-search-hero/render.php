@@ -85,7 +85,7 @@ $wcb_job_types  = $wcb_show_type ? \WCB\Core\Taxonomy::options( 'wcb_job_type', 
 					<?php esc_html_e( 'Location', 'wp-career-board' ); ?>
 				</label>
 				<select id="wcb-hero-location" name="wcb_location" class="wcb-search-hero__select">
-					<option value=""><?php esc_html_e( 'All Locations', 'wp-career-board' ); ?></option>
+					<option value=""><?php esc_html_e( 'All locations', 'wp-career-board' ); ?></option>
 					<?php foreach ( $wcb_locations as $wcb_term ) : ?>
 						<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_current_location, $wcb_term->slug ); ?>>
 							<?php echo esc_html( $wcb_term->label ); ?>

@@ -30,7 +30,7 @@ Below that, fill in:
 
 - **Professional summary**
 - **Years of experience**, which the candidate directory uses for its experience filter
-- **Open to new opportunities**, which puts you in the directory's "Open to Work" filter
+- **Open to new opportunities**, which puts you in the directory's "Open to work" filter
 
 Then add entries in these sections:
 

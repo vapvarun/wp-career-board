@@ -12,7 +12,7 @@ last_walked: 2026-06-26
 
 ## As anonymous
 1. Navigate to a page carrying the blocks → expect:
-   - **Featured Jobs** — a heading (custom title or "Featured Jobs") and up to `perPage` (default 3) cards, each with job title link, company name, location, and a "View Job" link; a "View all jobs →" link when a target URL resolves.
+   - **Featured Jobs** — a heading (custom title or "Featured Jobs") and up to `perPage` (default 3) cards, each with job title link, company name, location, and a "View job" link; a "View all jobs →" link when a target URL resolves.
    - **Recent Jobs** — "Recent Jobs" heading + "View all →"; a list of items each showing the company logo (or initial avatar), job title, company, location + type badges, and "<time> ago".
    - **Job Stats** — a strip of counts with Lucide icons: `briefcase` Jobs, `building-2` Companies, `users` Candidates (each toggleable via block attributes); counts use `number_format_i18n`.
 2. Click a featured/recent card → navigates to the job single at `/jobs/<slug>/`.

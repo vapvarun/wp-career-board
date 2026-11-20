@@ -387,7 +387,7 @@ wp_interactivity_state(
 								</span>
 							</div>
 						</div>
-						<a class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View job', 'wp-career-board' ); ?></a>
 					</article>
 				</template>
 			</div>

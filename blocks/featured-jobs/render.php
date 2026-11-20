@@ -91,7 +91,7 @@ if ( empty( $wcb_featured_posts ) ) {
 				<?php endif; ?>
 
 				<a class="wcb-featured-link" href="<?php echo esc_url( get_permalink( $wcb_post->ID ) ); ?>">
-					<?php esc_html_e( 'View Job', 'wp-career-board' ); ?>
+					<?php esc_html_e( 'View job', 'wp-career-board' ); ?>
 				</a>
 			</article>
 		<?php endforeach; ?>

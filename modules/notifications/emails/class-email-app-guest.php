@@ -73,7 +73,7 @@ class EmailAppGuest extends AbstractEmail {
 				'<strong>{job_title}</strong>'
 			) . '</p>'
 			. '<p>' . esc_html__( 'As you applied as a guest, the employer will contact you directly using the details you provided.', 'wp-career-board' ) . '</p>'
-			. self::button( __( 'View Job', 'wp-career-board' ), '{job_url}' );
+			. self::button( __( 'View job', 'wp-career-board' ), '{job_url}' );
 	}
 
 	/**
