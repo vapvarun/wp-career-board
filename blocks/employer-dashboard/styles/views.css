@@ -746,10 +746,12 @@
 	padding-bottom: var(--wcb-space-md);
 }
 
-/* Desktop + tablet: all five status columns fit the width, no horizontal scroll. */
+/* Desktop + tablet: five columns, each at least 220px so a name never breaks
+   mid-word; when the dashboard's content width is narrower the board scrolls. */
 .wcb-apps-board.wcb-shown {
 	display: grid;
-	grid-template-columns: repeat(5, minmax(0, 1fr));
+	grid-template-columns: repeat(5, minmax(220px, 1fr));
+	overflow-x: auto;
 }
 
 .wcb-board-col {
@@ -782,6 +784,7 @@
 }
 
 .wcb-board-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -806,15 +809,60 @@
 	outline-offset: 2px;
 }
 
-.wcb-board-card-move {
-	width: 100%;
-	margin-top: var(--wcb-space-xs);
-	padding: var(--wcb-space-xs) var(--wcb-space-xs);
-	border: 1px solid var(--wcb-border);
+/* Move control: a quiet "..." button over the real <select> (keyboard, screen
+   readers and the phone's own picker keep working). Drag stays the main way. */
+.wcb-board-card-move-wrap {
+	position: absolute;
+	inset-block-start: var(--wcb-space-xs);
+	inset-inline-end: var(--wcb-space-xs);
+	width: 36px;
+	height: 36px;
 	border-radius: var(--wcb-radius-sm);
-	background: var(--wcb-base);
-	color: var(--wcb-contrast);
-	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+	opacity: 0.65;
+}
+
+.wcb-board-card-move-wrap::before {
+	content: "\22EF";
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 22px;
+	line-height: 1;
+	pointer-events: none;
+}
+
+.wcb-board-card:hover .wcb-board-card-move-wrap,
+.wcb-board-card-move-wrap:focus-within {
+	opacity: 1;
+}
+
+.wcb-board-card-move-wrap:hover,
+.wcb-board-card-move-wrap:focus-within {
+	background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+@media (pointer: coarse) {
+	.wcb-board-card-move-wrap {
+		width: 44px;
+		height: 44px;
+		opacity: 1;
+	}
+}
+
+.wcb-board-card-move {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	opacity: 0;
+	cursor: pointer;
+	font-size: 16px;
 }
 
 .wcb-board-card:active {
@@ -827,6 +875,7 @@
 	align-items: center;
 	gap: var(--wcb-space-sm);
 	width: 100%;
+	padding-inline-end: 32px; /* room for the move button */
 }
 
 .wcb-board-card .wcb-app-avatar {
@@ -838,7 +887,7 @@
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
 	white-space: normal;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
 	line-height: 1.3;
 }
 

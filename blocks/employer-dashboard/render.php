@@ -1091,11 +1091,11 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 									</div>
 									<span class="wcb-ai-score" data-wp-class--wcb-hidden="!context.app.aiScoreLabel" data-wp-text="context.app.aiScoreLabel"></span>
 									<?php // Keyboard and touch: move without dragging. ?>
-									<select class="wcb-board-card-move" aria-label="<?php esc_attr_e( 'Move to', 'wp-career-board' ); ?>" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--change="actions.updateAppStatus">
+									<span class="wcb-board-card-move-wrap"><select class="wcb-board-card-move" aria-label="<?php esc_attr_e( 'Move to', 'wp-career-board' ); ?>" data-wp-bind--data-wcb-app-id="context.app.id" data-wp-on--change="actions.updateAppStatus">
 										<template data-wp-each--opt="state.appsBoardColumns" data-wp-each-key="context.opt.key">
 											<option data-wp-bind--value="context.opt.key" data-wp-bind--selected="state.isBoardOptSelected" data-wp-text="context.opt.label"></option>
 										</template>
-									</select>
+									</select></span>
 								</div>
 							</template>
 						</div>
