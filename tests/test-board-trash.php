@@ -70,16 +70,24 @@ rest_do_request( $upd );
 $ok( $default === (int) get_post_meta( $job2, '_wcb_board_id', true ), 'moving a job to a trashed board keeps it on the default board' );
 
 // Job forms placed with boardId set to a board that was since trashed.
-$employer = get_users( array( 'role' => 'wcb_employer', 'number' => 1, 'fields' => 'ID' ) );
-if ( $employer ) {
-	wp_set_current_user( (int) $employer[0] );
-	foreach ( array( 'job-form-simple', 'job-form' ) as $block ) {
-		do_blocks( '<!-- wp:wp-career-board/' . $block . ' {"boardId":' . $board . '} /-->' );
-		$state = wp_interactivity_state( 'wcb-' . $block );
-		$ok( isset( $state['boardId'] ) && $board !== (int) $state['boardId'], $block . ' with a trashed boardId does not open on that board' );
-	}
-	wp_set_current_user( 1 );
+$employer = (int) wp_insert_user(
+	array(
+		'user_login' => 'bt-emp-' . wp_generate_password( 6, false ),
+		'user_pass'  => wp_generate_password(),
+		'user_email' => 'bt-emp-' . wp_generate_password( 6, false ) . '@example.test',
+		'role'       => 'wcb_employer',
+	)
+);
+$ok( $employer > 0, 'a throwaway employer exists to open the job forms' );
+wp_set_current_user( $employer );
+foreach ( array( 'job-form-simple', 'job-form' ) as $block ) {
+	do_blocks( '<!-- wp:wp-career-board/' . $block . ' {"boardId":' . $board . '} /-->' );
+	$state = wp_interactivity_state( 'wcb-' . $block );
+	$ok( isset( $state['boardId'] ) && $board !== (int) $state['boardId'], $block . ' with a trashed boardId does not open on that board' );
 }
+wp_set_current_user( 1 );
+require_once ABSPATH . 'wp-admin/includes/user.php';
+wp_delete_user( $employer );
 
 wp_untrash_post( $board );
 $ok( 'publish' === get_post_status( $board ), 'a restored board comes back published' );

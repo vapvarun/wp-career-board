@@ -614,6 +614,7 @@ final class Install {
 			// setting is gone; drop the stale stored value.
 			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.8', '<' ) ) {
 				self::remove_location_requirement_setting();
+				self::merge_duplicate_remote_terms();
 			}
 
 			// Only bump the stored DB version if every expected table now
@@ -626,6 +627,37 @@ final class Install {
 			if ( self::verify_tables_exist() ) {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
+		}
+	}
+
+	/**
+	 * Fold a "Remote" place term the old setup wizard seeded into the built-in `remote` term.
+	 *
+	 * On a translated site the built-in term carries the translated name, so the
+	 * wizard's English "Remote" landed on a second slug (remote-2) and showed in
+	 * every location dropdown next to the real one, filtering a different set of jobs.
+	 *
+	 * @since 1.8.5
+	 * @return void
+	 */
+	public static function merge_duplicate_remote_terms(): void {
+		$keep = get_term_by( 'slug', 'remote', 'wcb_location' );
+		if ( ! $keep instanceof \WP_Term ) {
+			return;
+		}
+		$dupes = get_terms(
+			array(
+				'taxonomy'   => 'wcb_location',
+				'hide_empty' => false,
+				'name'       => 'Remote',
+				'exclude'    => array( $keep->term_id ),
+			)
+		);
+		foreach ( is_array( $dupes ) ? $dupes : array() as $dupe ) {
+			foreach ( get_objects_in_term( $dupe->term_id, 'wcb_location' ) as $object_id ) {
+				wp_set_object_terms( (int) $object_id, array( (int) $keep->term_id ), 'wcb_location', true );
+			}
+			wp_delete_term( $dupe->term_id, 'wcb_location' );
 		}
 	}
 
