@@ -252,12 +252,12 @@ wcb_assert( 409 === $r->get_status(), 'an application with an outcome cannot be 
 wp_delete_post( $wcb_rejected_app, true );
 
 // Withdrawn does not count as applied: the candidate may apply again.
-$r = wcb_rest( 'POST', '/wcb/v1/jobs/' . $wcb_job . '/apply', array( 'cover_letter' => 'Second try' ), $wcb_candidate );
+$r = wcb_rest( 'POST', '/wcb/v1/jobs/' . $wcb_job . '/apply', array( 'cover_letter' => 'Second try', 'custom_fields' => array_fill_keys( array_keys( \WCB\Core\FormCustomFields::missing_required( (array) apply_filters( 'wcb_application_form_fields_groups', array(), $wcb_job ), array() ) ), 'Test answer' ) ), $wcb_candidate );
 $wcb_code = (string) ( $r->get_data()['code'] ?? '' );
 wcb_assert( 'wcb_already_applied' !== $wcb_code, 'apply after withdrawing is not blocked as a duplicate (' . $r->get_status() . ' ' . $wcb_code . ')' );
 // Control: a live application does block a second one.
 $wcb_live_block = wcb_lc_app( $wcb_job, $wcb_candidate, 'reviewing' );
-$r              = wcb_rest( 'POST', '/wcb/v1/jobs/' . $wcb_job . '/apply', array( 'cover_letter' => 'Third try' ), $wcb_candidate );
+$r              = wcb_rest( 'POST', '/wcb/v1/jobs/' . $wcb_job . '/apply', array( 'cover_letter' => 'Third try', 'custom_fields' => array_fill_keys( array_keys( \WCB\Core\FormCustomFields::missing_required( (array) apply_filters( 'wcb_application_form_fields_groups', array(), $wcb_job ), array() ) ), 'Test answer' ) ), $wcb_candidate );
 wcb_assert( 'wcb_already_applied' === ( $r->get_data()['code'] ?? '' ), 'control: a live application still blocks a duplicate' );
 wp_delete_post( $wcb_live_block, true );
 

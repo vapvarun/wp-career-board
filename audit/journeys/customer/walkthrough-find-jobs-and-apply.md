@@ -28,7 +28,7 @@ money/conversion path.
 3. In the filter sidebar `.wcb-filter-panel`, tick a Job type checkbox `.wcb-filter-panel__option input`
    (`data-wp-on--change="actions.toggleTypeChip"`) → expect an active-filter chip `.wcb-active-chip` to appear
    and the result set to narrow (`blocks/job-listings/render.php:502-516,685-695`).
-4. Click a job card title link `a.wcb-card-title-link` (or its "View Job" button `a.wcb-btn--outline`,
+4. Click a job card title link `a.wcb-card-title-link` (or its "View job" button `a.wcb-btn--outline`,
    `data-wp-bind--href="context.job.permalink"`) → expect navigation to the single job at `/jobs/<slug>/`,
    HTTP 200, hero `h1.wcb-job-title` + `.wcb-job-single` wrapper (`blocks/job-listings/render.php:723,776`;
    CPT rewrite slug `jobs`, `modules/jobs/class-jobs-module.php:210-214`).

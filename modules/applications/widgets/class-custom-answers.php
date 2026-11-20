@@ -93,7 +93,7 @@ final class CustomAnswers extends AbstractWidget {
 			<dl class="wcb-app-section__body wcb-app-answers">
 				<?php foreach ( $answers as $answer ) : ?>
 					<dt><?php echo esc_html( $answer['label'] ); ?></dt>
-					<dd><?php echo esc_html( $answer['value'] ); ?></dd>
+					<dd><?php \WCB\Core\FormCustomFields::render_answer( $answer ); ?></dd>
 				<?php endforeach; ?>
 			</dl>
 		</div>

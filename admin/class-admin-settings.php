@@ -1006,7 +1006,7 @@ class AdminSettings {
 												step="10"
 												placeholder="0"
 											>
-											<span class="description"><?php esc_html_e( 'How wide Career Board pages run. Leave at 0 to follow your theme, which most sites should. Set a value between 720 and 1920 only if the plugin pages need to differ from the rest of the site.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'How wide Career Board pages run. 0 follows your theme, which most sites should keep. Otherwise 720 to 1920; a smaller number is raised to 720, a larger one lowered to 1920.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
@@ -1126,7 +1126,7 @@ class AdminSettings {
 							<div class="wcb-card">
 								<div class="wcb-card__head">
 									<p class="wcb-card__title"><?php esc_html_e( 'Brand', 'wp-career-board' ); ?></p>
-									<p class="wcb-card__desc"><?php esc_html_e( 'One colour and one logo for your Career Board emails, the mobile app and the installable app. Your website follows your theme.', 'wp-career-board' ); ?></p>
+									<p class="wcb-card__desc"><?php esc_html_e( 'One colour and one logo for your Career Board emails and the mobile app. The installable app takes its icon from your Site Icon (Settings > General). Your website follows your theme.', 'wp-career-board' ); ?></p>
 								</div>
 								<div class="wcb-card__body">
 									<div class="wcb-settings-row">

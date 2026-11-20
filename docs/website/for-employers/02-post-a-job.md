@@ -35,7 +35,7 @@ The job form is a 4-step wizard: Basics, Details, Categories and Preview. On a p
 
 The preview shows the job as candidates will read it, including the description. Review the details, then click **Post Job**. When you edit an existing job, the button reads **Update Job**.
 
-When the site sells featured placement (Pro), this step also shows a checkbox such as "Feature this job: it lists first for 30 days (2 credits)". See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
+When the site sells featured placement (Pro), this step also shows a checkbox such as "Feature this job: it lists first for 30 days (2 credits)". On a board that charges to post, featuring is part of the price, so the step says "Featured is included with this board" instead, with no extra cost. Editing a job does not show either. See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
 
 ## After you submit
 

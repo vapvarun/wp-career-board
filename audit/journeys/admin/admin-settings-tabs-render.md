@@ -15,17 +15,13 @@ needs: cli
 ## Steps
 
 1. As `varundubey`, navigate to `/wp-admin/admin.php?page=wcb-settings&autologin=1` → expect 200, settings sidebar renders, default "Job Listings" section is visible
-2. Enumerate the registered tabs via WP-CLI:
-   ```bash
-   wp eval 'echo implode(", ", array_keys( apply_filters("wcb_settings_tabs", ["listings"=>"","pages"=>"","notifications"=>"","emails"=>"","import"=>"","antispam"=>""]) ));'
-   ```
-   Note the list; expected Free-only minimum: `listings, pages, notifications, emails, import, antispam`
-3. For each tab slug in the list, navigate to `admin.php?page=wcb-settings&tab=<slug>&autologin=1`:
-   - `listings` → expect "Job Listings" card heading renders
-   - `pages` → expect "Pages" card with wp_dropdown_pages selects
-   - `notifications` → expect "Email Configuration" card with From Name / From Email / Notification Email inputs
-   - `emails` → expect email brand settings + per-template table
-   - `import` → expect WPJM migration card(s) render
+2. Enumerate the tabs from the sidebar: `a.wcb-settings-nav-item[data-section]` values on the page from step 1. Expected Free-only minimum, in order: `listings, applications, industries, import, signups, privacy, brand, emails, mobile-app, pages, integrations, advanced`. There is no `antispam` or `notifications` tab. With Pro, the extra slugs come from the `wcb_settings_tabs` filter.
+3. For each slug in the list, open `admin.php?page=wcb-settings&tab=<slug>&autologin=1`: the section renders its card heading and fields with no PHP notice or warning. Extra checks:
+   - `listings` -> the "Jobs" card renders
+   - `pages` -> the "Pages" card with its page selects
+   - `emails` -> email brand settings and the per-template table
+   - `import` -> the WPJM migration card(s)
+   - `advanced` -> Content Width, Keep Email History, Visitor IP address, Remove Data on Delete
 4. With Pro active, also navigate to each Pro-injected tab slug:
    - `boards` → expect Boards list card or "No boards" empty state
    - `field-builder` → expect Field Builder board-selector + (empty) field canvas
@@ -60,4 +56,4 @@ No data created. No teardown needed.
 
 - Tab navigation in the settings page uses JavaScript hash-routing (`settings-nav.js`), but each tab section is rendered server-side in one page load — you do NOT need JavaScript execution to check that the PHP renders. Each section's PHP is always emitted; JS merely toggles visibility.
 - Pro tabs only appear when Pro plugin is active. If Pro is inactive, the teaser nav links point to the upsell URL (external), not to a settings tab — they will return a redirect, not 200 on wcb-settings.
-- The `antispam` tab is registered by `AntiSpamModule::add_settings_tab()` via the `wcb_settings_tabs` filter, not hardcoded in `get_tabs()`.
+- The Free tabs are hardcoded in `AdminSettings::get_tabs()`; Pro adds its own through the `wcb_settings_tabs` filter. The Anti-Spam tab was removed in 1.8.4 and the Visitor IP address control now lives on Advanced.

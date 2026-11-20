@@ -94,6 +94,12 @@ final class JobsEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				'args'                => array(
+					'bookmarked' => array(
+						'type'        => 'boolean',
+						'description' => 'The state to set. Omit to flip the current state.',
+					),
+				),
 				// wcb/bookmark-jobs, not a bare login check: the ability was
 				// declared, granted to wcb_candidate and listed by `wp wcb
 				// abilities`, but enforced nowhere, so candidate_requires_role
@@ -186,8 +192,11 @@ final class JobsEndpoint extends RestController {
 		if ( $saved_by > 0 ) {
 			// A member's bookmarks are theirs: anyone else (including a
 			// logged-out visitor) gets an empty list, not someone's saved jobs.
+			// Any narrowing a search filter already made (Pro's exact choice
+			// match) is kept.
 			$can_read         = $saved_by === get_current_user_id() || $this->check_ability( 'wcb/manage-settings' );
 			$bookmark_ids     = $can_read ? array_map( 'intval', (array) get_user_meta( $saved_by, '_wcb_bookmark', false ) ) : array();
+			$bookmark_ids     = isset( $args['post__in'] ) ? array_values( array_intersect( $bookmark_ids, array_map( 'intval', (array) $args['post__in'] ) ) ) : $bookmark_ids;
 			$args['post__in'] = ! empty( $bookmark_ids ) ? $bookmark_ids : array( 0 );
 		}
 
@@ -290,9 +299,8 @@ final class JobsEndpoint extends RestController {
 	/**
 	 * Wrap a jobs list page in the standard {jobs, total, pages, has_more} envelope.
 	 *
-	 * Keeps the legacy X-WCB-Total / X-WCB-TotalPages headers populated for one
-	 * release cycle so any external consumers that still read them keep working;
-	 * remove the headers in 1.2.0 once known consumers are migrated.
+	 * The paging headers come from with_paging(): the WordPress-standard
+	 * X-WP-Total / X-WP-TotalPages, plus the older X-WCB-* pair.
 	 *
 	 * @since 1.1.0
 	 *
@@ -324,8 +332,7 @@ final class JobsEndpoint extends RestController {
 				),
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
 		$response->header( 'Vary', 'Cookie, Authorization' );
 		// The body now carries localised strings. A logged-in user may have a
 		// different locale from the site, so a shared cache must not reuse their
@@ -1348,15 +1355,16 @@ final class JobsEndpoint extends RestController {
 
 	/**
 	 * Toggle bookmark using non-unique usermeta (one row per bookmarked job).
+	 * Send `bookmarked` (true or false) to set the state instead of flipping it.
 	 *
 	 * Avoids race conditions from reading/writing a single array meta value.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response {
+	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id = get_current_user_id();
 		$job_id  = (int) $request['id'];
 
@@ -1364,12 +1372,20 @@ final class JobsEndpoint extends RestController {
 		$existing = get_user_meta( $user_id, '_wcb_bookmark', false );
 		$existing = array_map( 'intval', (array) $existing );
 
-		if ( in_array( $job_id, $existing, true ) ) {
-			delete_user_meta( $user_id, '_wcb_bookmark', $job_id );
-			$bookmarked = false;
-		} else {
+		// `bookmarked` is the state the caller wants; without it the call flips the
+		// current state, as it always has. A client holding a stale heart cannot
+		// then remove a save it meant to add.
+		$saved      = in_array( $job_id, $existing, true );
+		$bookmarked = null === $request->get_param( 'bookmarked' ) ? ! $saved : rest_sanitize_boolean( $request->get_param( 'bookmarked' ) );
+		if ( $bookmarked && ! $saved ) {
+			// Only a live item can be saved; removing a save always works, so a member can clear one that has since ended.
+			$target = get_post( $job_id );
+			if ( ! $target || 'wcb_job' !== $target->post_type || 'publish' !== $target->post_status ) {
+				return new \WP_Error( 'wcb_not_found', __( 'Job not found.', 'wp-career-board' ), array( 'status' => 404 ) );
+			}
 			add_user_meta( $user_id, '_wcb_bookmark', $job_id, false );
-			$bookmarked = true;
+		} elseif ( ! $bookmarked && $saved ) {
+			delete_user_meta( $user_id, '_wcb_bookmark', $job_id );
 		}
 
 		return rest_ensure_response(
@@ -1434,11 +1450,13 @@ final class JobsEndpoint extends RestController {
 			}
 		}
 
+		$wcb_photos = \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( $posts );
+
 		// The questions this job asked, looked up once for every row.
 		$wcb_question_groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 
 		$items = array_map(
-			static fn ( \WP_Post $p ): array => self::employer_application_item( $p, $wcb_question_groups ),
+			static fn ( \WP_Post $p ): array => self::employer_application_item( $p, $wcb_question_groups, $wcb_photos ),
 			$posts
 		);
 
@@ -1446,15 +1464,19 @@ final class JobsEndpoint extends RestController {
 		$pages    = (int) $query->max_num_pages;
 		$has_more = ( $paged * $per_page ) < $total;
 
-		return rest_ensure_response(
-			array(
-				'applications' => $items,
-				'total'        => $total,
-				'pages'        => $pages,
-				'has_more'     => $has_more,
-				// Per-status totals for the whole job, not just this page.
-				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $job_id ),
-			)
+		return $this->with_paging(
+			rest_ensure_response(
+				array(
+					'applications' => $items,
+					'total'        => $total,
+					'pages'        => $pages,
+					'has_more'     => $has_more,
+					// Per-status totals for the whole job, not just this page.
+					'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $job_id ),
+				)
+			),
+			$total,
+			$pages
 		);
 	}
 
@@ -1469,16 +1491,20 @@ final class JobsEndpoint extends RestController {
 	 *
 	 * @param \WP_Post             $p      Application post.
 	 * @param array<int, mixed>    $groups The job's question groups (wcb_application_form_fields_groups).
+	 * @param array<int, int>|null $photos Application ID => resume ID for the photo, batched by the caller (CandidatesModule::application_photo_resumes()); null looks up this one row.
 	 * @return array<string, mixed>
 	 */
-	public static function employer_application_item( \WP_Post $p, array $groups ): array {
+	public static function employer_application_item( \WP_Post $p, array $groups, ?array $photos = null ): array {
 		$candidate_id   = (int) get_post_meta( $p->ID, '_wcb_candidate_id', true );
 		$candidate_user = $candidate_id > 0 ? get_user_by( 'ID', $candidate_id ) : null;
 		$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
+		$photos       ??= \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( array( $p ) );
 
 		return array(
 			'id'                 => $p->ID,
 			'candidate_id'       => $candidate_id,
+			// Resume photo, else '' (the board shows initials; never the grey Gravatar silhouette).
+			'avatar_url'         => isset( $photos[ $p->ID ] ) ? \WCB\Modules\Candidates\CandidatesModule::photo_url( $candidate_id, 48, $photos[ $p->ID ] ) : '',
 			'applicant_name'     => $candidate_user
 				? \WCB\Modules\Candidates\CandidatesModule::public_name( $candidate_id )
 				: (string) get_post_meta( $p->ID, '_wcb_guest_name', true ),
@@ -1496,6 +1522,8 @@ final class JobsEndpoint extends RestController {
 			// for display. Never hand a translated date string to new Date().
 			'submitted_at'       => $p->post_date_gmt,
 			'submitted_at_label' => \WCB\Core\Time::date_label( $p->post_date_gmt ),
+			// Short form for the narrow board card ("Oct 7, 2026"); same formatter and timezone.
+			'submitted_at_short' => \WCB\Core\Time::date_label( $p->post_date_gmt, '—', 'M j, Y' ),
 			'resume_url'         => ( static function () use ( $p ): ?string {
 				$att_id = (int) get_post_meta( $p->ID, '_wcb_resume_attachment_id', true );
 				if ( $att_id <= 0 ) {
@@ -1505,16 +1533,8 @@ final class JobsEndpoint extends RestController {
 				return '' !== $url ? $url : null;
 			} )(),
 			'resume_permalink'   => ( static function () use ( $p ): ?string {
-				$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
-				if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
-					return null;
-				}
-				$resume_post = get_post( $resume_id );
-				if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
-					return null;
-				}
-				$url = get_permalink( $resume_id );
-				return false !== $url ? (string) $url : null;
+				$url = \WCB\Modules\Candidates\CandidatesModule::public_resume_url( (int) get_post_meta( $p->ID, '_wcb_resume_id', true ) );
+				return '' !== $url ? $url : null;
 			} )(),
 		) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
 	}
@@ -1763,7 +1783,7 @@ final class JobsEndpoint extends RestController {
 			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
 		}
 
-		$wcb_created_gmt = '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt;
+		$wcb_created_gmt = \WCB\Core\Time::post_date_utc( $post );
 
 		$data = array(
 			'id'                     => $post->ID,

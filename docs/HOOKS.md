@@ -328,9 +328,10 @@ alerts) and fires `save_post_{post_type}` once so list caches refresh.
 | `wcb_member_reported` | `(int $user_id, string $reason, int $reporter_id)` | After a member report is stored |
 | `wcb_member_flags_resolved` | `(int $user_id)` | Reports dismissed from the Candidates or Employers list |
 
-`ModerationModule::alert_due( $count )` is the rule the owner email and
-Pro's bell share: alert on the first open report and on the one that
-reaches the auto-hide threshold.
+`ModerationModule::job_alert_due( $job_id )` (1.8.5) is the rule the owner
+email and Pro's bell share inside `wcb_job_reported`: alert on the first open
+report and on the report that hid the job, even when that lands past the
+threshold. `alert_due( $count )` stays for Pro 1.8.4 and is deprecated.
 
 ## Personal data (1.8.0)
 
@@ -474,7 +475,7 @@ hydrated result set (an agency account can hold thousands of listings).
 |---|---|---|
 | `WCB\Core\JobDeadline::default_end_for_board()` | `int $board_id` | The `Y-m-d` deadline a new job on that board gets (`0` = no board), for code that runs outside a REST request: the admin editor, republish, imports. It applies `wcb_job_default_expiry_days`. |
 | `WCB\Core\JobDeadline::cap()` | `string $date, int $board_id, string $existing` | Caps a requested deadline at the board's listing length. A date the job already had is kept, and moderators are not capped. |
-| `wcb_candidate_resume_url` | `$url, $user_id, $application_id` | The **View resume** link on the Applications list, the application screen and the Candidates list. Return `''` to hide it. |
+| `wcb_candidate_resume_url` | `$url, $user_id, $application_id` | The **View resume** link on the Applications list and the application screen: the resume sent with that application, or `''` when none was. Return `''` to hide it. |
 | `wcb_job_pipeline_url` | `$url, $job_id` | The **Pipeline** link on each My Jobs row. Empty in Free; Pro fills it. |
 | `WCB\Core\Taxonomy::options()` | `string $taxonomy, bool $hide_empty` | Terms of a job taxonomy in the order every filter and form uses: the term's `wcb_order` meta first (lower first), then name, with children under their parent. Experience levels without an order sort by seniority from the slug (`intern`, `entry`, `junior`, `mid`, `senior`, `lead`, `principal`, `staff`, `manager`, `director`, `executive`). Use it instead of `get_terms()` when you list these terms. |
 

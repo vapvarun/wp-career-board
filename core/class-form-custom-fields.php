@@ -57,6 +57,96 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class FormCustomFields {
 
 	/**
+	 * Field types whose answer is a web address: checked on save, shown as a link.
+	 *
+	 * The one list every surface reads (validation, sanitising, display).
+	 *
+	 * @since 1.8.5
+	 * @var string[]
+	 */
+	public const LINK_TYPES = array( 'url', 'video_url', 'file' );
+
+	/**
+	 * Field types answered from the field's own choices, after normalise_field().
+	 *
+	 * @since 1.8.5
+	 * @var string[]
+	 */
+	public const CHOICE_TYPES = array( 'select', 'radio', 'multiselect' );
+
+	/**
+	 * Most pieces split_choices() reads from one answer.
+	 *
+	 * @since 1.8.5
+	 * @var int
+	 */
+	public const MAX_CHOICE_PARTS = 200;
+
+	/**
+	 * Whether a field type's answer is a web address.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param string $type Field type.
+	 * @return bool
+	 */
+	public static function is_link_type( string $type ): bool {
+		return in_array( $type, self::LINK_TYPES, true );
+	}
+
+	/**
+	 * A multi-choice answer as its list of choices.
+	 *
+	 * Answers are stored comma-joined, and a choice may itself hold a comma
+	 * ("Dallas, TX"), so a stored value is matched against the field's own
+	 * choices, longest first, instead of being cut at every comma. Fragments
+	 * that match no choice are kept as typed; with no choices it is a plain split.
+	 *
+	 * The value can come from a guest request, so the work is bounded: at most
+	 * MAX_CHOICE_PARTS pieces are read (the rest is dropped), and a join only
+	 * spans as many commas as the longest choice holds.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param mixed                $value   Array of choices, or the stored comma-joined string.
+	 * @param array<string,string> $options The field's choices, value => label.
+	 * @return string[]
+	 */
+	public static function split_choices( mixed $value, array $options = array() ): array {
+		$cap = min( self::MAX_CHOICE_PARTS, $options ? 2 * count( $options ) + 20 : self::MAX_CHOICE_PARTS );
+		if ( is_array( $value ) ) {
+			$items = array_map( static fn ( $v ): string => trim( is_scalar( $v ) ? (string) $v : '' ), array_slice( $value, 0, $cap ) );
+			return array_values( array_filter( $items, static fn ( string $v ): bool => '' !== $v ) );
+		}
+		// The limit keeps the unread rest in one last piece, which is dropped.
+		$parts = array_slice( explode( ',', is_scalar( $value ) ? (string) $value : '', $cap + 1 ), 0, $cap );
+		if ( ! $options ) {
+			return array_values( array_filter( array_map( 'trim', $parts ), static fn ( string $v ): bool => '' !== $v ) );
+		}
+		$known = array_flip( array_map( 'strval', array_keys( $options ) ) );
+		$width = max( array_map( static fn ( $choice ): int => substr_count( (string) $choice, ',' ), array_keys( $options ) ) );
+		$items = array();
+		$count = count( $parts );
+		$next  = 0;
+		for ( $i = 0; $i < $count; $i = $next ) {
+			$next = $i + 1;
+			$item = trim( $parts[ $i ] );
+			for ( $j = min( $count, $i + $width + 1 ); $j > $next; --$j ) {
+				$joined = trim( implode( ',', array_slice( $parts, $i, $j - $i ) ) );
+				if ( isset( $known[ $joined ] ) ) {
+					$item = $joined;
+					$next = $j;
+					break;
+				}
+			}
+			if ( '' !== $item ) {
+				$items[] = $item;
+			}
+		}
+		return $items;
+	}
+
+	/**
 	 * Render the job field groups of every board a job form can pick.
 	 *
 	 * Each group is printed once, with the boards it shows on in its
@@ -265,7 +355,7 @@ final class FormCustomFields {
 				}
 				$field = self::normalise_field( $raw_field );
 				$value = $submitted[ $field['key'] ] ?? null;
-				if ( in_array( $field['type'], array( 'url', 'video_url' ), true ) && is_string( $value ) && Text::is_refused_url( $value ) ) {
+				if ( self::is_link_type( $field['type'] ) && is_string( $value ) && Text::is_refused_url( $value ) ) {
 					return new \WP_Error(
 						'rest_invalid_param',
 						/* translators: 1: field label, 2: the sentence explaining what a web address looks like. */
@@ -295,13 +385,12 @@ final class FormCustomFields {
 	 * @return mixed
 	 */
 	private static function choice_value( array $field, mixed $value ): mixed {
-		if ( ! in_array( $field['type'], array( 'select', 'radio', 'multiselect' ), true ) || ! $field['options'] ) {
+		if ( ! in_array( $field['type'], self::CHOICE_TYPES, true ) || ! $field['options'] ) {
 			return $value;
 		}
 		$choices = array_map( 'strval', array_keys( $field['options'] ) );
 		if ( 'multiselect' === $field['type'] ) {
-			$items = is_array( $value ) ? $value : explode( ',', is_scalar( $value ) ? (string) $value : '' );
-			return array_values( array_intersect( array_map( static fn ( $v ): string => trim( (string) $v ), $items ), $choices ) );
+			return array_values( array_intersect( self::split_choices( $value, $field['options'] ), $choices ) );
 		}
 		return is_scalar( $value ) && in_array( (string) $value, $choices, true ) ? (string) $value : '';
 	}
@@ -313,12 +402,17 @@ final class FormCustomFields {
 	 * DB-row shape (`field_key`/`field_type`) so the renderer is
 	 * defensive against any future hook.
 	 *
+	 * The one place a field's type is decided: a Field Builder "checkbox"
+	 * with choices comes back as `multiselect`, so forms, display and the
+	 * Pro job filters all treat it the same way.
+	 *
 	 * @since 1.1.1
+	 * @since 1.8.5 Public, for the Pro job filters.
 	 *
 	 * @param array<string, mixed> $field Raw field row.
 	 * @return array{key:string,type:string,label:string,required:bool,placeholder:string,description:string,options:array<string,string>,prefix:string,suffix:string}
 	 */
-	private static function normalise_field( array $field ): array {
+	public static function normalise_field( array $field ): array {
 		$key  = (string) ( $field['key'] ?? $field['field_key'] ?? '' );
 		$type = (string) ( $field['type'] ?? $field['field_type'] ?? '' );
 
@@ -525,7 +619,7 @@ final class FormCustomFields {
 			// server-side from the comma-separated $current_value.
 			// save_values() stores the result back as a CSV string, keeping
 			// the single-meta-value model intact.
-			$ms_selected = '' !== $current_value ? explode( ',', $current_value ) : array();
+			$ms_selected = self::split_choices( $current_value, $field['options'] );
 			echo '<div class="wcb-multiselect-group" role="group" aria-labelledby="' . esc_attr( $dom_id . '-label' ) . '">';
 			$ms_index = 0;
 			foreach ( $field['options'] as $val => $label ) {
@@ -769,13 +863,10 @@ final class FormCustomFields {
 		// collapses back to a comma-separated string so the meta stays a
 		// single scalar value (render_field splits it again on the way out).
 		if ( 'multiselect' === $type ) {
-			$items = is_array( $raw_value )
-				? $raw_value
-				: explode( ',', is_scalar( $raw_value ) ? (string) $raw_value : '' );
 			$items = array_filter(
 				array_map(
 					static fn ( $item ): string => sanitize_text_field( (string) $item ),
-					$items
+					self::split_choices( $raw_value )
 				),
 				static fn ( string $item ): bool => '' !== $item
 			);
@@ -806,14 +897,16 @@ final class FormCustomFields {
 			return $raw_value ? '1' : '0';
 		}
 		$str = is_scalar( $raw_value ) ? (string) $raw_value : '';
+		if ( self::is_link_type( $type ) ) {
+			return Text::web_url( $str );
+		}
 
 		return match ( $type ) {
-			'textarea'             => sanitize_textarea_field( $str ),
-			'email'                => sanitize_email( $str ),
-			'url', 'video_url', 'file' => Text::web_url( $str ),
-			'number'               => is_numeric( $str ) ? (string) (float) $str : '',
-			'date'                 => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $str ) ? $str : '',
-			default                => sanitize_text_field( $str ),
+			'textarea' => sanitize_textarea_field( $str ),
+			'email'    => sanitize_email( $str ),
+			'number'   => is_numeric( $str ) ? (string) (float) $str : '',
+			'date'     => preg_match( '/^\d{4}-\d{2}-\d{2}$/', $str ) ? $str : '',
+			default    => sanitize_text_field( $str ),
 		};
 	}
 
@@ -899,7 +992,8 @@ final class FormCustomFields {
 	 * @param int                              $owner_id   Post / user / row id whose meta to read.
 	 * @param string                           $reader     'post_meta' | 'user_meta'. Default post_meta.
 	 * @param string                           $key_prefix Prepended to the meta key being read.
-	 * @return array<int, array{key:string,label:string,type:string,value:string,items:string[]}> Answered fields only; items lists a choice field's labels.
+	 * @since 1.8.5 A ticked checkbox reads "Yes"; `url` carries a link answer's address.
+	 * @return array<int, array{key:string,label:string,type:string,value:string,items:string[],url:string}> Answered fields only; items lists a choice field's labels.
 	 */
 	public static function labelled_values( array $groups, int $owner_id, string $reader = 'post_meta', string $key_prefix = '' ): array {
 		$values = self::load_values( $groups, $owner_id, $reader, $key_prefix );
@@ -933,12 +1027,17 @@ final class FormCustomFields {
 					$value = (string) ( $values[ $key ] ?? '' );
 				}
 				// A link answer saved before 1.8.4 may be a dead "http://my%20site".
-				if ( in_array( $normalised['type'], array( 'url', 'video_url', 'file' ), true ) ) {
+				if ( self::is_link_type( $normalised['type'] ) ) {
 					$value = Text::web_url( $value );
 				}
 
-				if ( '' === $value ) {
+				if ( '' === $value || ( 'checkbox' === $normalised['type'] && in_array( $value, array( '0', 'false', 'off' ), true ) ) ) {
 					continue;
+				}
+				// A ticked yes/no box reads "Yes" on every surface, not the stored "1".
+				$link = self::is_link_type( $normalised['type'] ) ? $value : '';
+				if ( 'checkbox' === $normalised['type'] ) {
+					$value = __( 'Yes', 'wp-career-board' );
 				}
 
 				if ( 'number' === $normalised['type'] && ( '' !== $normalised['prefix'] || '' !== $normalised['suffix'] ) ) {
@@ -949,8 +1048,8 @@ final class FormCustomFields {
 				// A choice shows its label; a multi-choice answer (stored
 				// comma-joined) lists each label, so it reads "Laptop, Monitor".
 				$items = array();
-				if ( in_array( $normalised['type'], array( 'select', 'radio', 'multiselect' ), true ) ) {
-					$items = 'multiselect' === $normalised['type'] ? array_filter( array_map( 'trim', explode( ',', $value ) ), static fn ( string $item ): bool => '' !== $item ) : array( $value );
+				if ( in_array( $normalised['type'], self::CHOICE_TYPES, true ) ) {
+					$items = 'multiselect' === $normalised['type'] ? self::split_choices( $value, $normalised['options'] ) : array( $value );
 					$items = array_values( array_map( static fn ( string $item ): string => (string) ( $normalised['options'][ $item ] ?? $item ), $items ) );
 					$value = implode( wp_get_list_item_separator(), $items );
 				}
@@ -961,10 +1060,38 @@ final class FormCustomFields {
 					'type'  => $normalised['type'],
 					'value' => $value,
 					'items' => $items,
+					'url'   => $link,
 				);
 			}
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Print one labelled_values() row: a link answer as a link, a
+	 * multi-choice answer as tags, a date in the site format, anything else as text.
+	 *
+	 * The one renderer for the job page, the resume page and the application detail.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param array{type:string,value:string,items:string[],url?:string} $row A labelled_values() row.
+	 * @return void
+	 */
+	public static function render_answer( array $row ): void {
+		if ( 'multiselect' === $row['type'] ) {
+			echo '<span class="wcb-tag-row">';
+			foreach ( $row['items'] as $item ) {
+				echo '<span class="wcb-tag">' . esc_html( $item ) . '</span>';
+			}
+			echo '</span>';
+		} elseif ( self::is_link_type( $row['type'] ) ) {
+			printf( '<a href="%1$s" rel="nofollow noopener" target="_blank">%2$s</a>', esc_url( $row['value'] ), esc_html( $row['value'] ) );
+		} elseif ( 'date' === $row['type'] ) {
+			echo esc_html( Time::calendar_date_label( $row['value'], $row['value'] ) );
+		} else {
+			echo esc_html( $row['value'] );
+		}
 	}
 }

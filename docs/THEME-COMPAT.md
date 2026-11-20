@@ -66,7 +66,7 @@ Clean 3-col, no breakages. Theme search input integrates with our chip-bar. Foot
 - **Duplicate `<h1>`** + breadcrumbs together consume ~80-100px before our content begins
 - Cards forced to 2-col (sidebar layout default)
 - Sort select renders wide empty gap to the right of the search input
-- "View Job" button bleeds outside card padding on first card row
+- "View job" button bleeds outside card padding on first card row
 - **Fix:** Same `wcb-page` body class broadening as Neve + sort-select width reset.
 
 ---

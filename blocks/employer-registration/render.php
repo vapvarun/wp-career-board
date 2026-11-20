@@ -324,7 +324,7 @@ wp_interactivity_state(
 					<p class="wcb-field-error" id="wcb-reg-company-error" role="alert" hidden data-wp-bind--hidden="!state.fieldInvalid" data-wp-text="state.fieldError"></p>
 				</div>
 				<div class="wcb-field-group" data-wp-class--wcb-hidden="state.isCandidate">
-					<label class="wcb-field-label" for="wcb-reg-website"><?php esc_html_e( 'Company Website', 'wp-career-board' ); ?></label>
+					<label class="wcb-field-label" for="wcb-reg-website"><?php esc_html_e( 'Company website', 'wp-career-board' ); ?></label>
 					<input id="wcb-reg-website" type="url" class="wcb-field-input" placeholder="https://"
 						data-wp-bind--value="state.companyWebsite" data-wp-on--input="actions.updateField" data-wcb-field="companyWebsite" />
 				</div>

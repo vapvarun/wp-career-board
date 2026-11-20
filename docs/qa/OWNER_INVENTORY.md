@@ -142,7 +142,6 @@ BuddyPress notifications: 1 · WooCommerce emails: 0 · mail filters: 7
 - `wcb_app_credential_revoked` — api/endpoints/class-auth-endpoint.php
 - `reign_before_content_section` — modules/employers/templates/archive-wcb-company.php
 - `reign_after_content_section` — modules/employers/templates/archive-wcb-company.php
-- `wcb_settings_tab_antispam` — modules/antispam/class-anti-spam-module.php
 - `wcb_logs_pruned` — modules/gdpr/class-gdpr-module.php
 - `wcb_application_deleted` — modules/applications/class-application-lifecycle.php
 - `wcb_community_notification_removed` — modules/applications/class-application-lifecycle.php

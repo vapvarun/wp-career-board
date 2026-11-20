@@ -29,12 +29,12 @@ needs: cli
    wp option get wcb_settings --format=json | python3 -c "import json,sys; d=json.load(sys.stdin); print('jobs_expire_days:', d.get('jobs_expire_days'))"
    ```
    → `jobs_expire_days: 45`
-6. Verify the merge contract: every key that is NOT on the Jobs tab is unchanged. Keys from the Pages, Emails, Applications and Antispam tabs (for example `jobs_archive_page`, `notification_email`, `apply_resume_max_mb`, `captcha_provider`) must keep their original values and must not be zero, empty or missing:
+6. Verify the merge contract: every key that is NOT on the Jobs tab is unchanged. Keys from the Pages, Emails, Applications and Advanced tabs (for example `jobs_archive_page`, `notification_email`, `apply_resume_max_mb`, `client_ip_header`) must keep their original values and must not be zero, empty or missing:
    ```bash
    wp option get wcb_settings --format=json | python3 -c "
    import json,sys
    before=json.load(open('/tmp/wcb_settings_before.json')); after=json.load(sys.stdin)
-   jobs_tab={'auto_publish_jobs','report_auto_hide_threshold','jobs_expire_days','jobs_per_page','jobs_default_sort','salary_currency','apply_featured_days','job_schema_enabled','require_job_location','default_country','social_tags_enabled'}
+   jobs_tab={'auto_publish_jobs','report_auto_hide_threshold','jobs_expire_days','jobs_per_page','jobs_default_sort','salary_currency','apply_featured_days','job_schema_enabled','default_country','social_tags_enabled'}
    bad=[k for k in before if k not in jobs_tab and after.get(k)!=before[k]]
    print('Merge contract: PASS' if not bad else 'MERGE FAIL: '+', '.join(bad))
    "
@@ -59,7 +59,7 @@ wp option patch update wcb_settings jobs_expire_days "$ORIG_EXPIRE" 2>/dev/null 
 ## Notes
 
 - Merge logic: `AdminSettings::sanitize()` in `admin/class-admin-settings.php`. When `_wcb_form` is present it starts from the stored option and overwrites only the posted keys that exist in `SettingsSchema::fields()` (`admin/class-settings-schema.php`). If a future refactor drops the marker or the start-from-stored step, every save would replace the whole option and clobber the other tabs.
-- The Jobs tab (`tab=listings`) posts: `auto_publish_jobs`, `report_auto_hide_threshold`, `jobs_expire_days`, `jobs_per_page`, `jobs_default_sort`, `salary_currency`, `apply_featured_days`, `job_schema_enabled`, `require_job_location`, `default_country`, `social_tags_enabled`. `deadline_auto_close` has no toggle there; it is on for sites installed on 1.8.0+ and switched on from the Jobs tab for older sites.
+- The Jobs tab (`tab=listings`) posts: `auto_publish_jobs`, `report_auto_hide_threshold`, `jobs_expire_days`, `jobs_per_page`, `jobs_default_sort`, `salary_currency`, `apply_featured_days`, `job_schema_enabled`, `default_country`, `social_tags_enabled`. `deadline_auto_close` has no toggle there; it is on for sites installed on 1.8.0+ and switched on from the Jobs tab for older sites.
 - `allow_withdraw` and `apply_resume_required` live on the Applications tab (a separate form); an unchecked checkbox there is sent as `0` by the hidden `_wcb_form` companion fields, so unchecking intentionally turns them off.
 - `jobs_expire_days` is clamped to a minimum of 1 by the schema (the form allows 1-365); `jobs_per_page` is clamped to 1-100.
 - `critical` priority: a replace-on-save bug would silently disable notifications or other features on every installation.

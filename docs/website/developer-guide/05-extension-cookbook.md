@@ -280,7 +280,7 @@ add_action( 'wcb_job_single_after_description', function ( int $job_id ) {
 
 ## Point or hide the View resume link
 
-Admins see **View resume** on the Applications list, the application screen and the Candidates list. `wcb_candidate_resume_url` decides where it goes. Return `''` to hide it.
+Admins see **View resume** on the Applications list and the application screen. `wcb_candidate_resume_url` decides where it goes. Return `''` to hide it.
 
 ```php
 add_filter( 'wcb_candidate_resume_url', function ( string $url, int $user_id, int $application_id ): string {

@@ -324,6 +324,10 @@ const { state } = store(
 			},
 			get hasLocation() {
 				const { state } = store( 'wcb-job-form' );
+				// A remote job already shows the Remote badge; the built-in Remote place would repeat it.
+				if ( state.remote && state.locationSlug === 'remote' ) {
+					return false;
+				}
 				return state.locationSlug === '__custom__'
 					? !! ( state.locationCustom || '' ).trim()
 					: !! state.locationSlug;
@@ -428,6 +432,11 @@ const { state } = store(
 			get hasCreditCost() {
 				const { state } = store( 'wcb-job-form' );
 				return state.creditCost > 0;
+			},
+			// A paid board's price includes one featured period (Pro).
+			get featureIncluded() {
+				const { state } = store( 'wcb-job-form' );
+				return !! ( state.featureBoards || {} )[ String( state.boardId || 0 ) ];
 			},
 			// Only a board that charges gets the banner; a free board shows nothing.
 			get hasCreditBanner() {
@@ -753,7 +762,8 @@ const { state } = store(
 					: [];
 
 					const body = {
-						featured:        state.featured,
+						// Edits leave Featured alone: a moderator's save must not clear it.
+						...( state.editJobId > 0 ? {} : { featured: state.featured } ),
 						title:           state.title,
 						description:     state.description,
 						salary_min:      state.salaryMin,

@@ -124,7 +124,7 @@ class WpjmImporter {
 		if ( '' === $name ) {
 			return 0;
 		}
-		$website  = $this->link_or_warn( (string) get_post_meta( $source->ID, '_company_website', true ), $source->ID, __( 'company website', 'wp-career-board' ) );
+		$website  = $this->link_or_warn( (string) get_post_meta( $source->ID, '_company_website', true ), $source->ID, __( 'Company website', 'wp-career-board' ) );
 		$existing = '' !== $website ? get_posts(
 			array(
 				'post_type'      => 'wcb_company',

@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.7';
+	const DB_VERSION = '1.4.9';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -610,6 +610,20 @@ final class Install {
 				self::remove_captcha_settings();
 			}
 
+			// 1.4.8 - a job no longer needs a location, so the "Require a location"
+			// setting is gone; drop the stale stored value.
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.4.8', '<' ) ) {
+				self::remove_location_requirement_setting();
+				self::merge_duplicate_remote_terms();
+			}
+
+			// 1.4.9 - a board with no job types or experience levels (sample data
+			// was the only source of them) gets a plain default set, fresh installs
+			// included, so employers can classify a job and Find Jobs can filter.
+			if ( version_compare( (string) $installed, '1.4.9', '<' ) ) {
+				add_action( 'init', array( self::class, 'seed_default_terms' ), 25 );
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -620,6 +634,80 @@ final class Install {
 			if ( self::verify_tables_exist() ) {
 				update_option( 'wcb_db_version', self::DB_VERSION, false );
 			}
+		}
+	}
+
+	/**
+	 * Give an empty job-type or experience-level list its default terms.
+	 *
+	 * Only a taxonomy with no terms at all is filled, so an owner's own list is
+	 * never touched and one they emptied on purpose is not refilled until the
+	 * next upgrade. Categories are left to the owner: they are specific to the
+	 * board. Uses terms only: no table, no option.
+	 *
+	 * @since 1.8.5
+	 * @return void
+	 */
+	public static function seed_default_terms(): void {
+		$defaults = array(
+			'wcb_job_type'   => array(
+				__( 'Full-time', 'wp-career-board' ),
+				__( 'Part-time', 'wp-career-board' ),
+				__( 'Contract', 'wp-career-board' ),
+				__( 'Freelance', 'wp-career-board' ),
+				__( 'Internship', 'wp-career-board' ),
+				__( 'Temporary', 'wp-career-board' ),
+			),
+			'wcb_experience' => array(
+				__( 'Entry Level', 'wp-career-board' ),
+				__( 'Mid Level', 'wp-career-board' ),
+				__( 'Senior', 'wp-career-board' ),
+				__( 'Lead', 'wp-career-board' ),
+			),
+		);
+		foreach ( $defaults as $taxonomy => $names ) {
+			if ( ! taxonomy_exists( $taxonomy ) || 0 !== (int) wp_count_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'hide_empty' => false,
+				)
+			) ) {
+				continue;
+			}
+			foreach ( $names as $name ) {
+				wp_insert_term( $name, $taxonomy );
+			}
+		}
+	}
+
+	/**
+	 * Fold a "Remote" place term the old setup wizard seeded into the built-in `remote` term.
+	 *
+	 * On a translated site the built-in term carries the translated name, so the
+	 * wizard's English "Remote" landed on a second slug (remote-2) and showed in
+	 * every location dropdown next to the real one, filtering a different set of jobs.
+	 *
+	 * @since 1.8.5
+	 * @return void
+	 */
+	public static function merge_duplicate_remote_terms(): void {
+		$keep = get_term_by( 'slug', 'remote', 'wcb_location' );
+		if ( ! $keep instanceof \WP_Term ) {
+			return;
+		}
+		$dupes = get_terms(
+			array(
+				'taxonomy'   => 'wcb_location',
+				'hide_empty' => false,
+				'name'       => 'Remote',
+				'exclude'    => array( $keep->term_id ),
+			)
+		);
+		foreach ( is_array( $dupes ) ? $dupes : array() as $dupe ) {
+			foreach ( get_objects_in_term( $dupe->term_id, 'wcb_location' ) as $object_id ) {
+				wp_set_object_terms( (int) $object_id, array( (int) $keep->term_id ), 'wcb_location', true );
+			}
+			wp_delete_term( $dupe->term_id, 'wcb_location' );
 		}
 	}
 
@@ -639,6 +727,20 @@ final class Install {
 			update_option( 'wcb_settings', array_diff_key( $settings, array_flip( $gone ) ) );
 		}
 		delete_option( 'wcb_captcha_driver' );
+	}
+
+	/**
+	 * Remove the stored "Require a location" setting; nothing reads it any more.
+	 *
+	 * @since 1.8.5
+	 * @return void
+	 */
+	public static function remove_location_requirement_setting(): void {
+		$settings = get_option( 'wcb_settings', array() );
+		if ( is_array( $settings ) && array_key_exists( 'require_job_location', $settings ) ) {
+			unset( $settings['require_job_location'] );
+			update_option( 'wcb_settings', $settings );
+		}
 	}
 
 	/**

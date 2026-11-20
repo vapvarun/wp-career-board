@@ -71,7 +71,7 @@ class EmailJobApproved extends AbstractEmail {
 				esc_html__( 'Good news! Your job listing %s has been approved and is now published on the job board. Candidates can start applying right away.', 'wp-career-board' ),
 				'<strong>{job_title}</strong>'
 			) . '</p>'
-			. self::button( __( 'View Job', 'wp-career-board' ), '{job_url}' );
+			. self::button( __( 'View job', 'wp-career-board' ), '{job_url}' );
 	}
 
 	/**

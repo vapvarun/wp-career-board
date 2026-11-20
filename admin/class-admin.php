@@ -94,7 +94,7 @@ class Admin {
 				add_query_arg( 'tab', 'signups', $settings ),
 			),
 			array(
-				__( 'Emails, the mobile app and the installable app now share one Brand colour and logo. Yours was taken from your email header, so emails look the same.', 'wp-career-board' ),
+				__( 'Emails and the mobile app now share one Brand colour and logo, and the installable app uses the colour. Yours was taken from your email header, so emails look the same.', 'wp-career-board' ),
 				add_query_arg( 'tab', 'brand', $settings ),
 			),
 		);
@@ -628,7 +628,7 @@ class Admin {
 													<a href="<?php echo esc_url( (string) get_edit_post_link( $wcb_job->ID ) ); ?>" style="font-weight:600">
 									<?php echo esc_html( get_the_title( $wcb_job ) ); ?>
 													</a>
-													<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( get_the_date( 'M j', $wcb_job ) ); ?></small>
+													<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( \WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $wcb_job ), '—', 'M j' ) ); ?></small>
 												</td>
 												<td style="white-space:nowrap">
 													<button type="button" class="wcb-btn wcb-btn--primary wcb-btn--sm wcb-approve-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Approve', 'wp-career-board' ); ?></button>
@@ -684,7 +684,7 @@ class Admin {
 													<?php else : ?>
 														<?php echo esc_html( $wcb_job_lbl ); ?>
 													<?php endif; ?>
-													&middot; <?php echo esc_html( get_the_date( 'M j', $wcb_app ) ); ?>
+													&middot; <?php echo esc_html( \WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $wcb_app ), '—', 'M j' ) ); ?>
 												</small>
 											</td>
 											<td>
@@ -884,7 +884,7 @@ class Admin {
 
 			// Companies > Industries editor and Advanced > Remove Sample Data: each
 			// script null-checks its own root, so both load with the page.
-			wp_enqueue_script( 'wcb-admin-industries', WCB_URL . 'assets/js/admin/industries.js', array( 'wcb-admin' ), WCB_VERSION, true );
+			wp_enqueue_script( 'wcb-admin-industries', WCB_URL . 'assets/js/admin/industries.js', array( 'wp-api-fetch', 'wcb-admin' ), WCB_VERSION, true );
 			wp_localize_script(
 				'wcb-admin-industries',
 				'wcbIndustries',
@@ -911,7 +911,7 @@ class Admin {
 				)
 			);
 			wp_enqueue_style( 'wcb-confirm-modal' );
-			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wcb-admin', 'wcb-confirm-modal' ), WCB_VERSION, true );
+			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wp-api-fetch', 'wcb-admin', 'wcb-confirm-modal' ), WCB_VERSION, true );
 			wp_localize_script(
 				'wcb-admin-sample-data',
 				'wcbSampleData',
@@ -941,7 +941,7 @@ class Admin {
 			wp_enqueue_script(
 				'wcb-application-detail',
 				WCB_URL . 'assets/js/admin/application-detail.js',
-				array(),
+				array( 'wp-api-fetch' ),
 				WCB_VERSION,
 				true
 			);

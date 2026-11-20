@@ -77,7 +77,7 @@ for legacy widget areas.
 
 ## 2. AJAX handlers
 
-_None_ — the plugin uses **REST + Interactivity API only**. There are zero plugin-own `wp_ajax_*` actions. Admin-side write-paths (settings save, anti-spam save) use `admin-post.php`, not admin-ajax.
+_None_ — the plugin uses **REST + Interactivity API only**. There are zero plugin-own `wp_ajax_*` actions. Admin-side write-paths (settings save) use the Settings API, not admin-ajax.
 
 ---
 

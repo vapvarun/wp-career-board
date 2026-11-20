@@ -45,7 +45,7 @@ for ( $wcb_picker_n = 2, $wcb_picker_max = count( $wcb_picker_options ); $wcb_pi
 	/* translators: %s: number of categories ticked, always 2 or more. */
 	$wcb_picker_counts[ $wcb_picker_n ] = sprintf( _n( '%s category', '%s categories', $wcb_picker_n, 'wp-career-board' ), number_format_i18n( $wcb_picker_n ) );
 }
-$wcb_picker_any = __( 'All Categories', 'wp-career-board' );
+$wcb_picker_any = __( 'All categories', 'wp-career-board' );
 // Count the way the URL does: a fully ticked parent is one choice, named after itself.
 $wcb_picker_short = array();
 foreach ( $wcb_picker_options as $wcb_picker_opt ) {

@@ -75,7 +75,10 @@
 	border-radius: var(--wcb-radius-lg);
 	display: block;
 	object-fit: contain;
-	background: var(--wcb-base);
+	box-sizing: border-box;
+	padding: 10px;
+	background: var(--wcb-logo-bg, #f1f5f9);
+	border: 1px solid var(--wcb-border);
 }
 
 .wcb-cp-avatar {

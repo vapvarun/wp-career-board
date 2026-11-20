@@ -42,6 +42,43 @@ function wcb_assert( bool $condition, string $label ): void {
 	}
 }
 
+/*
+ * In the Docker model site the site address is the host port (127.0.0.1:8420),
+ * which the WP-CLI container cannot reach: the web server is the `wp` service
+ * on port 80 (override with WCB_TEST_LOOPBACK). Send this test's own loopback
+ * requests there, keeping the host header, so
+ * the page checks below hit the site instead of timing out.
+ */
+if ( file_exists( '/.dockerenv' ) && 80 !== (int) wp_parse_url( home_url(), PHP_URL_PORT ) && wp_parse_url( home_url(), PHP_URL_PORT ) ) {
+	add_filter(
+		'pre_http_request',
+		static function ( $pre, array $args, string $url ) {
+			$home = untrailingslashit( home_url() );
+			if ( false !== $pre || 0 !== strpos( $url, $home ) ) {
+				return $pre;
+			}
+			static $busy = false;
+			if ( $busy ) {
+				return $pre;
+			}
+			$args['headers']['Host'] = wp_parse_url( $home, PHP_URL_HOST ) . ':' . wp_parse_url( $home, PHP_URL_PORT );
+			$busy                    = true;
+			$res                     = wp_remote_request( ( getenv( 'WCB_TEST_LOOPBACK' ) ?: 'http://wp' ) . substr( $url, strlen( $home ) ), $args );
+			$busy                    = false;
+			return $res;
+		},
+		10,
+		3
+	);
+}
+
+/*
+ * This test signs in with wrong passwords on purpose. When the wbcom-essential
+ * plugin is active its failed-login throttle would lock the test out after a
+ * few runs, which says nothing about this plugin, so step it aside here.
+ */
+remove_filter( 'authenticate', 'wbcom_essential_login_security_gate', 20 );
+
 /**
  * Dispatch an internal REST request.
  *
@@ -277,6 +314,15 @@ if ( is_multisite() ) {
 }
 
 WP_CLI::log( '--- email verification ---' );
+// The sign-in block applies only while verification is required: force it on here, never written.
+$wcb_verify_on = static function ( $settings ) {
+	$settings                               = is_array( $settings ) ? $settings : array();
+	$settings['require_email_verification'] = true;
+	return $settings;
+};
+add_filter( 'option_wcb_settings', $wcb_verify_on );
+add_filter( 'default_option_wcb_settings', $wcb_verify_on );
+\WCB\Admin\Settings::flush_cache();
 $wcb_new = $wcb_mk( 'new', 'wcb_candidate' );
 EmailVerification::start( $wcb_new );
 $wcb_auth = wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw );
@@ -313,7 +359,11 @@ delete_transient( 'wcb_verify_resend_' . md5( wp_salt() . $wcb_ip ) );
 $wcb_resend = wcb_rest( 'POST', '/wcb/v1/auth/verify-email/resend', array( 'email' => 'nobody-' . $wcb_s . '@example.test' ), 0 );
 wcb_assert( 200 === $wcb_resend->get_status(), 'resend answers 200 for an unknown address' );
 delete_user_meta( $wcb_new, EmailVerification::META );
-wcb_assert( ! is_wp_error( wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw ) ), 'a confirmed account signs in' );
+$wcb_in = wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw );
+wcb_assert( ! is_wp_error( $wcb_in ), 'a confirmed account signs in' . ( is_wp_error( $wcb_in ) ? ' (' . $wcb_in->get_error_code() . ')' : '' ) );
+remove_filter( 'option_wcb_settings', $wcb_verify_on );
+remove_filter( 'default_option_wcb_settings', $wcb_verify_on );
+\WCB\Admin\Settings::flush_cache();
 
 WP_CLI::log( '--- email change needs the current password ---' );
 $wcb_c = $wcb_mk( 'c', 'wcb_candidate' );

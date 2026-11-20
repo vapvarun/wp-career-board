@@ -5,7 +5,7 @@ personas: employer.stripe, admin
 requires: mu:autologin, pro
 last_verified: 2026-10-23
 needs: cli, mailpit
-bug_ref: 10344034912, 10344034812, 10344035035, 10421607769
+bug_ref: 10344034912, 10344034812, 10344035035, 10421607769, 10521872127
 ---
 
 # An employer buys credits from the dashboard, gets a receipt, and features a job
@@ -22,11 +22,14 @@ bug_ref: 10344034912, 10344034812, 10344035035, 10421607769
 6. Mailpit: "Your receipt INV-…" (no second top-up email); "View receipt" opens the printable receipt: pack price, discount, tax, total, billing snapshot; another employer gets 404 on the same URL
 7. My Jobs: "Feature" on a live job → confirm → "Featured" badge, balance down by the featured cost; the job lists first on /jobs/ and stays first on Load More
 7a. With a balance below the featured cost: "Feature" → confirm → no charge; under the list, "Credits needed for this job: N. Your balance: M." with a **Buy credits** button that opens the Credits tab (card:10421607769), at 1440 and 390
+7b. Post a Job, last step, on a paid board: "Featured is included with this board: it lists first for N days." with no checkbox and no price; switch the board in step 1 to a free board and back → the row swaps to "Feature this job: ... (N credits)" and back (card:10521872127), at 1440, 1024 and 390, light and dark, RTL
+7c. Post on the paid board with Featured (or REST `POST /wcb/v1/jobs` with `featured=1`) → the ledger has the board price only, no "Featured upgrade" line; the job is Featured. When its featured period ends, "Feature" in My Jobs charges the featured cost once (one "Featured upgrade: credits deducted" line; a second click charges nothing)
+7d. Edit the job (`/post-a-job/?edit=ID`) → no Feature row; an administrator saving the edit keeps the job Featured (the PATCH sends no `featured`). Credits off, or featured cost 0 → no Feature row and no error
 8. With no gateway, pack or mapped product: the Credits tab says credits can't be bought, and Career Board admin screens show "Employers can't buy credits, but a board charges them"
 9. Settings > Analytics: Credits spent is the net of charged jobs, Revenue shows the currency total after refunds
 10. tail debug.log diff → expect ZERO new fatal/warning lines
 
-Automated: `wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-credit-checkout.php` (fake gateway, steps 3-8 logic).
+Automated: `wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-credit-checkout.php` (fake gateway, steps 3-8 logic); `wp eval-file wp-content/plugins/wp-career-board-pro/tests/test-paid-board-featured.php` (steps 7b-7d).
 
 ## Teardown
 

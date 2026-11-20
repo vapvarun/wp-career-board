@@ -114,6 +114,10 @@ if ( '' !== $wcb_meta_filter_key && '' !== $wcb_meta_filter_val ) {
 // fetches, so the first paint already shows the filtered results. Dashboard
 // lists (author, saved) are scoped by the block and ignore the URL.
 $wcb_url_params = ( 0 === $wcb_author_id_attr && 0 === $wcb_saved_by_attr ) ? \WCB\Modules\Jobs\JobSearch::from_url() : array();
+// A block fixed to one board (boardId) keeps that scope; a ?board= link cannot override it.
+if ( $wcb_board_id_attr > 0 ) {
+	unset( $wcb_url_params['board'] );
+}
 $wcb_query_args = \WCB\Modules\Jobs\JobSearch::query_args( $wcb_url_params, $wcb_query_args );
 unset( $wcb_query_args['numberposts'] );
 $wcb_query_args['posts_per_page'] = $wcb_per_page;
@@ -227,7 +231,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 			__( '%s ago', 'wp-career-board' ),
 			human_time_diff( (int) get_post_time( 'U', true, $wcb_job_post ), time() )
 		),
-		'bookmarked'      => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
+		'is_bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 		'excerpt'         => \WCB\Core\Text::excerpt( $wcb_job_post->post_content, 25, '…' ),
 	);
 
@@ -385,6 +389,11 @@ foreach ( array(
 	foreach ( array_filter( explode( ',', (string) ( $wcb_url_params[ $wcb_param ] ?? '' ) ) ) as $wcb_slug ) {
 		$wcb_chip_filters[ $wcb_prefix . $wcb_slug ] = $wcb_slug;
 	}
+}
+// ?board= (or ?board_id=) is one board: the same board_<id> key its sidebar checkbox sets.
+$wcb_url_board = absint( $wcb_url_params['board'] ?? 0 );
+if ( $wcb_url_board > 0 ) {
+	$wcb_chip_filters[ 'board_' . $wcb_url_board ] = (string) $wcb_url_board;
 }
 
 $wcb_state = array(
@@ -777,8 +786,9 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 			}
 
 			// Panel-bottom extension point. Moved out of the Salary group so it
-			// always fires regardless of filter order/visibility.
-			do_action( 'wcb_job_listings_filters_bottom' );
+			// always fires regardless of filter order/visibility. Passes the
+			// block's board scope (0 = every board) so filters can follow it.
+			do_action( 'wcb_job_listings_filters_bottom', $wcb_board_id_attr );
 			?>
 		</aside>
 
@@ -854,7 +864,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						$wcb_bookmark = array(
 							'aria_label'            => __( 'Save job', 'wp-career-board' ),
 							'aria_label_bind'       => 'state.bookmarkLabel',
-							'bookmarked_class_bind' => 'context.job.bookmarked',
+							'bookmarked_class_bind' => 'context.job.is_bookmarked',
 						);
 						require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
 						?>
@@ -885,7 +895,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						<?php // Its own line above the salary row (style.css), so closed cards side by side match. ?>
 						<span class="wcb-card-closed" data-wp-class--wcb-shown="context.job.deadline_passed"><span class="wcb-card-closed__pill"><?php echo esc_html( \WCB\Core\JobDeadline::closed_label() ); ?></span></span>
 						<span class="wcb-card-date" data-wp-text="context.job.days_ago"></span>
-						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View job', 'wp-career-board' ); ?></a>
 					<?php do_action( 'wcb_after_card_footer', $wcb_job_card, $wcb_job_post ); ?>
 					</div>
 

@@ -13,7 +13,7 @@ Go to **Career Board > Applications** and click an application. Click a job titl
 | Applicant card | Avatar, name, email, applied date, the job, a **View resume** button when the candidate has a resume, and an **Edit user** link for members |
 | Cover letter | The cover letter text |
 | Application answers | Answers to any [custom application questions](12-custom-fields.md) |
-| Resume | The attached resume, with **Open** and **Download** links. Both save the file to the computer; documents do not open in the browser. The **View resume** button and the row action of the same name on the Applications list open the candidate's resume page. That page exists only for built resumes (Pro); on a Free-only site the link is hidden |
+| Resume | The attached resume, with **Open** and **Download** links. Both save the file to the computer; documents do not open in the browser. The **View resume** button and the row action of the same name on the Applications list open the resume sent with this application. They show only when one was sent (Pro); a resume made from an uploaded CV opens a page with the file and a download link. On a Free-only site the link is hidden |
 | Status and history | The current status and every change with date, from and to status, and who made it |
 | Change status | A status list and a **Save** button |
 | Quick actions | **Shortlist**, **Mark Hired**, **Reject** and **Message** |

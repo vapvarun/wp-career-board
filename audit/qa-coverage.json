@@ -2,18 +2,18 @@
     "schema_version": "v1",
     "plugin": {
         "slug": "wp-career-board",
-        "version": "1.8.4"
+        "version": "1.8.5"
     },
     "generated": {
-        "at": "2026-11-15T13:03:01+00:00",
+        "at": "2026-11-20T18:51:24+00:00",
         "manifest_at": "2026-10-26T00:00:00Z",
         "manifest_branch": "1.8.3"
     },
     "categories": {
         "rest": {
             "total": 78,
-            "covered": 48,
-            "uncovered": 30,
+            "covered": 51,
+            "uncovered": 27,
             "skipped": 0,
             "covered_items": [
                 {
@@ -193,6 +193,18 @@
                     "route": "/wcb/v1/jobs/(?P<id>\\d+)/reject"
                 },
                 {
+                    "method": "GET",
+                    "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-companies"
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-resumes"
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/companies/(?P<id>\\d+)/bookmark"
+                },
+                {
                     "method": "DELETE",
                     "route": "/wcb/v1/me"
                 },
@@ -276,24 +288,9 @@
                     "stub_command": "bin/qa-stub-gen.php rest POST \"/wcb/v1/jobs/(?P<id>\\d+)/resolve-flag\""
                 },
                 {
-                    "method": "GET",
-                    "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-companies",
-                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/candidates/(?P<id>\\d+)/saved-companies\""
-                },
-                {
-                    "method": "GET",
-                    "route": "/wcb/v1/candidates/(?P<id>\\d+)/saved-resumes",
-                    "stub_command": "bin/qa-stub-gen.php rest GET \"/wcb/v1/candidates/(?P<id>\\d+)/saved-resumes\""
-                },
-                {
                     "method": "POST",
                     "route": "/wcb/v1/candidates/me/privacy/(?P<action>export|erase)",
                     "stub_command": "bin/qa-stub-gen.php rest POST \"/wcb/v1/candidates/me/privacy/(?P<action>export|erase)\""
-                },
-                {
-                    "method": "POST",
-                    "route": "/wcb/v1/companies/(?P<id>\\d+)/bookmark",
-                    "stub_command": "bin/qa-stub-gen.php rest POST \"/wcb/v1/companies/(?P<id>\\d+)/bookmark\""
                 },
                 {
                     "method": "GET",
@@ -370,8 +367,8 @@
         },
         "hooks_fired": {
             "total": 93,
-            "covered": 34,
-            "uncovered": 59,
+            "covered": 35,
+            "uncovered": 58,
             "skipped": 184,
             "covered_items": [
                 {
@@ -440,6 +437,10 @@
                 },
                 {
                     "name": "wcb_pro_active",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_job_listing_data",
                     "consumer_count": 1
                 },
                 {
@@ -743,11 +744,6 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_form_fields"
                 },
                 {
-                    "name": "wcb_job_listing_data",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_listing_data"
-                },
-                {
                     "name": "wcb_job_listings_board_options",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_listings_board_options"
@@ -886,14 +882,14 @@
     "summary": {
         "categories_checked": 5,
         "items_total": 188,
-        "items_covered": 97,
-        "items_uncovered": 91,
+        "items_covered": 101,
+        "items_uncovered": 87,
         "items_skipped": 184,
-        "coverage_percent": 51.600000000000001
+        "coverage_percent": 53.700000000000003
     },
     "drift": {
-        "previous_uncovered": 103,
-        "current_uncovered": 91,
-        "delta": -12
+        "previous_uncovered": 90,
+        "current_uncovered": 87,
+        "delta": -3
     }
 }

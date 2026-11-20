@@ -88,7 +88,7 @@ wp_interactivity_state(
 		</select>
 
 		<select class="wcb-filter-select" name="wcb_location" aria-label="<?php esc_attr_e( 'Location', 'wp-career-board' ); ?>" data-wp-on--change="actions.updateFilter" data-wcb-filter="wcb_location">
-			<option value=""><?php esc_html_e( 'All Locations', 'wp-career-board' ); ?></option>
+			<option value=""><?php esc_html_e( 'All locations', 'wp-career-board' ); ?></option>
 			<?php foreach ( $wcb_locations as $wcb_term ) : ?>
 				<option value="<?php echo esc_attr( $wcb_term->slug ); ?>" <?php selected( $wcb_filter_location, $wcb_term->slug ); ?>>
 					<?php echo esc_html( $wcb_term->label ); ?>

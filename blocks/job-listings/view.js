@@ -516,7 +516,7 @@ const { state, actions } = store( 'wcb-job-listings', {
 		// ── Derived: bookmark ─────────────────────────────────────────
 		get bookmarkLabel() {
 			const ctx = getContext();
-			return ctx.job?.bookmarked
+			return ctx.job?.is_bookmarked
 				? t( 'bookmarkRemove', 'Saved' )
 				: t( 'bookmarkAdd', 'Save job' );
 		},
@@ -904,17 +904,23 @@ const { state, actions } = store( 'wcb-job-listings', {
 		* toggleBookmark() {
 			const ctx = getContext();
 			const jobId = ctx.job.id;
-			const wasBookmarked = ctx.job.bookmarked;
+			const wasBookmarked = ctx.job.is_bookmarked;
 
-			ctx.job.bookmarked = ! wasBookmarked;
+			ctx.job.is_bookmarked = ! wasBookmarked;
 
+			// Send the state the member wants, not "flip": a heart that was out of date
+			// must never remove a save. The answer that comes back is the truth.
 			const response = yield wcbFetch( state.apiBase + '/' + jobId + '/bookmark', {
 				method: 'POST',
-				headers: { 'X-WP-Nonce': state.nonce },
+				headers: { 'X-WP-Nonce': state.nonce, 'Content-Type': 'application/json' },
+				body: JSON.stringify( { bookmarked: ! wasBookmarked } ),
 			} );
 
-			if ( ! response.ok ) {
-				ctx.job.bookmarked = wasBookmarked;
+			if ( response.ok ) {
+				const data = yield response.json();
+				ctx.job.is_bookmarked = !! data.bookmarked;
+			} else {
+				ctx.job.is_bookmarked = wasBookmarked;
 			}
 		},
 	},

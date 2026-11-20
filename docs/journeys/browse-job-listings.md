@@ -11,7 +11,7 @@ last_walked: 2026-06-26
 **Where it lives:** `/find-jobs/` (the configured jobs page) and the `wcb_job` CPT archive at `/jobs/`; anywhere the `job-listings` block is placed.
 
 ## As anonymous
-1. Navigate to `/find-jobs/` → expect 200; featured jobs render first, then newest. Each card shows title, company + green verified tick (where the company has a trust level), badges (Featured / Remote / type / experience / location with a `map-pin` icon), salary, deadline, and a "View Job" ghost button.
+1. Navigate to `/find-jobs/` → expect 200; featured jobs render first, then newest. Each card shows title, company + green verified tick (where the company has a trust level), badges (Featured / Remote / type / experience / location with a `map-pin` icon), salary, deadline, and a "View job" ghost button.
 2. Toolbar shows the result count, the **Sort jobs** select (Newest first / Oldest first), and the **View layout** switcher → click the list/grid toggle → cards reflow without a page reload.
 3. Filter sidebar is present (Job type, Experience, Category, Tags, Location/Remote only, Salary range, Job board where seeded). Toggle a checkbox → list re-fetches via `GET /wcb/v1/jobs`; an active-filter chip row appears with removable `×` pills + **Clear all**.
 4. Scroll down → **Load more jobs** shows only when `totalCount` exceeds what's painted; click → next page appends.

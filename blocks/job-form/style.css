@@ -446,6 +446,11 @@
 	cursor: pointer;
 }
 
+/* Included with a paid board: a statement, not a control. */
+.wcb-form-feature--included {
+	cursor: default;
+}
+
 .wcb-form-feature input[type="checkbox"] {
 	flex: none;
 	inline-size: 20px;

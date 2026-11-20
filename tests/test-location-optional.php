@@ -74,6 +74,14 @@ $ok( array() === \WCB\Modules\Seo\SeoModule::job_posting( get_post( $a ) ), 'the
 $ok( ! array_key_exists( 'require_job_location', \WCB\Admin\SettingsSchema::fields() ), 'no require_job_location setting remains' );
 $ok( ! has_filter( 'wp_insert_post_data', array( \WCB\Core\Locations::class, 'guard_publish' ) ), 'no publish guard is hooked' );
 
+// The upgrade step drops the stale stored value and keeps every other key.
+$before = get_option( 'wcb_settings', array() );
+update_option( 'wcb_settings', array_merge( (array) $before, array( 'require_job_location' => true ) ) );
+\WCB\Core\Install::remove_location_requirement_setting();
+$now = (array) get_option( 'wcb_settings', array() );
+$ok( ! array_key_exists( 'require_job_location', $now ), 'the upgrade step deletes the stale require_job_location value' );
+$ok( count( array_diff_key( (array) $before, $now ) ) === ( array_key_exists( 'require_job_location', (array) $before ) ? 1 : 0 ), 'the upgrade step keeps every other setting' );
+
 foreach ( $ids as $id ) {
 	wp_delete_post( $id, true );
 }

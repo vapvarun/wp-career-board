@@ -34,15 +34,9 @@
 			btn.textContent = i18n.removing;
 			status.textContent = '';
 
-			return fetch( wcbAdmin.restUrl + '/wizard/remove-sample-data', {
-				method:  'POST',
-				headers: {
-					'X-WP-Nonce':   wcbAdmin.restNonce,
-					'Content-Type': 'application/json',
-				},
-			} ).then( function ( r ) {
-				if ( ! r.ok ) { throw new Error( 'http ' + r.status ); }
-				return r.json();
+			return wp.apiFetch( {
+				url:    wcbAdmin.restUrl + '/wizard/remove-sample-data',
+				method: 'POST',
 			} ).then( function ( data ) {
 				var jobs       = parseInt( data && data.jobs, 10 ) || 0;
 				var companies  = parseInt( data && data.companies, 10 ) || 0;
@@ -76,8 +70,9 @@
 			// User cancelled the modal: do nothing.
 			if ( ! err || err.cancelled ) { return; }
 			var status = document.getElementById( 'wcb-remove-sample-status' );
-			if ( status ) { status.textContent = i18n.error; }
-			toast( i18n.error, 'error' );
+			var msg = ( err.message && err.code ) ? err.message : i18n.error;
+			if ( status ) { status.textContent = msg; }
+			toast( msg, 'error' );
 			btn.disabled = false;
 			btn.textContent = labelDefault;
 		} );

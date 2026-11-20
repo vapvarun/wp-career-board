@@ -259,6 +259,12 @@ final class ApplicationsEndpoint extends RestController {
 			return new \WP_Error( 'wcb_own_job', __( 'You cannot apply to your own job.', 'wp-career-board' ), array( 'status' => 403 ) );
 		}
 
+		// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
+		// Counted before any answer is read, so a flood is refused cheaply.
+		if ( $is_guest && $this->ip_limit_reached( 'wcb_guest_apply_', 10 ) ) {
+			return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
+		}
+
 		// Required screening questions, checked here and not only in the
 		// browser (a request without JavaScript skipped them).
 		$wcb_missing = \WCB\Core\FormCustomFields::required_error(
@@ -270,10 +276,6 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		if ( $is_guest ) {
-			// A guest request can carry a 20 MB upload: at most 10 an hour per IP.
-			if ( $this->ip_limit_reached( 'wcb_guest_apply_', 10 ) ) {
-				return new \WP_Error( 'wcb_rate_limited', __( 'Too many applications from this connection. Please try again in an hour.', 'wp-career-board' ), array( 'status' => 429 ) );
-			}
 
 			// Guest submission: require name + valid email.
 			$guest_name  = sanitize_text_field( (string) ( $request->get_param( 'guest_name' ) ?? '' ) );
@@ -727,8 +729,7 @@ final class ApplicationsEndpoint extends RestController {
 				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'candidate', $candidate_id ),
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
 		return $response;
 	}
 
@@ -1233,13 +1234,7 @@ final class ApplicationsEndpoint extends RestController {
 		// Public on-site resume profile — lets the employer review the candidate's
 		// full resume (experience, education, skills) on the site instead of relying
 		// only on a downloaded file, which may not exist for builder/imported resumes.
-		$resume_permalink = '';
-		if ( $resume_id > 0 && '1' === (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
-			$resume_post = get_post( $resume_id );
-			if ( $resume_post instanceof \WP_Post && 'wcb_resume' === $resume_post->post_type ) {
-				$resume_permalink = (string) get_permalink( $resume_id );
-			}
-		}
+		$resume_permalink = \WCB\Modules\Candidates\CandidatesModule::public_resume_url( $resume_id );
 
 		return array(
 			'id'               => $post->ID,

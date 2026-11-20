@@ -273,20 +273,11 @@
 	display: flex;
 }
 
+/* Card paint (border, radius, hover) is the shared dashboard row in wcb-ui.css. */
 .wcb-job-row {
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
-	background: var(--wcb-base);
-	border: 1px solid var(--wcb-border);
-	border-radius: var(--wcb-radius-md);
-	margin-bottom: var(--wcb-space-sm);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-job-row:hover {
-	background: var(--wcb-bg-subtle);
 }
 
 /* A closed or expired job stays readable and keeps usable actions (Reopen): the status
@@ -378,8 +369,12 @@
 .wcb-company-card__logo img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
-	border-radius: inherit;
+	box-sizing: border-box;
+	padding: 6px;
+	object-fit: contain;
+	background: var(--wcb-logo-bg, #f1f5f9);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
 }
 
 .wcb-company-card__body {
@@ -640,6 +635,14 @@
 	cursor: pointer;
 	transition: background 0.1s;
 	border-inline-start: 2px solid transparent;
+	/* The AI score and status badges wrap under the text in the narrow
+	   280px list instead of squeezing it to one letter per line. */
+	flex-wrap: wrap;
+	row-gap: var(--wcb-space-sm);
+}
+
+.wcb-applicant-row .wcb-app-info {
+	flex: 1 1 9rem;
 }
 
 .wcb-applicant-row:hover {
@@ -747,10 +750,38 @@
 	padding-bottom: var(--wcb-space-md);
 }
 
-/* Desktop + tablet: all five status columns fit the width, no horizontal scroll. */
+/* Desktop + tablet: the five columns share the width (150px at the least, so a
+   name wraps at a space, never mid-word). When they cannot all fit the board
+   scrolls and view.js adds the edge fades that say there is more. */
 .wcb-apps-board.wcb-shown {
 	display: grid;
-	grid-template-columns: repeat(5, minmax(0, 1fr));
+	grid-template-columns: repeat(5, minmax(160px, 1fr));
+	overflow-x: auto;
+	scrollbar-width: thin;
+}
+
+.wcb-apps-board.wcb-has-more-end {
+	mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+}
+
+.wcb-apps-board.wcb-has-more-start {
+	mask-image: linear-gradient(to right, transparent, #000 40px);
+}
+
+.wcb-apps-board.wcb-has-more-start.wcb-has-more-end {
+	mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+}
+
+.wcb-apps-board:dir(rtl).wcb-has-more-end {
+	mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent);
+}
+
+.wcb-apps-board:dir(rtl).wcb-has-more-start {
+	mask-image: linear-gradient(to left, transparent, #000 40px);
+}
+
+.wcb-apps-board:dir(rtl).wcb-has-more-start.wcb-has-more-end {
+	mask-image: linear-gradient(to left, transparent, #000 40px, #000 calc(100% - 40px), transparent);
 }
 
 .wcb-board-col {
@@ -766,7 +797,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	padding: var(--wcb-space-md);
 	font-size: var(--wcb-text-base);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
@@ -776,18 +807,19 @@
 .wcb-board-col-cards {
 	flex: 1 1 auto;
 	min-height: 80px;
-	padding: var(--wcb-space-md);
+	padding: var(--wcb-space-sm);
 	display: flex;
 	flex-direction: column;
 	gap: var(--wcb-space-md);
 }
 
 .wcb-board-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: var(--wcb-space-sm);
-	padding: var(--wcb-space-md);
+	padding: var(--wcb-space-sm);
 	background: var(--wcb-base);
 	border: 1px solid var(--wcb-border);
 	border-radius: var(--wcb-radius-md);
@@ -807,15 +839,60 @@
 	outline-offset: 2px;
 }
 
-.wcb-board-card-move {
-	width: 100%;
-	margin-top: var(--wcb-space-xs);
-	padding: var(--wcb-space-xs) var(--wcb-space-xs);
-	border: 1px solid var(--wcb-border);
+/* Move control: a quiet "..." button over the real <select> (keyboard, screen
+   readers and the phone's own picker keep working). Drag stays the main way. */
+.wcb-board-card-move-wrap {
+	position: relative;
+	flex: none;
+	margin-inline-start: auto;
+	width: 28px;
+	height: 28px;
 	border-radius: var(--wcb-radius-sm);
-	background: var(--wcb-base);
-	color: var(--wcb-contrast);
-	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+	opacity: 0.65;
+}
+
+.wcb-board-card-move-wrap::before {
+	content: "\22EF";
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 22px;
+	line-height: 1;
+	pointer-events: none;
+}
+
+.wcb-board-card:hover .wcb-board-card-move-wrap,
+.wcb-board-card-move-wrap:focus-within {
+	opacity: 1;
+}
+
+.wcb-board-card-move-wrap:hover,
+.wcb-board-card-move-wrap:focus-within {
+	background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+@media (pointer: coarse) {
+	.wcb-board-card-move-wrap {
+		width: 44px;
+		height: 44px;
+		opacity: 1;
+	}
+}
+
+.wcb-board-card-move {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	opacity: 0;
+	cursor: pointer;
+	font-size: 16px;
 }
 
 .wcb-board-card:active {
@@ -825,21 +902,45 @@
 
 .wcb-board-card-head {
 	display: flex;
+	flex-wrap: wrap; /* a name that cannot fit beside the photo drops under it, whole */
 	align-items: center;
-	gap: var(--wcb-space-sm);
+	gap: var(--wcb-space-xs) var(--wcb-space-sm);
 	width: 100%;
 }
 
 .wcb-board-card .wcb-app-avatar {
-	--wcb-avatar-size: 26px;
+	--wcb-avatar-size: 28px;
+	flex: none;
 }
 
+/* Date on the left, the quiet move button on the right. */
+.wcb-board-card-foot {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+	min-width: 0;
+}
+
+.wcb-board-card-foot .wcb-app-date {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: var(--wcb-text-xs);
+	color: var(--wcb-text-secondary);
+	white-space: nowrap;
+}
+
+
 .wcb-board-card .wcb-app-name {
-	font-size: var(--wcb-text-base);
+	flex: 1 1 100%;
+	min-width: 0;
+	font-size: var(--wcb-text-sm);
 	font-weight: var(--wcb-font-semibold);
 	color: var(--wcb-contrast);
-	white-space: normal;
-	overflow-wrap: anywhere;
+	/* One line so every card is the same height; a very long name ends in an ellipsis. */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 	line-height: 1.3;
 }
 

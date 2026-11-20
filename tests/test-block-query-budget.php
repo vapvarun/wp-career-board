@@ -54,6 +54,19 @@ foreach ( $cases as list( $block, $type, $attr ) ) {
 	$ok( $large <= $small + 3, "{$block}: 12 rows cost {$large} queries, 3 rows cost {$small} (allowance +3)" );
 }
 
+// A job whose company was deleted must not cost a lookup per row: WordPress does not cache a missing post.
+$gone_job = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'draft', 'post_title' => 'Budget probe' ) );
+update_post_meta( $gone_job, '_wcb_company_id', 999999999 );
+$gone_post = get_post( $gone_job );
+wp_cache_flush();
+$before = $wpdb->num_queries;
+for ( $i = 0; $i < 10; $i++ ) {
+	\WCB\Core\CompanyMetaShape::for_job( $gone_post );
+}
+$spent = $wpdb->num_queries - $before;
+wp_delete_post( $gone_job, true );
+$ok( $spent <= 2, "ten lookups of a deleted company cost {$spent} queries (budget 2: one for the post, meta once)" );
+
 // Pro block, when Pro is active: pins grow with candidates, not with a page size.
 if ( class_exists( '\WCB\Pro\Modules\Resume\ResumeModule' ) && post_type_exists( 'wcb_resume' ) ) {
 	$pins = (int) ( new WP_Query( array( 'post_type' => 'wcb_resume', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => 500, 'no_found_rows' => true ) ) )->post_count;

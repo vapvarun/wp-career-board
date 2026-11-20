@@ -106,6 +106,7 @@ class AdminJobs extends \WP_List_Table {
 
 			<form method="get">
 				<?php $this->hidden_inputs( 'wcb-jobs', $this->view_args() ); ?>
+				<?php $this->render_tax_filters(); ?>
 				<?php $this->render_search_box( 'wcb-job', __( 'Search jobs', 'wp-career-board' ), __( 'Job title or company…', 'wp-career-board' ) ); ?>
 				<?php $this->display(); ?>
 			</form>
@@ -230,6 +231,17 @@ class AdminJobs extends \WP_List_Table {
 		}
 		if ( $this->author_filter() > 0 ) {
 			$query_args['author'] = $this->author_filter();
+		}
+		$tax_query = array();
+		foreach ( $this->tax_filters() as $taxonomy => $slug ) {
+			$tax_query[] = array(
+				'taxonomy' => $taxonomy,
+				'field'    => 'slug',
+				'terms'    => $slug,
+			);
+		}
+		if ( $tax_query ) {
+			$query_args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- indexed term_relationships join, paged.
 		}
 
 		// "Flagged" view — jobs with open report flags, regardless of status.
@@ -388,7 +400,7 @@ class AdminJobs extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		if ( $this->list_filtered( array( 's', 'post_status', 'author', 'wcb_flag', 'wcb_payment' ) ) ) {
+		if ( $this->list_filtered( array( 's', 'post_status', 'author', 'wcb_flag', 'wcb_payment', 'wcb_category', 'wcb_job_type', 'wcb_location' ) ) ) {
 			$this->filtered_empty_state( 'briefcase', __( 'No jobs match your filters', 'wp-career-board' ), 'wcb-jobs' );
 			return;
 		}
@@ -563,6 +575,84 @@ class AdminJobs extends \WP_List_Table {
 	 * @since 1.8.2
 	 * @return int
 	 */
+	/**
+	 * Taxonomies offered as filters, query arg => label.
+	 *
+	 * @since 1.8.5
+	 * @return array<string,string>
+	 */
+	private function tax_filter_labels(): array {
+		return array(
+			'wcb_category' => __( 'All categories', 'wp-career-board' ),
+			'wcb_job_type' => __( 'All job types', 'wp-career-board' ),
+			'wcb_location' => __( 'All locations', 'wp-career-board' ),
+		);
+	}
+
+	/**
+	 * The taxonomy filters in the request, as taxonomy => term slug.
+	 *
+	 * @since 1.8.5
+	 * @return array<string,string>
+	 */
+	private function tax_filters(): array {
+		$out = array();
+		foreach ( array_keys( $this->tax_filter_labels() ) as $taxonomy ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
+			$slug = isset( $_GET[ $taxonomy ] ) ? sanitize_title( wp_unslash( $_GET[ $taxonomy ] ) ) : '';
+			if ( '' !== $slug ) {
+				$out[ $taxonomy ] = $slug;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Category, job type and location dropdowns above the list.
+	 *
+	 * Each lists the 200 most-used terms (a site with thousands of locations
+	 * must not print thousands of options); the term already chosen is always
+	 * included. Submitting the form with the search box applies them.
+	 *
+	 * @since 1.8.5
+	 * @return void
+	 */
+	private function render_tax_filters(): void {
+		$current = $this->tax_filters();
+		echo '<div class="wcb-list-filters wcb-list-filters--select">';
+		foreach ( $this->tax_filter_labels() as $taxonomy => $all_label ) {
+			$terms = get_terms(
+				array(
+					'taxonomy'   => $taxonomy,
+					'hide_empty' => true,
+					'orderby'    => 'count',
+					'order'      => 'DESC',
+					'number'     => 200,
+				)
+			);
+			$terms = is_wp_error( $terms ) ? array() : $terms;
+			if ( isset( $current[ $taxonomy ] ) && ! in_array( $current[ $taxonomy ], wp_list_pluck( $terms, 'slug' ), true ) ) {
+				$picked = get_term_by( 'slug', $current[ $taxonomy ], $taxonomy );
+				if ( $picked ) {
+					$terms[] = $picked;
+				}
+			}
+			if ( ! $terms ) {
+				continue;
+			}
+			usort( $terms, static fn( $a, $b ) => strcasecmp( $a->name, $b->name ) );
+			printf( '<label class="screen-reader-text" for="wcb-filter-%1$s">%2$s</label>', esc_attr( $taxonomy ), esc_html( $all_label ) );
+			printf( '<select id="wcb-filter-%1$s" name="%1$s">', esc_attr( $taxonomy ) );
+			printf( '<option value="">%s</option>', esc_html( $all_label ) );
+			foreach ( $terms as $term ) {
+				printf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $term->slug ), selected( $current[ $taxonomy ] ?? '', $term->slug, false ), esc_html( $term->name ) );
+			}
+			echo '</select>';
+		}
+		submit_button( __( 'Filter', 'wp-career-board' ), '', '', false );
+		echo '</div>';
+	}
+
 	private function author_filter(): int {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter.
 		return isset( $_GET['author'] ) ? absint( $_GET['author'] ) : 0;
@@ -833,7 +923,7 @@ class AdminJobs extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_date( $item ): string {
-		return esc_html( get_the_date( 'Y-m-d', $item ) );
+		return esc_html( \WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $item ) ) );
 	}
 
 	/**

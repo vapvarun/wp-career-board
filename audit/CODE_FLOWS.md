@@ -49,7 +49,7 @@
 3. `view.js` walks Step1 → Step4 (preview) entirely client-side; each step fires `wcb_job_form_step{N}_fields` server-side via render hooks for Pro extensions.
 4. On submit: `POST /wcb/v1/jobs`.
 5. `JobsEndpoint::create_item` runs:
-   - `wcb_pre_job_submit` filter (AntiSpamModule verifies CAPTCHA token).
+   - `wcb_pre_job_submit` filter (AntiSpamModule runs the honeypot and rate limit).
    - `wcb_before_create_job` filter.
    - `wp_insert_post( wcb_job, status=pending|publish )` per moderation setting.
    - Fires `wcb_job_created` action → `Email_Job_Pending` notifies admin/employer.
@@ -165,8 +165,7 @@ The two write hooks `wcb_pre_job_submit` and `wcb_pre_application_submit` are fi
 
 ## Flow 11 — Settings save
 
-- Tabs `listings`, `pages`, `notifications` save via Settings API (`options.php` → `wcb_settings_group`).
-- Tabs `emails`, `import`, `antispam` save via `admin-post.php` action handlers (`admin_post_wcb_save_*`).
+- Every tab form saves through the Settings API (`options.php` -> `wcb_settings_group`); the hidden `_wcb_form` marker makes `AdminSettings::sanitize()` merge only the posted keys into the stored option.
 - All saves run through the `wcb_settings_sanitize` filter so Pro extensions can sanitize their own keys.
 
 ---

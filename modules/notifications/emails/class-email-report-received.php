@@ -113,10 +113,10 @@ class EmailReportReceived extends AbstractEmail {
 	 * @return void
 	 */
 	public function on_job_reported( int $job_id, string $reason ): void {
-		$count = (int) get_post_meta( $job_id, '_wcb_flag_count', true );
-		if ( ! ModerationModule::alert_due( $count ) ) {
+		if ( ! ModerationModule::job_alert_due( $job_id ) ) {
 			return;
 		}
+		$count  = (int) get_post_meta( $job_id, '_wcb_flag_count', true );
 		$hidden = 'reports' === HiddenContent::reason( $job_id );
 		$this->notify(
 			get_the_title( $job_id ),

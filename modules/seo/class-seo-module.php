@@ -275,8 +275,8 @@ class SeoModule {
 				$remote = true;
 				continue;
 			}
-			if ( 'other' === $term->slug ) {
-				continue;
+			if ( array() === \WCB\Core\Locations::place_terms( array( $term ) ) ) {
+				continue; // Other, or a "Remote" term that is no place.
 			}
 			$country = trim( (string) get_term_meta( $term->term_id, self::COUNTRY_META, true ) );
 			$country = '' !== $country ? $country : $default;

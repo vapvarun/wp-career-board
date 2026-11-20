@@ -385,8 +385,14 @@
 .wcb-avatar--round { --wcb-avatar-radius: var(--wcb-radius-full); }
 
 .wcb-avatar--logo {
-	background: var(--wcb-surface, #ffffff);
+	background: var(--wcb-logo-bg, #f1f5f9);
 	border: 1px solid var(--wcb-border, #e2e8f0);
+}
+
+/* Contained and padded, never cropped to the edge of the tile. */
+.wcb-avatar--logo img {
+	box-sizing: border-box;
+	padding: 12%;
 }
 
 .wcb-avatar--sm { --wcb-avatar-size: var(--wcb-avatar-sm); }
@@ -887,22 +893,35 @@
 	margin: 0 0 var(--wcb-space-lg);
 }
 
+/* Every dashboard list row is one bordered card, the My Jobs look: My Jobs,
+ * My Applications, Saved jobs / companies / resumes, My Resumes and Job alerts.
+ * Each list keeps its own inner layout in its view stylesheet. */
+.wcb-job-row,
+.wcb-cd-app-row,
+.wcb-cd-bookmark-row,
+.wcb-resume-card,
+.wcb-alert-row {
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	margin-bottom: var(--wcb-space-sm);
+	transition: background var(--wcb-transition-fast);
+}
+
+.wcb-job-row:hover,
+.wcb-cd-app-row:hover,
+.wcb-cd-bookmark-row:hover,
+.wcb-resume-card:hover,
+.wcb-alert-row:hover {
+	background: var(--wcb-bg-subtle);
+}
+
 .wcb-cd-bookmark-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--wcb-space-md);
-	padding: var(--wcb-space-md) var(--wcb-space-xl);
-	border-bottom: 1px solid var(--wcb-surface, #f1f5f9);
-	transition: background var(--wcb-transition-fast);
-}
-
-.wcb-cd-bookmark-row:last-child {
-	border-bottom: none;
-}
-
-.wcb-cd-bookmark-row:hover {
-	background: var(--wcb-bg-subtle, #f8fafc);
 }
 
 .wcb-cd-bookmark-main {
@@ -2154,6 +2173,14 @@
 
 .wcb-dashboard .wcb-panel--form {
 	padding: var(--wcb-space-xl);
+}
+
+/* (0,6,0): a settings section inside a tab is a card again, past the frame
+   strip above; the delete card keeps its own danger frame. */
+.wcb-dashboard .wcb-view-panel.wcb-view-active .wcb-panel.wcb-panel--form:not(.wcb-danger-zone) {
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
 }
 
 .wcb-dashboard .wcb-panel-title {

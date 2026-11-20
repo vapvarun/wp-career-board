@@ -67,7 +67,7 @@ final class SettingsSchema {
 				'newest',
 				static fn ( $v ): string => in_array( (string) $v, array( 'newest', 'closing', 'salary', 'oldest' ), true ) ? (string) $v : 'newest',
 			),
-			'jobs_expire_days'           => array( 30, static fn ( $v ): int => max( 1, (int) $v ) ),
+			'jobs_expire_days'           => array( 30, $range( 1, 365 ) ),
 			'deadline_auto_close'        => array( false, $bool ),
 			'job_schema_enabled'         => array( true, $bool ),
 			'social_tags_enabled'        => array( true, $bool ),

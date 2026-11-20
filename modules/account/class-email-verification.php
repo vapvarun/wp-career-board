@@ -194,7 +194,9 @@ class EmailVerification {
 	 * @return \WP_User|\WP_Error
 	 */
 	public function block_unverified( \WP_User|\WP_Error $user, string $password = '' ): \WP_User|\WP_Error {
-		if ( $user instanceof \WP_User && self::is_pending( $user->ID ) && wp_check_password( $password, $user->user_pass, $user->ID ) ) {
+		// Only while verification is on: switching it off releases accounts
+		// already waiting, and their pending mark stays for when it is back on.
+		if ( $user instanceof \WP_User && self::is_required() && self::is_pending( $user->ID ) && wp_check_password( $password, $user->user_pass, $user->ID ) ) {
 			return new \WP_Error(
 				'wcb_email_unverified',
 				__( 'Please confirm your email address first. We sent you a link when you signed up.', 'wp-career-board' ) . ' ' . self::resend_link( $user->ID )

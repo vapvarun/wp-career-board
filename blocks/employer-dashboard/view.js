@@ -684,6 +684,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				? null
 				: state.applications.find( ( a ) => a.id === state.selectedAppId ) ?? null;
 		},
+		// The status message belongs to the applicant it was saved for; it
+		// is not shown once another applicant is selected.
+		get statusNotice() {
+			return state.statusMsgAppId === state.selectedAppId ? state.statusMsg : '';
+		},
 		get selectedAppName() {
 			return state.selectedApp?.applicant_name ?? '';
 		},
@@ -725,6 +730,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get selectedAppHasResume() {
 			return !! ( state.selectedApp?.resume_permalink || state.selectedApp?.resume_url );
+		},
+		get selectedAppAvatar() {
+			return state.selectedApp?.avatar_url ?? '';
 		},
 		get selectedAppInitials() {
 			const n = state.selectedAppName;
@@ -1665,16 +1673,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.applications[ idx ].status_tone = data.status_tone || '';
 					}
 					if ( ! data.changed ) {
+						state.statusMsgAppId = appId;
 						state.statusMsg = t( 'statusUnchanged', 'No change. The candidate was not notified.' );
 					} else {
+						state.statusMsgAppId = appId;
 						state.statusMsg = data.notified
 							? t( 'statusSaved', 'Status updated. The candidate has been notified.' )
 							: t( 'statusSavedGuest', 'Status updated. This applicant left no email address, so they were not notified.' );
 					}
 				} else {
+					state.statusMsgAppId = appId;
 					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 				}
 			} catch {
+				state.statusMsgAppId = appId;
 				state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 			}
 		},
@@ -1691,6 +1703,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 
 		setAppsLayout( event ) {
 			state.appsLayout = event.target.dataset.layout === 'board' ? 'board' : 'list';
+			// The board has no width until it is shown: measure it on the next frame.
+			requestAnimationFrame( () => actions.syncBoardEdges() );
+		},
+
+		// Edge fades on the board say there are more stages off to one side.
+		syncBoardEdges( event ) {
+			const board = event?.target?.classList?.contains( 'wcb-apps-board' )
+				? event.target
+				: document.querySelector( '.wcb-apps-board' );
+			if ( ! board ) {
+				return;
+			}
+			const max = board.scrollWidth - board.clientWidth;
+			const pos = Math.abs( board.scrollLeft ); // Negative in RTL.
+			board.classList.toggle( 'wcb-has-more-start', max > 2 && pos > 2 );
+			board.classList.toggle( 'wcb-has-more-end', max > 2 && pos < max - 2 );
 		},
 
 		onCardDragStart( event ) {

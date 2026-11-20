@@ -98,6 +98,21 @@
 	overflow-wrap: anywhere;
 }
 
+/* A multi-choice answer: one tag per choice (FormCustomFields::render_answer()). */
+.wcb-app-answers .wcb-tag-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wcb-space-xs, 4px) var(--wcb-space-sm, 8px);
+	white-space: normal;
+}
+
+.wcb-app-answers .wcb-tag {
+	padding: 0 var(--wcb-space-sm, 8px);
+	background: var(--wcb-bg-subtle, #f9fafb);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-full, 9999px);
+}
+
 @media (max-width: 640px) {
 	.wcb-app-answers {
 		grid-template-columns: minmax(0, 1fr);

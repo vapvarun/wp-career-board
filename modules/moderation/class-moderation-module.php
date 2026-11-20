@@ -35,6 +35,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ModerationModule extends \WCB\Api\RestController {
 
 	/**
+	 * The job whose report hid it, while `wcb_job_reported` runs for it.
+	 *
+	 * @var int
+	 */
+	private static int $hidden_by_this_report = 0;
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -208,17 +215,35 @@ class ModerationModule extends \WCB\Api\RestController {
 	}
 
 	/**
-	 * Whether a new report should alert the site owner: the first open report,
-	 * and the one that reaches the auto-hide threshold. Later reports only
-	 * raise the count shown in the admin lists.
+	 * Whether a report count should alert the site owner.
+	 *
+	 * Kept for Pro 1.8.4, which still calls it; it misses a hide that lands past
+	 * the threshold. Use job_alert_due().
 	 *
 	 * @since 1.8.0
+	 * @deprecated 1.8.5 Use ModerationModule::job_alert_due().
 	 *
 	 * @param int $count Open reports after this one.
 	 * @return bool
 	 */
 	public static function alert_due( int $count ): bool {
 		return 1 === $count || self::auto_hide_threshold() === $count;
+	}
+
+	/**
+	 * Whether the report just made on a job should alert the site owner: the
+	 * first open report, and the one that hid the job. The hide can land past
+	 * the threshold (reports without standing count toward the total), so it
+	 * follows the hide, not the count. Other reports only raise the count
+	 * shown in the admin lists. Read from `wcb_job_reported` listeners.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param int $job_id Reported job.
+	 * @return bool
+	 */
+	public static function job_alert_due( int $job_id ): bool {
+		return 1 === (int) get_post_meta( $job_id, '_wcb_flag_count', true ) || self::$hidden_by_this_report === $job_id;
 	}
 
 	/**
@@ -488,10 +513,12 @@ class ModerationModule extends \WCB\Api\RestController {
 		// Enough separate reports from members with standing take the job down
 		// until a moderator looks. Standing is only checked once the total could
 		// reach the threshold.
-		$threshold = self::auto_hide_threshold();
+		$threshold  = self::auto_hide_threshold();
+		$was_hidden = 'reports' === HiddenContent::reason( $job_id );
 		if ( $threshold > 0 && count( $reporters ) >= $threshold && count( array_filter( $reporters, array( self::class, 'has_standing' ) ) ) >= $threshold ) {
 			HiddenContent::hide( array( $job_id ), 'reports', 'pending' );
 		}
+		self::$hidden_by_this_report = ! $was_hidden && 'reports' === HiddenContent::reason( $job_id ) ? $job_id : 0;
 
 		/**
 		 * Fires after a visitor reports a job listing.
@@ -503,6 +530,7 @@ class ModerationModule extends \WCB\Api\RestController {
 		 * @param int    $user_id Reporting user ID.
 		 */
 		do_action( 'wcb_job_reported', $job_id, $reason, $user_id );
+		self::$hidden_by_this_report = 0;
 
 		return rest_ensure_response(
 			array(

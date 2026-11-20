@@ -337,6 +337,12 @@ const { state, actions } = store( 'wcb-candidate-dashboard', {
 			return t( 'moreActionsFor', 'More actions for %s' ).replace( '%s', getContext().resume?.title || '' );
 		},
 
+		// A private uploaded CV says who can see it, under its Private badge.
+		get resumeIsPrivateFile() {
+			const resume = getContext().resume;
+			return !! resume && resume.isPdf && ! resume.isPublic;
+		},
+
 		// Bell notification getters.
 		get hasBellNotifications() {
 			return state.bellNotifications.length > 0;

@@ -332,6 +332,21 @@ final class EmployersEndpoint extends RestController {
 			);
 		}
 
+		// The sign-up limit counts every attempt, including one for an address that
+		// already has an account; checked after it, the 409 would be a free probe.
+		$username = sanitize_user( strtolower( $first_name . '.' . $last_name ), true );
+		if ( ! $username ) {
+			$username = sanitize_user( strtolower( $email ), true );
+		}
+		if ( username_exists( $username ) ) {
+			$username = $username . wp_rand( 100, 999 );
+		}
+
+		$wcb_guard = $this->registration_guard( $request, $username, $email );
+		if ( $wcb_guard instanceof \WP_Error ) {
+			return $wcb_guard;
+		}
+
 		if ( email_exists( $email ) ) {
 			return new \WP_Error(
 				'wcb_email_exists',
@@ -346,19 +361,6 @@ final class EmployersEndpoint extends RestController {
 				__( 'Password must be at least 8 characters.', 'wp-career-board' ),
 				array( 'status' => 400 )
 			);
-		}
-
-		$username = sanitize_user( strtolower( $first_name . '.' . $last_name ), true );
-		if ( ! $username ) {
-			$username = sanitize_user( strtolower( $email ), true );
-		}
-		if ( username_exists( $username ) ) {
-			$username = $username . wp_rand( 100, 999 );
-		}
-
-		$wcb_guard = $this->registration_guard( $request, $username, $email );
-		if ( $wcb_guard instanceof \WP_Error ) {
-			return $wcb_guard;
 		}
 
 		$user_id = wp_insert_user(
@@ -907,7 +909,7 @@ final class EmployersEndpoint extends RestController {
 							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
 								/* translators: %s: the date the job was submitted, already formatted for the site. */
 								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
-								\WCB\Core\Time::date_label( '0000-00-00 00:00:00' !== $p->post_date_gmt ? $p->post_date_gmt : get_gmt_from_date( $p->post_date ) ) // A pending post has no GMT date until it is published.
+								\WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $p ) )
 							),
 							default                         => '',
 						},
@@ -1236,9 +1238,10 @@ final class EmployersEndpoint extends RestController {
 		// hit the DB (Pro Field Builder), and a 500-row page must not re-run it
 		// once per application.
 		$wcb_groups_memo = array();
+		$wcb_photos      = \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( array_filter( array_map( 'get_post', $wcb_app_ids ) ) );
 
 		$items = array_map(
-			static function ( object $row ) use ( $request, &$wcb_groups_memo ): array {
+			static function ( object $row ) use ( $request, &$wcb_groups_memo, $wcb_photos ): array {
 				$app_id = (int) $row->ID;
 				$job_id = (int) get_post_meta( $app_id, '_wcb_job_id', true );
 
@@ -1249,7 +1252,7 @@ final class EmployersEndpoint extends RestController {
 				$prepared = array(
 					'job_id'    => $job_id,
 					'job_title' => $job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
-				) + JobsEndpoint::employer_application_item( get_post( $app_id ), $wcb_groups_memo[ $job_id ] );
+				) + JobsEndpoint::employer_application_item( get_post( $app_id ), $wcb_groups_memo[ $job_id ], $wcb_photos );
 
 				$application_post = get_post( $app_id );
 
@@ -1369,8 +1372,7 @@ final class EmployersEndpoint extends RestController {
 				'has_more' => $paged < $pages,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
 		return $response;
 	}
 

@@ -72,7 +72,7 @@ See [GDPR & Privacy](./04-gdpr.md).
 
 | Tab | What it controls |
 |---|---|
-| **Brand** | One colour and one logo used by every Career Board email, the mobile app and the installable app (PWA). Your website itself follows your theme |
+| **Brand** | One colour and one logo used by every Career Board email and the mobile app. The installable app (PWA) uses the colour, and its icon comes from your Site Icon under Settings > General. Your website itself follows your theme |
 | **Emails** | Sender, footer text, and each email's on/off switch, subject and body. See [Email Notifications](./02-email-notifications.md) |
 | **Mobile App** | Sign-in background, dark mode, legal links and password sign-in for the companion app |
 
@@ -96,7 +96,7 @@ See [GDPR & Privacy](./04-gdpr.md).
 |---|---|
 | **Pages** | Assigns the WordPress pages that hold each Career Board block |
 | **Integrations** | Install and activate other Wbcom plugins that work with Career Board |
-| **Advanced** | Content width, email history retention, Remove Data on Delete |
+| **Advanced** | Content width, email history retention, Visitor IP address, Remove Data on Delete |
 
 WP Career Board Pro adds AI Settings, Analytics, Job Alerts and License tabs here. Read them in the Pro documentation.
 
@@ -123,15 +123,16 @@ If a page is not assigned, links that depend on it, such as "View your dashboard
 
 A hidden honeypot field protects every submission form automatically, with nothing to set up. Career Board does not include a CAPTCHA. If your site needs one, add a CAPTCHA or spam-filter plugin that hooks `wcb_pre_job_submit`, `wcb_pre_application_submit` and `wcb_pre_registration`.
 
-**Visitor IP address.** Sign-ups, guest applications and app sign-ins are limited per visitor IP address. If your site runs behind Cloudflare, a load balancer or another proxy, every visitor reaches WordPress from the proxy's address, so choose your proxy here: Cloudflare (CF-Connecting-IP), a load balancer or proxy (X-Forwarded-For) or an Nginx proxy (X-Real-IP). Leave it on **Direct connection** otherwise, because anyone can send these headers. Behind two layers, such as a CDN in front of a load balancer, choose the CDN's own header (Cloudflare for CF-Connecting-IP); X-Forwarded-For would read the CDN's address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the `wcb_client_ip_trusted_hops` filter set to 2.
-
 ### Advanced
 
 | Setting | Default | Description |
 |---|---|---|
-| **Content Width (px)** | 0 (follow your theme) | How wide Career Board pages run. Leave at 0 to follow your theme. Set 720-1920 only if plugin pages need to differ from the rest of the site |
+| **Content Width (px)** | 0 (follow your theme) | How wide Career Board pages run. Leave at 0 to follow your theme. Otherwise 720 to 1920: a smaller number is raised to 720, a larger one lowered to 1920 |
 | **Keep Email History (days)** | 180 | How long the email log and notification history are kept before a daily task deletes them. 0 keeps them forever (0-3650) |
+| **Visitor IP address** | Direct connection | Which header carries the real visitor address when your site runs behind a proxy. Details below the table |
 | **Remove Data on Delete** | Off | Off keeps your data when you delete the plugin, so a reinstall picks up where you left off. On: deleting Free (or Pro) erases jobs, applications, companies, resumes, uploaded resume files, credit balances, settings and roles. It cannot be undone. Deactivating never deletes anything. The WordPress pages the plugin created are not deleted either |
+
+**Visitor IP address.** Sign-ups, guest applications and app sign-ins are limited per visitor IP address. If your site runs behind Cloudflare, a load balancer or another proxy, every visitor reaches WordPress from the proxy's address, so choose your proxy here: Cloudflare (CF-Connecting-IP), a load balancer or proxy (X-Forwarded-For) or an Nginx proxy (X-Real-IP). Leave it on **Direct connection** otherwise, because anyone can send these headers. Behind two layers, such as a CDN in front of a load balancer, choose the CDN's own header (Cloudflare for CF-Connecting-IP); X-Forwarded-For would read the CDN's address and every visitor would share one limit. A CDN without its own header needs X-Forwarded-For plus the `wcb_client_ip_trusted_hops` filter set to 2.
 
 ## Saving settings
 

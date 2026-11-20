@@ -524,7 +524,8 @@ class SetupWizard extends \WCB\Api\RestController {
 		return array(
 			'wcb_category'   => array( 'Engineering', 'Design', 'Marketing', 'Product', 'Data', 'Customer Success' ),
 			'wcb_job_type'   => array( 'Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship' ),
-			'wcb_location'   => array( 'Remote', 'Berlin, DE', 'Lagos, NG', 'Kochi, IN' ),
+			// No "Remote": it is a work mode, carried by the reserved `remote` term.
+			'wcb_location'   => array( 'Berlin, DE', 'Lagos, NG', 'Kochi, IN' ),
 			'wcb_experience' => array( 'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Executive' ),
 			'wcb_tag'        => array( 'Remote-first', 'SaaS', 'Fintech', 'E-commerce', 'Open Source' ),
 		);
@@ -575,6 +576,13 @@ class SetupWizard extends \WCB\Api\RestController {
 					);
 				}
 			}
+		}
+
+		// Remote sample jobs get the reserved `remote` term, so the location
+		// filter's Remote finds them and no second "Remote" place is created.
+		$remote_term = get_term_by( 'slug', 'remote', 'wcb_location' );
+		if ( $remote_term instanceof \WP_Term ) {
+			$term_map['wcb_location']['Remote'] = (int) $remote_term->term_id;
 		}
 
 		// -----------------------------------------------------------------

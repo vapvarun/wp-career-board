@@ -25,7 +25,7 @@ $wcb_currency     = \WCB\Modules\Jobs\JobsMeta::default_currency();
 <div class="wcb-settings-row">
 	<div class="wcb-settings-row-label"><label for="wcb-wz-expire"><?php esc_html_e( 'Default listing length (days)', 'wp-career-board' ); ?></label></div>
 	<div class="wcb-settings-row-control">
-		<input type="number" id="wcb-wz-expire" name="jobs_expire_days" value="<?php echo (int) $wcb_expire_days; ?>" min="1" class="small-text">
+		<input type="number" id="wcb-wz-expire" name="jobs_expire_days" value="<?php echo (int) $wcb_expire_days; ?>" min="1" max="365" class="small-text">
 		<span class="description"><?php esc_html_e( 'How long a job stays open when the employer sets no deadline.', 'wp-career-board' ); ?></span>
 	</div>
 </div>

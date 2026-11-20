@@ -879,12 +879,19 @@ final class Plugin {
 			}
 		}
 
-		// Path 3 — shortcode detection.
+		// Path 3 — the same app blocks placed as shortcodes. Free tags come
+		// from SHORTCODES (aliases included); Pro's wcb/<slug> blocks ship as
+		// wcbp_<slug>. A display-block shortcode keeps the theme template.
 		if ( ! $is_wcb_page ) {
-			$content            = (string) $post->post_content;
-			$shortcode_prefixes = (array) apply_filters( 'wcb_search_active_shortcodes', array( 'wcb_', 'wcbp_' ) );
-			foreach ( $shortcode_prefixes as $prefix ) {
-				if ( false !== strpos( $content, '[' . $prefix ) ) {
+			$app_blocks = $this->wcb_block_names();
+			$tags       = array_keys( array_intersect( self::SHORTCODES, $app_blocks ) );
+			foreach ( $app_blocks as $block_name ) {
+				if ( str_starts_with( $block_name, 'wcb/' ) ) {
+					$tags[] = 'wcbp_' . str_replace( '-', '_', substr( $block_name, 4 ) );
+				}
+			}
+			foreach ( $tags as $tag ) {
+				if ( has_shortcode( (string) $post->post_content, $tag ) ) {
 					$is_wcb_page = true;
 					break;
 				}
@@ -911,10 +918,14 @@ final class Plugin {
 	}
 
 	/**
-	 * Canonical list of WCB block names — Free + Pro.
+	 * App blocks that give a page the plugin's full-width template — Free + Pro.
 	 *
-	 * Single list consumed by `resolve_page_context()` and any other
-	 * detection callsite. Filterable via `wcb_fullwidth_block_names`.
+	 * Only app surfaces: dashboards, forms, registration, job listings, the
+	 * company archive / profile and the resume archive. Display blocks
+	 * (recent / featured jobs, job search, search hero, featured candidates
+	 * and companies) are left out on purpose so a page that only shows one
+	 * keeps the theme's template and layout. Filterable via
+	 * `wcb_fullwidth_block_names`.
 	 *
 	 * @since 1.1.0
 	 * @return string[]
@@ -924,9 +935,9 @@ final class Plugin {
 		 * Filter the list of WCB block names that trigger the plugin's
 		 * full-width page template + body class.
 		 *
-		 * Pro adds resume-archive, recruiter-search, etc. through this
-		 * filter so Pro block pages get the same canonical centering as
-		 * the Free pages.
+		 * Pro adds its app blocks (resume forms, maps, application kanban,
+		 * My Applications, job alerts) through this filter. Add a display
+		 * block here to opt it into the plugin template.
 		 *
 		 * @since 1.1.0
 		 *
@@ -943,12 +954,7 @@ final class Plugin {
 				'wp-career-board/job-listings',
 				'wp-career-board/company-archive',
 				'wp-career-board/company-profile',
-				'wp-career-board/job-search',
-				'wp-career-board/job-search-hero',
-				'wp-career-board/featured-jobs',
-				'wp-career-board/recent-jobs',
 				'wcb/resume-archive',
-				'wcb/recruiter-search',
 				'wcb/employer-dashboard',
 				'wcb/candidate-dashboard',
 				'wcb/job-listings',

@@ -127,6 +127,11 @@ const { state, actions } = store( 'wcb-job-form-simple', {
 			return state.creditCost > 0;
 		},
 
+		// A paid board's price includes one featured period (Pro).
+		get featureIncluded() {
+			return !! ( state.featureBoards || {} )[ String( state.boardId || 0 ) ];
+		},
+
 		// Only a board that charges gets the banner; a free board shows nothing.
 		get hasCreditBanner() {
 			return state.creditCost > 0;

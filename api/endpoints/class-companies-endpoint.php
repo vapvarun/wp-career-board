@@ -50,6 +50,12 @@ final class CompaniesEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				'args'                => array(
+					'bookmarked' => array(
+						'type'        => 'boolean',
+						'description' => 'The state to set. Omit to flip the current state.',
+					),
+				),
 				// See the note on /jobs/{id}/bookmark - same ability, same gap.
 				'permission_callback' => static function (): bool {
 					return wp_is_ability_granted( 'wcb/bookmark-jobs' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
@@ -134,26 +140,35 @@ final class CompaniesEndpoint extends RestController {
 	/**
 	 * Toggle company bookmark using non-unique usermeta (one row per
 	 * bookmarked company). Mirrors the `_wcb_bookmark` pattern Jobs uses
-	 * for saved listings - any logged-in user can save any company.
+	 * for saved listings - any logged-in user can save any company. Send
+	 * `bookmarked` (true or false) to set the state instead of flipping it.
 	 *
 	 * @since 1.2.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response {
+	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id    = get_current_user_id();
 		$company_id = (int) $request['id'];
 
 		$existing = get_user_meta( $user_id, '_wcb_company_bookmark', false );
 		$existing = array_map( 'intval', (array) $existing );
 
-		if ( in_array( $company_id, $existing, true ) ) {
-			delete_user_meta( $user_id, '_wcb_company_bookmark', $company_id );
-			$bookmarked = false;
-		} else {
+		// `bookmarked` is the state the caller wants; without it the call flips the
+		// current state, as it always has. A client holding a stale heart cannot
+		// then remove a save it meant to add.
+		$saved      = in_array( $company_id, $existing, true );
+		$bookmarked = null === $request->get_param( 'bookmarked' ) ? ! $saved : rest_sanitize_boolean( $request->get_param( 'bookmarked' ) );
+		if ( $bookmarked && ! $saved ) {
+			// Only a live item can be saved; removing a save always works, so a member can clear one that has since ended.
+			$target = get_post( $company_id );
+			if ( ! $target || 'wcb_company' !== $target->post_type || 'publish' !== $target->post_status ) {
+				return new \WP_Error( 'wcb_not_found', __( 'Company not found.', 'wp-career-board' ), array( 'status' => 404 ) );
+			}
 			add_user_meta( $user_id, '_wcb_company_bookmark', $company_id, false );
-			$bookmarked = true;
+		} elseif ( ! $bookmarked && $saved ) {
+			delete_user_meta( $user_id, '_wcb_company_bookmark', $company_id );
 		}
 
 		return rest_ensure_response(
@@ -377,6 +392,15 @@ final class CompaniesEndpoint extends RestController {
 	}
 
 	private function build_companies_response( array $companies, int $total, int $pages, int $paged ): \WP_REST_Response {
+		// The rows are cached for everyone; whether this viewer saved a company is
+		// added here, per request, with one read of their saved list.
+		$uid   = get_current_user_id();
+		$saved = $uid ? array_flip( array_map( 'intval', (array) get_user_meta( $uid, '_wcb_company_bookmark', false ) ) ) : array();
+		foreach ( $companies as &$company ) {
+			$company['is_bookmarked'] = isset( $saved[ (int) ( $company['id'] ?? 0 ) ] );
+		}
+		unset( $company );
+
 		$response = rest_ensure_response(
 			array(
 				'companies'     => $companies,
@@ -397,8 +421,9 @@ final class CompaniesEndpoint extends RestController {
 				),
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
+		// The body now carries this viewer's saved state, so a shared cache must not reuse it.
+		$response->header( 'Vary', 'Cookie, Authorization' );
 		return $response;
 	}
 
@@ -419,13 +444,7 @@ final class CompaniesEndpoint extends RestController {
 		$job_count    = $job_counts[ (int) $post->ID ] ?? 0;
 		$name         = $post->post_title;
 
-		// Build up-to-2-letter initials.
-		$words    = array_filter( explode( ' ', trim( $name ) ) );
-		$initials = '';
-		foreach ( array_slice( $words, 0, 2 ) as $word ) {
-			$initials .= mb_strtoupper( mb_substr( $word, 0, 1 ) );
-		}
-		$initials = $initials ? $initials : '?';
+		$initials = \WCB\Core\CompanyMetaShape::initials( $name );
 
 		$data = array(
 			'id'             => $post->ID,

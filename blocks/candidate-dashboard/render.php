@@ -990,6 +990,7 @@ wp_interactivity_config(
 							<span class="wcb-badge wcb-badge--success" data-wp-class--wcb-hidden="!context.resume.isPublic"><?php esc_html_e( 'Public', 'wp-career-board' ); ?></span>
 							<span class="wcb-badge wcb-badge--neutral" data-wp-class--wcb-hidden="context.resume.isPublic"><?php esc_html_e( 'Private', 'wp-career-board' ); ?></span>
 						</span>
+						<span class="wcb-field-hint" hidden data-wp-bind--hidden="!state.resumeIsPrivateFile"><?php esc_html_e( 'Only you and employers you apply to can see this file.', 'wp-career-board' ); ?></span>
 					</div>
 					<?php // One main action (Open CV for an uploaded file, Edit for a built resume) and the rest in a menu, like My Jobs. ?>
 					<div class="wcb-resume-card-actions" data-wp-class--wcb-hidden="context.confirmingDelete">

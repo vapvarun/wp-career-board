@@ -66,7 +66,7 @@ class EmailSettings {
 		wp_enqueue_script(
 			'wcb-admin-emails',
 			WCB_URL . 'assets/js/admin/emails.js',
-			array(),
+			array( 'wp-api-fetch' ),
 			WCB_VERSION,
 			true
 		);
@@ -81,7 +81,6 @@ class EmailSettings {
 			'wcbAdminEmails',
 			array(
 				'restBase'  => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'templates' => $templates,
 				'i18n'      => array(
 					'sending'          => __( 'Sending…', 'wp-career-board' ),
@@ -122,7 +121,7 @@ class EmailSettings {
 							<?php
 							printf(
 								/* translators: %s: link to the Brand tab. */
-								esc_html__( 'Emails use your Brand colour and logo, set once for emails, the mobile app and the installable app under %s.', 'wp-career-board' ),
+								esc_html__( 'Emails use your Brand colour and logo, set once for emails and the mobile app under %s.', 'wp-career-board' ),
 								'<a href="#brand" data-wcb-goto-section="brand">' . esc_html__( 'Brand', 'wp-career-board' ) . '</a>'
 							);
 							?>

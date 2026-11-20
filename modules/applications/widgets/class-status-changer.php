@@ -92,13 +92,11 @@ final class StatusChanger extends AbstractWidget {
 		if ( ! isset( $labels[ $current ] ) ) {
 			return '';
 		}
-		$nonce = wp_create_nonce( 'wp_rest' );
 
 		ob_start();
 		?>
 		<div class="wcb-app-section wcb-app-changer"
 			data-application-id="<?php echo esc_attr( (string) $post->ID ); ?>"
-			data-rest-nonce="<?php echo esc_attr( $nonce ); ?>"
 			data-rest-url="<?php echo esc_attr( rest_url( 'wcb/v1/applications/' . $post->ID . '/status' ) ); ?>">
 			<h3 class="wcb-app-section__title"><?php esc_html_e( 'Change status', 'wp-career-board' ); ?></h3>
 			<div class="wcb-app-changer__row">

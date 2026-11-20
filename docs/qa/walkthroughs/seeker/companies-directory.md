@@ -57,7 +57,7 @@ sole coverage for the single `company-profile` view (which had no dedicated jour
     `article.wcb-cp-job-card` (each with linked title `.wcb-cp-job-title a` + `.wcb-cjbadge` type/location
     badges) OR the empty line `.wcb-cp-no-jobs` ("No open positions at the moment."). These are the company's
     published `wcb_job` posts queried by `_wcb_company_id` (`render.php:296-385`).
-11. Click an open-position title `.wcb-cp-job-title a` (or "View Job" `.wcb-cp-job-apply`) → expect navigation to
+11. Click an open-position title `.wcb-cp-job-title a` (or "View job" `.wcb-cp-job-apply`) → expect navigation to
     that `wcb_job` single, HTTP 200. If the company has > 10 jobs, first click "Load more jobs"
     `.wcb-load-more-btn` (`actions.loadMore`) → expect more `.wcb-cp-job-card` appended from
     `GET /wp-json/wcb/v1/jobs` (the `jobsApiBase` store base, `render.php:342,373-383`).

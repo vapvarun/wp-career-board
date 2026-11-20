@@ -73,7 +73,7 @@ With Pro, public resumes appear on the site's **Find Candidates** page.
 
 1. Build a resume under **Candidate Dashboard > My Resumes**.
 2. Turn on **Public** in the resume builder and click **Save resume**.
-3. Turn on **Open to new opportunities** to appear in the "Open to Work" filter.
+3. Turn on **Open to new opportunities** to appear in the "Open to work" filter.
 
 ## I forgot my password
 

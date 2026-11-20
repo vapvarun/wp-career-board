@@ -69,7 +69,7 @@ in one pass.
     `.wcb-cjbadge` (type/location), OR the empty line `.wcb-cp-no-jobs` ("No open positions at the moment.").
     These jobs are this company's published `wcb_job` posts (queried by `_wcb_company_id` = company ID).
     (`render.php:296`-`385`.)
-11. Click an open-position title `.wcb-cp-job-title a` (or "View Job" `.wcb-cp-job-apply`) → expect navigation to
+11. Click an open-position title `.wcb-cp-job-title a` (or "View job" `.wcb-cp-job-apply`) → expect navigation to
     that job's single permalink HTTP 200 (a `wcb_job` single). If the company has > 10 jobs, first click
     "Load more jobs" `.wcb-load-more-btn` (`actions.loadMore`) → expect more `.wcb-cp-job-card` to append from
     `GET /wp-json/wcb/v1/jobs` (`jobsApiBase` `render.php:342`). (Open-positions loader `render.php:373`-`383`.)

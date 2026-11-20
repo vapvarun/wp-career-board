@@ -1273,6 +1273,30 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	margin-bottom: 12px;
 }
 
+/* The CSV file chooser: the browser's grey control restyled to match .wcb-btn. */
+.wcb-import-actions input[type="file"] {
+	max-width: 100%;
+	font-size: 13px;
+	color: var(--wcb-text-secondary, #475569);
+}
+
+.wcb-import-actions input[type="file"]::file-selector-button {
+	min-height: 40px;
+	padding: 0 14px;
+	margin-inline-end: 12px;
+	font: inherit;
+	font-weight: 500;
+	color: var(--wcb-contrast, #1e293b);
+	background: var(--wcb-base, #ffffff);
+	border: 1px solid var(--wcb-border, #e2e8f0);
+	border-radius: var(--wcb-radius-md, 8px);
+	cursor: pointer;
+}
+
+.wcb-import-actions input[type="file"]::file-selector-button:hover {
+	background: var(--wcb-bg-hover, #f1f5f9);
+}
+
 .wcb-import-empty {
 	color: var(--wcb-text-secondary, #475569);
 	font-style: italic;
@@ -1489,7 +1513,8 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	flex-shrink: 0;
 }
 
-/* Applications list: active job filter + Export all matching; Jobs list: active employer filter. */
+/* Applications list: one row of status links, active filters, Export all matching
+ * and search; Jobs list: active employer filter. */
 .wcb-applications-toolbar,
 .wcb-list-filters {
 	clear: both;
@@ -1497,6 +1522,43 @@ body.wcb-wizard-focus #wpbody-content > .update-nag {
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--wcb-space-sm, 8px);
+}
+
+.wcb-applications-toolbar {
+	justify-content: flex-end; /* A wrapped line keeps Export and search on the right. */
+	margin-block: var(--wcb-space-sm, 8px);
+}
+
+/* Core floats these two; in the row the status links take the free space so
+ * everything after them sits on the right, and wraps below on narrow screens. */
+.wcb-applications-toolbar .subsubsub {
+	float: none;
+	margin: 0;
+	margin-inline-end: auto;
+}
+
+.wcb-applications-toolbar p.search-box {
+	float: none;
+	position: static;
+	display: flex;
+	gap: var(--wcb-space-xs, 4px);
+	width: auto;
+	height: auto;
+	margin: 0;
+}
+
+@media screen and (max-width: 782px) {
+	.wcb-applications-toolbar p.search-box {
+		flex: 1 1 100%;
+		flex-wrap: nowrap;
+	}
+
+	.wcb-applications-toolbar p.search-box input[type="search"] {
+		flex: 1 1 auto;
+		width: auto;
+		min-width: 0;
+		margin: 0;
+	}
 }
 
 .wcb-filter-chip {

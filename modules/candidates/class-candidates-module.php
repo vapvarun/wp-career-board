@@ -350,31 +350,92 @@ final class CandidatesModule {
 	}
 
 	/**
-	 * Frontend resume an admin or employer should open for a candidate: the
-	 * one attached to the application, else their latest published resume.
+	 * Resume each card takes its photo from, batched for the whole page.
+	 *
+	 * The resume sent with the application, else the candidate's latest public
+	 * resume. One query for the fallback and one cache prime each for resume
+	 * meta and photo attachments, so photo_url() runs no query per card.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param array<int,\WP_Post> $posts Application posts (postmeta already primed).
+	 * @return array<int,int> Application ID => resume ID.
+	 */
+	public static function application_photo_resumes( array $posts ): array {
+		$map     = array();
+		$pending = array();
+		foreach ( $posts as $app ) {
+			$resume_id = (int) get_post_meta( $app->ID, '_wcb_resume_id', true );
+			$cid       = (int) get_post_meta( $app->ID, '_wcb_candidate_id', true );
+			if ( $resume_id > 0 ) {
+				$map[ $app->ID ] = $resume_id;
+			} elseif ( $cid > 0 ) {
+				$pending[ $app->ID ] = $cid;
+			}
+		}
+
+		if ( $pending ) {
+			$latest = array();
+			foreach ( get_posts(
+				array(
+					'post_type'              => 'wcb_resume',
+					'post_status'            => 'publish',
+					'author__in'             => array_values( array_unique( $pending ) ),
+					'posts_per_page'         => -1, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- bounded by the page's candidates (at most stage_limit()).
+					'orderby'                => 'date',
+					'order'                  => 'DESC',
+					'no_found_rows'          => true,
+					'update_post_term_cache' => false,
+					'meta_key'               => '_wcb_resume_public', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'             => '1',                  // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			) as $resume ) {
+				$latest[ (int) $resume->post_author ] ??= (int) $resume->ID;
+			}
+			foreach ( $pending as $app_id => $cid ) {
+				if ( isset( $latest[ $cid ] ) ) {
+					$map[ $app_id ] = $latest[ $cid ];
+				}
+			}
+		}
+
+		if ( $map ) {
+			update_postmeta_cache( array_values( array_unique( $map ) ) );
+			$photos = array();
+			foreach ( array_unique( $map ) as $resume_id ) {
+				$photo = (int) get_post_meta( $resume_id, '_wcb_resume_photo_id', true );
+				if ( $photo > 0 ) {
+					$photos[] = $photo;
+				}
+			}
+			if ( $photos ) {
+				_prime_post_caches( $photos, false, true );
+			}
+		}
+
+		return $map;
+	}
+
+	/**
+	 * Frontend resume an admin or employer should open for an application: the
+	 * resume sent with that application, nothing else.
+	 *
+	 * An application sent with only a file has no resume to open (its file is
+	 * linked from the application itself), so this returns '' rather than the
+	 * candidate's latest resume, which was a different resume or an empty page.
 	 *
 	 * @since 1.8.1
+	 * @since 1.8.5 No fallback to the candidate's latest resume.
 	 *
 	 * @param int $user_id        Candidate user ID.
-	 * @param int $application_id Application the link is for (optional).
+	 * @param int $application_id Application the link is for.
 	 * @return string Resume URL, or '' when there is none.
 	 */
 	public static function resume_url( int $user_id, int $application_id = 0 ): string {
 		$resume_id = $application_id ? (int) get_post_meta( $application_id, '_wcb_resume_id', true ) : 0;
-		if ( ! $resume_id || 'publish' !== get_post_status( $resume_id ) ) {
-			$latest    = $user_id ? get_posts(
-				array(
-					'post_type'      => 'wcb_resume',
-					'post_status'    => 'publish',
-					'author'         => $user_id,
-					'posts_per_page' => 1,
-					'fields'         => 'ids',
-					'no_found_rows'  => true,
-				)
-			) : array();
-			$resume_id = (int) ( $latest[0] ?? 0 );
-		}
-		$url = $resume_id && self::resume_is_readable( $resume_id ) ? (string) get_permalink( $resume_id ) : '';
+		$url       = $resume_id > 0 && 'wcb_resume' === get_post_type( $resume_id ) && 'publish' === get_post_status( $resume_id ) && self::resume_is_readable( $resume_id )
+			? (string) get_permalink( $resume_id )
+			: '';
 
 		/**
 		 * Filters the resume link shown for a candidate in admin.
@@ -426,7 +487,7 @@ final class CandidatesModule {
 			return false;
 		}
 
-		if ( '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) {
+		if ( self::resume_is_public( $post_id ) ) {
 			/**
 			 * Filter whether the current viewer may open a public resume.
 			 *
@@ -445,6 +506,42 @@ final class CandidatesModule {
 
 		// An employer always sees the resume of someone who applied to them.
 		return self::has_applied_to( $owner, $viewer );
+	}
+
+	/**
+	 * Whether the candidate listed this resume as Public (the owner's toggle).
+	 *
+	 * The toggle only: post status, moderation, blocks and the viewer are
+	 * resume_is_readable()'s job. Same test as the `'value' => '1'` meta_query
+	 * lists, so a page and a list never disagree.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param int $post_id Resume post ID.
+	 * @return bool
+	 */
+	public static function resume_is_public( int $post_id ): bool {
+		return '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true );
+	}
+
+	/**
+	 * The on-site link an employer opens for an applicant's resume, or '' when
+	 * there is none to open: the resume is not public, or it is trashed, draft or
+	 * pending (the same published rule resume_is_readable() applies).
+	 *
+	 * @since 1.8.5
+	 * @param int $resume_id Resume post ID.
+	 * @return string Permalink, or ''.
+	 */
+	public static function public_resume_url( int $resume_id ): string {
+		if ( $resume_id <= 0 || ! self::resume_is_public( $resume_id ) ) {
+			return '';
+		}
+		$post = get_post( $resume_id );
+		if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type || 'publish' !== $post->post_status ) {
+			return '';
+		}
+		return (string) get_permalink( $resume_id );
 	}
 
 	/**
@@ -512,7 +609,7 @@ final class CandidatesModule {
 		$viewer  = get_current_user_id();
 		$owner   = (int) get_post_field( 'post_author', $post_id );
 		$blocked = $viewer > 0 && \WCB\Core\Blocks::is_hidden( $viewer, $owner );
-		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || ( ! $blocked && '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) ) {
+		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || ( ! $blocked && self::resume_is_public( $post_id ) ) ) {
 			return;
 		}
 

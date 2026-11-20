@@ -451,6 +451,7 @@ const { state } = store( 'wcb-job-single', {
 			const send = () => {
 				const url = state.apiBase + '/jobs/' + String( state.jobId ) + '/view';
 				if ( ! navigator.sendBeacon || ! navigator.sendBeacon( url ) ) {
+					// Plain fetch on purpose: an anonymous keepalive beacon (no cookies, no nonce) that wcbFetch cannot send.
 					fetch( url, { method: 'POST', keepalive: true, credentials: 'omit' } ).catch( () => {} );
 				}
 			};

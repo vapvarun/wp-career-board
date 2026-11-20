@@ -146,8 +146,8 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 			if ( ! ctx?.company ) {
 				return;
 			}
-			const wasBookmarked = !! ctx.company.bookmarked;
-			ctx.company.bookmarked = ! wasBookmarked;
+			const wasBookmarked = !! ctx.company.is_bookmarked;
+			ctx.company.is_bookmarked = ! wasBookmarked;
 
 			const nonce = state.restNonce || ( window.wpApiSettings && window.wpApiSettings.nonce ) || '';
 			const url   = state.apiBase + '/' + ctx.company.id + '/bookmark';
@@ -160,12 +160,18 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 						'Content-Type': 'application/json',
 						'X-WP-Nonce':   nonce,
 					},
+					// The state the member wants, not "flip": an out-of-date heart must
+					// never remove a save. The answer that comes back is the truth.
+					body:        JSON.stringify( { bookmarked: ! wasBookmarked } ),
 				} );
-				if ( ! response.ok ) {
-					ctx.company.bookmarked = wasBookmarked;
+				if ( response.ok ) {
+					const data = yield response.json();
+					ctx.company.is_bookmarked = !! data.bookmarked;
+				} else {
+					ctx.company.is_bookmarked = wasBookmarked;
 				}
 			} catch {
-				ctx.company.bookmarked = wasBookmarked;
+				ctx.company.is_bookmarked = wasBookmarked;
 			}
 		},
 
@@ -195,7 +201,7 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 			state.page++;
 
 			try {
-				const response = yield wcbFetch( wcbBuildUrl( state.page ) );
+				const response = yield wcbFetch( wcbBuildUrl( state.page ), wcbReadInit() );
 
 				if ( ! response.ok ) {
 					state.page--;
@@ -296,6 +302,15 @@ function wcbBuildUrl( page ) {
 }
 
 /**
+ * Request options for the list reads. The nonce is what tells REST who is
+ * asking; without it the member is read as a guest and no heart shows as saved.
+ */
+function wcbReadInit() {
+	const nonce = state.restNonce || ( window.wpApiSettings && window.wpApiSettings.nonce ) || '';
+	return { credentials: 'same-origin', headers: nonce ? { 'X-WP-Nonce': nonce } : {} };
+}
+
+/**
  * Reset to page 1 and re-fetch companies (used by filter actions).
  */
 function wcbFetchCompanies() {
@@ -303,7 +318,7 @@ function wcbFetchCompanies() {
 	state.page      = 1;
 	state.companies = [];
 
-	wcbFetch( wcbBuildUrl( 1 ) )
+	wcbFetch( wcbBuildUrl( 1 ), wcbReadInit() )
 		.then( function( response ) {
 			if ( ! response.ok ) {
 				state.loading = false;

@@ -82,7 +82,16 @@ $pending_jobs = get_posts(
 		'fields'         => 'ids',
 	)
 );
-$pending_job_id = ! empty( $pending_jobs ) ? (int) $pending_jobs[0] : 0;
+// The approve test owns its job: a seeded pending job can sit on a paid board
+// whose employer has no credits, and approving it is then correctly refused.
+$pending_job_id = (int) wp_insert_post(
+	array(
+		'post_type'   => 'wcb_job',
+		'post_status' => 'pending',
+		'post_title'  => 'CLI approve probe',
+		'post_author' => 1,
+	)
+);
 
 // Find a published job for expire test.
 $published_jobs = get_posts(
@@ -238,8 +247,7 @@ if ( $pending_job_id ) {
 	wcb_assert( 0 === $r['code'], 'exit code is 0' );
 	clean_post_cache( $pending_job_id );
 	wcb_assert( 'publish' === get_post_status( $pending_job_id ), 'post_status is publish after approve' );
-	// Restore original status.
-	wp_update_post( array( 'ID' => $pending_job_id, 'post_status' => $original_status ) );
+	wp_delete_post( $pending_job_id, true );
 } else {
 	WP_CLI::warning( '  SKIP: no pending job found' );
 }

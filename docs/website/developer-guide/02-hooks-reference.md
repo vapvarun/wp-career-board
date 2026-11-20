@@ -50,7 +50,7 @@ Use these actions and filters to change how WP Career Board behaves, react to ev
 | `wcb_job_listing_data` | Filter | Change the data of one listing card. Args: `$card, $post`. |
 | `wcb_default_filter_order` | Filter | Reorder or extend the listings filter groups. Default `['type', 'experience', 'category', 'tags', 'location', 'board', 'salary']`. A block's saved `filterOrder` is intersected with this list, so a group missing here is never shown. |
 | `wcb_job_listings_filters_top` | Action | Top of the listings filter panel. No arguments. |
-| `wcb_job_listings_filters_bottom` | Action | Bottom of the listings filter panel. No arguments. |
+| `wcb_job_listings_filters_bottom` | Action | Bottom of the listings filter panel. Argument: `$board_id` (int), the block's board scope, 0 for every board. |
 | `wcb_before_card_footer` | Action | Inside each job card, before the footer row. Args: `$job_card, $job_post`. |
 | `wcb_after_card_footer` | Action | Inside each job card, after the footer row. Args: `$job_card, $job_post`. |
 | `wcb_job_single_after_description` | Action | Right after the description on the job page. Args: `$job_id`. Pro prints its custom-field details here. |
@@ -117,7 +117,7 @@ A ban (the `_wcb_employer_banned` user meta, from any writer) hides the member's
 | `wcb_application_form_fields_groups` | Filter | Add field groups to the apply form. The plugin renders, validates and saves them as `_wcb_application_field_<key>`. Args: `$groups, $job_id`. |
 | `wcb_guest_applications_claimed` | Action | An account took over the guest applications sent from its email address. This happens once the address is proven (email confirmed, or a password set from an emailed link), or at once for an account an admin or WP-CLI created. Args: `$user_id, $claimed_application_ids`. |
 | `wcb_resume_pdf_attachment_id` | Filter | The attachment ID used as a candidate's resume PDF. Args: `$id` (0), `$resume_id, $candidate_id`. |
-| `wcb_candidate_resume_url` | Filter | The frontend resume link that admins and employers get as **View resume** on the Applications list, the application screen and the Candidates list. By default it is the resume attached to the application, else the candidate's latest published resume, and empty when the viewer may not read it. Return `''` to hide the link or another URL to point it elsewhere. Args: `$url, $user_id, $application_id` (`0` outside an application). |
+| `wcb_candidate_resume_url` | Filter | The frontend resume link that admins and employers get as **View resume** on the Applications list and the application screen. By default it is the resume sent with the application, and empty when none was sent or the viewer may not read it. Return `''` to hide the link or another URL to point it elsewhere. Args: `$url, $user_id, $application_id`. |
 
 Application statuses are `submitted`, `reviewing`, `shortlisted`, `rejected`, `hired`, `withdrawn`, `job_removed` and `position_closed`.
 
@@ -219,11 +219,11 @@ Two more filters shape API output: `wcb_admin_email_log_response` (`$response, $
 | `wcb_company_sidebar_after` | Action | Company profile, after the sidebar cards. Args: `$company_id`. |
 | `wcb_company_sidebar_blocks` | Filter | Change the sidebar block list. Default: Similar Companies and Job Alerts. Each entry is a block comment string. Args: `$blocks, $company_id`. |
 | `wcb_shortcode_attr_aliases` | Filter | Add to the lowercase to camelCase attribute map, so `[wcb_job_listings boardId="1"]` works. |
-| `wcb_search_active_shortcodes` | Filter | Shortcode prefixes (default `wcb_`, `wcbp_`) that mark a page as a Career Board page. |
+| `wcb_search_active_shortcodes` | Filter | Shortcode prefixes (default `wcb_`, `wcbp_`) that load the Career Board frontend styles on a page. |
 | `wcb_page_needs_frontend_assets` | Filter | Return `true` to load the Career Board frontend styles on a request the plugin does not detect (for example blocks rendered outside the post content). |
 | `wcb_app_page_ids` | Filter | Add page IDs that get the `wcb-page` body class and page template. |
 | `wcb_apply_page_class` | Filter | Return `false` to keep a page from getting the `wcb-page` body class and the plugin page template. Args: `$is_wcb_page, $page_id`. |
-| `wcb_fullwidth_block_names` | Filter | Add a block name (`namespace/slug`) that triggers the full-width page template. |
+| `wcb_fullwidth_block_names` | Filter | Add a block name (`namespace/slug`) that triggers the full-width page template, as a block or its shortcode. By default only app blocks do (dashboards, forms, registration, job listings, company archive and profile, resume archive); display blocks such as Recent Jobs, Featured Jobs and Job Search Hero keep the theme's template. |
 | `wcb_container_max_width` | Filter | The content column width in pixels. The value is kept between 720 and 1920. |
 | `wcb_theme_accent_primary` | Filter | The primary accent colour blocks use. Args: `$accent, $template`. |
 | `wcb_industries` | Filter | Add or rename the industries offered on the company profile. |
@@ -258,7 +258,7 @@ Two more filters shape API output: `wcb_admin_email_log_response` (`$response, $
 | `wcb_overridable_templates` | Filter | Add a theme-overridable template to the Site Health version check. See [Template Overrides](./06-template-overrides.md). |
 | `wcb_companions` | Filter | Add an entry to the companion-plugin catalog. |
 
-`wcb_settings_tab_emails` and `wcb_settings_tab_antispam` are the built-in renderers for those two tabs. Do not use them to add settings; add your own tab instead.
+`wcb_settings_tab_emails`, `wcb_settings_tab_industries`, `wcb_settings_tab_import` and `wcb_settings_tab_mobile-app` are the built-in renderers for those tabs. Do not use them to add settings; add your own tab instead.
 
 ## Notifications
 

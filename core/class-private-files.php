@@ -278,6 +278,44 @@ final class PrivateFiles {
 	}
 
 	/**
+	 * Whether the user is the candidate of an application carrying this file, or
+	 * runs the job one was sent to.
+	 *
+	 * One indexed query with LIMIT 1, so a CV attached to thousands of
+	 * applications answers as fast as one attached to a single application and
+	 * nobody is refused for sitting past the first page. The employer side uses
+	 * the same job scope as the dashboard (author or company the user runs).
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param int $attachment_id Attachment post ID.
+	 * @param int $user_id       Current user ID.
+	 * @return bool
+	 */
+	private static function is_party_to_application( int $attachment_id, int $user_id ): bool {
+		global $wpdb;
+
+		$scope = \WCB\Modules\Employers\EmployersModule::job_scope_sql( $user_id, 'job' );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $scope is prepared by job_scope_sql().
+		$found = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT app.ID
+				FROM {$wpdb->posts} app
+				INNER JOIN {$wpdb->postmeta} file ON file.post_id = app.ID AND file.meta_key = '_wcb_resume_attachment_id' AND file.meta_value = %s
+				LEFT JOIN {$wpdb->postmeta} cand ON cand.post_id = app.ID AND cand.meta_key = '_wcb_candidate_id'
+				LEFT JOIN {$wpdb->postmeta} jobref ON jobref.post_id = app.ID AND jobref.meta_key = '_wcb_job_id'
+				LEFT JOIN {$wpdb->posts} job ON job.ID = CAST( jobref.meta_value AS UNSIGNED ) AND job.post_type = 'wcb_job'
+				WHERE app.post_type = 'wcb_application' AND app.post_status NOT IN ( 'trash', 'auto-draft' ) AND ( cand.meta_value = %d OR ( job.ID IS NOT NULL AND ",
+				(string) $attachment_id,
+				$user_id
+			) . $scope . ' ) ) LIMIT 1' // $scope is already prepared; never run it through prepare() again.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return null !== $found;
+	}
+
+	/**
 	 * Whether the current user may download a private file.
 	 *
 	 * Owner, admins/moderators, and the two sides of any application that
@@ -306,28 +344,8 @@ final class PrivateFiles {
 			return true;
 		}
 
-		if ( $user_id > 0 ) {
-			$applications = get_posts(
-				array(
-					'post_type'      => 'wcb_application',
-					'post_status'    => 'any',
-					'fields'         => 'ids',
-					'posts_per_page' => 100,
-					'no_found_rows'  => true,
-					'meta_key'       => '_wcb_resume_attachment_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- indexed by wcb_meta_key_value.
-					'meta_value'     => (string) $attachment_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- indexed by wcb_meta_key_value.
-				)
-			);
-			foreach ( $applications as $application_id ) {
-				if ( (int) get_post_meta( (int) $application_id, '_wcb_candidate_id', true ) === $user_id ) {
-					return true;
-				}
-				$job_id = (int) get_post_meta( (int) $application_id, '_wcb_job_id', true );
-				$job    = $job_id > 0 ? get_post( $job_id ) : null;
-				if ( $job instanceof \WP_Post && \WCB\Modules\Employers\EmployersModule::owns_job( $user_id, $job ) ) {
-					return true;
-				}
-			}
+		if ( $user_id > 0 && self::is_party_to_application( $attachment_id, $user_id ) ) {
+			return true;
 		}
 
 		/**

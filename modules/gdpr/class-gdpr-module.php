@@ -648,15 +648,13 @@ class GdprModule {
 	private static function log_action( int $user_id, string $action ): void {
 		global $wpdb;
 
-		$ip = \WCB\Auth\AppCredentials::client_ip();
-
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_gdpr_log table; no caching needed for write-only audit log.
 		$wpdb->insert(
 			$wpdb->prefix . 'wcb_gdpr_log',
 			array(
 				'user_id'    => $user_id,
 				'action'     => $action,
-				'ip_hash'    => hash( 'sha256', $ip ),
+				'ip_hash'    => \WCB\Auth\AppCredentials::client_ip_hash(),
 				'created_at' => current_time( 'mysql', true ),
 			),
 			array( '%d', '%s', '%s', '%s' )

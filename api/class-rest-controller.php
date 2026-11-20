@@ -103,6 +103,29 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Add the paging headers to a list response.
+	 *
+	 * X-WP-Total and X-WP-TotalPages are the WordPress standard that apiFetch,
+	 * the mobile app and headless clients read. X-WCB-Total and X-WCB-TotalPages
+	 * are what this plugin sent before 1.8.5; they stay so existing integrations
+	 * keep working.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param \WP_REST_Response $response List response.
+	 * @param int               $total    Rows matching the query.
+	 * @param int               $pages    Number of pages.
+	 * @return \WP_REST_Response
+	 */
+	protected function with_paging( \WP_REST_Response $response, int $total, int $pages ): \WP_REST_Response {
+		$response->header( 'X-WP-Total', (string) $total );
+		$response->header( 'X-WP-TotalPages', (string) $pages );
+		$response->header( 'X-WCB-Total', (string) $total );
+		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		return $response;
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.
@@ -235,7 +258,8 @@ abstract class RestController extends \WP_REST_Controller {
 	/**
 	 * Record a job view in the wcb_job_views table.
 	 *
-	 * IP is hashed (SHA-256) for GDPR compliance — not stored in plaintext.
+	 * The IP is stored as a keyed hash (AppCredentials::client_ip_hash()), never in plaintext.
+	 * A visitor counts once per job per hour.
 	 *
 	 * @since 1.0.0
 	 *
@@ -248,9 +272,14 @@ abstract class RestController extends \WP_REST_Controller {
 			return;
 		}
 
-		global $wpdb;
+		// One view per visitor and job an hour: a script reloading a page does not
+		// inflate the count or grow the table. Uses the plugin's one hourly limiter.
+		$visitor = get_current_user_id() ? 'user:' . get_current_user_id() : \WCB\Auth\AppCredentials::client_ip();
+		if ( $this->rate_limit_reached( 'wcb_job_view_' . $job_id . '_', $visitor, 1 ) ) {
+			return;
+		}
 
-		$ip = \WCB\Auth\AppCredentials::client_ip();
+		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_job_views table; no caching needed for write-only analytics.
 		$wpdb->insert(
@@ -258,7 +287,7 @@ abstract class RestController extends \WP_REST_Controller {
 			array(
 				'job_id'    => $job_id,
 				'viewed_at' => current_time( 'mysql', true ),
-				'ip_hash'   => hash( 'sha256', $ip ),
+				'ip_hash'   => \WCB\Auth\AppCredentials::client_ip_hash(),
 			),
 			array( '%d', '%s', '%s' )
 		);

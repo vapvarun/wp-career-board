@@ -228,6 +228,21 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
+		// The sign-up limit counts every attempt, including one for an address that
+		// already has an account; checked after it, the 409 would be a free probe.
+		$username = sanitize_user( strtolower( $first_name . '.' . $last_name ), true );
+		if ( ! $username ) {
+			$username = sanitize_user( strtolower( $email ), true );
+		}
+		if ( username_exists( $username ) ) {
+			$username = $username . wp_rand( 100, 999 );
+		}
+
+		$wcb_guard = $this->registration_guard( $request, $username, $email );
+		if ( $wcb_guard instanceof \WP_Error ) {
+			return $wcb_guard;
+		}
+
 		if ( email_exists( $email ) ) {
 			return new \WP_Error(
 				'wcb_email_exists',
@@ -242,19 +257,6 @@ final class CandidatesEndpoint extends RestController {
 				__( 'Password must be at least 8 characters.', 'wp-career-board' ),
 				array( 'status' => 400 )
 			);
-		}
-
-		$username = sanitize_user( strtolower( $first_name . '.' . $last_name ), true );
-		if ( ! $username ) {
-			$username = sanitize_user( strtolower( $email ), true );
-		}
-		if ( username_exists( $username ) ) {
-			$username = $username . wp_rand( 100, 999 );
-		}
-
-		$wcb_guard = $this->registration_guard( $request, $username, $email );
-		if ( $wcb_guard instanceof \WP_Error ) {
-			return $wcb_guard;
 		}
 
 		$user_id = wp_insert_user(
@@ -548,7 +550,7 @@ final class CandidatesEndpoint extends RestController {
 				'has_more'  => false,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $count );
+		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
 	}
 
@@ -599,7 +601,7 @@ final class CandidatesEndpoint extends RestController {
 				'has_more' => false,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $count );
+		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
 	}
 
@@ -671,7 +673,7 @@ final class CandidatesEndpoint extends RestController {
 				'has_more' => false,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $count );
+		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
 	}
 

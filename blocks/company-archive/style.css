@@ -324,8 +324,14 @@
 	box-sizing: border-box;
 	object-fit: contain;
 	/* The same thin frame as the job card's logo (.wcb-avatar--logo). */
-	background: var(--wcb-surface, #ffffff);
+	background: var(--wcb-logo-bg, #f1f5f9);
+	padding: 6px;
 	border: 1px solid var(--wcb-border);
+}
+
+/* The generic .wcb-shown { display: block } would drop the tile's flex centring. */
+.wcb-ca-avatar.wcb-shown {
+	display: flex;
 }
 
 .wcb-ca-avatar {

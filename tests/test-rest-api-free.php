@@ -135,8 +135,16 @@ foreach ( $job_posts as $wcb_candidate_job ) {
 	}
 }
 
-$pending_jobs   = get_posts( array( 'post_type' => 'wcb_job', 'post_status' => 'pending', 'numberposts' => 1, 'fields' => 'ids' ) );
-$pending_job_id = ! empty( $pending_jobs ) ? (int) $pending_jobs[0] : 0;
+// The moderation test owns its job: a seeded pending job can sit on a paid board
+// whose employer has no credits, and approving it is then correctly refused (402).
+$pending_job_id = (int) wp_insert_post(
+	array(
+		'post_type'   => 'wcb_job',
+		'post_status' => 'pending',
+		'post_title'  => 'REST moderation probe',
+		'post_author' => $admin_id,
+	)
+);
 
 // An application the employer can still act on (not withdrawn or closed).
 $app_posts = get_posts(
@@ -329,9 +337,12 @@ update_option( 'wcb_settings', $wcb_relaxed_settings );
 WP_CLI::log( '--- Applications: POST /wcb/v1/jobs/{id}/apply (guest) ---' );
 if ( $job_id ) {
 	$unique_email = 'wcb_test_' . wp_rand( 1000, 9999 ) . '@example.com';
+	// Answer whatever required screening questions the site asks.
+	$wcb_groups   = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
 	$r            = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/apply", array(
-		'guest_name'  => 'Test Guest',
-		'guest_email' => $unique_email,
+		'guest_name'    => 'Test Guest',
+		'guest_email'   => $unique_email,
+		'custom_fields' => array_fill_keys( array_keys( \WCB\Core\FormCustomFields::missing_required( $wcb_groups, array() ) ), 'Test answer' ),
 	), 0 );
 	wcb_assert( in_array( $r->get_status(), array( 200, 201 ), true ), 'POST /jobs/{id}/apply as guest returns 200/201' );
 	$test_app_id = $r->get_data()['id'] ?? 0;
@@ -970,8 +981,7 @@ if ( $pending_job_id ) {
 	$r               = wcb_rest( 'POST', "/wcb/v1/jobs/{$pending_job_id}/approve", array(), $admin_id );
 	wcb_assert( 200 === $r->get_status(), 'POST /jobs/{id}/approve as admin returns 200' );
 	wcb_assert( 'publish' === ( $r->get_data()['status'] ?? '' ), 'approved job status is publish' );
-	// Restore.
-	wp_update_post( array( 'ID' => $pending_job_id, 'post_status' => $original_status ) );
+	wp_delete_post( $pending_job_id, true );
 } else {
 	WP_CLI::warning( '  SKIP: no pending job for moderation test' );
 }

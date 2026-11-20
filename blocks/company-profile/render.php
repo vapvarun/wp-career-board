@@ -57,12 +57,7 @@ $wcb_trust    = (string) get_post_meta( $wcb_company_id, '_wcb_trust_level', tru
 $wcb_logo_url = (string) get_the_post_thumbnail_url( $wcb_company_id, 'medium' );
 
 // ── Initials avatar ───────────────────────────────────────────────────────────
-$wcb_words    = array_filter( explode( ' ', trim( $wcb_name ) ) );
-$wcb_initials = '';
-foreach ( array_slice( $wcb_words, 0, 2 ) as $wcb_word ) {
-	$wcb_initials .= mb_strtoupper( mb_substr( $wcb_word, 0, 1 ) );
-}
-$wcb_initials = $wcb_initials ? $wcb_initials : '?';
+$wcb_initials = \WCB\Core\CompanyMetaShape::initials( $wcb_name );
 
 // ── Trust badge ───────────────────────────────────────────────────────────────
 $wcb_trust_map  = array(
@@ -392,7 +387,7 @@ wp_interactivity_state(
 								</span>
 							</div>
 						</div>
-						<a class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View Job', 'wp-career-board' ); ?></a>
+						<a class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-cp-job-apply" data-wp-bind--href="context.job.permalink"><?php esc_html_e( 'View job', 'wp-career-board' ); ?></a>
 					</article>
 				</template>
 			</div>

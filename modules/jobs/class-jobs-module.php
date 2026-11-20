@@ -337,7 +337,7 @@ final class JobsModule {
 					'singular_name'         => __( 'Job', 'wp-career-board' ),
 					'add_new_item'          => __( 'Add New Job', 'wp-career-board' ),
 					'edit_item'             => __( 'Edit Job', 'wp-career-board' ),
-					'view_item'             => __( 'View Job', 'wp-career-board' ),
+					'view_item'             => __( 'View job', 'wp-career-board' ),
 					'search_items'          => __( 'Search jobs', 'wp-career-board' ),
 					'not_found'             => __( 'No jobs found.', 'wp-career-board' ),
 					'not_found_in_trash'    => __( 'No jobs found in Trash.', 'wp-career-board' ),

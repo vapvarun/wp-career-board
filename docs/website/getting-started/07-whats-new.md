@@ -2,6 +2,16 @@
 
 You can use this page to see recent changes that affect how you set up and run your job board. For the full history, see the changelog in `readme.txt`.
 
+## In 1.8.5
+
+* **Jobs list.** Filter by category, job type and location above the list.
+* **Uploaded CVs.** An uploaded CV stays private. The resume page shows its file with **Download CV** for the candidate, the employer the candidate applied to, and admins; a trashed application no longer grants access.
+* **Defaults.** A new board starts with default job types and experience levels.
+* **Applications list.** Status links, filters, export and search sit in one row.
+* **Dates.** Admin lists, dashboards and the job form use your site's date format.
+* **Boards.** A job form on a trashed board opens as if no board was chosen, and a restored board comes back published. Listing length is held to 1-365 days.
+* **Privacy.** A visitor's IP address is stored as a keyed hash.
+
 ## In 1.8.4
 
 * **Sign-up on multisite.** Candidate and employer sign-up follows the network registration setting, so a subsite whose network closes registration refuses sign-up.
