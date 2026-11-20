@@ -66,7 +66,7 @@ class EmailSettings {
 		wp_enqueue_script(
 			'wcb-admin-emails',
 			WCB_URL . 'assets/js/admin/emails.js',
-			array(),
+			array( 'wp-api-fetch' ),
 			WCB_VERSION,
 			true
 		);
@@ -81,7 +81,6 @@ class EmailSettings {
 			'wcbAdminEmails',
 			array(
 				'restBase'  => esc_url_raw( untrailingslashit( rest_url( 'wcb/v1' ) ) ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'templates' => $templates,
 				'i18n'      => array(
 					'sending'          => __( 'Sending…', 'wp-career-board' ),

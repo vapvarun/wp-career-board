@@ -884,7 +884,7 @@ class Admin {
 
 			// Companies > Industries editor and Advanced > Remove Sample Data: each
 			// script null-checks its own root, so both load with the page.
-			wp_enqueue_script( 'wcb-admin-industries', WCB_URL . 'assets/js/admin/industries.js', array( 'wcb-admin' ), WCB_VERSION, true );
+			wp_enqueue_script( 'wcb-admin-industries', WCB_URL . 'assets/js/admin/industries.js', array( 'wp-api-fetch', 'wcb-admin' ), WCB_VERSION, true );
 			wp_localize_script(
 				'wcb-admin-industries',
 				'wcbIndustries',
@@ -911,7 +911,7 @@ class Admin {
 				)
 			);
 			wp_enqueue_style( 'wcb-confirm-modal' );
-			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wcb-admin', 'wcb-confirm-modal' ), WCB_VERSION, true );
+			wp_enqueue_script( 'wcb-admin-sample-data', WCB_URL . 'assets/js/admin/sample-data.js', array( 'wp-api-fetch', 'wcb-admin', 'wcb-confirm-modal' ), WCB_VERSION, true );
 			wp_localize_script(
 				'wcb-admin-sample-data',
 				'wcbSampleData',
@@ -941,7 +941,7 @@ class Admin {
 			wp_enqueue_script(
 				'wcb-application-detail',
 				WCB_URL . 'assets/js/admin/application-detail.js',
-				array(),
+				array( 'wp-api-fetch' ),
 				WCB_VERSION,
 				true
 			);

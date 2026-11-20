@@ -26,15 +26,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		if ( 'function' === typeof window.wcbToast ) { window.wcbToast( message, type || 'info' ); }
 	}
 
+	// wp.apiFetch adds the REST nonce, renews it once when it expires, and rejects with the error body.
 	function api( path, options ) {
-		var opts = options || {};
-		opts.headers = { 'X-WP-Nonce': wcbAdmin.restNonce, 'Content-Type': 'application/json' };
-		return fetch( wcbAdmin.restUrl + path, opts ).then( function ( r ) {
-			return r.json().then( function ( body ) {
-				if ( ! r.ok ) { throw body; }
-				return body;
-			} );
-		} );
+		return wp.apiFetch( Object.assign( { url: wcbAdmin.restUrl + path }, options ) );
 	}
 
 	function slugify( value ) {
@@ -196,7 +190,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		saveBtn.disabled = true;
 		statusEl.textContent = i18n.saving;
 
-		api( '/admin/industries', { method: 'POST', body: JSON.stringify( payload ) } )
+		api( '/admin/industries', { method: 'POST', data: payload } )
 			.then( function ( data ) {
 				rows     = data.industries || [];
 				orphans  = data.orphans || [];

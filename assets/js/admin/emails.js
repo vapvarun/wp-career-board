@@ -6,7 +6,7 @@
  *   - Activity Log filtering / pagination / refresh
  *
  * Localized config arrives via the wcbAdminEmails global (see wp_localize_script):
- *   { restBase, nonce, i18n: { sending, sent, failed, empty, fail, pageInfo } }
+ *   { restBase, i18n: { sending, sent, failed, empty, fail, pageInfo } }
  *
  * @package WP_Career_Board
  * @since   1.1.1
@@ -35,16 +35,11 @@
 					label.textContent = i18n.sending || 'Sending…';
 				}
 
-				fetch( cfg.restBase + '/admin/emails/test', {
-					method:      'POST',
-					credentials: 'same-origin',
-					headers:     {
-						'X-WP-Nonce':   cfg.nonce,
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify( { email_id: emailId } )
+				wp.apiFetch( {
+					url:    cfg.restBase + '/admin/emails/test',
+					method: 'POST',
+					data:   { email_id: emailId }
 				} )
-					.then( function ( r ) { return r.json(); } )
 					.then( function ( data ) {
 						btn.disabled = false;
 						if ( data && data.sent ) {
@@ -105,25 +100,23 @@
 		var body    = document.getElementById( 'wcb-email-body-field-' + id );
 
 		btn.disabled = true;
-		fetch( cfg.restBase + '/admin/emails/test', {
-			method:      'POST',
-			credentials: 'same-origin',
-			headers:     { 'X-WP-Nonce': cfg.nonce, 'Content-Type': 'application/json' },
-			body:        JSON.stringify( {
+		wp.apiFetch( {
+			url:    cfg.restBase + '/admin/emails/test',
+			method: 'POST',
+			data:   {
 				email_id: id,
 				preview:  true,
 				subject:  subject ? subject.value : '',
 				body:     body ? body.value : ''
-			} )
+			}
 		} )
-			.then( function ( r ) { return r.json(); } )
 			.then( function ( data ) {
 				box.querySelector( '.wcb-email-preview__subject' ).textContent = data.subject || data.message || '';
 				box.querySelector( '.wcb-email-preview__frame' ).srcdoc = data.html || '';
 				box.hidden = false;
 			} )
-			.catch( function () {
-				box.querySelector( '.wcb-email-preview__subject' ).textContent = i18n.failed || 'Failed';
+			.catch( function ( err ) {
+				box.querySelector( '.wcb-email-preview__subject' ).textContent = ( err && err.message ) || i18n.failed || 'Failed';
 				box.hidden = false;
 			} )
 			.finally( function () {
@@ -241,11 +234,7 @@
 		// use the ?rest_route= form, so starting with '?' would double it and 404.
 		url += ( url.indexOf( '?' ) === -1 ? '?' : '&' ) + params.join( '&' );
 
-		fetch( url, {
-			credentials: 'same-origin',
-			headers:     { 'X-WP-Nonce': cfg.nonce }
-		} )
-			.then( function ( r ) { return r.json(); } )
+		wp.apiFetch( { url: url } )
 			.then( function ( data ) {
 				var tbody = document.querySelector( '#wcb-email-log-table tbody' );
 				while ( tbody.firstChild ) {

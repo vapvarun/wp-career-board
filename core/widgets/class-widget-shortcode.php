@@ -107,7 +107,7 @@ final class WidgetShortcode {
 		wp_enqueue_script(
 			'wcb-application-detail',
 			WCB_URL . 'assets/js/admin/application-detail.js',
-			array(),
+			array( 'wp-api-fetch' ),
 			WCB_VERSION,
 			true
 		);
