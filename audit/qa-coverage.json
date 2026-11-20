@@ -5,7 +5,7 @@
         "version": "1.8.5"
     },
     "generated": {
-        "at": "2026-11-15T13:03:01+00:00",
+        "at": "2026-11-20T15:53:41+00:00",
         "manifest_at": "2026-10-26T00:00:00Z",
         "manifest_branch": "1.8.3"
     },
@@ -370,8 +370,8 @@
         },
         "hooks_fired": {
             "total": 93,
-            "covered": 34,
-            "uncovered": 59,
+            "covered": 35,
+            "uncovered": 58,
             "skipped": 184,
             "covered_items": [
                 {
@@ -440,6 +440,10 @@
                 },
                 {
                     "name": "wcb_pro_active",
+                    "consumer_count": 1
+                },
+                {
+                    "name": "wcb_job_listing_data",
                     "consumer_count": 1
                 },
                 {
@@ -743,11 +747,6 @@
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_form_fields"
                 },
                 {
-                    "name": "wcb_job_listing_data",
-                    "consumer_count": 1,
-                    "stub_command": "bin/qa-stub-gen.php hook wcb_job_listing_data"
-                },
-                {
                     "name": "wcb_job_listings_board_options",
                     "consumer_count": 1,
                     "stub_command": "bin/qa-stub-gen.php hook wcb_job_listings_board_options"
@@ -886,14 +885,14 @@
     "summary": {
         "categories_checked": 5,
         "items_total": 188,
-        "items_covered": 97,
-        "items_uncovered": 91,
+        "items_covered": 98,
+        "items_uncovered": 90,
         "items_skipped": 184,
-        "coverage_percent": 51.600000000000001
+        "coverage_percent": 52.100000000000001
     },
     "drift": {
-        "previous_uncovered": 103,
-        "current_uncovered": 91,
-        "delta": -12
+        "previous_uncovered": 91,
+        "current_uncovered": 90,
+        "delta": -1
     }
 }
