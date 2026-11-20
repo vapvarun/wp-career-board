@@ -328,9 +328,10 @@ alerts) and fires `save_post_{post_type}` once so list caches refresh.
 | `wcb_member_reported` | `(int $user_id, string $reason, int $reporter_id)` | After a member report is stored |
 | `wcb_member_flags_resolved` | `(int $user_id)` | Reports dismissed from the Candidates or Employers list |
 
-`ModerationModule::alert_due( $count )` is the rule the owner email and
-Pro's bell share: alert on the first open report and on the one that
-reaches the auto-hide threshold.
+`ModerationModule::job_alert_due( $job_id )` (1.8.5) is the rule the owner
+email and Pro's bell share inside `wcb_job_reported`: alert on the first open
+report and on the report that hid the job, even when that lands past the
+threshold. `alert_due( $count )` stays for Pro 1.8.4 and is deprecated.
 
 ## Personal data (1.8.0)
 
