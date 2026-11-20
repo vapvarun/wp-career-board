@@ -127,7 +127,7 @@ A hidden honeypot field protects every submission form automatically, with nothi
 
 | Setting | Default | Description |
 |---|---|---|
-| **Content Width (px)** | 0 (follow your theme) | How wide Career Board pages run. Leave at 0 to follow your theme. Set 720-1920 only if plugin pages need to differ from the rest of the site |
+| **Content Width (px)** | 0 (follow your theme) | How wide Career Board pages run. Leave at 0 to follow your theme. Otherwise 720 to 1920: a smaller number is raised to 720, a larger one lowered to 1920 |
 | **Keep Email History (days)** | 180 | How long the email log and notification history are kept before a daily task deletes them. 0 keeps them forever (0-3650) |
 | **Visitor IP address** | Direct connection | Which header carries the real visitor address when your site runs behind a proxy. Details below the table |
 | **Remove Data on Delete** | Off | Off keeps your data when you delete the plugin, so a reinstall picks up where you left off. On: deleting Free (or Pro) erases jobs, applications, companies, resumes, uploaded resume files, credit balances, settings and roles. It cannot be undone. Deactivating never deletes anything. The WordPress pages the plugin created are not deleted either |

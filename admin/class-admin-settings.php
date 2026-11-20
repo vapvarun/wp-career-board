@@ -1006,7 +1006,7 @@ class AdminSettings {
 												step="10"
 												placeholder="0"
 											>
-											<span class="description"><?php esc_html_e( 'How wide Career Board pages run. Leave at 0 to follow your theme, which most sites should. Set a value between 720 and 1920 only if the plugin pages need to differ from the rest of the site.', 'wp-career-board' ); ?></span>
+											<span class="description"><?php esc_html_e( 'How wide Career Board pages run. 0 follows your theme, which most sites should keep. Otherwise 720 to 1920; a smaller number is raised to 720, a larger one lowered to 1920.', 'wp-career-board' ); ?></span>
 										</div>
 									</div>
 									<div class="wcb-settings-row">
