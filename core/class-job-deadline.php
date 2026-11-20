@@ -232,7 +232,8 @@ class JobDeadline {
 		 * @param \WP_REST_Request $request     The originating REST request.
 		 */
 		$expire_days = (int) apply_filters( 'wcb_job_default_expiry_days', $expire_days, $request );
-		$expire_days = $expire_days > 0 ? $expire_days : 30;
+		// One ceiling for the site setting, a board's own length and anything stored before 1.8.5.
+		$expire_days = $expire_days > 0 ? (int) \WCB\Admin\SettingsSchema::sanitize( 'jobs_expire_days', $expire_days ) : 30;
 		// Counted from today in the display timezone, ending that day's last minute.
 		return Time::end_of_day_utc( ( new \DateTimeImmutable( Time::today(), Time::display_timezone() ) )->modify( '+' . $expire_days . ' days' )->format( 'Y-m-d' ) );
 	}
