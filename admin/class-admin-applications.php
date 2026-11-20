@@ -100,8 +100,6 @@ class AdminApplications extends \WP_List_Table {
 				</div>
 			</div>
 
-			<?php $this->views(); ?>
-
 			<?php
 			$wcb_job_filter = $this->job_filter();
 			$wcb_export_url = wp_nonce_url(
@@ -109,33 +107,34 @@ class AdminApplications extends \WP_List_Table {
 				'wcb-export-applications'
 			);
 			?>
-			<p class="wcb-applications-toolbar">
-				<?php
-				if ( $wcb_job_filter > 0 ) {
-					$this->filter_chip(
-						/* translators: %s: job title */
-						sprintf( __( 'Job: %s', 'wp-career-board' ), (string) get_post_field( 'post_title', $wcb_job_filter ) ),
-						array( 'job_id' ),
-						__( 'Show all jobs', 'wp-career-board' )
-					);
-				}
-				if ( $this->candidate_filter() > 0 ) {
-					$this->filter_chip(
-						/* translators: %s: candidate display name */
-						sprintf( __( 'Candidate: %s', 'wp-career-board' ), (string) get_the_author_meta( 'display_name', $this->candidate_filter() ) ),
-						array( 'candidate_id' ),
-						__( 'Show all candidates', 'wp-career-board' )
-					);
-				}
-				?>
-				<?php if ( $this->get_pagination_arg( 'total_items' ) > 0 ) : ?>
-					<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
-				<?php endif; ?>
-			</p>
-
 			<form method="get">
 				<?php $this->hidden_inputs( 'wcb-applications', array_diff_key( $this->filter_args(), array( 's' => 1 ) ) ); ?>
-				<?php $this->render_search_box( 'wcb-application', __( 'Search Applications', 'wp-career-board' ), __( 'Job title or candidate name…', 'wp-career-board' ) ); ?>
+				<?php // One row above the table: status links, then filter chips, Export and search on the right. ?>
+				<div class="wcb-applications-toolbar">
+					<?php
+					$this->views();
+					if ( $wcb_job_filter > 0 ) {
+						$this->filter_chip(
+							/* translators: %s: job title */
+							sprintf( __( 'Job: %s', 'wp-career-board' ), (string) get_post_field( 'post_title', $wcb_job_filter ) ),
+							array( 'job_id' ),
+							__( 'Show all jobs', 'wp-career-board' )
+						);
+					}
+					if ( $this->candidate_filter() > 0 ) {
+						$this->filter_chip(
+							/* translators: %s: candidate display name */
+							sprintf( __( 'Candidate: %s', 'wp-career-board' ), (string) get_the_author_meta( 'display_name', $this->candidate_filter() ) ),
+							array( 'candidate_id' ),
+							__( 'Show all candidates', 'wp-career-board' )
+						);
+					}
+					?>
+					<?php if ( $this->get_pagination_arg( 'total_items' ) > 0 ) : ?>
+						<a class="button" href="<?php echo esc_url( $wcb_export_url ); ?>"><?php esc_html_e( 'Export all matching to CSV', 'wp-career-board' ); ?></a>
+					<?php endif; ?>
+					<?php $this->render_search_box( 'wcb-application', __( 'Search Applications', 'wp-career-board' ), __( 'Job title or candidate name…', 'wp-career-board' ) ); ?>
+				</div>
 				<?php $this->display(); ?>
 			</form>
 		</div>
