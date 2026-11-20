@@ -231,7 +231,7 @@ foreach ( $wcb_jobs_raw as $wcb_job_post ) {
 			__( '%s ago', 'wp-career-board' ),
 			human_time_diff( (int) get_post_time( 'U', true, $wcb_job_post ), time() )
 		),
-		'bookmarked'      => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
+		'is_bookmarked'   => in_array( $wcb_job_post->ID, $wcb_bookmarks, true ),
 		'excerpt'         => \WCB\Core\Text::excerpt( $wcb_job_post->post_content, 25, '…' ),
 	);
 
@@ -864,7 +864,7 @@ wp_interactivity_state( 'wcb-job-listings', $wcb_state );
 						$wcb_bookmark = array(
 							'aria_label'            => __( 'Save job', 'wp-career-board' ),
 							'aria_label_bind'       => 'state.bookmarkLabel',
-							'bookmarked_class_bind' => 'context.job.bookmarked',
+							'bookmarked_class_bind' => 'context.job.is_bookmarked',
 						);
 						require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
 						?>

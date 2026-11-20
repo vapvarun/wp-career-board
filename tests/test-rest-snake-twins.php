@@ -49,9 +49,10 @@ if ( $item ) {
 wp_delete_post( $sjob, true );
 wp_delete_user( $emp );
 
-$apps = get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'author__not_in' => array( 0 ), 'posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => true ) );
+// An application that belongs to a candidate: a leftover authored by an admin has no list to read.
+$apps = get_posts( array( 'post_type' => 'wcb_application', 'post_status' => 'any', 'meta_key' => '_wcb_candidate_id', 'meta_compare' => '>', 'meta_value' => 0, 'meta_type' => 'NUMERIC', 'posts_per_page' => 1, 'fields' => 'ids', 'no_found_rows' => true ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 if ( $apps ) {
-	$cand = (int) get_post_field( 'post_author', $apps[0] );
+	$cand = (int) get_post_meta( $apps[0], '_wcb_candidate_id', true );
 	wp_set_current_user( $cand );
 	$res  = rest_do_request( new WP_REST_Request( 'GET', '/wcb/v1/candidates/' . $cand . '/applications' ) );
 	$data = $res->get_data();

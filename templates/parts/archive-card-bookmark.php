@@ -19,7 +19,7 @@
  *                                   label flips to "Remove from saved" after
  *                                   click). Empty = no reactive label.
  *   bookmarked_class_bind   string  Optional data-wp-class--wcb-bookmarked
- *                                   value (e.g. 'context.job.bookmarked').
+ *                                   value (e.g. 'context.job.is_bookmarked').
  *                                   Empty = use static SSR class instead.
  *   bookmarked_ssr          bool    Initial bookmarked-state class for first
  *                                   paint. Used when bookmarked_class_bind is

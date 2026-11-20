@@ -117,7 +117,7 @@ foreach ( $wcb_companies_raw as $wcb_co ) {
 		'verified'       => null !== $wcb_trust_info,
 		'permalink'      => get_permalink( $wcb_co_id ),
 		'jobs_label'     => $wcb_jobs_label,
-		'bookmarked'     => in_array( $wcb_co_id, $wcb_bookmarks, true ),
+		'is_bookmarked'  => in_array( $wcb_co_id, $wcb_bookmarks, true ),
 	);
 }
 
@@ -340,7 +340,7 @@ wp_interactivity_state( 'wcb-company-archive', $wcb_state );
 				$wcb_bookmark = array(
 					'aria_label'            => __( 'Save company', 'wp-career-board' ),
 					'aria_label_bind'       => 'state.saveCompanyAria',
-					'bookmarked_class_bind' => 'context.company.bookmarked',
+					'bookmarked_class_bind' => 'context.company.is_bookmarked',
 				);
 				require WCB_DIR . 'templates/parts/archive-card-bookmark.php';
 				?>

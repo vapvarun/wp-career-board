@@ -259,6 +259,7 @@ abstract class RestController extends \WP_REST_Controller {
 	 * Record a job view in the wcb_job_views table.
 	 *
 	 * The IP is stored as a keyed hash (AppCredentials::client_ip_hash()), never in plaintext.
+	 * A visitor counts once per job per hour.
 	 *
 	 * @since 1.0.0
 	 *
@@ -268,6 +269,13 @@ abstract class RestController extends \WP_REST_Controller {
 	protected function record_job_view( int $job_id ): void {
 		// An employer opening their own listing is not a view of it.
 		if ( $this->is_bot_request() || ( get_current_user_id() > 0 && get_current_user_id() === (int) get_post_field( 'post_author', $job_id ) ) ) {
+			return;
+		}
+
+		// One view per visitor and job an hour: a script reloading a page does not
+		// inflate the count or grow the table. Uses the plugin's one hourly limiter.
+		$visitor = get_current_user_id() ? 'user:' . get_current_user_id() : \WCB\Auth\AppCredentials::client_ip();
+		if ( $this->rate_limit_reached( 'wcb_job_view_' . $job_id . '_', $visitor, 1 ) ) {
 			return;
 		}
 

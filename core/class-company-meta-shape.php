@@ -29,6 +29,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class CompanyMetaShape {
 
 	/**
+	 * Company IDs found missing during this request.
+	 *
+	 * @var array<int, true>
+	 */
+	private static array $gone = array();
+
+	/**
 	 * The company a job belongs to.
 	 *
 	 * The job's own `_wcb_company_id` (stored at create time) wins; the
@@ -46,7 +53,13 @@ final class CompanyMetaShape {
 		$company_id = $company_id ? $company_id : (int) get_user_meta( (int) $job->post_author, '_wcb_company_id', true );
 		// A deleted or trashed company brands nothing: its name, logo and
 		// schema must not keep showing on the employer's other jobs.
-		$status = $company_id ? get_post_status( $company_id ) : false;
+		// WordPress does not cache a post that is not there, so a list of jobs
+		// pointing at one deleted company would repeat the lookup per row. A
+		// missing ID is never reused, so remembering it for the request is safe.
+		$status = $company_id && ! isset( self::$gone[ $company_id ] ) ? get_post_status( $company_id ) : false;
+		if ( $company_id && false === $status ) {
+			self::$gone[ $company_id ] = true;
+		}
 		return false === $status || 'trash' === $status ? 0 : $company_id;
 	}
 

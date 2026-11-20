@@ -48,6 +48,39 @@ function wcb_conc_assert( bool $condition, string $label ): void {
 }
 
 /**
+ * Where to send a request to this site, and the host header that goes with it.
+ *
+ * In the Docker model site the site address is the host port, which the
+ * WP-CLI container cannot reach: send the request to the web container (the
+ * `wp` service, or WCB_TEST_LOOPBACK) and keep the host header.
+ *
+ * @param string $url Absolute URL on this site.
+ * @return array{0:string,1:array<string,string>} URL and extra headers.
+ */
+function wcb_conc_wire( string $url ): array {
+	$home = untrailingslashit( home_url() );
+	$port = wp_parse_url( $home, PHP_URL_PORT );
+	if ( ! file_exists( '/.dockerenv' ) || ! $port || 80 === (int) $port ) {
+		return array( $url, array() );
+	}
+	return array(
+		( getenv( 'WCB_TEST_LOOPBACK' ) ?: 'http://wp' ) . substr( $url, strlen( $home ) ),
+		array( 'Host' => wp_parse_url( $home, PHP_URL_HOST ) . ':' . $port ),
+	);
+}
+
+/**
+ * Answers for every required screening question a job asks, whatever the site seeds.
+ *
+ * @param int $job_id Job ID.
+ * @return array<string, string>
+ */
+function wcb_conc_answers( int $job_id ): array {
+	$groups = (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id );
+	return array_fill_keys( array_keys( \WCB\Core\FormCustomFields::missing_required( $groups, array() ) ), 'Test answer' );
+}
+
+/**
  * Send requests in parallel and return their status codes, in order.
  *
  * @param array<int, array{url:string, data:array<string,mixed>}> $calls Requests.
@@ -57,13 +90,18 @@ function wcb_conc_assert( bool $condition, string $label ): void {
 function wcb_conc_parallel( array $calls, string $auth ): array {
 	$requests = array();
 	foreach ( $calls as $call ) {
-		$requests[] = array(
-			'url'     => $call['url'],
-			'type'    => Requests::POST,
-			'headers' => array(
+		list( $url, $extra ) = wcb_conc_wire( $call['url'] );
+		$headers             = array_merge(
+			array(
 				'Authorization' => 'Basic ' . base64_encode( $auth ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- HTTP Basic auth header.
 				'Content-Type'  => 'application/json',
 			),
+			$extra
+		);
+		$requests[] = array(
+			'url'     => $url,
+			'type'    => Requests::POST,
+			'headers' => $headers,
 			'data'    => wp_json_encode( $call['data'] ),
 		);
 	}
@@ -173,7 +211,7 @@ $wcb_new_job = static function () use ( &$wcb_jobs ): int {
 // 1. A burst of identical applies creates one application.
 $wcb_job   = $wcb_new_job();
 $wcb_url   = rest_url( 'wcb/v1/jobs/' . $wcb_job . '/apply' );
-$wcb_codes = wcb_conc_parallel( array_fill( 0, 10, array( 'url' => $wcb_url, 'data' => array( 'resume_attachment_id' => $wcb_own_cv ) ) ), $wcb_cand_auth );
+$wcb_codes = wcb_conc_parallel( array_fill( 0, 10, array( 'url' => $wcb_url, 'data' => array( 'resume_attachment_id' => $wcb_own_cv, 'custom_fields' => wcb_conc_answers( $wcb_job ) ) ) ), $wcb_cand_auth );
 wcb_conc_assert( 1 === wcb_conc_app_count( $wcb_job, $wcb_candidate ), 'burst of 10 applies creates exactly 1 application (codes ' . implode( ',', $wcb_codes ) . ')' );
 wcb_conc_assert( 1 === count( array_keys( $wcb_codes, 200, true ) ), 'exactly one request succeeds' );
 
@@ -184,8 +222,8 @@ for ( $i = 0; $i < 5; $i++ ) {
 	$wcb_url   = rest_url( 'wcb/v1/jobs/' . $wcb_job . '/apply' );
 	$wcb_codes = wcb_conc_parallel(
 		array(
-			array( 'url' => $wcb_url, 'data' => array( 'resume_attachment_id' => $wcb_other_cv ) ),
-			array( 'url' => $wcb_url, 'data' => array( 'resume_attachment_id' => $wcb_own_cv ) ),
+			array( 'url' => $wcb_url, 'data' => array( 'resume_attachment_id' => $wcb_other_cv, 'custom_fields' => wcb_conc_answers( $wcb_job ) ) ),
+			array( 'url' => $wcb_url, 'data' => array( 'resume_attachment_id' => $wcb_own_cv, 'custom_fields' => wcb_conc_answers( $wcb_job ) ) ),
 		),
 		$wcb_cand_auth
 	);
@@ -220,14 +258,18 @@ wcb_conc_assert( 10 === count( \WCB\Modules\Applications\ApplicationNotes::notes
 
 // 4. The guest per-IP limit counts every request in a burst (limit 10/hour).
 // Empty guest applies are counted, then rejected for the missing name.
-$wcb_ip_key = 'wcb_guest_apply_' . md5( wp_salt() . '127.0.0.1' );
+// The limiter counts the address the server sees: from the Docker WP-CLI container that is the container's, not 127.0.0.1.
+list( $wcb_guest_url, $wcb_guest_headers ) = wcb_conc_wire( rest_url( 'wcb/v1/jobs/' . $wcb_jobs[0] . '/apply' ) );
+$wcb_client_ip = $wcb_guest_headers ? (string) gethostbyname( (string) gethostname() ) : '127.0.0.1';
+$wcb_ip_key    = 'wcb_guest_apply_' . md5( wp_salt() . $wcb_client_ip );
 delete_transient( $wcb_ip_key );
 $wcb_guest = array_fill(
 	0,
 	12,
 	array(
-		'url'  => rest_url( 'wcb/v1/jobs/' . $wcb_jobs[0] . '/apply' ),
-		'type' => Requests::POST,
+		'url'     => $wcb_guest_url,
+		'type'    => Requests::POST,
+		'headers' => $wcb_guest_headers,
 	)
 );
 $wcb_codes = array_map(

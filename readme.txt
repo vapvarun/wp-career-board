@@ -78,6 +78,10 @@ A release for 1.8.4 that tightens CV privacy and speeds up large sites.
 * Fix      - The job form preview shows Remote once when a remote job also has the Remote place picked.
 * Fix      - Every list route sends the standard X-WP-Total and X-WP-TotalPages headers, so apps and headless clients can page.
 * Fix      - The status updated message in Applications stays with the applicant it was saved for.
+* Fix      - Saved jobs and companies show as saved on every card, including cards from Load more and after a sort or filter change, and a heart can no longer remove a save.
+* Fix      - A job list no longer repeats one lookup per job when the employer's company was deleted.
+* Fix      - A job view counts once per visitor an hour, so reloading a page no longer inflates views.
+* Fix      - Saving a job or company that does not exist, or is not live, is refused with a not found answer.
 * Fix      - Custom field types show the same value on every screen, including File links and choices that contain commas.
 * Fix      - A job form on a paid board shows Featured as included instead of offering it for sale.
 * Fix      - The plugin's full-width template applies only to app pages, not to display blocks.
@@ -89,6 +93,7 @@ A release for 1.8.4 that tightens CV privacy and speeds up large sites.
 * Security - A trashed application no longer grants access to a private CV, and the access check runs one query.
 * Security - A guest application counts against the hourly limit before its answers are read, and the multi-choice answer splitter is bounded.
 * Security - A visitor's IP address is stored as a keyed hash.
+* Security - The sign-up routes count a try for an address that already has an account, so they cannot be used to find which emails are registered.
 * Dev      - Admin scripts use wp.apiFetch.
 * Compat   - Aligned with WP Career Board Pro 1.8.5. Install both updates together.
 

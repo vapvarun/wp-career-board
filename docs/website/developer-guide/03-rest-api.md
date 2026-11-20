@@ -66,7 +66,7 @@ The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` fo
 | `DELETE` | `/jobs/{id}` | same as update | Move a job to the trash |
 | `POST` | `/jobs/{id}/approve` | moderator | Approve a pending job |
 | `POST` | `/jobs/{id}/reject` | moderator | Reject a pending job (requires `reason`) |
-| `POST` | `/jobs/{id}/bookmark` | `wcb/bookmark-jobs` (any logged-in member by default) | Toggle a saved job |
+| `POST` | `/jobs/{id}/bookmark` | `wcb/bookmark-jobs` (any logged-in member by default) | Toggle a saved job (404 when the job does not exist or is not live); send `bookmarked` (true or false) to set the state instead of flipping it |
 | `POST` | `/jobs/{id}/view` | Public | Count one view of the job. The job page calls it from the browser, so a full-page cache still counts views. |
 | `POST` | `/jobs/{id}/feature` | job owner | Pay to feature a job. Added by WP Career Board Pro |
 | `POST` | `/jobs/{id}/report` | logged-in | Report a published job for moderation. A second report from the same user is ignored |
@@ -169,7 +169,7 @@ reference.
 | `GET` | `/employers/me/jobs` | `wcb/access-employer-dashboard` | The current employer's own jobs |
 | `GET` | `/employers/me/applications` | `wcb/access-employer-dashboard` | Applications across the current employer's jobs |
 | `GET` | `/companies` | guest OK | List companies. Filters: `search`, `industry`, `size`, `page`, `per_page` (max 100) |
-| `POST` | `/companies/{id}/bookmark` | `wcb/bookmark-jobs` | Toggle a saved company |
+| `POST` | `/companies/{id}/bookmark` | `wcb/bookmark-jobs` | Toggle a saved company (404 when it does not exist or is not live); send `bookmarked` (true or false) to set the state. `GET /companies` rows carry `is_bookmarked` for the signed-in viewer |
 | `POST` | `/companies/{id}/trust` | `wcb/manage-settings` | Set a company's `trust_level` (`verified`, `trusted`, `premium`, or empty to clear) |
 
 There is no `GET /employers` list route. An employer's profile is the same `wcb_company` post type companies use, so a public employer directory is served by `GET /companies`.

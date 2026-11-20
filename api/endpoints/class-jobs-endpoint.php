@@ -94,6 +94,12 @@ final class JobsEndpoint extends RestController {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'toggle_bookmark' ),
+				'args'                => array(
+					'bookmarked' => array(
+						'type'        => 'boolean',
+						'description' => 'The state to set. Omit to flip the current state.',
+					),
+				),
 				// wcb/bookmark-jobs, not a bare login check: the ability was
 				// declared, granted to wcb_candidate and listed by `wp wcb
 				// abilities`, but enforced nowhere, so candidate_requires_role
@@ -1349,15 +1355,16 @@ final class JobsEndpoint extends RestController {
 
 	/**
 	 * Toggle bookmark using non-unique usermeta (one row per bookmarked job).
+	 * Send `bookmarked` (true or false) to set the state instead of flipping it.
 	 *
 	 * Avoids race conditions from reading/writing a single array meta value.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response {
+	public function toggle_bookmark( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
 		$user_id = get_current_user_id();
 		$job_id  = (int) $request['id'];
 
@@ -1365,12 +1372,20 @@ final class JobsEndpoint extends RestController {
 		$existing = get_user_meta( $user_id, '_wcb_bookmark', false );
 		$existing = array_map( 'intval', (array) $existing );
 
-		if ( in_array( $job_id, $existing, true ) ) {
-			delete_user_meta( $user_id, '_wcb_bookmark', $job_id );
-			$bookmarked = false;
-		} else {
+		// `bookmarked` is the state the caller wants; without it the call flips the
+		// current state, as it always has. A client holding a stale heart cannot
+		// then remove a save it meant to add.
+		$saved      = in_array( $job_id, $existing, true );
+		$bookmarked = null === $request->get_param( 'bookmarked' ) ? ! $saved : rest_sanitize_boolean( $request->get_param( 'bookmarked' ) );
+		if ( $bookmarked && ! $saved ) {
+			// Only a live item can be saved; removing a save always works, so a member can clear one that has since ended.
+			$target = get_post( $job_id );
+			if ( ! $target || 'wcb_job' !== $target->post_type || 'publish' !== $target->post_status ) {
+				return new \WP_Error( 'wcb_not_found', __( 'Job not found.', 'wp-career-board' ), array( 'status' => 404 ) );
+			}
 			add_user_meta( $user_id, '_wcb_bookmark', $job_id, false );
-			$bookmarked = true;
+		} elseif ( ! $bookmarked && $saved ) {
+			delete_user_meta( $user_id, '_wcb_bookmark', $job_id );
 		}
 
 		return rest_ensure_response(

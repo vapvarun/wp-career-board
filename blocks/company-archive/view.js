@@ -146,8 +146,8 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 			if ( ! ctx?.company ) {
 				return;
 			}
-			const wasBookmarked = !! ctx.company.bookmarked;
-			ctx.company.bookmarked = ! wasBookmarked;
+			const wasBookmarked = !! ctx.company.is_bookmarked;
+			ctx.company.is_bookmarked = ! wasBookmarked;
 
 			const nonce = state.restNonce || ( window.wpApiSettings && window.wpApiSettings.nonce ) || '';
 			const url   = state.apiBase + '/' + ctx.company.id + '/bookmark';
@@ -160,12 +160,18 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 						'Content-Type': 'application/json',
 						'X-WP-Nonce':   nonce,
 					},
+					// The state the member wants, not "flip": an out-of-date heart must
+					// never remove a save. The answer that comes back is the truth.
+					body:        JSON.stringify( { bookmarked: ! wasBookmarked } ),
 				} );
-				if ( ! response.ok ) {
-					ctx.company.bookmarked = wasBookmarked;
+				if ( response.ok ) {
+					const data = yield response.json();
+					ctx.company.is_bookmarked = !! data.bookmarked;
+				} else {
+					ctx.company.is_bookmarked = wasBookmarked;
 				}
 			} catch {
-				ctx.company.bookmarked = wasBookmarked;
+				ctx.company.is_bookmarked = wasBookmarked;
 			}
 		},
 
