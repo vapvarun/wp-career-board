@@ -1508,16 +1508,8 @@ final class JobsEndpoint extends RestController {
 				return '' !== $url ? $url : null;
 			} )(),
 			'resume_permalink'   => ( static function () use ( $p ): ?string {
-				$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
-				if ( $resume_id <= 0 || ! \WCB\Modules\Candidates\CandidatesModule::resume_is_public( $resume_id ) ) {
-					return null;
-				}
-				$resume_post = get_post( $resume_id );
-				if ( ! $resume_post instanceof \WP_Post || 'wcb_resume' !== $resume_post->post_type ) {
-					return null;
-				}
-				$url = get_permalink( $resume_id );
-				return false !== $url ? (string) $url : null;
+				$url = \WCB\Modules\Candidates\CandidatesModule::public_resume_url( (int) get_post_meta( $p->ID, '_wcb_resume_id', true ) );
+				return '' !== $url ? $url : null;
 			} )(),
 		) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
 	}

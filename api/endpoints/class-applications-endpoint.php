@@ -1235,13 +1235,7 @@ final class ApplicationsEndpoint extends RestController {
 		// Public on-site resume profile — lets the employer review the candidate's
 		// full resume (experience, education, skills) on the site instead of relying
 		// only on a downloaded file, which may not exist for builder/imported resumes.
-		$resume_permalink = '';
-		if ( $resume_id > 0 && \WCB\Modules\Candidates\CandidatesModule::resume_is_public( $resume_id ) ) {
-			$resume_post = get_post( $resume_id );
-			if ( $resume_post instanceof \WP_Post && 'wcb_resume' === $resume_post->post_type ) {
-				$resume_permalink = (string) get_permalink( $resume_id );
-			}
-		}
+		$resume_permalink = \WCB\Modules\Candidates\CandidatesModule::public_resume_url( $resume_id );
 
 		return array(
 			'id'               => $post->ID,

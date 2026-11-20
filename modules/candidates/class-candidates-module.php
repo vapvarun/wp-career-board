@@ -458,6 +458,26 @@ final class CandidatesModule {
 	}
 
 	/**
+	 * The on-site link an employer opens for an applicant's resume, or '' when
+	 * there is none to open: the resume is not public, or it is trashed, draft or
+	 * pending (the same published rule resume_is_readable() applies).
+	 *
+	 * @since 1.8.5
+	 * @param int $resume_id Resume post ID.
+	 * @return string Permalink, or ''.
+	 */
+	public static function public_resume_url( int $resume_id ): string {
+		if ( $resume_id <= 0 || ! self::resume_is_public( $resume_id ) ) {
+			return '';
+		}
+		$post = get_post( $resume_id );
+		if ( ! $post instanceof \WP_Post || 'wcb_resume' !== $post->post_type || 'publish' !== $post->post_status ) {
+			return '';
+		}
+		return (string) get_permalink( $resume_id );
+	}
+
+	/**
 	 * Whether a candidate has applied to a job owned by this employer.
 	 *
 	 * Owned = the job's author, or the job's company is the employer's company.
