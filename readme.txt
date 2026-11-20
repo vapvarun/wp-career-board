@@ -3,7 +3,7 @@ Contributors: wbcomdesigns
 Tags: job board, jobs, employment, career, gutenberg
 Requires at least: 6.9
 Tested up to: 7.1
-Stable tag: 1.8.4
+Stable tag: 1.8.5
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -61,6 +61,33 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 6. Admin settings with tabbed configuration panels.
 
 == Changelog ==
+
+= 1.8.5 - November 2026 =
+
+A release for 1.8.4 that tightens CV privacy and speeds up large sites.
+
+* New      - The Jobs list filters by category, job type and location.
+* New      - A new board gets default job types and experience levels.
+* New      - A resume made from an uploaded CV shows its file on the resume page, with Download CV for the candidate, the employer applied to and admins.
+* Improve  - The Applications list has one toolbar row for status, filters, export and search.
+* Improve  - Admin lists, dashboards and the job form show dates in the site's date format.
+* Improve  - Applicant board cards, company badges and dashboard list rows look the same everywhere, and the board scrolls cleanly on a tablet.
+* Improve  - A job form on a trashed board opens like an unscoped form, and a restored board comes back published.
+* Fix      - View resume opens the resume sent with that application, not the candidate's latest one.
+* Fix      - A remote job shows Remote once, and a second Remote place folds into the built-in one.
+* Fix      - Custom field types show the same value on every screen, including File links and choices that contain commas.
+* Fix      - A job form on a paid board shows Featured as included instead of offering it for sale.
+* Fix      - The plugin's full-width template applies only to app pages, not to display blocks.
+* Fix      - Alert auto-hide follows the hide itself, not the report count.
+* Fix      - Job listing length is held to 1-365 days on every path.
+* Fix      - Turning email verification off releases members still waiting on it.
+* Fix      - A ?board= link stays applied in the job listings, and applicant names no longer collapse after ranking by AI fit.
+* Fix      - Company initials match on the job page, company page and lists.
+* Security - A trashed application no longer grants access to a private CV, and the access check runs one query.
+* Security - A guest application counts against the hourly limit before its answers are read, and the multi-choice answer splitter is bounded.
+* Security - A visitor's IP address is stored as a keyed hash.
+* Dev      - Admin scripts use wp.apiFetch.
+* Compat   - Aligned with WP Career Board Pro 1.8.5. Install both updates together.
 
 = 1.8.4 - November 2026 =
 
