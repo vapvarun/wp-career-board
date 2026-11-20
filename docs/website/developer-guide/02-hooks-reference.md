@@ -136,6 +136,7 @@ Application statuses are `submitted`, `reviewing`, `shortlisted`, `rejected`, `h
 | `wcb_candidate_form_fields` | Filter | Add fields to the candidate profile form. Args: `$fields, $user_id`. |
 | `wcb_company_form_fields` | Filter | Add fields to the company profile form. Args: `$groups, $company_id`. |
 | `wcb_save_custom_field` | Filter | Change or reject a custom field value before it is saved. Return `null` to skip saving. Args: `$value, $key, $owner_id`. |
+| `wcb_can_view_candidate_profile` | Filter | Whether a viewer may open a candidate's profile over `GET /candidates/{id}`. Pro applies the owner's access setting. The candidate, admins and an employer the candidate applied to always pass. Args: `$allowed, $candidate_id, $viewer_id`. |
 | `wcb_can_view_public_resume` | Filter | Whether a viewer may open a public resume. Pro applies the owner's access setting. Args: `$allowed, $post_id, $viewer_id`. |
 | `wcb_private_file_can_download` | Filter | Grant a private resume file to another audience. Args: `$allowed, $attachment_id, $user_id`. |
 | `wcb_resume_rest_query_args` | Filter | Change the resume REST query. Args: `$args, $request`. |

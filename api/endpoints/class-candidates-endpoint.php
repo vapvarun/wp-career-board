@@ -352,6 +352,28 @@ final class CandidatesEndpoint extends RestController {
 			);
 		}
 
+		/**
+		 * Filter - whether the viewer may open this candidate's profile.
+		 *
+		 * Free allows it (the profile's own visibility above is the only gate); Pro
+		 * narrows it to its "who can open a resume" setting, so the REST profile
+		 * and the resume page follow one rule. A refusal answers like a missing
+		 * candidate. The candidate, site admins and an employer the candidate applied to always pass.
+		 *
+		 * @since 1.8.6
+		 *
+		 * @param bool $allowed   Whether the viewer may open the profile.
+		 * @param int  $user_id   Candidate user ID.
+		 * @param int  $viewer_id Viewer user ID, 0 when logged out.
+		 */
+		if ( ! $is_self && ! $is_admin && ! ( $this->check_ability( 'wcb/view-applications' ) && \WCB\Modules\Candidates\CandidatesModule::has_applied_to( $user_id, get_current_user_id() ) ) && ! (bool) apply_filters( 'wcb_can_view_candidate_profile', true, $user_id, get_current_user_id() ) ) {
+			return new \WP_Error(
+				'wcb_not_found',
+				__( 'Candidate not found.', 'wp-career-board' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		// Only candidates have a candidate profile: an admin's or employer's ID
 		// answered here too, confirming the account and its name.
 		if ( ! $is_self && ! $is_admin && ! in_array( 'wcb_candidate', (array) $user->roles, true ) ) {

@@ -91,10 +91,15 @@ A release for 1.8.4 that tightens CV privacy and speeds up large sites.
 * Fix      - Turning email verification off releases members still waiting on it.
 * Fix      - A ?board= link stays applied in the job listings, and applicant names no longer collapse after ranking by AI fit.
 * Fix      - Company initials match on the job page, company page and lists.
+* Fix      - A company co-owner can list the company's applications, as they can for its jobs.
+* Fix      - A job an admin features is marked Featured instead of reporting success and doing nothing.
+* Fix      - A trashed application can no longer be read over the REST API except by an admin.
+* Fix      - A candidate's profile over the REST API follows the resume access setting, and an employer the candidate applied to always sees it.
 * Security - A trashed application no longer grants access to a private CV, and the access check runs one query.
 * Security - A guest application counts against the hourly limit before its answers are read, and the multi-choice answer splitter is bounded.
 * Security - A visitor's IP address is stored as a keyed hash.
 * Security - The sign-up routes count a try for an address that already has an account, so they cannot be used to find which emails are registered.
+* Security - The app password limiter keys its counters with the site salt, and an IPv6 visitor counts as one address per /64.
 * Dev      - Admin scripts use wp.apiFetch.
 * Compat   - Aligned with WP Career Board Pro 1.8.5. Install both updates together.
 

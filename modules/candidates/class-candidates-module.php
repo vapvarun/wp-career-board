@@ -547,7 +547,8 @@ final class CandidatesModule {
 	/**
 	 * Whether a candidate has applied to a job owned by this employer.
 	 *
-	 * Owned = the job's author, or the job's company is the employer's company.
+	 * Owned = the job's author, or a company the employer runs. Withdrawn and
+	 * trashed applications do not count.
 	 * One indexed query, no cap (the previous check stopped at the candidate's
 	 * first 100 applications and ran a query per row).
 	 *
@@ -562,25 +563,26 @@ final class CandidatesModule {
 			return false;
 		}
 		global $wpdb;
-		$company_id = \WCB\Core\CompanyMetaShape::resolve_company_id( $employer_id );
+		$scope = \WCB\Modules\Employers\EmployersModule::job_scope_sql( $employer_id, 'job' );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- indexed existence check; cached per request by callers' call frequency.
+		// A withdrawn or trashed application is no longer an application to this employer.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- indexed existence check.
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT 1 FROM {$wpdb->postmeta} cand
-				INNER JOIN {$wpdb->posts} app ON app.ID = cand.post_id AND app.post_type = 'wcb_application'
+				INNER JOIN {$wpdb->posts} app ON app.ID = cand.post_id AND app.post_type = 'wcb_application' AND app.post_status NOT IN ( 'trash', 'auto-draft' )
 				INNER JOIN {$wpdb->postmeta} jm ON jm.post_id = app.ID AND jm.meta_key = '_wcb_job_id'
-				INNER JOIN {$wpdb->posts} job ON job.ID = jm.meta_value
-				LEFT JOIN {$wpdb->postmeta} jc ON jc.post_id = job.ID AND jc.meta_key = '_wcb_company_id'
+				INNER JOIN {$wpdb->posts} job ON job.ID = CAST( jm.meta_value AS UNSIGNED ) AND job.post_type = 'wcb_job'
+				LEFT JOIN {$wpdb->postmeta} st ON st.post_id = app.ID AND st.meta_key = '_wcb_status'
 				WHERE cand.meta_key = '_wcb_candidate_id' AND cand.meta_value = %s
-				AND ( job.post_author = %d OR ( %d > 0 AND jc.meta_value = %s ) )
+				AND ( st.meta_value IS NULL OR st.meta_value <> %s )
+				AND {$scope}
 				LIMIT 1",
 				(string) $candidate_id,
-				$employer_id,
-				$company_id,
-				(string) $company_id
+				\WCB\Modules\Applications\ApplicationStatus::WITHDRAWN
 			)
 		);
+		// phpcs:enable
 	}
 
 	/**

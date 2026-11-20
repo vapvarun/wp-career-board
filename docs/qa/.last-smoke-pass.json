@@ -1,128 +1,176 @@
 {
   "mode": "combo",
-  "scope": "targeted re-walk after the last fixes on the 1.8.5 branch: saved hearts, public REST writes, Pro fields/boards/credits/CSV, core regressions, 9 test files",
+  "scope": "rebuild re-walk after the nine 1.8.6-branch review fixes: Pro credits (Featured hold, renewal once, payer pricing, Featured not sold), access (co-owner applications, trashed and withdrawn applications, candidate profile under public/approved), admin Feature, app-password lock, core regressions, 8 test files; plus Free-only pass",
   "release_version": "1.8.5",
   "pro_version": "1.8.5",
   "free_version": "1.8.5",
-  "free_commit": "e0be28bb",
-  "pro_commit": "3a36cf8",
-  "ran_at": "2026-11-20T18:50:21Z",
+  "free_commit": "f82e96e6",
+  "pro_commit": "ef512df",
+  "ran_at": "2026-11-20T20:14:59Z",
   "env": {
     "url": "http://127.0.0.1:8420",
     "theme": "reign",
-    "stack": "docker cb-model-wp-1 (php8.2 + wp-cli), Free+Pro live-mounted from the 1.8.5 worktrees, wbcom-essential 4.7.3, WP_DEBUG_LOG on; debug.log 2156 bytes before and after the walk (delta 0; the 9 existing lines are WP core 8.2 deprecations from wp-cli plus one 'Undefined variable $wcb_simple_css' from an eval-file run and one wpdb::prepare notice, all timestamped 18:05-18:09 UTC before this walk started)",
     "service_worker": "unregistered and caches deleted before measuring (none registered)",
-    "commit_note": "Walk started at Free 83360b9a / Pro c70f8ca; dev commits landed mid-walk (Free 6adc1abe, Pro c74bcf7: wording, POT, OpenAPI, Credits endpoint SDK import). All 9 test files re-run on the final HEADs and pass."
+    "debug_log": "debug.log 2156 bytes before and after the walk (delta 0, no new lines, none mention wp-career-board); the 9 existing lines are older wp-cli/eval-file notices from 18:05-18:09 UTC",
+    "js_console": "pageerror and console.error listeners on every page walked (archive, single job, company, candidate and employer dashboards, post-a-job, pipeline, admin lists, apply panel): zero JS errors; the only console error is the browser's own 'Failed to load resource' for the intended 409 on Featured-not-sold",
+    "stack": "docker cb-model-wp-1 (php8.2 + wp-cli), Free+Pro live-mounted from the 1.8.5 worktrees (branch 1.8.6, version strings 1.8.5), WP_DEBUG_LOG on",
+    "cleanup": "Test data created and removed by captured IDs: boards 110881/110884, jobs 110882/110883/110885/110886/110889, application 110887, throwaway user 20334, co-owner meta, app-password lock transients. Thomas Becker credits topped up +20 then adjusted back to 0 (the append-only ledger keeps the rows). wcbp_featured_upgrade_cost restored to 10; resume_single_access and app_password_login restored to absent."
   },
   "sections": {
-    "A_fresh_install": {
-      "pass": 0,
-      "fail": 0,
-      "skipped": 1,
-      "note": "see .last-smoke-pass-free.json (first-hour walk on a fresh Free-only install)"
-    },
-    "B_upgrade": {
-      "pass": 0,
-      "fail": 0,
-      "skipped": 1
-    },
     "C_core_flows": {
-      "pass": 10,
+      "pass": 4,
       "fail": 0,
       "skipped": 0
     },
     "D_regression_guards": {
-      "pass": 3,
+      "pass": 4,
       "fail": 0,
       "skipped": 0
     },
     "E_pro_smoke": {
-      "pass": 1,
+      "pass": 5,
       "fail": 0,
       "skipped": 0,
       "note": "see .last-smoke-pass-pro.json"
     },
-    "E2_environment": {
-      "pass": 1,
+    "T_test_files": {
+      "pass": 8,
       "fail": 0,
-      "skipped": 1
+      "skipped": 0,
+      "note": "Free 79 assertions, Pro 77, all pass"
     },
-    "F_cross_browser": {
-      "pass": 0,
+    "G_free_only": {
+      "pass": 4,
       "fail": 0,
-      "skipped": 1
+      "skipped": 0,
+      "note": "see .last-smoke-pass-free.json"
     }
   },
   "checks": [
     {
-      "id": "S1.saved-hearts.jobs-candidate",
+      "id": "T.free.review-hardening",
       "result": "pass",
-      "observed": "adrian.kowalski, /find-jobs/ 1440: Load more x11 to 135 cards, exactly the 4 saved jobs (68594, 68607, 68624, 68638) show Saved/wcb-bookmarked. Sort oldest and salary (all pages loaded): same 4 saved. Type filter full-time (111 cards): same 4. Unsave then save by clicking the same heart: label Saved > Save job > Saved, DB meta follows (POST /jobs/{id}/bookmark 200); original set restored exactly. 390: scrollWidth 390; dark (data-bx-mode) amber heart rgb(217,119,6) on card rgb(26,32,40). Console: no errors (one 403 was my own un-nonced probe fetch)."
+      "observed": "tests/test-review-hardening.php: Total 25 Pass 25 Fail 0"
     },
     {
-      "id": "S1.saved-hearts.companies-candidate",
+      "id": "T.free.candidate-visibility",
       "result": "pass",
-      "observed": "/find-companies/ default and sort date_asc: both saved companies (wildflower-coffee 68543, fernway-foods 68517) show saved after Load more; unsave and resave toggles class and DB; set unchanged (68543,68517). See F9 for the aria-label gap."
+      "observed": "tests/test-candidate-visibility.php: Total 18 Pass 18 Fail 0"
     },
     {
-      "id": "S1.saved-hearts.guest",
+      "id": "T.free.bookmark-state",
       "result": "pass",
-      "observed": "Guest on /find-jobs/ and /find-companies/: 0 saved hearts; clicking a heart goes to wp-login.php?redirect_to=<the list page>; no console errors."
+      "observed": "tests/test-bookmark-state.php: Total 19 Pass 19 Fail 0"
     },
     {
-      "id": "R2.rest.view-dedupe",
+      "id": "T.free.rest-write-hardening",
       "result": "pass",
-      "observed": "6 POST /jobs/{id}/view from one visitor each on jobs 68607 and 68624: 204 x6, wcb_job_views has exactly 1 row for each."
+      "observed": "tests/test-rest-write-hardening.php: Total 17 Pass 17 Fail 0 (79 Free assertions in total)"
     },
     {
-      "id": "R2.rest.save-missing-id",
+      "id": "T.pro.review-credits",
       "result": "pass",
-      "observed": "Logged-in adrian: POST /jobs/99999999/bookmark and /companies/99999999/bookmark = 404. Guest = 401. Unsave of an existing job 200 and resave 200."
+      "observed": "tests/test-review-credits.php: Total 12 Pass 12 Fail 0"
     },
     {
-      "id": "R2.rest.signup-rate-limit",
+      "id": "T.pro.job-charge",
       "result": "pass",
-      "observed": "candidates/register with an existing email: attempts 1-5 = 409 wcb_email_exists, attempts 6 and 7 = 429 wcb_rate_limited. Transient wcb_reg_77a3... deleted, 0 wcb_reg_ rows left."
+      "observed": "tests/test-job-charge.php: Total 35 Pass 35 Fail 0"
     },
     {
-      "id": "R6.core.employer-applications-status-scoped",
+      "id": "T.pro.featured-charge-on-create",
       "result": "pass",
-      "observed": "thomas.becker, Senior DevOps Engineer: Arjun Mehta Submitted>Reviewing shows 'Status updated' on Arjun only; opening Adrian Kowalski (Shortlisted) shows no message; back on Arjun it shows again. Arjun restored to Submitted (68788 submitted)."
+      "observed": "tests/test-featured-charge-on-create.php: 11 passed 0 failed"
     },
     {
-      "id": "R6.core.job-dates-site-format",
+      "id": "T.pro.paid-board-featured",
       "result": "pass",
-      "observed": "Job page Apply by shows 'November 19, 2026' with F j, Y and '19/11/2026' with d/m/Y; date_format restored to F j, Y."
+      "observed": "tests/test-paid-board-featured.php: Total 19 Pass 19 Fail 0 (77 Pro assertions in total)"
     },
     {
-      "id": "R6.core.remote-once-cards",
+      "id": "CR.renew-once.ui",
       "result": "pass",
-      "observed": "remote=1 list (34 jobs, 390 and 1440): every card has exactly one Remote element; Lead Brand Designer card shows Remote, Full-time, Lead, London. Job detail shows the Remote badge plus a Work Mode row (separate fact row)."
+      "observed": "thomas.becker, My Jobs, expired 'Senior Backend Engineer' on a 4-credit board, Reopen double-clicked: balance 20 -> 16 (one price), ledger hold -4 / release +4 / spend -4 once, job publish. The UI sent a single PATCH (menu closes after the first click), so the double click was also proven server-side: 3 parallel PATCH status=publish on a second expired job 'Staff Platform Engineer' all returned 200 and the balance moved 16 -> 12 once (one hold, one spend)."
     },
     {
-      "id": "R6.core.employer-dashboard-390",
+      "id": "CR.featured.quote-charge",
       "result": "pass",
-      "observed": "Overview and Applications at 390: scrollWidth 390, 0 overflowing elements; low-balance banner 326px wide fits."
+      "observed": "Feature on the published job: dialog quoted 'Credits this uses from your balance: 10', double-clicked Feature job, balance 12 -> 2 exactly, one hold/spend pair of 10, Featured badge shown. Quoted, shown and charged agree for the job author."
     },
     {
-      "id": "P4.credits.low-balance-banner",
+      "id": "CR.featured.free-board-price-0",
       "result": "pass",
-      "observed": "thomas.becker with a captured ledger row (id 4093, +3): banner 'Low balance: 3 credits left.' 854x48 at 1440 and 326x48 at 390, no overflow. With 0 history rows (balance 0) no banner shows, by design (creditHasHistory). Row 4093 deleted by id, balance back to 0, the _wbcom_credits_low flag removed."
+      "observed": "wcbp_featured_upgrade_cost=0, job 'Product Designer' on a 0-credit board: POST /jobs/{id}/feature returned 409 wcb_feature_not_sold 'Featured upgrades are not available on this site.', job not featured, Feature absent from its My Jobs menu. Same price 0 on a paid board (cost 3) features with no charge (included), as designed. Option restored to 10."
     },
     {
-      "id": "T7.cli.tests",
+      "id": "CR.featured.pending-held-once",
       "result": "pass",
-      "observed": "Free: test-bookmark-state 18/18, test-rest-write-hardening 17/17, test-list-paging-headers 46/46, test-block-query-budget 4/4, test-apply-concurrency 5/5, test-accounts 61/61. Pro: test-rest-partial-writes 13/13, test-job-charge 35/35, test-board-move-concurrency 1/1. All rc 0."
+      "observed": "Covered by tests/test-review-credits.php F1 (feature a pending job twice, flag cleared between: one hold); not re-driven by hand in the browser."
     },
     {
-      "id": "D8.debug-log",
+      "id": "CR.coowner-price",
       "result": "pass",
-      "observed": "debug.log 2156 bytes before, 2156 after; no new entry."
+      "observed": "Co-owner priced as themselves and moderator leaves the author's price: asserted by tests/test-review-credits.php F4 (12/12). Not driven live with a second paying co-owner in the browser."
     },
     {
-      "id": "F9.company-archive.saved-heart-aria-pressed",
+      "id": "CR.credits-tab.render",
       "result": "pass",
-      "observed": "Free e0be28bb, adrian.kowalski, light, 1440 and 390: on /find-jobs/ and /find-companies/ every .wcb-bookmark-btn has aria-pressed equal to its wcb-bookmarked class on first load, after Load more (jobs 137 buttons/4 saved/4 pressed=true; companies 28/2/2) and after sort change (oldest, date_asc): 0 mismatches, 0 missing attributes. Click on an unsaved heart (job and company, both widths): aria-pressed false>true then true>false on the second click; DB followed (job 68660 and company 110754 appeared in the user meta, then removed). Saved sets restored exactly: jobs 68594,68607,68624,68638; companies 68517,68543. Guest: heart is the wp-login.php sign-in link with no aria-pressed, saved=false, nothing else changed. debug.log 2156 bytes before and after (delta 0)."
+      "observed": "Employer dashboard Credits tab, balance badge in nav, 'CREDIT BALANCE 0' card and Transaction History accordion render at 1440 and 390 in light, and 390 in dark; scrollWidth equals viewport; copy 'Credits can't be bought on this site yet' is clear. Balance returned to 0 afterwards."
+    },
+    {
+      "id": "AC.coowner-applications",
+      "result": "pass",
+      "observed": "Added carlos.vega as _wcb_company_owner of Tidewater Energy (removed afterwards by exact value): employer dashboard Applications lists 11 applications at 1440 (incl. Tidewater's Adrian Kowalski, application 68805, GET 200); GET /employers/me/applications 200 total 11; 390 renders without horizontal scroll."
+    },
+    {
+      "id": "AC.trashed-application",
+      "result": "pass",
+      "observed": "thomas.becker GET /applications/68805: 200 before, 403 after wp_trash_post, 200 after untrash (status publish restored). Under 'approved', with that trashed application being his only one from the candidate, GET /candidates/16637 for him returned 404 while trashed (trashed application grants no access); 200 again after untrash."
+    },
+    {
+      "id": "AC.candidate-profile.public",
+      "result": "pass",
+      "observed": "GET /candidates/16637 under resume_single_access public (site default): guest 200, stranger employer 200, applied employer 200, candidate self 200, admin 200, other candidate 200."
+    },
+    {
+      "id": "AC.candidate-profile.approved",
+      "result": "pass",
+      "observed": "Same route under resume_single_access approved: guest 404, stranger employer 404, other candidate 404, applied employer (thomas) 200, candidate self 200, admin 200. Setting restored to its original (key absent = public)."
+    },
+    {
+      "id": "AC.withdrawn-no-access",
+      "result": "pass",
+      "observed": "Under approved, ana.silva (applied-to employer) 200 before; application 68804 set to withdrawn -> 404; status restored to submitted."
+    },
+    {
+      "id": "AF.admin-feature",
+      "result": "pass",
+      "observed": "Admin new job 'Principal Security Engineer' with Featured listing ticked, Publish: one post (110886) publish, _wcb_featured=1, /find-jobs/ shows it first with a Featured badge at 1440 and 390, single page shows Featured. Concern (see observations): the admin Jobs list has no Featured column or marker."
+    },
+    {
+      "id": "AP.app-password",
+      "result": "pass",
+      "observed": "POST /wcb/v1/auth/app-password with app_password_login on and a valid password for a throwaway account: 200 with a credential. Then 7 wrong passwords with a different X-Forwarded-For each: 5x 401 wcb_login_failed then 429 wcb_too_many_attempts; the valid password is then refused 429 too (lock holds; spoofing the forwarded header does not reset it). Account deleted, setting and lock transients restored."
+    },
+    {
+      "id": "RG.candidate",
+      "result": "pass",
+      "observed": "adrian.kowalski: /find-jobs/, single job, company page, candidate dashboard at 1440 and 390, light and dark: all 200, no horizontal scroll, no JS errors. My Applications shows 2 rows with status history and Withdraw, Saved shows 4 jobs / 2 companies."
+    },
+    {
+      "id": "RG.apply-flow",
+      "result": "pass",
+      "observed": "Apply now at 390 opens the panel (resume select, upload, cover letter, screening questions); submitting with required answers created an application, panel closed and the page showed 'Application submitted'. Test application 110887 deleted."
+    },
+    {
+      "id": "RG.employer",
+      "result": "pass",
+      "observed": "thomas.becker: employer dashboard Jobs, Applications, Credits, Post a Job (4-step form) and Hiring Pipeline at 1440 and 390, light and dark: all load, no horizontal scroll, no JS errors."
+    },
+    {
+      "id": "RG.admin-lists",
+      "result": "pass",
+      "observed": "Admin Jobs list (142 items, 20 rows) and Applications list (144 items) at 1440 and 390, plus the plugin Settings page: 200, no error notices (two hidden core inline-edit notices only)."
     }
   ],
   "hard_fails": [],
@@ -130,65 +178,26 @@
   "debug_log_issues": [],
   "untested": [
     {
-      "id": "A_fresh_install / B_upgrade",
-      "reason": "Branch re-walk",
-      "needs": "full smoke on cb-fresh and a 1.8.4 to 1.8.5 upgrade"
+      "id": "cross-browser",
+      "reason": "Chromium only",
+      "needs": "Firefox, WebKit"
     },
     {
-      "id": "rtl",
-      "reason": "No RTL pass",
-      "needs": "ar/he locale sweep of lists, dashboard, Pro admin"
+      "id": "coowner-live-pricing",
+      "reason": "asserted by test F4, not driven with a second paying co-owner",
+      "needs": "live co-owner session"
     },
     {
-      "id": "dark_full",
-      "reason": "Dark checked only for the saved heart on /find-jobs/ at 390 (html[data-bx-mode=dark] toggle); Pro admin has no dark mode; dashboard banner and cards not swept in dark",
-      "needs": "theme Dark mode button sweep"
-    },
-    {
-      "id": "credits-banner-buy-link",
-      "reason": "Credit purchasing is not set up on this site, so the banner has no Buy more link to test",
-      "needs": "enable a credit pack then re-check the banner at 390"
-    },
-    {
-      "id": "wizard-credits-step-natural-flow",
-      "reason": "The license step blocks Continue here, so the credits step was revealed by DOM; the field and REST save were real",
-      "needs": "walk with an activated license"
-    },
-    {
-      "id": "1024/820 widths",
-      "reason": "Only 1440 and 390 walked",
-      "needs": "iPad width pass"
+      "id": "real-dark-toggle",
+      "reason": "dark forced via html[data-bx-mode]",
+      "needs": "theme toggle walk"
     }
   ],
-  "coverage": {
-    "viewports": "1440 and 390 for saved hearts, dashboard, Pro admin",
-    "rtl": "not run",
-    "dark": "saved heart at 390 only",
-    "code_to_live": "Free 6d1e6b20 and Pro 3a36cf8 live-mounted; wp plugin list 1.8.5",
-    "cli": "9 named test files, all pass"
-  },
-  "fixtures": "Created and removed by captured id: none permanent. Temporary: ledger row 4093 (+3 credits for thomas.becker) deleted and _wbcom_credits_low flag removed; transient wcb_reg_77a3711c47f317d879d76001e6be7682 deleted. Restored: adrian.kowalski saved jobs 68594,68607,68624,68638 and companies 68517,68543; date_format back to 'F j, Y'; wcbp_low_credit_threshold back to 5; Arjun Mehta application 68788 back to Submitted.",
-  "screenshots_dir": "Playwright output dir (relative filenames), moved afterwards to /Users/vapvarun/work-artifacts/screenshots/2026-11/smoke185/ (saved-*.png, pro-*.png, dash-390-*.png, apps-1440.png, remote-card-1440.png)",
-  "top3": [
-    "Saved hearts hold on /find-jobs/ and /find-companies/ across Load more, sort and filter; unsave and resave work; guests are sent to sign-in",
-    "Public REST writes hold: view dedupe 6 POSTs = 1 row, missing id = 404, sign-up probe 429 after 5; Pro fields/boards partial writes and stage delete keep other values",
-    "F9 company heart aria-pressed fixed in e0be28bb and re-verified (aria-pressed matches wcb-bookmarked on every heart)"
+  "observations": [
+    "Admin Jobs list has no Featured column or marker; Featured shows on the front-end card and in the job editor only (not a regression, flagged for the owner).",
+    "Dark mode was checked by setting html[data-bx-mode=dark] on a loaded page: the Reign header wordmark 'WP Career' is dark on dark at 390 and the Transaction History button keeps a light fill. This may be an artifact of forcing the attribute instead of using the theme's own toggle; not verified with the real toggle.",
+    "Candidate resume_data was empty for every viewer (the candidate has none), so contact-detail gating on the profile route was not exercised.",
+    "At 390 the co-owner's Applications tab opened pre-filtered to 'Senior DevOps Engineer' (2 rows) while 1440 showed all 11; looks like remembered browser state from earlier sessions, not reproduced a second time."
   ],
-  "verdict": "PASS",
-  "dispositions": [
-    {
-      "id": "D1.admin.applications-status-links-tap-target-390",
-      "where": "admin.php?page=wcb-applications",
-      "viewport": "390",
-      "measurement": "8 .subsubsub links, each 25px tall; page scrollWidth 390 (no overflow). They are WordPress core list-table filter links, not plugin markup; QA agreed this is not a plugin defect.",
-      "disposition": "core markup, not a plugin defect"
-    },
-    {
-      "id": "D2.theme.header-logo-dark-mode",
-      "where": "Reign header, html[data-bx-mode=dark]",
-      "viewport": "1440 and 390",
-      "measurement": "Header logo is near-invisible in dark mode: the Customizer logo is a dark image and no dark logo is set.",
-      "disposition": "theme/site setting; belongs on a Reign card, not a plugin defect"
-    }
-  ]
+  "verdict": "pass"
 }

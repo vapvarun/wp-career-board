@@ -1385,9 +1385,12 @@ final class EmployersEndpoint extends RestController {
 	 * @return bool|\WP_Error
 	 */
 	public function get_applications_permissions_check( \WP_REST_Request $request ): bool|\WP_Error {
-		$post     = get_post( (int) $request['id'] );
-		$is_owner = $post && $this->is_current_user( (int) $post->post_author )
-		&& $this->check_ability( 'wcb/view-applications' );
+		$post = get_post( (int) $request['id'] );
+		// The author, or anyone who runs the company: the job-level routes already let a
+		// co-owner in, so the company-level one must too.
+		$runs     = $post && ( $this->is_current_user( (int) $post->post_author )
+			|| isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ (int) $post->ID ] ) );
+		$is_owner = $runs && $this->check_ability( 'wcb/view-applications' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
 	}
