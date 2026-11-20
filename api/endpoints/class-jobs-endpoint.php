@@ -1766,7 +1766,7 @@ final class JobsEndpoint extends RestController {
 			$rejection_reason = (string) get_post_meta( $post->ID, '_wcb_rejection_reason', true );
 		}
 
-		$wcb_created_gmt = '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt;
+		$wcb_created_gmt = \WCB\Core\Time::post_date_utc( $post );
 
 		$data = array(
 			'id'                     => $post->ID,

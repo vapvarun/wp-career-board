@@ -94,6 +94,19 @@ final class Time {
 	}
 
 	/**
+	 * A post's creation time in UTC, for date_label(). A draft or pending post
+	 * has no GMT date until it is published, so its local date is converted.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param \WP_Post $post Post.
+	 * @return string
+	 */
+	public static function post_date_utc( \WP_Post $post ): string {
+		return '0000-00-00 00:00:00' === $post->post_date_gmt ? get_gmt_from_date( $post->post_date ) : $post->post_date_gmt;
+	}
+
+	/**
 	 * A stored UTC time as date and time, in the site's date and time formats.
 	 *
 	 * @since 1.8.3

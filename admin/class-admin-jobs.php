@@ -833,7 +833,7 @@ class AdminJobs extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_date( $item ): string {
-		return esc_html( get_the_date( 'Y-m-d', $item ) );
+		return esc_html( \WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $item ) ) );
 	}
 
 	/**

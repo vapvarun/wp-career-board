@@ -907,7 +907,7 @@ final class EmployersEndpoint extends RestController {
 							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
 								/* translators: %s: the date the job was submitted, already formatted for the site. */
 								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
-								\WCB\Core\Time::date_label( '0000-00-00 00:00:00' !== $p->post_date_gmt ? $p->post_date_gmt : get_gmt_from_date( $p->post_date ) ) // A pending post has no GMT date until it is published.
+								\WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $p ) )
 							),
 							default                         => '',
 						},

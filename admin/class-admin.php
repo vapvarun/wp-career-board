@@ -628,7 +628,7 @@ class Admin {
 													<a href="<?php echo esc_url( (string) get_edit_post_link( $wcb_job->ID ) ); ?>" style="font-weight:600">
 									<?php echo esc_html( get_the_title( $wcb_job ) ); ?>
 													</a>
-													<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( get_the_date( 'M j', $wcb_job ) ); ?></small>
+													<br><small><?php echo esc_html( get_the_author_meta( 'display_name', (int) $wcb_job->post_author ) ); ?> &middot; <?php echo esc_html( \WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $wcb_job ), '—', 'M j' ) ); ?></small>
 												</td>
 												<td style="white-space:nowrap">
 													<button type="button" class="wcb-btn wcb-btn--primary wcb-btn--sm wcb-approve-job" data-job-id="<?php echo (int) $wcb_job->ID; ?>"><?php esc_html_e( 'Approve', 'wp-career-board' ); ?></button>
@@ -684,7 +684,7 @@ class Admin {
 													<?php else : ?>
 														<?php echo esc_html( $wcb_job_lbl ); ?>
 													<?php endif; ?>
-													&middot; <?php echo esc_html( get_the_date( 'M j', $wcb_app ) ); ?>
+													&middot; <?php echo esc_html( \WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $wcb_app ), '—', 'M j' ) ); ?>
 												</small>
 											</td>
 											<td>
