@@ -684,6 +684,11 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				? null
 				: state.applications.find( ( a ) => a.id === state.selectedAppId ) ?? null;
 		},
+		// The status message belongs to the applicant it was saved for; it
+		// is not shown once another applicant is selected.
+		get statusNotice() {
+			return state.statusMsgAppId === state.selectedAppId ? state.statusMsg : '';
+		},
 		get selectedAppName() {
 			return state.selectedApp?.applicant_name ?? '';
 		},
@@ -1668,16 +1673,20 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 						state.applications[ idx ].status_tone = data.status_tone || '';
 					}
 					if ( ! data.changed ) {
+						state.statusMsgAppId = appId;
 						state.statusMsg = t( 'statusUnchanged', 'No change. The candidate was not notified.' );
 					} else {
+						state.statusMsgAppId = appId;
 						state.statusMsg = data.notified
 							? t( 'statusSaved', 'Status updated. The candidate has been notified.' )
 							: t( 'statusSavedGuest', 'Status updated. This applicant left no email address, so they were not notified.' );
 					}
 				} else {
+					state.statusMsgAppId = appId;
 					state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 				}
 			} catch {
+				state.statusMsgAppId = appId;
 				state.statusMsg = t( 'statusError', 'Could not update the status. Please try again.' );
 			}
 		},

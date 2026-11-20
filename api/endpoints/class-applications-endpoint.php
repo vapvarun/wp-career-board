@@ -729,8 +729,7 @@ final class ApplicationsEndpoint extends RestController {
 				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'candidate', $candidate_id ),
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
 		return $response;
 	}
 

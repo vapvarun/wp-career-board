@@ -51,7 +51,7 @@ List routes return an object, not a bare array: the items under a key named for 
 }
 ```
 
-The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` for `GET /companies` and `applications` for the application lists (which add `counts`). `GET /jobs` and `GET /companies` also return `results_label`, an already translated "N jobs found" string. The totals are also sent as the `X-WCB-Total` and `X-WCB-TotalPages` headers. Guests get `Cache-Control: public, max-age=300` on `GET /jobs`; signed-in users get `private`.
+The key is `jobs` for `GET /jobs` and `GET /employers/{id}/jobs`, `companies` for `GET /companies` and `applications` for the application lists (which add `counts`). `GET /jobs` and `GET /companies` also return `results_label`, an already translated "N jobs found" string. The totals are also sent as the standard `X-WP-Total` and `X-WP-TotalPages` headers on every list route, plus the older `X-WCB-Total` and `X-WCB-TotalPages` pair. Guests get `Cache-Control: public, max-age=300` on `GET /jobs`; signed-in users get `private`.
 
 ## Routes by area
 

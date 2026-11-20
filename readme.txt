@@ -75,6 +75,9 @@ A release for 1.8.4 that tightens CV privacy and speeds up large sites.
 * Improve  - A job form on a trashed board opens like an unscoped form, and a restored board comes back published.
 * Fix      - View resume opens the resume sent with that application, not the candidate's latest one.
 * Fix      - A remote job shows Remote once, and a second Remote place folds into the built-in one.
+* Fix      - The job form preview shows Remote once when a remote job also has the Remote place picked.
+* Fix      - Every list route sends the standard X-WP-Total and X-WP-TotalPages headers, so apps and headless clients can page.
+* Fix      - The status updated message in Applications stays with the applicant it was saved for.
 * Fix      - Custom field types show the same value on every screen, including File links and choices that contain commas.
 * Fix      - A job form on a paid board shows Featured as included instead of offering it for sale.
 * Fix      - The plugin's full-width template applies only to app pages, not to display blocks.

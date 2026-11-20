@@ -322,6 +322,7 @@ wp_interactivity_state(
 		'accountSaving'         => false,
 		// Inline confirmation shown after changing an applicant's status.
 		'statusMsg'             => '',
+		'statusMsgAppId'        => null,
 		'pwMsg'                 => '',
 		'pwMsgType'             => '',
 		'pwSaving'              => false,
@@ -1020,7 +1021,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 								<?php endforeach; ?>
 							</select>
 							<span class="wcb-status-badge wcb-hidden" role="status" data-wp-class--wcb-hidden="!state.selectedAppClosed" data-wp-bind--data-status="state.selectedAppStatus" data-wp-text="state.selectedAppStatusLabel"></span>
-							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusMsg" data-wp-text="state.statusMsg"></p>
+							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusNotice" data-wp-text="state.statusNotice"></p>
 						</div>
 						<div class="wcb-detail-section wcb-ai-fit" data-wp-class--wcb-shown="state.selectedAppHasAiScore">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'AI fit', 'wp-career-board' ); ?> <span class="wcb-ai-score" data-wp-text="state.selectedAppAiScoreLabel"></span></h4>

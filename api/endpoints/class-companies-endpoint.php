@@ -397,8 +397,7 @@ final class CompaniesEndpoint extends RestController {
 				),
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
 		return $response;
 	}
 

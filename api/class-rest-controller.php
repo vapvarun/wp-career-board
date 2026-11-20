@@ -103,6 +103,29 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Add the paging headers to a list response.
+	 *
+	 * X-WP-Total and X-WP-TotalPages are the WordPress standard that apiFetch,
+	 * the mobile app and headless clients read. X-WCB-Total and X-WCB-TotalPages
+	 * are what this plugin sent before 1.8.5; they stay so existing integrations
+	 * keep working.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param \WP_REST_Response $response List response.
+	 * @param int               $total    Rows matching the query.
+	 * @param int               $pages    Number of pages.
+	 * @return \WP_REST_Response
+	 */
+	protected function with_paging( \WP_REST_Response $response, int $total, int $pages ): \WP_REST_Response {
+		$response->header( 'X-WP-Total', (string) $total );
+		$response->header( 'X-WP-TotalPages', (string) $pages );
+		$response->header( 'X-WCB-Total', (string) $total );
+		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		return $response;
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.

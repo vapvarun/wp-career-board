@@ -293,9 +293,8 @@ final class JobsEndpoint extends RestController {
 	/**
 	 * Wrap a jobs list page in the standard {jobs, total, pages, has_more} envelope.
 	 *
-	 * Keeps the legacy X-WCB-Total / X-WCB-TotalPages headers populated for one
-	 * release cycle so any external consumers that still read them keep working;
-	 * remove the headers in 1.2.0 once known consumers are migrated.
+	 * The paging headers come from with_paging(): the WordPress-standard
+	 * X-WP-Total / X-WP-TotalPages, plus the older X-WCB-* pair.
 	 *
 	 * @since 1.1.0
 	 *
@@ -327,8 +326,7 @@ final class JobsEndpoint extends RestController {
 				),
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $total );
-		$response->header( 'X-WCB-TotalPages', (string) $pages );
+		$this->with_paging( $response, $total, $pages );
 		$response->header( 'Vary', 'Cookie, Authorization' );
 		// The body now carries localised strings. A logged-in user may have a
 		// different locale from the site, so a shared cache must not reuse their
@@ -1451,15 +1449,19 @@ final class JobsEndpoint extends RestController {
 		$pages    = (int) $query->max_num_pages;
 		$has_more = ( $paged * $per_page ) < $total;
 
-		return rest_ensure_response(
-			array(
-				'applications' => $items,
-				'total'        => $total,
-				'pages'        => $pages,
-				'has_more'     => $has_more,
-				// Per-status totals for the whole job, not just this page.
-				'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $job_id ),
-			)
+		return $this->with_paging(
+			rest_ensure_response(
+				array(
+					'applications' => $items,
+					'total'        => $total,
+					'pages'        => $pages,
+					'has_more'     => $has_more,
+					// Per-status totals for the whole job, not just this page.
+					'counts'       => \WCB\Modules\Applications\ApplicationStatus::counts( 'job', $job_id ),
+				)
+			),
+			$total,
+			$pages
 		);
 	}
 

@@ -108,9 +108,10 @@ Every list endpoint returns a uniform envelope shape:
 ```
 
 The resource key (`jobs`, `applications`, `companies`, …) matches the
-endpoint. Legacy `X-WCB-Total` headers are still populated for one cycle
-to give downstream consumers (the Pro `job-map` block, third-party
-integrators) time to migrate.
+endpoint. Every list route sends `X-WP-Total` and `X-WP-TotalPages` (the
+WordPress standard) through `RestController::with_paging()`, and keeps the
+older `X-WCB-Total` pair for existing consumers (the Pro `job-map` block,
+third-party integrators).
 
 ### Database Tables (3)
 

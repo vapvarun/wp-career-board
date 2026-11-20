@@ -548,7 +548,7 @@ final class CandidatesEndpoint extends RestController {
 				'has_more'  => false,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $count );
+		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
 	}
 
@@ -599,7 +599,7 @@ final class CandidatesEndpoint extends RestController {
 				'has_more' => false,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $count );
+		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
 	}
 
@@ -671,7 +671,7 @@ final class CandidatesEndpoint extends RestController {
 				'has_more' => false,
 			)
 		);
-		$response->header( 'X-WCB-Total', (string) $count );
+		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
 	}
 
