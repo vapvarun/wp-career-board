@@ -358,7 +358,7 @@ final class CandidatesEndpoint extends RestController {
 		 * Free allows it (the profile's own visibility above is the only gate); Pro
 		 * narrows it to its "who can open a resume" setting, so the REST profile
 		 * and the resume page follow one rule. A refusal answers like a missing
-		 * candidate. The candidate and site admins always pass.
+		 * candidate. The candidate, site admins and an employer the candidate applied to always pass.
 		 *
 		 * @since 1.8.6
 		 *
@@ -366,7 +366,7 @@ final class CandidatesEndpoint extends RestController {
 		 * @param int  $user_id   Candidate user ID.
 		 * @param int  $viewer_id Viewer user ID, 0 when logged out.
 		 */
-		if ( ! $is_self && ! $is_admin && ! (bool) apply_filters( 'wcb_can_view_candidate_profile', true, $user_id, get_current_user_id() ) ) {
+		if ( ! $is_self && ! $is_admin && ! $this->has_applied_to_viewer( $user_id ) && ! (bool) apply_filters( 'wcb_can_view_candidate_profile', true, $user_id, get_current_user_id() ) ) {
 			return new \WP_Error(
 				'wcb_not_found',
 				__( 'Candidate not found.', 'wp-career-board' ),
@@ -697,6 +697,39 @@ final class CandidatesEndpoint extends RestController {
 		);
 		$this->with_paging( $response, $count, $count > 0 ? 1 : 0 );
 		return $response;
+	}
+
+	/**
+	 * Whether the current user runs a job or company this candidate applied to.
+	 *
+	 * Applying shares the profile with that employer whatever the site's resume
+	 * access policy says. One bounded lookup, indexed on the application's meta.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param int $candidate_id Candidate user ID.
+	 * @return bool
+	 */
+	private function has_applied_to_viewer( int $candidate_id ): bool {
+		$viewer = get_current_user_id();
+		if ( $viewer <= 0 || ! $this->check_ability( 'wcb/view-applications' ) ) {
+			return false;
+		}
+		global $wpdb;
+		$scope = \WCB\Modules\Employers\EmployersModule::job_scope_sql( $viewer, 'job' );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 1 FROM {$wpdb->posts} app
+				 INNER JOIN {$wpdb->postmeta} cm ON cm.post_id = app.ID AND cm.meta_key = '_wcb_candidate_id' AND cm.meta_value = %s
+				 INNER JOIN {$wpdb->postmeta} jm ON jm.post_id = app.ID AND jm.meta_key = '_wcb_job_id'
+				 INNER JOIN {$wpdb->posts} job ON job.ID = CAST( jm.meta_value AS UNSIGNED ) AND job.post_type = 'wcb_job'
+				 WHERE app.post_type = 'wcb_application' AND app.post_status NOT IN ( 'trash', 'auto-draft' ) AND {$scope}
+				 LIMIT 1",
+				(string) $candidate_id
+			)
+		);
+		// phpcs:enable
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

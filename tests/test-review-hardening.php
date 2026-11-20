@@ -83,6 +83,16 @@ $ok( 404 === $call( $prof, 0 )->get_status(), 'candidate profile: a refusal answ
 $ok( 404 === $call( $prof, $stranger )->get_status(), 'candidate profile: a refusal applies to a signed-in stranger too' );
 $ok( 200 === $call( $prof, $cand )->get_status(), 'candidate profile: the candidate always sees their own' );
 $ok( 200 === $call( $prof, $admin )->get_status(), 'candidate profile: an admin always sees it' );
+// An employer the candidate applied to still opens it; one they did not apply to does not.
+$app2 = (int) wp_insert_post( array( 'post_type' => 'wcb_application', 'post_status' => 'publish', 'post_title' => 'Review probe application 2', 'post_author' => $cand ) );
+update_post_meta( $app2, '_wcb_candidate_id', $cand );
+update_post_meta( $app2, '_wcb_job_id', $job );
+$ok( 200 === $call( $prof, $owner )->get_status(), 'candidate profile: the employer whose job received the application still opens it (was 404)' );
+$ok( 200 === $call( $prof, $coowner )->get_status(), 'candidate profile: a co-owner of that company opens it too' );
+$ok( 404 === $call( $prof, $stranger )->get_status(), 'candidate profile: an employer the candidate did not apply to is refused' );
+wp_trash_post( $app2 );
+$ok( 404 === $call( $prof, $owner )->get_status(), 'candidate profile: a withdrawn (trashed) application no longer grants access' );
+wp_delete_post( $app2, true );
 remove_filter( 'wcb_can_view_candidate_profile', '__return_false' );
 
 // --- 4. an admin asking for Featured gets it -----------------------------------------------------
