@@ -3877,6 +3877,14 @@
       "consumed_by": []
     },
     {
+      "name": "wcb_can_view_candidate_profile",
+      "type": "filter",
+      "args_count": 3,
+      "args_signature": [],
+      "where": "api/endpoints/class-candidates-endpoint.php:369",
+      "consumed_by": []
+    },
+    {
       "name": "wcb_can_view_public_resume",
       "type": "filter",
       "args_count": 3,

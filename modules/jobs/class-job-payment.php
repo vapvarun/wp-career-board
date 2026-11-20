@@ -50,6 +50,12 @@ final class JobPayment {
 	 */
 	public static function charge( int $job_id, string $event ): bool|\WP_Error {
 		if ( self::is_exempt( $job_id ) ) {
+			// Nothing to collect, but Featured was still asked for. The paid handler
+			// that normally sets the flag never runs, so set it here (the since-date
+			// follows from the meta write, see FeaturedExpiry).
+			if ( 'feature' === $event && $job_id > 0 ) {
+				update_post_meta( $job_id, '_wcb_featured', '1' );
+			}
 			return true;
 		}
 		/**

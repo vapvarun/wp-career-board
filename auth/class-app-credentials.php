@@ -392,7 +392,7 @@ final class AppCredentials {
 			$ip      = (string) $hops[ max( 0, count( $hops ) - $trusted ) ];
 
 			if ( '' !== $ip && rest_is_ip_address( $ip ) ) {
-				return $ip;
+				return self::ip_bucket( $ip );
 			}
 		}
 
@@ -402,7 +402,31 @@ final class AppCredentials {
 
 		$remote = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 
-		return rest_is_ip_address( $remote ) ? $remote : 'unknown';
+		return rest_is_ip_address( $remote ) ? self::ip_bucket( $remote ) : 'unknown';
+	}
+
+	/**
+	 * The unit one visitor is counted as: an IPv4 address, or an IPv6 /64.
+	 *
+	 * A device owns a whole /64 and can take a new address in it per request, so
+	 * counting the full IPv6 address gave it a fresh bucket every time and made
+	 * every per-IP limit and the view count meaningless. An IPv4-mapped IPv6
+	 * address is the IPv4 one.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param string $ip A valid IP address.
+	 * @return string
+	 */
+	private static function ip_bucket( string $ip ): string {
+		$bin = false !== strpos( $ip, ':' ) ? inet_pton( $ip ) : false;
+		if ( false === $bin || 16 !== strlen( $bin ) ) {
+			return $ip;
+		}
+		if ( str_starts_with( $bin, str_repeat( "\0", 10 ) . "\xff\xff" ) ) {
+			return (string) inet_ntop( substr( $bin, 12 ) );
+		}
+		return (string) inet_ntop( substr( $bin, 0, 8 ) . str_repeat( "\0", 8 ) );
 	}
 
 	/**
@@ -434,7 +458,7 @@ final class AppCredentials {
 	 * @return bool True while the caller is under the ceiling.
 	 */
 	public static function record_attempt( string $ip ): bool {
-		$key   = 'wcb_apw_try_' . md5( $ip );
+		$key   = 'wcb_apw_try_' . md5( wp_salt() . $ip );
 		$count = (int) get_transient( $key );
 
 		if ( $count >= self::max_attempts_per_ip() ) {
@@ -497,7 +521,7 @@ final class AppCredentials {
 	 * @return string
 	 */
 	private static function failure_key( string $bucket ): string {
-		return 'wcb_apw_fail_' . md5( $bucket );
+		return 'wcb_apw_fail_' . md5( wp_salt() . $bucket );
 	}
 
 	/**

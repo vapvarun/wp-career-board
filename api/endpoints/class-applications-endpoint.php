@@ -1039,7 +1039,9 @@ final class ApplicationsEndpoint extends RestController {
 	 */
 	public function get_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
-		if ( ! $post ) {
+		// A trashed application is gone for everyone but an admin, as its CV file already is:
+		// the cover letter, contact details and resume link must not outlive the trash.
+		if ( ! $post || ( 'trash' === $post->post_status && ! $this->check_ability( 'wcb/manage-settings' ) ) ) {
 			return $this->permission_error();
 		}
 		$current_user_id = get_current_user_id();
