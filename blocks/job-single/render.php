@@ -428,7 +428,7 @@ wp_interactivity_state(
 				<?php if ( $wcb_company_logo ) : ?>
 					<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="<?php echo esc_attr( $wcb_company_name ); ?>" width="64" height="64" />
 				<?php else : ?>
-					<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name ? $wcb_company_name : $wcb_job->post_title, 0, 2 ) ) ); ?>
+					<?php echo esc_html( \WCB\Core\CompanyMetaShape::initials( $wcb_company_name, $wcb_job->post_title ) ); ?>
 				<?php endif; ?>
 			</div>
 			<div class="wcb-hero-titles">
@@ -926,7 +926,7 @@ wp_interactivity_state(
 							<?php if ( $wcb_company_logo ) : ?>
 								<img src="<?php echo esc_url( $wcb_company_logo ); ?>" alt="" width="44" height="44" />
 							<?php else : ?>
-								<?php echo esc_html( mb_strtoupper( mb_substr( $wcb_company_name, 0, 2 ) ) ); ?>
+								<?php echo esc_html( \WCB\Core\CompanyMetaShape::initials( $wcb_company_name ) ); ?>
 							<?php endif; ?>
 						</div>
 						<div>

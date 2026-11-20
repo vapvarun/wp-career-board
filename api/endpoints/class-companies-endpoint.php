@@ -419,13 +419,7 @@ final class CompaniesEndpoint extends RestController {
 		$job_count    = $job_counts[ (int) $post->ID ] ?? 0;
 		$name         = $post->post_title;
 
-		// Build up-to-2-letter initials.
-		$words    = array_filter( explode( ' ', trim( $name ) ) );
-		$initials = '';
-		foreach ( array_slice( $words, 0, 2 ) as $word ) {
-			$initials .= mb_strtoupper( mb_substr( $word, 0, 1 ) );
-		}
-		$initials = $initials ? $initials : '?';
+		$initials = \WCB\Core\CompanyMetaShape::initials( $name );
 
 		$data = array(
 			'id'             => $post->ID,
