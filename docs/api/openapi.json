@@ -1934,6 +1934,22 @@
                     "404": {
                         "description": "Not found."
                     }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bookmarked": {
+                                        "type": "boolean",
+                                        "description": "The state to set. Omit to flip the current state."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -4101,6 +4117,22 @@
                     },
                     "404": {
                         "description": "Not found."
+                    }
+                },
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bookmarked": {
+                                        "type": "boolean",
+                                        "description": "The state to set. Omit to flip the current state."
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
