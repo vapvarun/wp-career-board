@@ -329,6 +329,11 @@
 	border: 1px solid var(--wcb-border);
 }
 
+/* The generic .wcb-shown { display: block } would drop the tile's flex centring. */
+.wcb-ca-avatar.wcb-shown {
+	display: flex;
+}
+
 .wcb-ca-avatar {
 	--wcb-avatar-size: var(--wcb-avatar-lg);
 	border: 2px solid transparent;
