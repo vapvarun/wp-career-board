@@ -305,7 +305,7 @@ final class PrivateFiles {
 				LEFT JOIN {$wpdb->postmeta} cand ON cand.post_id = app.ID AND cand.meta_key = '_wcb_candidate_id'
 				LEFT JOIN {$wpdb->postmeta} jobref ON jobref.post_id = app.ID AND jobref.meta_key = '_wcb_job_id'
 				LEFT JOIN {$wpdb->posts} job ON job.ID = CAST( jobref.meta_value AS UNSIGNED ) AND job.post_type = 'wcb_job'
-				WHERE app.post_type = 'wcb_application' AND ( cand.meta_value = %d OR ( job.ID IS NOT NULL AND ",
+				WHERE app.post_type = 'wcb_application' AND app.post_status NOT IN ( 'trash', 'auto-draft' ) AND ( cand.meta_value = %d OR ( job.ID IS NOT NULL AND ",
 				(string) $attachment_id,
 				$user_id
 			) . $scope . ' ) ) LIMIT 1' // $scope is already prepared; never run it through prepare() again.

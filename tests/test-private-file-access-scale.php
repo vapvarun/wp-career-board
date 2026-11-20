@@ -73,6 +73,14 @@ $ok( $check( $emp_b ), 'employer of the newer applications can download' );
 $ok( $check( $cand ), 'the candidate who sent it can download' );
 $ok( ! $check( $nobody ), 'a stranger cannot' );
 
+// A trashed application gives no access (the old get_posts 'any' skipped trash).
+$trashed_job = (int) wp_insert_post( array( 'post_type' => 'wcb_job', 'post_status' => 'publish', 'post_title' => 'PF job T', 'post_author' => $nobody ) );
+$trashed_app = $add( $trashed_job, $nobody );
+wp_trash_post( $trashed_app );
+$ok( ! $check( $nobody ), 'a trashed application does not grant the file' );
+wp_delete_post( $trashed_app, true );
+wp_delete_post( $trashed_job, true );
+
 wp_set_current_user( 0 );
 $ok( ! PrivateFiles::can_download( $file ), 'logged out cannot' );
 
