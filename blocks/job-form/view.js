@@ -324,6 +324,10 @@ const { state } = store(
 			},
 			get hasLocation() {
 				const { state } = store( 'wcb-job-form' );
+				// A remote job already shows the Remote badge; the built-in Remote place would repeat it.
+				if ( state.remote && state.locationSlug === 'remote' ) {
+					return false;
+				}
 				return state.locationSlug === '__custom__'
 					? !! ( state.locationCustom || '' ).trim()
 					: !! state.locationSlug;

@@ -80,6 +80,14 @@ $table = ( new ReflectionClass( '\WCB\Admin\AdminJobs' ) )->newInstanceWithoutCo
 $cell  = ( new ReflectionMethod( '\WCB\Admin\AdminJobs', 'column_date' ) )->invoke( $table, get_post( $draft ) );
 $ok( Time::date_label( time() ) === $cell, 'a draft (zero GMT date) shows today, not a dash (got ' . $cell . ')' );
 
+// The Candidates and Employers lists show the Registered date in the site format too.
+$registered = (object) array( 'user_registered' => '2026-11-14 10:00:00' );
+foreach ( array( 'AdminCandidates', 'AdminEmployers' ) as $class ) {
+	$list = ( new ReflectionClass( '\\WCB\\Admin\\' . $class ) )->newInstanceWithoutConstructor();
+	$cell = ( new ReflectionMethod( '\\WCB\\Admin\\' . $class, 'column_registered' ) )->invoke( $list, $registered );
+	$ok( Time::date_label( '2026-11-14 10:00:00' ) === $cell, "{$class} Registered column uses the site date format (got {$cell})" );
+}
+
 foreach ( array_merge( array_values( $ids ), array( $draft ) ) as $id ) {
 	wp_delete_post( $id, true );
 }
