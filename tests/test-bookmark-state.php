@@ -115,6 +115,11 @@ foreach ( (array) ( $r2->get_data()['companies'] ?? array() ) as $row ) {
 }
 $ok( isset( $rows[ $co ] ) && false === $rows[ $co ]['is_bookmarked'], 'R4: a second member does not see the first member\'s saved company' );
 
+// The list reads in the companies block must carry the REST nonce: without it the server sees a
+// guest and no heart is saved after a sort or Load more (card 10533239078, second round).
+$js = (string) file_get_contents( dirname( __DIR__ ) . '/blocks/company-archive/view.js' );
+$ok( 3 === substr_count( $js, 'wcbReadInit()' ) && str_contains( $js, "'X-WP-Nonce': nonce" ), 'R5: both company list fetches (first page / sort and Load more) send the REST nonce' );
+
 wp_set_current_user( 0 );
 require_once ABSPATH . 'wp-admin/includes/user.php';
 wp_delete_user( $user );

@@ -201,7 +201,7 @@ const { state, callbacks } = store( 'wcb-company-archive', {
 			state.page++;
 
 			try {
-				const response = yield wcbFetch( wcbBuildUrl( state.page ) );
+				const response = yield wcbFetch( wcbBuildUrl( state.page ), wcbReadInit() );
 
 				if ( ! response.ok ) {
 					state.page--;
@@ -302,6 +302,15 @@ function wcbBuildUrl( page ) {
 }
 
 /**
+ * Request options for the list reads. The nonce is what tells REST who is
+ * asking; without it the member is read as a guest and no heart shows as saved.
+ */
+function wcbReadInit() {
+	const nonce = state.restNonce || ( window.wpApiSettings && window.wpApiSettings.nonce ) || '';
+	return { credentials: 'same-origin', headers: nonce ? { 'X-WP-Nonce': nonce } : {} };
+}
+
+/**
  * Reset to page 1 and re-fetch companies (used by filter actions).
  */
 function wcbFetchCompanies() {
@@ -309,7 +318,7 @@ function wcbFetchCompanies() {
 	state.page      = 1;
 	state.companies = [];
 
-	wcbFetch( wcbBuildUrl( 1 ) )
+	wcbFetch( wcbBuildUrl( 1 ), wcbReadInit() )
 		.then( function( response ) {
 			if ( ! response.ok ) {
 				state.loading = false;
