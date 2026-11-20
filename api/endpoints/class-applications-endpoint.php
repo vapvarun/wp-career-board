@@ -1236,7 +1236,7 @@ final class ApplicationsEndpoint extends RestController {
 		// full resume (experience, education, skills) on the site instead of relying
 		// only on a downloaded file, which may not exist for builder/imported resumes.
 		$resume_permalink = '';
-		if ( $resume_id > 0 && '1' === (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+		if ( $resume_id > 0 && \WCB\Modules\Candidates\CandidatesModule::resume_is_public( $resume_id ) ) {
 			$resume_post = get_post( $resume_id );
 			if ( $resume_post instanceof \WP_Post && 'wcb_resume' === $resume_post->post_type ) {
 				$resume_permalink = (string) get_permalink( $resume_id );

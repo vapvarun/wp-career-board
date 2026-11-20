@@ -1509,7 +1509,7 @@ final class JobsEndpoint extends RestController {
 			} )(),
 			'resume_permalink'   => ( static function () use ( $p ): ?string {
 				$resume_id = (int) get_post_meta( $p->ID, '_wcb_resume_id', true );
-				if ( $resume_id <= 0 || '1' !== (string) get_post_meta( $resume_id, '_wcb_resume_public', true ) ) {
+				if ( $resume_id <= 0 || ! \WCB\Modules\Candidates\CandidatesModule::resume_is_public( $resume_id ) ) {
 					return null;
 				}
 				$resume_post = get_post( $resume_id );

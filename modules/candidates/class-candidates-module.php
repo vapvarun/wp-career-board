@@ -420,7 +420,7 @@ final class CandidatesModule {
 			return false;
 		}
 
-		if ( '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) {
+		if ( self::resume_is_public( $post_id ) ) {
 			/**
 			 * Filter whether the current viewer may open a public resume.
 			 *
@@ -439,6 +439,22 @@ final class CandidatesModule {
 
 		// An employer always sees the resume of someone who applied to them.
 		return self::has_applied_to( $owner, $viewer );
+	}
+
+	/**
+	 * Whether the candidate listed this resume as Public (the owner's toggle).
+	 *
+	 * The toggle only: post status, moderation, blocks and the viewer are
+	 * resume_is_readable()'s job. Same test as the `'value' => '1'` meta_query
+	 * lists, so a page and a list never disagree.
+	 *
+	 * @since 1.8.5
+	 *
+	 * @param int $post_id Resume post ID.
+	 * @return bool
+	 */
+	public static function resume_is_public( int $post_id ): bool {
+		return '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true );
 	}
 
 	/**
@@ -506,7 +522,7 @@ final class CandidatesModule {
 		$viewer  = get_current_user_id();
 		$owner   = (int) get_post_field( 'post_author', $post_id );
 		$blocked = $viewer > 0 && \WCB\Core\Blocks::is_hidden( $viewer, $owner );
-		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || ( ! $blocked && '1' === (string) get_post_meta( $post_id, '_wcb_resume_public', true ) ) ) {
+		if ( $post_id <= 0 || self::resume_is_readable( $post_id ) || ( ! $blocked && self::resume_is_public( $post_id ) ) ) {
 			return;
 		}
 
