@@ -1,24 +1,25 @@
 {
-  "release_version": "1.8.4",
-  "pro_version": "1.8.4",
-  "free_version": "1.8.4",
-  "free_commit": "c06b0fea",
-  "pro_commit": "71fb7ba",
-  "ran_at": "2026-11-16T06:40:09Z",
   "mode": "combo",
+  "scope": "targeted re-walk after the last fixes on the 1.8.5 branch: saved hearts, public REST writes, Pro fields/boards/credits/CSV, core regressions, 9 test files",
+  "release_version": "1.8.5",
+  "pro_version": "1.8.5",
+  "free_version": "1.8.5",
+  "free_commit": "e0be28bb",
+  "pro_commit": "3a36cf8",
+  "ran_at": "2026-11-20T18:50:21Z",
   "env": {
-    "url": "docker wcb-smoke 8913 (full) + wcb-final 8914 (targeted)",
-    "theme": "twentytwentyfive"
+    "url": "http://127.0.0.1:8420",
+    "theme": "reign",
+    "stack": "docker cb-model-wp-1 (php8.2 + wp-cli), Free+Pro live-mounted from the 1.8.5 worktrees, wbcom-essential 4.7.3, WP_DEBUG_LOG on; debug.log 2156 bytes before and after the walk (delta 0; the 9 existing lines are WP core 8.2 deprecations from wp-cli plus one 'Undefined variable $wcb_simple_css' from an eval-file run and one wpdb::prepare notice, all timestamped 18:05-18:09 UTC before this walk started)",
+    "service_worker": "unregistered and caches deleted before measuring (none registered)",
+    "commit_note": "Walk started at Free 83360b9a / Pro c70f8ca; dev commits landed mid-walk (Free 6adc1abe, Pro c74bcf7: wording, POT, OpenAPI, Credits endpoint SDK import). All 9 test files re-run on the final HEADs and pass."
   },
-  "walks": [
-    "full re-walk on 7dc41361 / 7fb31b4 (sections A,C,D,E,F,H, Pro modules)",
-    "targeted re-walk on 80a87772 / 2eeab78 (RTL, block output after query fixes, location optional, settings, debug.log)"
-  ],
   "sections": {
     "A_fresh_install": {
-      "pass": 4,
+      "pass": 0,
       "fail": 0,
-      "skipped": 0
+      "skipped": 1,
+      "note": "see .last-smoke-pass-free.json (first-hour walk on a fresh Free-only install)"
     },
     "B_upgrade": {
       "pass": 0,
@@ -26,102 +27,102 @@
       "skipped": 1
     },
     "C_core_flows": {
-      "pass": 17,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0
+    },
+    "D_regression_guards": {
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0
+    },
+    "E_pro_smoke": {
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "note": "see .last-smoke-pass-pro.json"
+    },
+    "E2_environment": {
+      "pass": 1,
       "fail": 0,
       "skipped": 1
     },
-    "D_regression_guards": {
-      "pass": 46,
-      "fail": 5,
-      "skipped": 116
-    },
-    "E_extensions": {
-      "pass": 13,
-      "fail": 0,
-      "skipped": 3
-    },
     "F_cross_browser": {
-      "pass": 3,
-      "fail": 1,
-      "skipped": 2
-    },
-    "H_adversarial": {
-      "pass": 6,
-      "fail": 1,
-      "skipped": 2
-    },
-    "Pro_supplements": {
-      "pass": 5,
+      "pass": 0,
       "fail": 0,
       "skipped": 1
     }
   },
   "checks": [
     {
-      "id": "1a-rtl-single-job",
+      "id": "S1.saved-hearts.jobs-candidate",
       "result": "pass",
-      "observed": "Real RTL: site language ar (core ar installed, dir=rtl, html lang=ar; plugin has no ar .mo so strings are English). Single job page documentElement.scrollWidth == viewport at 1440 (1440) and 390 (390). Honeypot #wcb-hp-apply sits off-screen (x about 11438 / 10388), tabindex -1, never reached in a 120-press Tab walk.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-rtl-job-390.png"
+      "observed": "adrian.kowalski, /find-jobs/ 1440: Load more x11 to 135 cards, exactly the 4 saved jobs (68594, 68607, 68624, 68638) show Saved/wcb-bookmarked. Sort oldest and salary (all pages loaded): same 4 saved. Type filter full-time (111 cards): same 4. Unsave then save by clicking the same heart: label Saved > Save job > Saved, DB meta follows (POST /jobs/{id}/bookmark 200); original set restored exactly. 390: scrollWidth 390; dark (data-bx-mode) amber heart rgb(217,119,6) on card rgb(26,32,40). Console: no errors (one 403 was my own un-nonced probe fetch)."
     },
     {
-      "id": "1b-rtl-post-a-job",
+      "id": "S1.saved-hearts.companies-candidate",
       "result": "pass",
-      "observed": "scrollWidth 1440/1440 and 390/390 in RTL. Honeypot #wcb-hp in .wcb-hp-wrap off-screen (x 11439 / 10389), tabindex -1, 70-press Tab walk never focused it; step indicator and form mirror correctly at 390.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-rtl-postjob-390.png"
+      "observed": "/find-companies/ default and sort date_asc: both saved companies (wildflower-coffee 68543, fernway-foods 68517) show saved after Load more; unsave and resave toggles class and DB; set unchanged (68543,68517). See F9 for the aria-label gap."
     },
     {
-      "id": "1c-rtl-pro-resume-simple",
+      "id": "S1.saved-hearts.guest",
       "result": "pass",
-      "observed": "Pro wcb/resume-form-simple in RTL: scrollWidth 1440/1440 and 390/390. This form has no honeypot field at all (no wcb-hp or hp-named input in DOM), so honeypot clause is n/a for it.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-rtl-resume-390.png"
+      "observed": "Guest on /find-jobs/ and /find-companies/: 0 saved hearts; clicking a heart goes to wp-login.php?redirect_to=<the list page>; no console errors."
     },
     {
-      "id": "2a-job-listings",
+      "id": "R2.rest.view-dedupe",
       "result": "pass",
-      "observed": "12 job cards on page 1 (en). All 8 jobs that have a company (seeded with logo attachments) show a loaded logo image; the 4 jobs I posted with no company show the initials placeholder as designed.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-jobs-listings.png"
+      "observed": "6 POST /jobs/{id}/view from one visitor each on jobs 68607 and 68624: 204 x6, wcb_job_views has exactly 1 row for each."
     },
     {
-      "id": "2b-company-archive",
+      "id": "R2.rest.save-missing-id",
       "result": "pass",
-      "observed": "3 company cards (Globex Finance, Acme Health, Northwind Labs), all 3 logos loaded from uploads, no hidden/broken img.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-company-archive.png"
+      "observed": "Logged-in adrian: POST /jobs/99999999/bookmark and /companies/99999999/bookmark = 404. Guest = 401. Unsave of an existing job 200 and resave 200."
     },
     {
-      "id": "2c-resume-map",
+      "id": "R2.rest.signup-rate-limit",
       "result": "pass",
-      "observed": "wcb/resume-map Leaflet map with 6 .leaflet-marker-icon pins whose alt names are Ava Chen, Noah Patel, Mia Rossi, Liam Smith, Zoe Kim, Ivan Petrov, matching the 6 seeded public resumes (different authors); tiles loaded; no console errors.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-resume-map-en.png"
+      "observed": "candidates/register with an existing email: attempts 1-5 = 409 wcb_email_exists, attempts 6 and 7 = 429 wcb_rate_limited. Transient wcb_reg_77a3... deleted, 0 wcb_reg_ rows left."
     },
     {
-      "id": "3a-location-optional-job-form",
+      "id": "R6.core.employer-applications-status-scoped",
       "result": "pass",
-      "observed": "Front-end job form with location blank, remote unchecked, no custom location: 'Job posted successfully!' shown, job published (verified 4 times across en and ar sessions).",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-jobform-result.png"
+      "observed": "thomas.becker, Senior DevOps Engineer: Arjun Mehta Submitted>Reviewing shows 'Status updated' on Arjun only; opening Adrian Kowalski (Shortlisted) shows no message; back on Arjun it shows again. Arjun restored to Submitted (68788 submitted)."
     },
     {
-      "id": "3b-location-optional-wp-admin-publish",
+      "id": "R6.core.job-dates-site-format",
       "result": "pass",
-      "observed": "wp-admin classic editor Publish with no location terms: 'Post published', status Published.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-admin-publish.png"
+      "observed": "Job page Apply by shows 'November 19, 2026' with F j, Y and '19/11/2026' with d/m/Y; date_format restored to F j, Y."
     },
     {
-      "id": "3c-no-location-badge",
+      "id": "R6.core.remote-once-cards",
       "result": "pass",
-      "observed": "In en_US, Career Board > Jobs list shows a 'No location' badge next to Published on exactly the no-location jobs (Harbour Safety Officer, Depot Yard Marshal, Port Logistics Planner, etc.) and no badge on the 12 jobs with a location term.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-jobs-list-badge-en.png"
+      "observed": "remote=1 list (34 jobs, 390 and 1440): every card has exactly one Remote element; Lead Brand Designer card shows Remote, Full-time, Lead, London. Job detail shows the Remote badge plus a Work Mode row (separate fact row)."
     },
     {
-      "id": "4-settings-advanced",
+      "id": "R6.core.employer-dashboard-390",
       "result": "pass",
-      "observed": "Settings > Advanced contains 'Visitor IP address' with options (Direct, Cloudflare CF-Connecting-IP, X-Forwarded-For, X-Real-IP). No tab or text matching 'Anti-Spam' anywhere on the settings screen; tab list has no such tab.",
-      "screenshot": "/Users/vapvarun/Local Sites/career-board/app/qa-artifacts/1.8.4-final-settings-advanced.png"
+      "observed": "Overview and Applications at 390: scrollWidth 390, 0 overflowing elements; low-balance banner 326px wide fits."
     },
     {
-      "id": "5-debug-log",
+      "id": "P4.credits.low-balance-banner",
       "result": "pass",
-      "observed": "Baseline: debug.log absent. WP_DEBUG_LOG was not applied by the compose env on the first boot, so I set WP_DEBUG/WP_DEBUG_LOG true and display off in wp-config (confirmed via CLI), verified logging works with a probe, then re-ran the full ar/RTL pass and the full en pass (blocks, forms, admin publish, settings, jobs list). debug.log was never created after those passes, i.e. zero PHP notices/warnings from our code. Passes before logging was enabled (first en and first ar walk) are not covered by the log, but the later passes repeat the same actions.",
-      "screenshot": ""
+      "observed": "thomas.becker with a captured ledger row (id 4093, +3): banner 'Low balance: 3 credits left.' 854x48 at 1440 and 326x48 at 390, no overflow. With 0 history rows (balance 0) no banner shows, by design (creditHasHistory). Row 4093 deleted by id, balance back to 0, the _wbcom_credits_low flag removed."
+    },
+    {
+      "id": "T7.cli.tests",
+      "result": "pass",
+      "observed": "Free: test-bookmark-state 18/18, test-rest-write-hardening 17/17, test-list-paging-headers 46/46, test-block-query-budget 4/4, test-apply-concurrency 5/5, test-accounts 61/61. Pro: test-rest-partial-writes 13/13, test-job-charge 35/35, test-board-move-concurrency 1/1. All rc 0."
+    },
+    {
+      "id": "D8.debug-log",
+      "result": "pass",
+      "observed": "debug.log 2156 bytes before, 2156 after; no new entry."
+    },
+    {
+      "id": "F9.company-archive.saved-heart-aria-pressed",
+      "result": "pass",
+      "observed": "Free e0be28bb, adrian.kowalski, light, 1440 and 390: on /find-jobs/ and /find-companies/ every .wcb-bookmark-btn has aria-pressed equal to its wcb-bookmarked class on first load, after Load more (jobs 137 buttons/4 saved/4 pressed=true; companies 28/2/2) and after sort change (oldest, date_asc): 0 mismatches, 0 missing attributes. Click on an unsaved heart (job and company, both widths): aria-pressed false>true then true>false on the second click; DB followed (job 68660 and company 110754 appeared in the user meta, then removed). Saved sets restored exactly: jobs 68594,68607,68624,68638; companies 68517,68543. Guest: heart is the wp-login.php sign-in link with no aria-pressed, saved=false, nothing else changed. debug.log 2156 bytes before and after (delta 0)."
     }
   ],
   "hard_fails": [],
@@ -129,107 +130,65 @@
   "debug_log_issues": [],
   "untested": [
     {
-      "id": "B.migration.silent",
-      "reason": "No 1.8.3 build to upgrade from",
-      "needs": "1.8.3 zip then upgrade with debug.log baseline"
+      "id": "A_fresh_install / B_upgrade",
+      "reason": "Branch re-walk",
+      "needs": "full smoke on cb-fresh and a 1.8.4 to 1.8.5 upgrade"
     },
     {
-      "id": "C.candidate.register",
-      "reason": "Registration and email verification not redone (first walk passed it)",
-      "needs": "re-walk if registration code changed since 13dc1602"
+      "id": "rtl",
+      "reason": "No RTL pass",
+      "needs": "ar/he locale sweep of lists, dashboard, Pro admin"
     },
     {
-      "id": "D.* env-limited rows (11): board-move-race, client-ip-two-proxies, no-expiry-mariadb, email-recipient-language, stored-text-reader-language, candidate-writer-author-page, multisite-registration, draft-cleared-on-logout, deadline-clamped-in-form, plain-permalink-query-strings, pro-pages-notice-when-pro-off",
-      "reason": "Their test scripts failed here for stack reasons: the wp-cli container cannot reach http://localhost:8913 so every wp_remote_get/loopback returns status 0 (test-app-auth, test-apply-concurrency, test-accounts cookie rows, test-job-lifecycle, test-job-schema page row, test-board-move-concurrency, author-page checks), no node binary (test-web-url browser parity, test-url-helper), de_DE not installed (test-email-locale, test-stored-language), no Pipeline page at test time (test-pipeline-noindex)",
-      "needs": "run the same tests inside a container that can curl itself and has node and de_DE, or the Local site"
+      "id": "dark_full",
+      "reason": "Dark checked only for the saved heart on /find-jobs/ at 390 (html[data-bx-mode=dark] toggle); Pro admin has no dark mode; dashboard banner and cards not swept in dark",
+      "needs": "theme Dark mode button sweep"
     },
     {
-      "id": "D.* no-test rows (105 of 116 not exercised)",
-      "reason": "Presentation or journey rows with no test script (examples: pb-* theme rows, panel-links-40px, hero-tablet-row, rating-star-contrast, settings-fit, admin-lists, footer-widgets-visible, find-jobs-url-state, dashboard-tab-router) need per-row browser fixtures or theme matrix; not walked in this pass. 11 of the 116 were exercised: wcb-closed-status, apply-email-scraped, ability-slug-format, pwa-icon-404, csv-remote-row-publishes, location-remote-flag, job-description-shortcodes, meta-filter-private-keys, job-view-counted, private-files-attachment, private-profile-404",
-      "needs": "Reign/BuddyX/Astra/Kadence matrix run plus per-row walk"
+      "id": "credits-banner-buy-link",
+      "reason": "Credit purchasing is not set up on this site, so the banner has no Buy more link to test",
+      "needs": "enable a credit pack then re-check the banner at 390"
     },
     {
-      "id": "E.pro.resume",
-      "reason": "Resume builder UI not walked; REST list empty and PDF/rows tests failed or env-limited (DomPDF not in git archive, no vendor)",
-      "needs": "build a resume in the browser; run test-resume-pdf from a built zip"
+      "id": "wizard-credits-step-natural-flow",
+      "reason": "The license step blocks Continue here, so the credits step was revealed by DOM; the field and REST save were real",
+      "needs": "walk with an activated license"
     },
     {
-      "id": "E.pro.privacy",
-      "reason": "Export/erase hooks not exercised",
-      "needs": "Tools > Export/Erase personal data for a candidate with an application"
-    },
-    {
-      "id": "E.pro.ai",
-      "reason": "/ai/match returned [] with no provider configured; settings tab only rendered",
-      "needs": "Ollama or OpenAI key then match and ranked-applications"
-    },
-    {
-      "id": "credits purchase",
-      "reason": "No gateway or pack; /topup route absent without a gateway; only admin manual top-up (+25, balance 25, ledger 1) and balance REST verified",
-      "needs": "Stripe test keys and a credit pack"
-    },
-    {
-      "id": "P3.step4 licence key entry",
-      "reason": "Kanban answered 200 with no licence (gate proven absent); entering and persisting a key not tried",
-      "needs": "test key"
-    },
-    {
-      "id": "P5 updater routing",
-      "reason": "No store or licence in the throwaway stack",
-      "needs": "licensed environment"
-    },
-    {
-      "id": "H.kanban-no-stages",
-      "reason": "Not seeded or opened",
-      "needs": "board with 0 stages then open the Kanban"
-    },
-    {
-      "id": "H.credit-history-empty",
-      "reason": "Only REST (ledger []) checked, not the credit-balance block",
-      "needs": "render the block for an employer with 0 ledger rows"
-    },
-    {
-      "id": "F.firefox/safari, F.a11y (axe, focus rings, keyboard apply)",
-      "reason": "Chromium only, no axe run",
-      "needs": "browsers and axe"
-    },
-    {
-      "id": "Themes Reign/BuddyX/Astra/Kadence and real dark mode",
-      "reason": "Only Twenty Twenty-Five (no native dark mode). Under data-bx-mode=dark the plugin panels flip correctly but page-level headings on the white theme background read as low contrast (theme, not plugin)",
-      "needs": "theme matrix run"
-    },
-    {
-      "id": "first-walk soft findings S.email-status-stray-space, S.avatar-initials-inconsistent, S.editorjs-console-log, S.admin-only-field-on-employer-form",
-      "reason": "Not re-checked in this pass (no source change known)",
-      "needs": "spot re-check if desired"
-    },
-    {
-      "id": "G post-release",
-      "reason": "Pre-tag",
-      "needs": "after tag"
-    },
-    "Pro resume simple form honeypot (no honeypot exists in that form)",
-    "RTL for company-archive, job-listings, resume-map blocks (only the three RTL pages in the brief were measured)",
-    "Heartbeat notice 'Connection lost' appeared once in the wp-admin editor after publish (Docker/heartbeat artifact, not investigated)"
+      "id": "1024/820 widths",
+      "reason": "Only 1440 and 390 walked",
+      "needs": "iPad width pass"
+    }
   ],
   "coverage": {
-    "viewports": "1440 and 390 (job form 4 steps both widths; job single, Find Jobs, company, employer dash, candidate dash, post-a-job, map at both); RTL (locale ar, dir=rtl) at both widths on 7 surfaces",
-    "color_schemes": "light; prefers-color-scheme dark plus html[data-bx-mode=dark] on 5 surfaces at both widths (plugin panels flip; TT25 page bg stays white)",
-    "roles": "anonymous, candidate (Zara Okonkwo), employer (Sarah Lindgren, Ahmed Karim), moderator (Maya Collins), administrator",
-    "tests_run": "Free tests/ (91 scripts: 74 exit 0 first pass, 15 non-zero, 2 more rerun clean-seed; 13 re-run all still non-zero) and Pro tests/ (51 scripts: 43 exit 0, 8 non-zero) inside the stack via wp eval-file",
-    "emails_read": "Application submitted, New application for your job, New jobs matching your alert (x2, one per matching job)",
-    "database": "13 wcb tables (3 Free, 8 Pro, 2 SDK); wcb_db_version 1.4.7 = Install::DB_VERSION; wcbp_db_version 1.22 = ProInstall::DB_VERSION",
-    "cron": "wcb_check_job_expiry, wcb_private_files_migrate, wcb_send_*_alerts, wcbp_geocode_post, wcbp_process_instant_alerts present; wcbp_geocode_post and wcbp_process_instant_alerts executed and produced a geocode (Leeds 53.797, -1.544) and alert mails; one wcb_close_job_applications single event per demo job",
-    "pro_modules": "maps (Job Map 25 jobs in view, 6 pins, tiles load, 390 no overflow), alerts (create/list/PUT/dispatch), notification bell (status change -> 1 unread, read-all -> 0), analytics (credits.csv 200), CSV import, PWA (off: manifest 404; on: manifest 200 application/manifest+json, no icons key, SW 200, link tag), push (register 201 idempotent, bad token 400, one row), credits (tab, manual top-up), AI (tab + empty match), fields/boards/feed/pipeline tabs 200 with no PHP text"
+    "viewports": "1440 and 390 for saved hearts, dashboard, Pro admin",
+    "rtl": "not run",
+    "dark": "saved heart at 390 only",
+    "code_to_live": "Free 6d1e6b20 and Pro 3a36cf8 live-mounted; wp plugin list 1.8.5",
+    "cli": "9 named test files, all pass"
   },
+  "fixtures": "Created and removed by captured id: none permanent. Temporary: ledger row 4093 (+3 credits for thomas.becker) deleted and _wbcom_credits_low flag removed; transient wcb_reg_77a3711c47f317d879d76001e6be7682 deleted. Restored: adrian.kowalski saved jobs 68594,68607,68624,68638 and companies 68517,68543; date_format back to 'F j, Y'; wcbp_low_credit_threshold back to 5; Arjun Mehta application 68788 back to Submitted.",
+  "screenshots_dir": "Playwright output dir (relative filenames), moved afterwards to /Users/vapvarun/work-artifacts/screenshots/2026-11/smoke185/ (saved-*.png, pro-*.png, dash-390-*.png, apps-1440.png, remote-card-1440.png)",
   "top3": [
-    "Location is optional works end to end: form (4 steps, 1440 and 390), editor, Quick Edit, Bulk Edit, single and bulk Approve with no toast, REST, CLI, scheduled go-live and Pro CSV all publish; Jobs list badge and tooltip exact; no JobPosting JSON-LD without location, present with location or Remote; no Require-a-location option or safer-defaults item.",
-    "One real presentation bug: RTL pages with a honeypot (single job, Post a Job, simple forms) scroll about 10,000px sideways because the honeypot uses left:-9999px; fix with inset-inline-start or clip. Everything else in RTL, 390 and plugin dark mode held.",
-    "Pro modules now observed working: maps with geocoding, alerts create and dispatch, notification bell, analytics CSV, CSV import, PWA gate and manifest, push device registration, credits top-up and licence-free kanban. Untested still: P5 updater, gateway purchase, AI match, resume builder, privacy hooks; 5 test scripts fail at HEAD for unresolved or drift reasons and the seed cleanup tool wipes demo users."
+    "Saved hearts hold on /find-jobs/ and /find-companies/ across Load more, sort and filter; unsave and resave work; guests are sent to sign-in",
+    "Public REST writes hold: view dedupe 6 POSTs = 1 row, missing id = 404, sign-up probe 429 after 5; Pro fields/boards partial writes and stage delete keep other values",
+    "F9 company heart aria-pressed fixed in e0be28bb and re-verified (aria-pressed matches wcb-bookmarked on every heart)"
   ],
-  "observations": [
-    "Fixed after the full walk: RTL honeypot offset, stale tests, three N+1 query paths (all re-verified in the targeted walk)",
-    "Region-less locale (ar, no default country) flags every job with the No location badge: not a 1.8.4 regression, carded separately if wanted"
-  ],
-  "verdict": "WARN"
+  "verdict": "PASS",
+  "dispositions": [
+    {
+      "id": "D1.admin.applications-status-links-tap-target-390",
+      "where": "admin.php?page=wcb-applications",
+      "viewport": "390",
+      "measurement": "8 .subsubsub links, each 25px tall; page scrollWidth 390 (no overflow). They are WordPress core list-table filter links, not plugin markup; QA agreed this is not a plugin defect.",
+      "disposition": "core markup, not a plugin defect"
+    },
+    {
+      "id": "D2.theme.header-logo-dark-mode",
+      "where": "Reign header, html[data-bx-mode=dark]",
+      "viewport": "1440 and 390",
+      "measurement": "Header logo is near-invisible in dark mode: the Customizer logo is a dark image and no dark logo is set.",
+      "disposition": "theme/site setting; belongs on a Reign card, not a plugin defect"
+    }
+  ]
 }
