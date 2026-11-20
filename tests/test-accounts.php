@@ -277,6 +277,15 @@ if ( is_multisite() ) {
 }
 
 WP_CLI::log( '--- email verification ---' );
+// The sign-in block applies only while verification is required: force it on here, never written.
+$wcb_verify_on = static function ( $settings ) {
+	$settings                               = is_array( $settings ) ? $settings : array();
+	$settings['require_email_verification'] = true;
+	return $settings;
+};
+add_filter( 'option_wcb_settings', $wcb_verify_on );
+add_filter( 'default_option_wcb_settings', $wcb_verify_on );
+\WCB\Admin\Settings::flush_cache();
 $wcb_new = $wcb_mk( 'new', 'wcb_candidate' );
 EmailVerification::start( $wcb_new );
 $wcb_auth = wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw );
@@ -314,6 +323,9 @@ $wcb_resend = wcb_rest( 'POST', '/wcb/v1/auth/verify-email/resend', array( 'emai
 wcb_assert( 200 === $wcb_resend->get_status(), 'resend answers 200 for an unknown address' );
 delete_user_meta( $wcb_new, EmailVerification::META );
 wcb_assert( ! is_wp_error( wp_authenticate( "acc-new-{$wcb_s}", $wcb_pw ) ), 'a confirmed account signs in' );
+remove_filter( 'option_wcb_settings', $wcb_verify_on );
+remove_filter( 'default_option_wcb_settings', $wcb_verify_on );
+\WCB\Admin\Settings::flush_cache();
 
 WP_CLI::log( '--- email change needs the current password ---' );
 $wcb_c = $wcb_mk( 'c', 'wcb_candidate' );
