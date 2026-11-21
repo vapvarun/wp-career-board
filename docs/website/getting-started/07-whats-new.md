@@ -10,7 +10,10 @@ You can use this page to see recent changes that affect how you set up and run y
 * **Applications list.** Status links, filters, export and search sit in one row.
 * **Dates.** Admin lists, dashboards and the job form use your site's date format.
 * **Boards.** A job form on a trashed board opens as if no board was chosen, and a restored board comes back published. Listing length is held to 1-365 days.
-* **Privacy.** A visitor's IP address is stored as a keyed hash.
+* **Privacy.** A visitor's IP address is stored as a keyed hash. The app sign-in limiter also keys its counters with your site's salt, and an IPv6 visitor counts as one address per /64, so changing the last part of an address no longer gets a fresh allowance.
+* **Co-owners.** A person who runs a company can list that company's applications, the same as they can for its jobs.
+* **Applications and profiles.** A trashed application can no longer be read over the API except by an admin. A candidate's profile over the API follows the resume access setting in Pro, and an employer the candidate applied to can always open it. A withdrawn application grants no access.
+* **Featured by an admin.** A job an admin features is marked Featured, instead of the request succeeding and doing nothing.
 
 ## In 1.8.4
 

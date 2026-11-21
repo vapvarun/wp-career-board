@@ -88,7 +88,7 @@ Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relat
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
 | `POST` | `/jobs/{id}/apply` | guest or `wcb/apply-jobs` | Submit an application. Guests are allowed unless **Require login to apply** is on. You cannot apply to your own job |
-| `GET` | `/applications/{id}` | the candidate, the job's author, or `wcb/manage-settings` | Single application detail |
+| `GET` | `/applications/{id}` | the candidate, the job's author, or `wcb/manage-settings` | Single application detail. A trashed application answers the same as a missing one for everyone but `wcb/manage-settings` |
 | `DELETE` | `/applications/{id}` | candidate owner or `wcb/manage-settings`; needs `wcb/withdraw-application` and **Allow Withdraw** on (Settings > Applications) | Withdraw: keeps the application as `withdrawn` (409 once it has an outcome) |
 | `PUT` | `/applications/{id}/status` | `wcb/view-applications` and the job's author, or `wcb/manage-settings` | Change status (`submitted`, `reviewing`, `shortlisted`, `rejected`, `hired`). Returns `changed` (false for a same-status save) and `notified`; 409 on an application that already has an outcome |
 | `GET` | `/candidates/{id}/applications` | that candidate or `wcb/manage-settings` | Candidate's application history, paginated, with `counts` for all of them. |
@@ -103,7 +103,7 @@ Every job card returned by `GET /jobs` and `GET /jobs/{id}` carries viewer-relat
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
 | `POST` | `/candidates/register` | guest | Register a new candidate |
-| `GET` | `/candidates/{id}` | guest OK | Candidate profile. A private profile answers `404 wcb_not_found` for everyone but the owner and administrators, exactly like a missing user |
+| `GET` | `/candidates/{id}` | guest OK | Candidate profile. A private profile answers `404 wcb_not_found` for everyone but the owner and administrators, exactly like a missing user. The `wcb_can_view_candidate_profile` filter can refuse a viewer the same way (Pro uses it for **Single resume visibility**); the candidate, administrators and an employer or company co-owner the candidate applied to always pass. A withdrawn or trashed application does not count |
 | `PUT` | `/candidates/{id}` | self or admin | Update profile |
 | `GET` | `/candidates/{id}/bookmarks` | self or admin | List saved jobs (read-only - toggle via `POST /jobs/{id}/bookmark`) |
 | `GET` | `/candidates/{id}/saved-companies` | self or admin | List saved companies (read-only - toggle via `POST /companies/{id}/bookmark`) |
@@ -164,7 +164,7 @@ reference.
 | `GET` | `/employers/{id}` | guest OK | Employer detail. `{id}` is the company ID |
 | `PUT` | `/employers/{id}` | the company's author with `wcb/manage-company`, or `wcb/manage-settings` | Update an employer profile |
 | `GET` | `/employers/{id}/jobs` | guest OK | Employer's job postings. `appCount` and `appLabel` are included only for the company's owner and administrators |
-| `GET` | `/employers/{id}/applications` | the company's author with `wcb/view-applications`, or `wcb/manage-settings` | Applications across the employer's jobs |
+| `GET` | `/employers/{id}/applications` | the company's author or a co-owner, with `wcb/view-applications`, or `wcb/manage-settings` | Applications across the employer's jobs |
 | `POST` | `/employers/{id}/logo` | same as update | Upload the company logo (file field `logo`) |
 | `GET` | `/employers/me/jobs` | `wcb/access-employer-dashboard` | The current employer's own jobs |
 | `GET` | `/employers/me/applications` | `wcb/access-employer-dashboard` | Applications across the current employer's jobs |
