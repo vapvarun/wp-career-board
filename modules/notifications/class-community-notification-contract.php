@@ -194,7 +194,7 @@ final class CommunityNotificationContract {
 			if ( 'job' === $object_type ) {
 				$visible[ $key ] = self::job_visible( $jobs[ (int) $target['object_id'] ] ?? null, $viewer_id );
 			} elseif ( 'application' === $object_type ) {
-				$visible[ $key ] = self::application_visible( $applications[ (int) $target['object_id'] ] ?? null, $jobs, $viewer_id );
+				$visible[ $key ] = self::application_visible( $applications[ (int) $target['object_id'] ] ?? null, $jobs, $viewer_id, (string) ( $target['type'] ?? '' ) );
 			}
 		}
 
@@ -264,11 +264,18 @@ final class CommunityNotificationContract {
 	 * @param \WP_Post|null      $application The application, or null.
 	 * @param array<int,\WP_Post> $jobs       Job lookup, keyed by job ID.
 	 * @param int                $viewer_id   Recipient the bell row belongs to.
+	 * @param string             $type        The notification type of the row ('' when not known).
 	 * @return bool
 	 */
-	private static function application_visible( ?\WP_Post $application, array $jobs, int $viewer_id ): bool {
+	private static function application_visible( ?\WP_Post $application, array $jobs, int $viewer_id, string $type = '' ): bool {
 		if ( ! $application instanceof \WP_Post || 'trash' === $application->post_status ) {
 			return false;
+		}
+
+		// The candidate keeps their own record, whether or not the job is still there: the "job was removed" notice is
+		// written after the job is gone, so checking the job first hid exactly the notice that explains it.
+		if ( (int) get_post_meta( $application->ID, '_wcb_candidate_id', true ) === $viewer_id ) {
+			return true;
 		}
 
 		$job = $jobs[ (int) get_post_meta( $application->ID, '_wcb_job_id', true ) ] ?? null;
@@ -277,9 +284,12 @@ final class CommunityNotificationContract {
 		}
 
 		if ( (int) $job->post_author === $viewer_id ) {
-			return \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN !== (string) get_post_meta( $application->ID, '_wcb_status', true );
+			// A withdrawn application drops out of the employer's list, but the notice that it was withdrawn is the one
+			// they need to see: the application is set to withdrawn before the notice is built.
+			return 'application_withdrawn' === $type
+				|| \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN !== (string) get_post_meta( $application->ID, '_wcb_status', true );
 		}
 
-		return (int) get_post_meta( $application->ID, '_wcb_candidate_id', true ) === $viewer_id;
+		return false;
 	}
 }
