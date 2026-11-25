@@ -267,7 +267,7 @@ final class CommunityNotificationContract {
 	 * @param string             $type        The notification type of the row ('' when not known).
 	 * @return bool
 	 */
-	private static function application_visible( ?\WP_Post $application, array $jobs, int $viewer_id, string $type = '' ): bool {
+	private static function application_visible( ?\WP_Post $application, array $jobs, int $viewer_id, string $type ): bool {
 		if ( ! $application instanceof \WP_Post || 'trash' === $application->post_status ) {
 			return false;
 		}
