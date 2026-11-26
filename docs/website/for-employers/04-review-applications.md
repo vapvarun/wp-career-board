@@ -49,6 +49,8 @@ Candidates see **Rejected** as "Not selected" and **Closed** as "Position closed
 
 In **List view**, use the status control in the detail panel. In **Board view**, drag the card to another column or pick a status in its **Move to** menu. The change saves at once with no page reload, and the candidate is notified ("Status updated. The candidate has been notified."). Setting the status the applicant already has changes nothing and sends nothing ("No change. The candidate was not notified.").
 
+Setting **Rejected** or **Hired** first asks you to confirm, because the candidate is emailed and the change cannot be undone. Click **Cancel** to leave the status as it was.
+
 Setting **Rejected** sends the candidate a "not selected" email in place of the generic status email. Guests who applied with an email address are notified too. If an applicant left no email address, you see "Status updated. This applicant left no email address, so they were not notified."
 
 ## Rate applicants and keep notes

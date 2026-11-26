@@ -2,6 +2,18 @@
 
 You can use this page to see recent changes that affect how you set up and run your job board. For the full history, see the changelog in `readme.txt`.
 
+## In 1.8.6
+
+* **Company co-owners.** A company owner can add or remove the people who run the company with them, from the employer dashboard, wp-admin, the REST API or WP-CLI. Only Employer accounts can be added, up to 20 per company, and the search never shows email addresses. See [Company profile](../for-employers/05-company-profile.md).
+* **Withdrawn applications.** Once a candidate withdraws, the employer no longer sees their CV, email, cover letter or answers, in the dashboard, the CSV export or the API. The dashboard says the application was withdrawn, and a **Closed** tab makes the status counts add up to **All**. See [Review applications](../for-employers/04-review-applications.md).
+* **Rejected and Hired ask first.** Both send the candidate an email that cannot be taken back, so the dashboard asks before it changes the status.
+* **Submit for review.** On a board that needs approval, a draft's action reads **Submit for review**, and My Jobs shows the status the site stored. A job the site sends back to Draft says **Returned by the site**. See [Manage jobs](../for-employers/03-manage-jobs.md).
+* **Trashed applications.** A trashed application can no longer be changed by the employer, and no email goes out for it.
+* **Content capabilities.** Jobs, applications, companies, resumes and boards have their own capabilities. Editors, Authors and Contributors no longer edit them through the WordPress Posts screens or the core REST API. See [Capabilities and roles](../admin-guide/14-capabilities-and-roles.md).
+* **Custom fields.** A ticked choice that contains a comma is kept when the job is saved again.
+* **Pages that need Pro.** A page built from Pro blocks shows admins a short card with a **Go to Plugins** button while Pro is inactive, and visitors a one-line notice.
+* **Job views.** A visitor is counted once an hour per job, checked with one indexed lookup.
+
 ## In 1.8.5
 
 * **Jobs list.** Filter by category, job type and location above the list.
