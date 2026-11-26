@@ -189,9 +189,12 @@
 	box-shadow: none;
 }
 
+/* The chosen side reads at a glance: the sidebar's active treatment, kept on
+ * hover and focus (1.8.6; the 6% hover tint was invisible on most themes). */
 .wcb-dashboard .wcb-cd-switch__btn[aria-pressed="true"] {
-	background: var(--wcb-bg-hover);
-	color: var(--wcb-contrast);
+	background: var(--wcb-primary-soft);
+	color: var(--wcb-primary-text);
+	font-weight: var(--wcb-font-semibold, 600);
 }
 
 .wcb-dashboard .wcb-cd-switch__btn:focus-visible {
