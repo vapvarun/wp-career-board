@@ -1229,7 +1229,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 
 			<div class="wcb-profile-grid">
 				<div class="wcb-profile-form">
-					<div class="wcb-field-group" data-wp-class--wcb-shown="state.companyId">
+					<?php // No upload before the company exists: the hint below takes the logo's place (1.8.6). ?>
+					<div class="wcb-field-group<?php echo $wcb_company_id ? '' : ' wcb-hidden'; ?>" data-wp-class--wcb-hidden="!state.companyId">
 						<label class="wcb-field-label"><?php esc_html_e( 'Company Logo', 'wp-career-board' ); ?></label>
 						<div class="wcb-logo-field">
 							<img class="wcb-logo-current" data-wp-class--wcb-shown="state.companyLogoUrl" data-wp-bind--src="state.companyLogoUrl" alt="" width="64" height="64" />

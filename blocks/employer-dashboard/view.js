@@ -2105,6 +2105,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			if ( ! state.companyId ) {
+				// The field is hidden until the company is saved; this is the backstop.
+				event.target.value = '';
 				state.error = t( 'errorSaveLogo', 'Please save your company profile before uploading a logo.' );
 				return;
 			}
