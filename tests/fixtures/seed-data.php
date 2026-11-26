@@ -1582,7 +1582,7 @@ foreach ( $applications_data as $app ) {
 		update_post_meta( $app_id, '_wcb_guest_email', $app['guest_email'] );
 	}
 
-	WP_CLI::log( '  → created application: ' . $title . ' — ' . $app['status'] . ' (ID ' . $app_id . ')' );
+	WP_CLI::log( '  → created application: ' . $app_title . ' — ' . $app['status'] . ' (ID ' . $app_id . ')' );
 	++$application_count;
 }
 
