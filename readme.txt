@@ -62,6 +62,33 @@ Go to Career Board → Settings → Import and use the built-in migration tool. 
 
 == Changelog ==
 
+= 1.8.6 - November 2026 =
+
+Company co-owners, stronger candidate privacy and tighter permissions.
+
+* New      - Company co-owners: the company's creator adds and removes co-owners from the employer dashboard, and admins from the company screen, REST or WP-CLI.
+* New      - A Closed status tab on Applications holds withdrawn, position-closed and job-removed applications, so the tabs add up to All.
+* Improve  - A withdrawn application tells the employer the candidate withdrew, instead of showing empty sections.
+* Improve  - Marking an applicant Rejected or Hired asks first, since it emails the candidate.
+* Improve  - Counting job views no longer writes a temporary database row and lock for every visitor, which keeps busy boards fast.
+* Improve  - A page that needs Pro shows a styled notice with a Go to Plugins link for admins.
+* Improve  - Eleven blocks have plain descriptions in the editor and block inserter.
+* Improve  - The active Jobs or Companies switch on the candidate's Saved view is clearly marked.
+* Improve  - The employer sees a notice when a candidate withdraws, and the candidate sees one when a job they applied to is removed.
+* Fix      - Featured Jobs, Job Alert Card, Job Search Hero, Similar Companies, Recent Jobs and Job Stats can be selected in the editor again, so their settings open.
+* Fix      - Publish, Resubmit and Reopen on My Jobs show the status the site stored, so a job waiting for review no longer reads Published.
+* Fix      - Multi-choice answers whose choices contain commas keep every ticked choice when the form is saved again.
+* Fix      - The verified tick sits right after the company name on Find Companies.
+* Fix      - The logo upload on a new company appears once the company is saved, instead of failing out of sight.
+* Security - A withdrawn application no longer gives the employer the candidate's CV, email, cover letter or answers, in the dashboard or the CSV export.
+* Security - A trashed application can no longer be changed by the employer (status, notes, rating) or withdrawn, and no status email is sent.
+* Security - Jobs, applications, companies, resumes and boards have their own capabilities, so Editors, Authors and Contributors can no longer write them through the WordPress REST API.
+* Dev      - New REST routes /employers/{id}/owners (GET, POST), /employers/{id}/owners/{user_id} (DELETE) and /employers/{id}/owners/search, and the wp wcb company owners command.
+* Dev      - Applicant lists accept status=closed.
+* Dev      - wcb_moderation_status_changed fires for every job or resume a moderation hide or restore changes.
+* Dev      - The test seed cleanup removes only what the seed created, and tests/run-all-tests.sh needs WCB_TESTS_DISPOSABLE_SITE=1.
+* Compat   - Aligned with WP Career Board Pro 1.8.6. Install both updates together.
+
 = 1.8.5 - November 2026 =
 
 A release for 1.8.4 that tightens CV privacy and speeds up large sites.
@@ -98,7 +125,7 @@ A release for 1.8.4 that tightens CV privacy and speeds up large sites.
 * Security - A trashed application no longer grants access to a private CV, and the access check runs one query.
 * Security - A guest application counts against the hourly limit before its answers are read, and the multi-choice answer splitter is bounded.
 * Security - A visitor's IP address is stored as a keyed hash.
-* Security - The sign-up routes count a try for an address that already has an account, so they cannot be used to find which emails are registered.
+* Security - The sign-up routes count a try for an address that already has an account, so checking which emails are registered is rate limited.
 * Security - The app password limiter keys its counters with the site salt, and an IPv6 visitor counts as one address per /64.
 * Dev      - Admin scripts use wp.apiFetch.
 * Compat   - Aligned with WP Career Board Pro 1.8.5. Install both updates together.
@@ -628,26 +655,26 @@ First public release after 1.0.x. Adds the single-page job form, bulk applicant 
 * Compat   - Aligned with WP Career Board Pro 1.2.0. Install both updates together.
 
 = 1.0.2 =
-* New: Reign Theme dark-mode support — every WCB component (Find Jobs, Find Candidates, employer/candidate dashboards, companies archive, job and resume singles) re-colors cleanly when Reign's `html.dark-mode` class is active, driven by a new `html.dark-mode` token layer in `frontend.css` that maps `--wcb-*` to dark values.
-* New: BuddyX Pro theme integration — WCB now inherits BuddyX Pro's theme palette (buttons, cards, borders, text, backgrounds) in both light and dark mode via a token bridge in `integrations/buddyxpro/assets/buddyx-compat.css` that re-maps `--wcb-*` to BuddyX Pro's own variables. WCB primary buttons pick up BuddyX Pro's customizer button color automatically.
-* Fix: BuddyX Pro integration never actually loaded — the directory `integrations/buddyx-pro/` was hyphenated but the PSR-4 autoloader expected the case-folded namespace segment `buddyxpro`, so `BuddyxProIntegration::boot()` silently never ran and no BuddyX compatibility CSS was enqueued on BuddyX Pro sites. Directory renamed and paths updated.
-* Fix: BuddyX Pro enqueue gate only matched `wcb_job` singular / archive — now mirrors the Reign gate and enqueues compatibility CSS on every WCB CPT (`wcb_job`, `wcb_application`, `wcb_company`, `wcb_resume`) and any page embedding a `wp-career-board/*` or `wcb/*` block.
-* Fix: Find-jobs page heading (`.wcb-page-heading`) was flush against the filter chip bar — added `margin-block-start: var(--wcb-space-2xl)` (`lg` on ≤640px) so the heading has breathing room above the search + chips row.
-* Fix: Avatar initials on job cards, company cards, job single header, and company profile headers were rendering dark-on-dark in dark mode because the letter color bound to `var(--wcb-base)` which flips to the card color. Letters now hardcoded to white — avatar backgrounds are always a dark slate regardless of mode.
-* Fix: `.wcb-page-heading` hardcoded `color: #0f172a` — now uses `var(--wcb-contrast)` so it flips with dark mode instead of staying dark on a dark body.
-* Fix: Reign compatibility stylesheet hardcoded `color: #475569 !important` on `.wcb-load-more-btn` and `color: #0f172a` on `.wcb-clear-all:hover` — now token-driven via `var(--wcb-text-secondary)` and `var(--wcb-contrast)` so dark-mode styling flows through.
-* Fix: `.wcb-cbadge--type`, `.wcb-cbadge--exp`, and `.wcb-cbadge--location` on job cards hardcoded `#475569` text — now token-driven so the dark-mode surface/text pair stays readable.
-* Fix: Current-page WCB block detector (`current_page_has_wcb_block()`) only matched `wp-career-board/*` block comments — now also matches pro `wcb/*` block comments so pages that embed only pro blocks correctly enqueue `wcb-frontend`, `wcb-frontend-tokens`, and `wcb-frontend-components`.
-* Fix: Reign integration enqueue gate used a hardcoded list of four free-plugin block names — now triggers on any WCB CPT or any `wp-career-board/*` / `wcb/*` block comment so `reign-compat.css` loads on pro-only pages too.
-* Fix: Candidate dashboard had two cyclic CSS custom property declarations (`--wcb-bg-subtle: var(--wcb-bg-subtle, #f8fafc)` and the equivalent for `--wcb-text-secondary`) that resolved to the guaranteed-invalid value in Chrome and left `.wcb-main` with a transparent background, so the dashboard wrapper looked unframed next to the employer dashboard. Local re-declarations removed — both dashboards now cascade identical tokens from `:root`.
-* Improvement: Semantic dark-mode token layer — `--wcb-bg-subtle`, `--wcb-bg-hover`, `--wcb-text-secondary`, `--wcb-text-tertiary`, `--wcb-avatar-bg` all get dark variants under `html.dark-mode`, plus translucent `rgba(...)` variants of `--wcb-success-bg`, `--wcb-warning-bg`, `--wcb-danger-bg`, and `--wcb-info-bg` so status badges stay readable on dark cards.
-* Fix: Candidate dashboard now gates access via the `wcb_access_candidate_dashboard` ability — employers can no longer reach the candidate dashboard.
+* New: Reign Theme dark-mode support - every WCB component (Find Jobs, Find Candidates, employer/candidate dashboards, companies archive, job and resume singles) re-colors cleanly when Reign's `html.dark-mode` class is active, driven by a new `html.dark-mode` token layer in `frontend.css` that maps `--wcb-*` to dark values.
+* New: BuddyX Pro theme integration - WCB now inherits BuddyX Pro's theme palette (buttons, cards, borders, text, backgrounds) in both light and dark mode via a token bridge in `integrations/buddyxpro/assets/buddyx-compat.css` that re-maps `--wcb-*` to BuddyX Pro's own variables. WCB primary buttons pick up BuddyX Pro's customizer button color automatically.
+* Fix: BuddyX Pro integration never actually loaded - the directory `integrations/buddyx-pro/` was hyphenated but the PSR-4 autoloader expected the case-folded namespace segment `buddyxpro`, so `BuddyxProIntegration::boot()` silently never ran and no BuddyX compatibility CSS was enqueued on BuddyX Pro sites. Directory renamed and paths updated.
+* Fix: BuddyX Pro enqueue gate only matched `wcb_job` singular / archive - now mirrors the Reign gate and enqueues compatibility CSS on every WCB CPT (`wcb_job`, `wcb_application`, `wcb_company`, `wcb_resume`) and any page embedding a `wp-career-board/*` or `wcb/*` block.
+* Fix: Find-jobs page heading (`.wcb-page-heading`) was flush against the filter chip bar - added `margin-block-start: var(--wcb-space-2xl)` (`lg` on ≤640px) so the heading has breathing room above the search + chips row.
+* Fix: Avatar initials on job cards, company cards, job single header, and company profile headers were rendering dark-on-dark in dark mode because the letter color bound to `var(--wcb-base)` which flips to the card color. Letters now hardcoded to white - avatar backgrounds are always a dark slate regardless of mode.
+* Fix: `.wcb-page-heading` hardcoded `color: #0f172a` - now uses `var(--wcb-contrast)` so it flips with dark mode instead of staying dark on a dark body.
+* Fix: Reign compatibility stylesheet hardcoded `color: #475569 !important` on `.wcb-load-more-btn` and `color: #0f172a` on `.wcb-clear-all:hover` - now token-driven via `var(--wcb-text-secondary)` and `var(--wcb-contrast)` so dark-mode styling flows through.
+* Fix: `.wcb-cbadge--type`, `.wcb-cbadge--exp`, and `.wcb-cbadge--location` on job cards hardcoded `#475569` text - now token-driven so the dark-mode surface/text pair stays readable.
+* Fix: Current-page WCB block detector (`current_page_has_wcb_block()`) only matched `wp-career-board/*` block comments - now also matches pro `wcb/*` block comments so pages that embed only pro blocks correctly enqueue `wcb-frontend`, `wcb-frontend-tokens`, and `wcb-frontend-components`.
+* Fix: Reign integration enqueue gate used a hardcoded list of four free-plugin block names - now triggers on any WCB CPT or any `wp-career-board/*` / `wcb/*` block comment so `reign-compat.css` loads on pro-only pages too.
+* Fix: Candidate dashboard had two cyclic CSS custom property declarations (`--wcb-bg-subtle: var(--wcb-bg-subtle, #f8fafc)` and the equivalent for `--wcb-text-secondary`) that resolved to the guaranteed-invalid value in Chrome and left `.wcb-main` with a transparent background, so the dashboard wrapper looked unframed next to the employer dashboard. Local re-declarations removed - both dashboards now cascade identical tokens from `:root`.
+* Improvement: Semantic dark-mode token layer - `--wcb-bg-subtle`, `--wcb-bg-hover`, `--wcb-text-secondary`, `--wcb-text-tertiary`, `--wcb-avatar-bg` all get dark variants under `html.dark-mode`, plus translucent `rgba(...)` variants of `--wcb-success-bg`, `--wcb-warning-bg`, `--wcb-danger-bg`, and `--wcb-info-bg` so status badges stay readable on dark cards.
+* Fix: Candidate dashboard now gates access via the `wcb_access_candidate_dashboard` ability - employers can no longer reach the candidate dashboard.
 * Fix: Job listings search input filtering on the Find Jobs page now matches the `wcb:search` event contract dispatched by the search block (`params.query`), and the listings hydrate from the `wcb_search` URL parameter.
-* Fix: Company industry field is now a single source of truth — both the employer dashboard and the admin meta box render the same dropdown of 16 predefined industries from `WCB\Core\Industries::all()`.
-* Fix: `wcb-btn--primary` and other variant text colors no longer get clobbered by the wrapper-scoped theme isolation reset — the reset no longer overrides per-variant `color`.
+* Fix: Company industry field is now a single source of truth - both the employer dashboard and the admin meta box render the same dropdown of 16 predefined industries from `WCB\Core\Industries::all()`.
+* Fix: `wcb-btn--primary` and other variant text colors no longer get clobbered by the wrapper-scoped theme isolation reset - the reset no longer overrides per-variant `color`.
 * Fix: EDD SL SDK `plugins_api_filter` no longer fatals on PHP 8+ when the licensing API call fails and the cache is empty (`Attempt to assign property "plugin" on false`).
-* Improvement: Listings card typography rebalanced — title bumped to ~19px, description shrunk and muted, card body gap widened, badge contrast retuned to WCAG AA on every background, and the title link tap target raised above the WCAG 2.5.5 AAA threshold.
-* Improvement: Accessibility pass — replaced 33 `outline: none` focus-strip sites with `outline: 2px solid transparent` so focus indicators show in Windows High Contrast / forced-colors mode, added missing form labels and ARIA labels across admin and block templates, and gave Interactivity API anchor stubs static aria-labels that hydrate at runtime.
+* Improvement: Listings card typography rebalanced - title bumped to ~19px, description shrunk and muted, card body gap widened, badge contrast retuned to WCAG AA on every background, and the title link tap target raised above the WCAG 2.5.5 AAA threshold.
+* Improvement: Accessibility pass - replaced 33 `outline: none` focus-strip sites with `outline: 2px solid transparent` so focus indicators show in Windows High Contrast / forced-colors mode, added missing form labels and ARIA labels across admin and block templates, and gave Interactivity API anchor stubs static aria-labels that hydrate at runtime.
 
 = 1.0.1 =
 * Fix: WPCS formatting cleanup across entire codebase (tabs, braces, spacing).
