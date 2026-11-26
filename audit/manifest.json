@@ -4572,7 +4572,7 @@
     "abilities_api": "All capability checks go via wp_is_authorized() — no current_user_can('manage_options')"
   },
   "ci_guards": {
-    "script": "composer scripts (phpcs, phpstan, phpunit), Grunt copy:dist, .lighthouserc.json, bin/check-pro-decoupling.sh (F-6 — blocks Free→Pro coupling regressions)",
+    "script": "composer scripts (phpcs, phpstan, phpunit), Grunt copy:dist, .lighthouserc.json, bin/check-pro-decoupling.sh (F-6 — blocks Free→Pro coupling regressions), bin/php-floor-lint.sh (php -l on the Requires PHP version, source and built zip)",
     "url_emission_regex": null,
     "storage_internal_marker": null,
     "phpstan_level": 5,
@@ -4688,7 +4688,8 @@
     "1.8.0-w4": "services +1 (ImageUpload). RestController::ip_limit_reached() is the one per-IP hourly limiter (sign-up, verify resend, Pro geocode). app-config hides plugin/pro versions from non-admins and no longer falls back to admin_email for abuse_contact_email.",
     "1.8.0-credential-guard": "services +1 (CredentialGuard). Current-password check on core /wp/v2/users writes that change email or password, on rest_request_before_callbacks because core ignores an error returned from rest_pre_insert_user on update. No new routes, fired hooks, tables or settings.",
     "1.8.0-w6": "services +1 (JobPayment). Filter wcb_job_payment; post meta _wcb_awaiting_payment; job payloads gain awaiting_payment; admin Jobs \"Awaiting payment\" view (?wcb_payment=awaiting). The read-only republish balance gate was replaced by the charge; wcb_job_republish_credit_cost is now applied by Pro.",
-    "1.8.6-returned": "post meta _wcb_returned (ModerationModule::RETURNED, UTC time) set when someone other than the employer moves a pending job to draft, cleared on pending/publish. My Jobs rows gain publishLabel (Publish | Submit for review, from JobsEndpoint::default_status, now public static) and a Returned statusNote; GET /jobs/{id} gains returned."
+    "1.8.6-returned": "post meta _wcb_returned (ModerationModule::RETURNED, UTC time) set when someone other than the employer moves a pending job to draft, cleared on pending/publish. My Jobs rows gain publishLabel (Publish | Submit for review, from JobsEndpoint::default_status, now public static) and a Returned statusNote; GET /jobs/{id} gains returned.",
+    "1.8.6-release-tail": "Post-6790af6e (2026-11-27): add_company_owner() returns bool|WP_Error (PHP 8.1); CI gains php-floor (bin/php-floor-lint.sh: composer php-floor first in ci:no-journeys, and package-dist on the built zip); Install::seed_terms_after_activation() on init 25; the 1.5.0 upgrade deletes _transient(_timeout)_wcb_job_view_*; company routes answer 404 wcb_company_not_found for non-company IDs; RestController::trashed_application_error() (409 wcb_application_trashed) on status changes; DELETE owners refuses the creator (409 wcb_owner_is_creator); days_ago uses Time::post_date_utc()."
   },
   "generated": {
     "at": "2026-10-26T00:00:00Z",

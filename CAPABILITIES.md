@@ -1,10 +1,10 @@
 # WP Career Board (Free) — Capabilities
 
-Buyer-level rollup of what the Free plugin does. Verified against code on the `1.8.2` branch.
+Buyer-level rollup of what the Free plugin does. Verified against code on the `1.8.6` branch.
 Status legend: `YES` (shipped, code-verified) · `YES·partial` (works with a named limit) ·
 `PLANNED` (roadmap/card exists, unbuilt) · `NO` (absent, often by design) · `PRO` (delivered by the Pro plugin).
 
-**Last verified against code: 2026-10-26 (branch 1.8.2)**
+**Last verified against code: 2026-11-27 (branch 1.8.6)**
 Positioning: self-hosted, block-native, REST-first jobs + resume board — a next-gen alternative to WP Job Manager-class plugins. See [`wp-career-board-pro/CAPABILITIES.md`](../wp-career-board-pro/CAPABILITIES.md) for the Pro layer.
 
 ## Posting & listing jobs
@@ -34,6 +34,8 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 | Upload a resume (PDF/DOC/DOCX) attached to an application? | YES | `POST /candidates/resume-upload`, ≤20MB |
 | Bookmark jobs, companies, and resumes? | YES | `/candidates/{id}/bookmarks`, `/saved-companies`, `/saved-resumes` |
 | Keep private hiring notes and a 1-5 rating on each application, and export applications to CSV? | YES | Edit Application screen; employer dashboard export |
+| Take a candidate's data back from the employer when they withdraw? | YES | CV, email, cover letter and answers are hidden in the dashboard, CSV, REST and the CV download (`CandidatesModule::hide_withdrawn_data()`, `core/class-private-files.php`) |
+| Ask before a final hiring decision? | YES | Rejected and Hired open a confirm in the dashboard (and the Pro pipeline), since the candidate is emailed |
 | Show an admin Suspended view of candidates? | YES | `admin/class-admin-candidates.php` via `member_views()` in `admin/class-reported-members.php` |
 | Let any member apply without forcing a Candidate role? | YES | role-optional; `wcb_candidate_requires_role` filter |
 | One-click apply with a previously saved resume? | YES·partial | PDF auto-attached on apply; a true "apply with saved resume, no re-upload" one-click path is not surfaced |
@@ -43,6 +45,7 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 |---|---|---|
 | Give employers a dashboard (my jobs, received applications, company)? | YES | `employer-dashboard`; `wcb_access_employer_dashboard` |
 | Self-register employers + upload logo? | YES | `employer-registration`; `POST /employers/register`, `/logo` |
+| Let several employers run one company (co-owners)? | YES | creator adds or removes Employer accounts from the dashboard, the wp-admin Co-owners box, `GET/POST /employers/{id}/owners`, `DELETE /employers/{id}/owners/{user_id}` and `wp wcb company owners`; up to 20; `modules/employers/class-employers-module.php` |
 | Let one employer run several companies? | YES | dashboard, applications and Post a Job cover all of them; `blocks/employer-dashboard/render.php`, `api/endpoints/class-companies-endpoint.php` |
 | Ban/unban employers from admin, with a Banned view? | YES | `wcb-employers` screen; `admin/class-admin-employers.php`; `wcb_employer_banned/unbanned` |
 | Open a member's own jobs or applications from the Employers and Candidates lists? | YES | Active Jobs and Applications counts link to a filtered list with a removable chip |
@@ -77,7 +80,8 @@ Positioning: self-hosted, block-native, REST-first jobs + resume board — a nex
 | GDPR export/erase with an audit trail? | YES | `POST /candidates/me/privacy/{export\|erase}`; `wcb_gdpr_log` |
 | Multilingual (WPML / Polylang)? | YES | documented compat |
 | Run on multisite? | UNVERIFIED | no explicit multisite handling found |
-| Provide WP-CLI tooling? | YES | 5 commands (`wcb`, `job`, `application`, `migrate`, `scale`) |
+| Provide WP-CLI tooling? | YES | 6 commands (`wcb`, `job`, `application`, `company`, `migrate`, `scale`) |
+| Keep editors, authors and contributors out of Career Board content? | YES | jobs, applications, companies, resumes and boards have their own capability types (`edit_wcb_jobs` and so on); administrators get them, other roles only through a role manager (`core/class-roles.php`) |
 
 ## Developer surface
 | Can a third party… | Status | How / evidence |
