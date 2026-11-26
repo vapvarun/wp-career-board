@@ -909,8 +909,21 @@ final class EmployersEndpoint extends RestController {
 		// Views in the last 30 days, also one query for the page (the owner's own jobs only).
 		$wcb_view_counts = \WCB\Modules\Jobs\JobViewsRetention::counts( $wcb_job_ids );
 
+		// Whether publishing a draft sends it to review, per board (one filter run per board on the page).
+		$wcb_review_boards  = array();
+		$wcb_goes_to_review = static function ( \WP_Post $p ) use ( &$wcb_review_boards ): bool {
+			if ( self::is_rejected_job( $p ) ) {
+				return true; // A rejected job always goes back to review.
+			}
+			$board = (int) get_post_meta( $p->ID, '_wcb_board_id', true );
+			if ( ! isset( $wcb_review_boards[ $board ] ) ) {
+				$wcb_review_boards[ $board ] = 'pending' === JobsEndpoint::default_status( new \WP_REST_Request( 'POST', '/wcb/v1/jobs' ), $board );
+			}
+			return $wcb_review_boards[ $board ];
+		};
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts ): array {
+			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts, $wcb_goes_to_review ): array {
 				$location_terms = \WCB\Core\Locations::place_names( get_the_terms( $p->ID, 'wcb_location' ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
@@ -941,6 +954,8 @@ final class EmployersEndpoint extends RestController {
 						'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 						// Core 404s a pending or draft job, even for its author: no link.
 						'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
+						// The draft's publish action says what it really does on this board.
+						'publishLabel'     => 'draft' === $p->post_status && $wcb_goes_to_review( $p ) ? __( 'Submit for review', 'wp-career-board' ) : __( 'Publish', 'wp-career-board' ),
 						'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
 						'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
 						'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
@@ -959,6 +974,7 @@ final class EmployersEndpoint extends RestController {
 						// A job nobody can see yet says why, instead of "0 views".
 						'statusNote'       => match ( true ) {
 							$rejected                       => '',
+							'draft' === $p->post_status && metadata_exists( 'post', $p->ID, \WCB\Modules\Moderation\ModerationModule::RETURNED ) => __( 'Returned by the site. Edit it and submit again.', 'wp-career-board' ),
 							'draft' === $p->post_status     => __( 'Not submitted yet', 'wp-career-board' ),
 							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
 								/* translators: %s: the date the job was submitted, already formatted for the site. */

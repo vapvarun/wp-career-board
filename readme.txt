@@ -77,6 +77,7 @@ Company co-owners, stronger candidate privacy and tighter permissions.
 * Improve  - The employer sees a notice when a candidate withdraws, and the candidate sees one when a job they applied to is removed.
 * Fix      - Featured Jobs, Job Alert Card, Job Search Hero, Similar Companies, Recent Jobs and Job Stats can be selected in the editor again, so their settings open.
 * Fix      - Publish, Resubmit and Reopen on My Jobs show the status the site stored, so a job waiting for review no longer reads Published.
+* Fix      - On a board that needs approval the draft action reads Submit for review, and a job the site sent back to Draft says Returned by the site instead of Not submitted yet.
 * Fix      - Multi-choice answers whose choices contain commas keep every ticked choice when the form is saved again.
 * Fix      - The verified tick sits right after the company name on Find Companies.
 * Fix      - The logo upload on a new company appears once the company is saved, instead of failing out of sight.

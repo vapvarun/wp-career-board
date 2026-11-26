@@ -4687,7 +4687,8 @@
     "1.8.0-w3": "rest 50->51 (POST /auth/verify-email/resend, caller: employer-registration view.js), services +1 (EmailVerification), email verify-account, filters wcb_pre_registration + wcb_registration_rate_limit, action wcb_email_verification_requested, setting require_email_verification.",
     "1.8.0-w4": "services +1 (ImageUpload). RestController::ip_limit_reached() is the one per-IP hourly limiter (sign-up, verify resend, Pro geocode). app-config hides plugin/pro versions from non-admins and no longer falls back to admin_email for abuse_contact_email.",
     "1.8.0-credential-guard": "services +1 (CredentialGuard). Current-password check on core /wp/v2/users writes that change email or password, on rest_request_before_callbacks because core ignores an error returned from rest_pre_insert_user on update. No new routes, fired hooks, tables or settings.",
-    "1.8.0-w6": "services +1 (JobPayment). Filter wcb_job_payment; post meta _wcb_awaiting_payment; job payloads gain awaiting_payment; admin Jobs \"Awaiting payment\" view (?wcb_payment=awaiting). The read-only republish balance gate was replaced by the charge; wcb_job_republish_credit_cost is now applied by Pro."
+    "1.8.0-w6": "services +1 (JobPayment). Filter wcb_job_payment; post meta _wcb_awaiting_payment; job payloads gain awaiting_payment; admin Jobs \"Awaiting payment\" view (?wcb_payment=awaiting). The read-only republish balance gate was replaced by the charge; wcb_job_republish_credit_cost is now applied by Pro.",
+    "1.8.6-returned": "post meta _wcb_returned (ModerationModule::RETURNED, UTC time) set when someone other than the employer moves a pending job to draft, cleared on pending/publish. My Jobs rows gain publishLabel (Publish | Submit for review, from JobsEndpoint::default_status, now public static) and a Returned statusNote; GET /jobs/{id} gains returned."
   },
   "generated": {
     "at": "2026-10-26T00:00:00Z",

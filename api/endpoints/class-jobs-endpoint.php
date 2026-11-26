@@ -602,7 +602,7 @@ final class JobsEndpoint extends RestController {
 			return $wcb_limit_error;
 		}
 
-		$status = $this->default_status( $request );
+		$status = self::default_status( $request );
 
 		$wcb_post_data = array(
 			'post_type'    => 'wcb_job',
@@ -876,7 +876,7 @@ final class JobsEndpoint extends RestController {
 					$data['post_status'] = 'pending';
 					$wcb_charge          = 'resubmit';
 				} else {
-					$data['post_status'] = $this->default_status( $request, (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
+					$data['post_status'] = self::default_status( $request, (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
 				}
 			}
 
@@ -1121,9 +1121,9 @@ final class JobsEndpoint extends RestController {
 	 *                                   request itself carries no board_id.
 	 * @return string 'publish', 'pending' or 'draft'.
 	 */
-	private function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
+	public static function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
 		// Whoever approves jobs doesn't wait for their own approval.
-		if ( $this->check_ability( 'wcb/moderate-jobs' ) ) {
+		if ( wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return 'publish';
 		}
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
@@ -1800,6 +1800,8 @@ final class JobsEndpoint extends RestController {
 			// A rejected job is kept as a draft carrying a rejection reason; expose
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
 			'rejected'               => EmployersEndpoint::is_rejected_job( $post ),
+			// Sent back to Draft by the site after it was submitted (not rejected).
+			'returned'               => 'draft' === $post->post_status && metadata_exists( 'post', $post->ID, \WCB\Modules\Moderation\ModerationModule::RETURNED ),
 			// Approved by a moderator but not yet paid for (Pro credits): the job
 			// stays pending until the employer's balance covers it.
 			'awaiting_payment'       => JobPayment::is_awaiting( $post->ID ),
