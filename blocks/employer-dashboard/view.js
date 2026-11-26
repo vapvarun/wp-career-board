@@ -555,9 +555,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Application filter.
 		get filteredApps() {
 			const f = state.appsFilter;
+			// Closed holds every status the employer cannot act on (withdrawn,
+			// position closed, job removed), the same rule as selectedAppClosed.
+			const inFilter = ( a ) => ( 'closed' === f ? ! ( state.actionableStatuses || [] ).includes( a.status ) : a.status === f );
 			const list = f === 'all'
 				? state.applications
-				: state.applications.filter( ( a ) => a.status === f );
+				: state.applications.filter( inFilter );
 			if ( state.aiRanked ) {
 				return [ ...list ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
 			}
@@ -589,6 +592,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isAppsFilterHired() {
 			return state.appsFilter === 'hired';
+		},
+		get isAppsFilterClosed() {
+			return state.appsFilter === 'closed';
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
@@ -674,6 +680,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get appsCountHired() {
 			return countLabel( state.appsCounts.by_status.hired );
 		},
+		// Withdrawn, position closed and job removed: everything no other tab counts.
+		get appsCountClosed() {
+			return countLabel( state.appsNotOnBoard );
+		},
 
 		// Selected applicant detail.
 		get noAppSelected() {
@@ -706,6 +716,13 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppClosed() {
 			const status = state.selectedApp?.status;
 			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
+		},
+		// The candidate took their data back: the pane says so (1.8.6).
+		get selectedAppWithdrawn() {
+			return state.selectedApp?.status === 'withdrawn';
+		},
+		get selectedAppWithdrawnTitle() {
+			return t( 'withdrawnTitle', '%s withdrew this application.' ).replace( '%s', state.selectedAppName );
 		},
 		get selectedAppStatusLabel() {
 			return state.selectedApp?.statusLabel ?? '';

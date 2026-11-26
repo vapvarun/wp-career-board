@@ -27,7 +27,7 @@ Both views are in the free plugin.
 
 ## Filter by status
 
-The pills above the list narrow the applicants for the selected job: **All**, **Submitted**, **Reviewing**, **Shortlisted**, **Rejected** and **Hired**. Each pill shows a live count for the whole job, not just the applicants loaded so far.
+The pills above the list narrow the applicants for the selected job: **All**, **Submitted**, **Reviewing**, **Shortlisted**, **Rejected**, **Hired** and **Closed** (withdrawn, position closed or job removed). Each pill shows a live count for the whole job, not just the applicants loaded so far, and together they add up to **All**.
 
 The dashboard loads 50 applicants at a time. Click **Load more applicants** at the end of the list for the next 50.
 
@@ -77,7 +77,11 @@ Use the applicant's email address to reach out from your own mail client. The fr
 
 ## When a candidate withdraws
 
-You get an email, and the application stays in your list with a **Withdrawn** badge. You cannot change its status. The candidate can apply again later, which shows up as a new application.
+You get an email, and the application stays in your list with a **Withdrawn** badge, under the **Closed** pill. You cannot change its status.
+
+Withdrawing takes the candidate's details back: their email, cover letter, answers and resume are no longer shown to you, in the list, the applicant panel or the CSV export, and their CV no longer downloads. The panel says so. Your team's rating and notes stay. Site administrators still see everything.
+
+The candidate can apply again later, which shows up as a new application.
 
 ## Who cannot apply
 

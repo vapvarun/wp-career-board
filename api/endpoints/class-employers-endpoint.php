@@ -1156,9 +1156,10 @@ final class EmployersEndpoint extends RestController {
 
 		$status = sanitize_key( (string) $request->get_param( 'status' ) );
 		if ( '' !== $status ) {
-			$from .= $wpdb->prepare(
-				" AND COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = %s",
-				$status
+			$statuses = \WCB\Modules\Applications\ApplicationStatus::filter_statuses( $status );
+			$from    .= $wpdb->prepare(
+				" AND COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ' )',
+				...$statuses
 			);
 		}
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );

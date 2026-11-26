@@ -137,7 +137,7 @@ final class JobsEndpoint extends RestController {
 					),
 					'status'   => array(
 						'type'              => 'string',
-						'enum'              => \WCB\Modules\Applications\ApplicationStatus::all(),
+						'enum'              => array_merge( \WCB\Modules\Applications\ApplicationStatus::all(), array( \WCB\Modules\Applications\ApplicationStatus::FILTER_CLOSED ) ),
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -1423,8 +1423,9 @@ final class JobsEndpoint extends RestController {
 							'value' => $job_id,
 						),
 						$status ? array(
-							'key'   => '_wcb_status',
-							'value' => $status,
+							'key'     => '_wcb_status',
+							'value'   => \WCB\Modules\Applications\ApplicationStatus::filter_statuses( $status ),
+							'compare' => 'IN',
 						) : null,
 					)
 				),

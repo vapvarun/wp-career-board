@@ -98,7 +98,13 @@ $withdrawn = $app( $quitter, $cv_gone, 'withdrawn' );
 $live      = $app( $stayer, $cv_live, 'reviewing' );
 
 $get    = static function ( string $route ): array {
-	$r = rest_do_request( new WP_REST_Request( 'GET', $route ) );
+	$parts = explode( '?', $route, 2 );
+	$req   = new WP_REST_Request( 'GET', $parts[0] );
+	if ( isset( $parts[1] ) ) {
+		parse_str( $parts[1], $query );
+		$req->set_query_params( $query );
+	}
+	$r = rest_do_request( $req );
 	return array( $r->get_status(), (array) $r->get_data() );
 };
 $row    = static function ( array $items, int $id ): array {
@@ -131,6 +137,14 @@ $ok( $hidden( $row( $job_list, $withdrawn ) ) && ! $hidden( $row( $job_list, $li
 [ , $dash ] = $get( '/wcb/v1/employers/me/applications' );
 $dash_items = isset( $dash['applications'] ) ? (array) $dash['applications'] : $dash;
 $ok( $hidden( $row( $dash_items, $withdrawn ) ) && ! $hidden( $row( $dash_items, $live ) ), 'employer dashboard list hides only the withdrawn candidate\'s data' );
+
+// The Closed tab: its filter returns the withdrawn row and nothing live, on both lists.
+[ , $closed_job ] = $get( "/wcb/v1/jobs/{$job}/applications?status=closed" );
+$closed_ids       = array_map( 'intval', wp_list_pluck( (array) ( $closed_job['applications'] ?? array() ), 'id' ) );
+$ok( array( $withdrawn ) === $closed_ids, 'job list: the Closed filter holds the withdrawn application only' );
+[ , $closed_all ] = $get( '/wcb/v1/employers/me/applications?status=closed' );
+$closed_all_ids   = array_map( 'intval', wp_list_pluck( (array) ( $closed_all['applications'] ?? array() ), 'id' ) );
+$ok( in_array( $withdrawn, $closed_all_ids, true ) && ! in_array( $live, $closed_all_ids, true ), 'all-jobs list: the Closed filter holds the withdrawn application, not the live one' );
 
 // --- Candidate and admin ----------------------------------------------------
 wp_set_current_user( $quitter );

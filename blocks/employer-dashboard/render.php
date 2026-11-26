@@ -439,6 +439,8 @@ wp_interactivity_state(
 			'statusSubmitted'          => __( 'Submitted', 'wp-career-board' ),
 			/* translators: %s: number of applications. */
 			'boardNotShown'            => __( 'Not on the board (closed, withdrawn or removed): %s', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'withdrawnTitle'           => __( '%s withdrew this application.', 'wp-career-board' ),
 			'statusReviewing'          => __( 'Reviewing', 'wp-career-board' ),
 			'statusShortlisted'        => __( 'Shortlisted', 'wp-career-board' ),
 			'statusHired'              => __( 'Hired', 'wp-career-board' ),
@@ -956,6 +958,11 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					<?php esc_html_e( 'Hired', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountHired"></span>
 				</button>
+				<?php // Withdrawn, position closed and job removed, so the tabs add up to All. ?>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="<?php echo esc_attr( \WCB\Modules\Applications\ApplicationStatus::FILTER_CLOSED ); ?>" data-wp-class--wcb-filter-active="state.isAppsFilterClosed" data-wp-bind--aria-pressed="state.isAppsFilterClosed" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'Closed', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountClosed"></span>
+				</button>
 				<button type="button" class="wcb-filter-pill wcb-filter-active" hidden data-wp-bind--hidden="!state.appsSinceActive" data-wp-on--click="actions.clearAppsSince" aria-label="<?php esc_attr_e( 'Remove filter: this week', 'wp-career-board' ); ?>">
 					<?php esc_html_e( 'This week', 'wp-career-board' ); ?> <span aria-hidden="true">&times;</span>
 				</button>
@@ -1023,6 +1030,13 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<span class="wcb-status-badge wcb-hidden" role="status" data-wp-class--wcb-hidden="!state.selectedAppClosed" data-wp-bind--data-status="state.selectedAppStatus" data-wp-text="state.selectedAppStatusLabel"></span>
 							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusNotice" data-wp-text="state.statusNotice"></p>
 						</div>
+						<div class="wcb-withdrawn-notice" role="status" data-wp-class--wcb-hidden="!state.selectedAppWithdrawn">
+							<span class="wcb-withdrawn-notice__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+							<div>
+								<p class="wcb-withdrawn-notice__title" data-wp-text="state.selectedAppWithdrawnTitle"></p>
+								<p class="wcb-withdrawn-notice__body"><?php esc_html_e( 'Their email, cover letter, answers and resume are no longer shared with you. Your team\'s rating and notes stay here.', 'wp-career-board' ); ?></p>
+							</div>
+						</div>
 						<div class="wcb-detail-section wcb-ai-fit" data-wp-class--wcb-shown="state.selectedAppHasAiScore">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'AI fit', 'wp-career-board' ); ?> <span class="wcb-ai-score" data-wp-text="state.selectedAppAiScoreLabel"></span></h4>
 							<p class="wcb-ai-summary-detail" data-wp-class--wcb-hidden="!state.selectedAppAiSummary" data-wp-text="state.selectedAppAiSummary"></p>
@@ -1050,7 +1064,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<textarea id="wcb-note-draft" class="wcb-field-input" rows="2" placeholder="<?php esc_attr_e( 'Add a note for your team…', 'wp-career-board' ); ?>" data-wp-bind--value="state.noteDraft" data-wp-on--input="actions.setNoteDraft"></textarea>
 							<button type="button" class="wcb-btn wcb-btn--outline" data-wp-on--click="actions.addNote" data-wp-bind--disabled="!state.noteDraft"><?php esc_html_e( 'Add note', 'wp-career-board' ); ?></button>
 						</div>
-						<div class="wcb-detail-section">
+						<div class="wcb-detail-section" data-wp-class--wcb-hidden="state.selectedAppWithdrawn">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover letter', 'wp-career-board' ); ?></h4>
 							<div class="wcb-cover-letter" data-wp-bind--hidden="!state.selectedAppHasCoverLetter" data-wp-text="state.selectedAppCoverLetter"></div>
 							<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact" data-wp-bind--hidden="state.selectedAppHasCoverLetter"><?php esc_html_e( 'No cover letter submitted.', 'wp-career-board' ); ?></p>
