@@ -229,16 +229,37 @@ if ( $job_id ) {
 	global $wpdb;
 	$wcb_views = static fn (): int => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}wcb_job_views WHERE job_id = %d", $job_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	$wcb_since = gmdate( 'Y-m-d H:i:s', time() - 5 );
-	$wcb_before = $wcb_views();
-	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/view", array(), 0 );
+	// WP-CLI sends no User-Agent, which the view counter treats as a bot.
+	$wcb_ua                     = $_SERVER['HTTP_USER_AGENT'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+	$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
+	// A visitor of its own (TEST-NET-3): the GET above may already have counted this run's address.
+	$wcb_ip                 = $_SERVER['REMOTE_ADDR'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+	$_SERVER['REMOTE_ADDR'] = '203.0.113.' . wp_rand( 1, 254 );
+	$wcb_before                 = $wcb_views();
+	$r                          = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/view", array(), 0 );
 	wcb_assert( 204 === $r->get_status() && $wcb_before + 1 === $wcb_views(), 'a visitor opening a live job adds one view' );
+	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/view", array(), 0 );
+	wcb_assert( 204 === $r->get_status() && $wcb_before + 1 === $wcb_views(), 'the same visitor again within the hour adds none' );
+	// 1.8.6: the views table answers "seen this hour" on its own index; no transient or lock per view.
+	wcb_assert( null !== $wpdb->get_var( "SHOW INDEX FROM {$wpdb->prefix}wcb_job_views WHERE Key_name = 'job_visitor'" ), 'wcb_job_views has the job_visitor index' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	wcb_assert( 0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( '_transient_wcb_job_view_' . $job_id . '_' ) . '%' ) ), 'counting a view writes no transient' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$job_id}/view", array(), (int) get_post_field( 'post_author', $job_id ) );
 	wcb_assert( 204 === $r->get_status() && $wcb_before + 1 === $wcb_views(), "the job's author opening it adds none" );
 	if ( $pending_job_id ) {
 		$r = wcb_rest( 'POST', "/wcb/v1/jobs/{$pending_job_id}/view", array(), 0 );
 		wcb_assert( 404 === $r->get_status(), 'a job that is not live is not counted (404)' );
 	}
-	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}wcb_job_views WHERE job_id = %d AND viewed_at >= %s", $job_id, get_date_from_gmt( $wcb_since ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}wcb_job_views WHERE job_id = %d AND viewed_at >= %s", $job_id, $wcb_since ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	if ( null === $wcb_ua ) {
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+	} else {
+		$_SERVER['HTTP_USER_AGENT'] = $wcb_ua;
+	}
+	if ( null === $wcb_ip ) {
+		unset( $_SERVER['REMOTE_ADDR'] );
+	} else {
+		$_SERVER['REMOTE_ADDR'] = $wcb_ip;
+	}
 }
 
 // ---------------------------------------------------------------------------

@@ -27,7 +27,7 @@ final class Install {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const DB_VERSION = '1.4.9';
+	const DB_VERSION = '1.5.0';
 
 	/**
 	 * Prevent instantiation — all methods are static.
@@ -221,7 +221,8 @@ final class Install {
 				ip_hash    VARCHAR(64),
 				PRIMARY KEY  (id),
 				KEY job_id  (job_id),
-				KEY viewed_at  (viewed_at)
+				KEY viewed_at  (viewed_at),
+				KEY job_visitor  (job_id,ip_hash,viewed_at)
 			) ENGINE=InnoDB {$charset};"
 		);
 
