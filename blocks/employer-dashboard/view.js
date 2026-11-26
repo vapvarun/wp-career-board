@@ -1756,6 +1756,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! appId || ! newStatus ) {
 				return;
 			}
+			// A final decision emails the candidate and cannot be undone: ask first
+			// (1.8.6, owner decision). Covers the select, the board drop and Move to.
+			if ( 'hired' === newStatus || 'rejected' === newStatus ) {
+				const who   = state.applications.find( ( a ) => a.id === appId )?.applicant_name || '';
+				const hired = 'hired' === newStatus;
+				try {
+					yield window.wcbConfirm( {
+						title:       ( hired ? t( 'confirmHiredTitle', 'Mark %s as Hired?' ) : t( 'confirmRejectedTitle', 'Mark %s as Rejected?' ) ).replace( '%s', who ),
+						message:     ( hired ? t( 'confirmHiredMsg', '%s gets an email saying they were hired. You cannot undo this.' ) : t( 'confirmRejectedMsg', '%s gets an email saying they were not selected. You cannot undo this.' ) ).replace( '%s', who ),
+						confirmText: hired ? t( 'confirmHiredCta', 'Mark Hired' ) : t( 'confirmRejectedCta', 'Mark Rejected' ),
+						destructive: ! hired,
+					} );
+				} catch ( cancelled ) {
+					return;
+				}
+			}
 			try {
 				const response = yield wcbFetch(
 					state.apiBase + '/applications/' + String( appId ) + '/status',

@@ -451,6 +451,16 @@ wp_interactivity_state(
 			'boardNotShown'            => __( 'Not on the board (closed, withdrawn or removed): %s', 'wp-career-board' ),
 			/* translators: %s: applicant's name. */
 			'withdrawnTitle'           => __( '%s withdrew this application.', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmHiredTitle'        => __( 'Mark %s as Hired?', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmRejectedTitle'     => __( 'Mark %s as Rejected?', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmHiredMsg'          => __( '%s gets an email saying they were hired. You cannot undo this.', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmRejectedMsg'       => __( '%s gets an email saying they were not selected. You cannot undo this.', 'wp-career-board' ),
+			'confirmHiredCta'          => __( 'Mark Hired', 'wp-career-board' ),
+			'confirmRejectedCta'       => __( 'Mark Rejected', 'wp-career-board' ),
 			'ownerCreator'             => __( 'Created the company', 'wp-career-board' ),
 			'ownerCoOwner'             => __( 'Co-owner', 'wp-career-board' ),
 			'ownerNoMatch'             => __( 'No Employer account matches that name or email.', 'wp-career-board' ),
