@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Career Board 1.8.5\n"
+"Project-Id-Version: WP Career Board 1.8.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-career-board\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-26T12:19:27+00:00\n"
+"POT-Creation-Date: 2026-11-26T12:49:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-career-board\n"
@@ -415,7 +415,7 @@ msgid "Public"
 msgstr ""
 
 #: admin/class-admin-candidates.php:433
-#: api/endpoints/class-employers-endpoint.php:1767
+#: api/endpoints/class-employers-endpoint.php:1783
 #: blocks/candidate-dashboard/render.php:991
 msgid "Private"
 msgstr ""
@@ -496,7 +496,7 @@ msgstr ""
 #: admin/class-admin-companies.php:524
 #: admin/class-admin-jobs.php:320
 #: admin/class-admin-jobs.php:705
-#: api/endpoints/class-employers-endpoint.php:1764
+#: api/endpoints/class-employers-endpoint.php:1780
 #: blocks/employer-dashboard/render.php:479
 msgid "Published"
 msgstr ""
@@ -505,7 +505,7 @@ msgstr ""
 #: admin/class-admin-companies.php:525
 #: admin/class-admin-jobs.php:322
 #: admin/class-admin-jobs.php:707
-#: api/endpoints/class-employers-endpoint.php:1765
+#: api/endpoints/class-employers-endpoint.php:1781
 #: blocks/employer-dashboard/render.php:480
 #: blocks/employer-dashboard/render.php:836
 msgid "Draft"
@@ -540,7 +540,7 @@ msgid " -  None  - "
 msgstr ""
 
 #: admin/class-admin-companies.php:557
-#: api/endpoints/class-jobs-endpoint.php:1927
+#: api/endpoints/class-jobs-endpoint.php:1929
 #: blocks/company-archive/render.php:71
 #: blocks/company-archive/render.php:376
 #: blocks/company-profile/render.php:65
@@ -552,7 +552,7 @@ msgid "Verified"
 msgstr ""
 
 #: admin/class-admin-companies.php:558
-#: api/endpoints/class-jobs-endpoint.php:1931
+#: api/endpoints/class-jobs-endpoint.php:1933
 #: blocks/company-archive/render.php:72
 #: blocks/company-profile/render.php:69
 #: blocks/job-listings/render.php:166
@@ -562,7 +562,7 @@ msgid "Trusted"
 msgstr ""
 
 #: admin/class-admin-companies.php:559
-#: api/endpoints/class-jobs-endpoint.php:1935
+#: api/endpoints/class-jobs-endpoint.php:1937
 #: blocks/company-archive/render.php:73
 #: blocks/company-profile/render.php:73
 #: blocks/job-listings/render.php:167
@@ -1041,14 +1041,14 @@ msgstr ""
 
 #: admin/class-admin-jobs.php:323
 #: admin/class-admin-jobs.php:708
-#: api/endpoints/class-employers-endpoint.php:1769
+#: api/endpoints/class-employers-endpoint.php:1785
 #: blocks/employer-dashboard/render.php:481
 msgid "Expired"
 msgstr ""
 
 #: admin/class-admin-jobs.php:324
 #: admin/class-admin-jobs.php:709
-#: api/endpoints/class-employers-endpoint.php:1768
+#: api/endpoints/class-employers-endpoint.php:1784
 #: blocks/employer-dashboard/render.php:477
 #: blocks/employer-dashboard/render.php:838
 #: blocks/employer-dashboard/render.php:999
@@ -1125,7 +1125,7 @@ msgid "Filter"
 msgstr ""
 
 #: admin/class-admin-jobs.php:706
-#: api/endpoints/class-employers-endpoint.php:1766
+#: api/endpoints/class-employers-endpoint.php:1782
 #: blocks/employer-dashboard/render.php:478
 #: blocks/employer-dashboard/render.php:837
 msgid "Pending"
@@ -3597,9 +3597,9 @@ msgstr ""
 #: api/endpoints/class-companies-endpoint.php:167
 #: api/endpoints/class-employers-endpoint.php:610
 #: api/endpoints/class-employers-endpoint.php:630
-#: api/endpoints/class-employers-endpoint.php:997
-#: api/endpoints/class-employers-endpoint.php:1119
-#: api/endpoints/class-employers-endpoint.php:1480
+#: api/endpoints/class-employers-endpoint.php:1013
+#: api/endpoints/class-employers-endpoint.php:1135
+#: api/endpoints/class-employers-endpoint.php:1496
 #: modules/employers/class-employers-module.php:315
 msgid "Company not found."
 msgstr ""
@@ -3653,8 +3653,8 @@ msgstr ""
 msgid "Back to draft because its company was removed. Edit it to choose another company, then submit it for review."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:937
-#: api/endpoints/class-employers-endpoint.php:1070
+#: api/endpoints/class-employers-endpoint.php:950
+#: api/endpoints/class-employers-endpoint.php:1086
 #: blocks/employer-dashboard/render.php:474
 #: blocks/employer-dashboard/render.php:482
 #: blocks/employer-dashboard/render.php:839
@@ -3663,59 +3663,72 @@ msgstr ""
 msgid "Rejected"
 msgstr ""
 
+#: api/endpoints/class-employers-endpoint.php:958
+msgid "Submit for review"
+msgstr ""
+
+#: api/endpoints/class-employers-endpoint.php:958
+#: blocks/employer-dashboard/render.php:919
+msgid "Publish"
+msgstr ""
+
 #. translators: %s: number of applicants, already localised.
-#: api/endpoints/class-employers-endpoint.php:950
-#: api/endpoints/class-employers-endpoint.php:1083
+#: api/endpoints/class-employers-endpoint.php:965
+#: api/endpoints/class-employers-endpoint.php:1099
 #, php-format
 msgid "%s applicant"
 msgid_plural "%s applicants"
 msgstr[0] ""
 msgstr[1] ""
 
-#: api/endpoints/class-employers-endpoint.php:953
-#: api/endpoints/class-employers-endpoint.php:1086
+#: api/endpoints/class-employers-endpoint.php:968
+#: api/endpoints/class-employers-endpoint.php:1102
 msgid "No applicants"
 msgstr ""
 
 #. translators: %s: number of views in the last 30 days, already localised.
-#: api/endpoints/class-employers-endpoint.php:956
+#: api/endpoints/class-employers-endpoint.php:971
 #, php-format
 msgid "%s view in 30 days"
 msgid_plural "%s views in 30 days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: api/endpoints/class-employers-endpoint.php:962
+#: api/endpoints/class-employers-endpoint.php:977
+msgid "Returned by the site. Edit it and submit again."
+msgstr ""
+
+#: api/endpoints/class-employers-endpoint.php:978
 msgid "Not submitted yet"
 msgstr ""
 
 #. translators: %s: the date the job was submitted, already formatted for the site.
-#: api/endpoints/class-employers-endpoint.php:965
+#: api/endpoints/class-employers-endpoint.php:981
 #, php-format
 msgid "Waiting for review · submitted %s"
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1387
+#: api/endpoints/class-employers-endpoint.php:1403
 msgid "You do not manage this company."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1489
+#: api/endpoints/class-employers-endpoint.php:1505
 msgid "No file uploaded."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1608
+#: api/endpoints/class-employers-endpoint.php:1624
 msgid "That person is not a co-owner of this company, or was already removed."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1638
+#: api/endpoints/class-employers-endpoint.php:1654
 msgid "You can only choose a company you run."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1641
+#: api/endpoints/class-employers-endpoint.php:1657
 msgid "This company is not published, so it can't be your main company."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1661
+#: api/endpoints/class-employers-endpoint.php:1677
 msgid "The company could not be removed. Please try again."
 msgstr ""
 
@@ -3747,10 +3760,10 @@ msgstr[1] ""
 #: api/endpoints/class-jobs-endpoint.php:1303
 #: api/endpoints/class-jobs-endpoint.php:1347
 #: api/endpoints/class-jobs-endpoint.php:1384
-#: modules/moderation/class-moderation-module.php:358
-#: modules/moderation/class-moderation-module.php:412
-#: modules/moderation/class-moderation-module.php:484
-#: modules/moderation/class-moderation-module.php:560
+#: modules/moderation/class-moderation-module.php:376
+#: modules/moderation/class-moderation-module.php:430
+#: modules/moderation/class-moderation-module.php:502
+#: modules/moderation/class-moderation-module.php:578
 msgid "Job not found."
 msgstr ""
 
@@ -3806,68 +3819,68 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: human-readable time difference, e.g. "3 days".
-#: api/endpoints/class-jobs-endpoint.php:1865
+#: api/endpoints/class-jobs-endpoint.php:1867
 #: blocks/job-listings/render.php:231
 #: blocks/recent-jobs/render.php:120
 #, php-format
 msgid "%s ago"
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:1961
+#: api/endpoints/class-jobs-endpoint.php:1963
 msgid "Minimum salary cannot be more than the maximum."
 msgstr ""
 
 #. translators: %s: the largest salary accepted, e.g. 1,000,000,000
-#: api/endpoints/class-jobs-endpoint.php:2012
+#: api/endpoints/class-jobs-endpoint.php:2014
 #, php-format
 msgid "Minimum salary must be a number from 0 to %s."
 msgstr ""
 
 #. translators: %s: the largest salary accepted, e.g. 1,000,000,000
-#: api/endpoints/class-jobs-endpoint.php:2015
+#: api/endpoints/class-jobs-endpoint.php:2017
 #, php-format
 msgid "Maximum salary must be a number from 0 to %s."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2022
+#: api/endpoints/class-jobs-endpoint.php:2024
 msgid "Unknown salary currency."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2029
+#: api/endpoints/class-jobs-endpoint.php:2031
 msgid "Deadline must be a date in YYYY-MM-DD format."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2032
+#: api/endpoints/class-jobs-endpoint.php:2034
 msgid "Unknown job board."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2036
+#: api/endpoints/class-jobs-endpoint.php:2038
 msgid "Unknown company."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2039
+#: api/endpoints/class-jobs-endpoint.php:2041
 msgid "Apply email is not a valid email address."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2092
+#: api/endpoints/class-jobs-endpoint.php:2094
 msgid "relevance (keyword searches), newest (featured first), oldest, salary, closing. Default: relevance with a keyword, else the Settings default."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2096
+#: api/endpoints/class-jobs-endpoint.php:2098
 msgid "Sort jobs by attribute."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2104
+#: api/endpoints/class-jobs-endpoint.php:2106
 msgid "Order jobs ascending or descending."
 msgstr ""
 
 #: api/endpoints/class-members-endpoint.php:47
-#: modules/moderation/class-moderation-module.php:301
+#: modules/moderation/class-moderation-module.php:319
 msgid "Spam or advertisement"
 msgstr ""
 
 #: api/endpoints/class-members-endpoint.php:48
-#: modules/moderation/class-moderation-module.php:300
+#: modules/moderation/class-moderation-module.php:318
 msgid "Scam or fraudulent"
 msgstr ""
 
@@ -3880,7 +3893,7 @@ msgid "Harassment or abuse"
 msgstr ""
 
 #: api/endpoints/class-members-endpoint.php:51
-#: modules/moderation/class-moderation-module.php:304
+#: modules/moderation/class-moderation-module.php:322
 msgid "Offensive or inappropriate"
 msgstr ""
 
@@ -5238,10 +5251,6 @@ msgstr ""
 
 #: blocks/employer-dashboard/render.php:918
 msgid "Feature"
-msgstr ""
-
-#: blocks/employer-dashboard/render.php:919
-msgid "Publish"
 msgstr ""
 
 #: blocks/employer-dashboard/render.php:920
@@ -8108,31 +8117,31 @@ msgstr ""
 msgid "Choose from the most used %s"
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:76
+#: modules/moderation/class-moderation-module.php:94
 msgid "Job post ID."
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:107
+#: modules/moderation/class-moderation-module.php:125
 msgid "Rejection reason sent to the employer."
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:127
+#: modules/moderation/class-moderation-module.php:145
 msgid "Why the visitor is reporting this job."
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:148
+#: modules/moderation/class-moderation-module.php:166
 msgid "How to resolve the flag: dismiss the reports or unpublish the job."
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:302
+#: modules/moderation/class-moderation-module.php:320
 msgid "Expired or already filled"
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:303
+#: modules/moderation/class-moderation-module.php:321
 msgid "Inaccurate or misleading"
 msgstr ""
 
-#: modules/moderation/class-moderation-module.php:382
+#: modules/moderation/class-moderation-module.php:400
 msgid "The employer doesn't have enough credits for this board. The job stays pending until they buy more."
 msgstr ""
 
