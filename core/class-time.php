@@ -107,6 +107,19 @@ final class Time {
 	}
 
 	/**
+	 * A post's last-saved time in UTC. A post inserted as pending (or draft)
+	 * has no GMT modified date, so its local one is converted.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_Post $post Post.
+	 * @return string
+	 */
+	public static function post_modified_utc( \WP_Post $post ): string {
+		return '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt;
+	}
+
+	/**
 	 * A stored UTC time as date and time, in the site's date and time formats.
 	 *
 	 * @since 1.8.3

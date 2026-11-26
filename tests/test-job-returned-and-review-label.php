@@ -124,6 +124,8 @@ $fresh = $job( 'Dock Scheduler', 'pending' );
 wp_set_current_user( $employer );
 $ago = (string) ( rest_do_request( new WP_REST_Request( 'GET', "/wcb/v1/jobs/{$fresh}" ) )->get_data()['days_ago'] ?? '' );
 $ok( '' !== $ago && ! str_contains( $ago, 'year' ), "a new pending job's age is recent ({$ago})" );
+$fresh_note = (string) ( $row( $fresh )['statusNote'] ?? '' );
+$ok( str_contains( $fresh_note, \WCB\Core\Time::date_label( gmdate( 'Y-m-d H:i:s' ) ) ), "a job inserted as pending shows the day it was submitted ({$fresh_note})" );
 $note = (string) ( $row( $old )['statusNote'] ?? '' );
 $ok( str_contains( $note, \WCB\Core\Time::date_label( gmdate( 'Y-m-d H:i:s' ) ) ), "submitted shows the day it went to review ({$note})" );
 

@@ -980,7 +980,7 @@ final class EmployersEndpoint extends RestController {
 								/* translators: %s: the date the job was submitted, already formatted for the site. */
 								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
 								// Sent to review on its last save, not when it was first published.
-								\WCB\Core\Time::date_label( $p->post_modified_gmt )
+								\WCB\Core\Time::date_label( \WCB\Core\Time::post_modified_utc( $p ) )
 							),
 							default                         => '',
 						},

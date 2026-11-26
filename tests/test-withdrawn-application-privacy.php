@@ -141,8 +141,8 @@ $ok( ! $hidden( $live_single ), 'single application: a live applicant keeps emai
 $job_list       = (array) ( $job_list['applications'] ?? array() );
 $ok( $hidden( $row( $job_list, $withdrawn ) ) && ! $hidden( $row( $job_list, $live ) ), 'job applicant list hides only the withdrawn candidate\'s data' );
 
-$ai_gone = static fn ( array $item ): bool => '' === (string) ( $item['ai_summary'] ?? '' ) && '' === (string) ( $item['ai_reason'] ?? '' ) && empty( $item['resume_id'] );
-$ok( $ai_gone( $row( $job_list, $withdrawn ) ) && '' !== (string) ( $row( $job_list, $live )['ai_summary'] ?? '' ), 'job applicant list hides the withdrawn candidate\'s AI summary, fit reason and resume id' );
+$ai_gone = static fn ( array $item ): bool => '' === (string) ( $item['ai_summary'] ?? '' ) && '' === (string) ( $item['ai_reason'] ?? '' ) && empty( $item['resume_id'] ) && null === ( $item['ai_score'] ?? null );
+$ok( $ai_gone( $row( $job_list, $withdrawn ) ) && '' !== (string) ( $row( $job_list, $live )['ai_summary'] ?? '' ), 'job applicant list hides the withdrawn candidate\'s AI score, summary, fit reason and resume id' );
 
 [ , $dash ] = $get( '/wcb/v1/employers/me/applications' );
 $dash_items = isset( $dash['applications'] ) ? (array) $dash['applications'] : $dash;

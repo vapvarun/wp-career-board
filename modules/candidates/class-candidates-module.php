@@ -552,7 +552,7 @@ final class CandidatesModule {
 	 *
 	 * @since 1.8.6
 	 */
-	public const WITHDRAWN_HIDDEN_FIELDS = array( 'applicant_email', 'cover_letter', 'custom_fields', 'resume_url', 'resume_permalink', 'resume_id', 'ai_summary', 'ai_reason' );
+	public const WITHDRAWN_HIDDEN_FIELDS = array( 'applicant_email', 'cover_letter', 'custom_fields', 'resume_url', 'resume_permalink', 'resume_id', 'ai_score', 'ai_summary', 'ai_reason' );
 
 	/**
 	 * Whether the viewer may see the candidate's data on an application with

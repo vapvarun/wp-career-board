@@ -1813,7 +1813,7 @@ final class JobsEndpoint extends RestController {
 			// clients always receive a valid time. Stored UTC; the wcb/v1
 			// filter (Time::iso_response_dates) sends ISO 8601 with offset.
 			'created_at'             => $wcb_created_gmt,
-			'updated_at'             => '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt,
+			'updated_at'             => \WCB\Core\Time::post_modified_utc( $post ),
 			// Deprecated alias of `created_at` (UTC since 1.8.3; was site-local).
 			'date'                   => \WCB\Core\Time::rest_datetime( $wcb_created_gmt ),
 			'permalink'              => get_permalink( $post->ID ),
