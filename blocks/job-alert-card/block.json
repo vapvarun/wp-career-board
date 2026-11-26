@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Job Alerts CTA",
   "category": "widgets",
-  "description": "Sidebar card encouraging candidates to subscribe to email alerts for new jobs.",
+  "description": "A sidebar card that invites candidates to get new jobs by email.",
   "keywords": [ "career board", "wcb", "alerts", "cta", "sidebar" ],
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",

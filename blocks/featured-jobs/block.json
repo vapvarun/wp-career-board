@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "title": "Featured Jobs",
   "category": "widgets",
-  "description": "Static server-rendered grid of featured jobs (no Interactivity API).",
+  "description": "Shows your featured jobs as a grid of cards.",
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {

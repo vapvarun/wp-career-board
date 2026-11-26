@@ -354,5 +354,17 @@ else
 	ok "Rule 17: no physical off-screen offsets"
 fi
 
+# --- Rule 18: every block editor root carries useBlockProps() ---
+# With apiVersion 3 the editor adds no wrapper: a block whose edit() returns
+# elements without useBlockProps() on its root cannot be clicked to select it,
+# so its settings never open (1.8.6, 11 blocks).
+NO_BLOCK_PROPS=$(git ls-files 'blocks/*/index.js' 2>/dev/null | xargs grep -l 'edit:' 2>/dev/null | xargs grep -L 'useBlockProps' 2>/dev/null || true)
+if [ -n "$NO_BLOCK_PROPS" ]; then
+	echo "$NO_BLOCK_PROPS" | sed 's/^/    /'
+	report "Rule 18: block edit() without useBlockProps() - the block cannot be selected in the editor"
+else
+	ok "Rule 18: every block editor root carries useBlockProps()"
+fi
+
 [ "$FAILED" -eq 0 ] && [ "$QUIET" -eq 0 ] && echo "coding-rules: OK"
 exit "$FAILED"
