@@ -135,6 +135,18 @@ $ok( $elapsed < 1000 && array() === $flood, sprintf( 'a 2,000,000-comma answer s
 $ok( array( 'Dallas, TX', 'Austin, TX' ) === FormCustomFields::split_choices( 'Dallas, TX, Austin, TX', $office_options ), '"Dallas, TX, Austin, TX" still splits into its two choices' );
 $ok( array( 'Laptop', 'Monitor' ) === FormCustomFields::split_choices( 'Laptop, Monitor' ), 'with no choices it is a plain split' );
 
+// Every choice of a long "Town, County, ST" list ticked comes back whole (1.8.5 dropped the last ones on re-save).
+$wcb_towns = array();
+for ( $wcb_i = 1; $wcb_i <= 21; $wcb_i++ ) {
+	$wcb_towns[ "Town{$wcb_i}, County, ST" ] = "Town{$wcb_i}, County, ST";
+}
+$ok( array_keys( $wcb_towns ) === FormCustomFields::split_choices( implode( ', ', array_keys( $wcb_towns ) ), $wcb_towns ), '21 ticked "Town, County, ST" choices round-trip to 21 items' );
+$wcb_many = array();
+for ( $wcb_i = 1; $wcb_i <= 150; $wcb_i++ ) {
+	$wcb_many[ "Office {$wcb_i}, TX" ] = "Office {$wcb_i}, TX";
+}
+$ok( 150 === count( FormCustomFields::split_choices( implode( ', ', array_keys( $wcb_many ) ), $wcb_many ) ), '150 ticked "Office N, TX" choices (300 pieces) all come back' );
+
 WP_CLI::log( '  Total: ' . ( $pass + $fail ) . "  Pass: {$pass}  Fail: {$fail}" );
 if ( $fail ) {
 	WP_CLI::error( "{$fail} test(s) failed." );

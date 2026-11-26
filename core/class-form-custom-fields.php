@@ -102,18 +102,24 @@ final class FormCustomFields {
 	 * choices, longest first, instead of being cut at every comma. Fragments
 	 * that match no choice are kept as typed; with no choices it is a plain split.
 	 *
-	 * The value can come from a guest request, so the work is bounded: at most
-	 * MAX_CHOICE_PARTS pieces are read (the rest is dropped), and a join only
-	 * spans as many commas as the longest choice holds.
+	 * The value can come from a guest request, so the work is bounded: with
+	 * choices, at most as many pieces as every choice ticked can make (each
+	 * choice plus the commas inside it, plus a margin), a size the site owner's
+	 * field sets, not the request; without choices, MAX_CHOICE_PARTS. The rest
+	 * is dropped, and a join only spans as many commas as the longest choice holds.
 	 *
 	 * @since 1.8.5
+	 * @since 1.8.6 The cap counts the commas inside choices, so a long list of
+	 *              "Town, ST" choices no longer loses its last ticks.
 	 *
 	 * @param mixed                $value   Array of choices, or the stored comma-joined string.
 	 * @param array<string,string> $options The field's choices, value => label.
 	 * @return string[]
 	 */
 	public static function split_choices( mixed $value, array $options = array() ): array {
-		$cap = min( self::MAX_CHOICE_PARTS, $options ? 2 * count( $options ) + 20 : self::MAX_CHOICE_PARTS );
+		$cap = $options
+			? count( $options ) + array_sum( array_map( static fn ( $choice ): int => substr_count( (string) $choice, ',' ), array_keys( $options ) ) ) + 20
+			: self::MAX_CHOICE_PARTS;
 		if ( is_array( $value ) ) {
 			$items = array_map( static fn ( $v ): string => trim( is_scalar( $v ) ? (string) $v : '' ), array_slice( $value, 0, $cap ) );
 			return array_values( array_filter( $items, static fn ( string $v ): bool => '' !== $v ) );
