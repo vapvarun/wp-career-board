@@ -115,8 +115,20 @@ $status = rest_do_request( $r )->get_status();
 $ok( 200 === $status && 'pending' === get_post_status( $returned ), 'resubmitting sends it to review' );
 $ok( ! metadata_exists( 'post', $returned, \WCB\Modules\Moderation\ModerationModule::RETURNED ), 'and clears the returned marker' );
 
+// A pending job has no GMT post date: its age is not "57 years ago", and
+// "submitted" is when it went to review, not when it was first published.
+$old = $job( 'Yard Coordinator', 'publish' );
+wp_update_post( array( 'ID' => $old, 'post_date' => '2026-01-05 09:00:00', 'post_date_gmt' => '2026-01-05 09:00:00', 'post_status' => 'draft' ) );
+wp_update_post( array( 'ID' => $old, 'post_status' => 'pending' ) );
+$fresh = $job( 'Dock Scheduler', 'pending' );
+wp_set_current_user( $employer );
+$ago = (string) ( rest_do_request( new WP_REST_Request( 'GET', "/wcb/v1/jobs/{$fresh}" ) )->get_data()['days_ago'] ?? '' );
+$ok( '' !== $ago && ! str_contains( $ago, 'year' ), "a new pending job's age is recent ({$ago})" );
+$note = (string) ( $row( $old )['statusNote'] ?? '' );
+$ok( str_contains( $note, \WCB\Core\Time::date_label( gmdate( 'Y-m-d H:i:s' ) ) ), "submitted shows the day it went to review ({$note})" );
+
 wp_set_current_user( 0 );
-foreach ( array( $draft, $returned, $own ) as $id ) {
+foreach ( array( $draft, $returned, $own, $old, $fresh ) as $id ) {
 	wp_delete_post( $id, true );
 }
 wp_delete_user( $employer );

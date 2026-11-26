@@ -125,6 +125,16 @@ wp_delete_post( $untouched, true );
 if ( $admin > 0 ) {
 	wp_set_current_user( $admin );
 	$ok( 200 === $call( 'GET', "/wcb/v1/applications/{$trashed}" ), 'admin can still read it' );
+	// An admin who changes it is told it is in the trash, not "no change" (QA 1.8.6 F3).
+	$r = new WP_REST_Request( 'PATCH', "/wcb/v1/applications/{$trashed}/status" );
+	$r->set_body_params( array( 'status' => 'shortlisted' ) );
+	$res = rest_do_request( $r );
+	$ok( 409 === $res->get_status() && 'wcb_application_trashed' === ( $res->get_data()['code'] ?? '' ), 'admin changing its status gets 409 "in the trash"' );
+	if ( rest_get_server()->get_routes()['/wcb/v1/applications/(?P<id>\d+)/stage'] ?? false ) {
+		$ok( 409 === $call( 'PATCH', "/wcb/v1/applications/{$trashed}/stage", array( 'stage_id' => 1 ) ), 'Pro: admin moving it to a stage gets 409 "in the trash"' );
+	}
+	$cli = (string) WP_CLI::runcommand( "wcb application update {$trashed} --status=rejected --user={$admin}", array( 'return' => 'all', 'exit_error' => false ) )->stderr;
+	$ok( str_contains( $cli, 'is in the trash' ), 'wp wcb application update says it is in the trash' );
 }
 
 wp_set_current_user( 0 );

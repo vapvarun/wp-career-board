@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-26T17:41:39+00:00\n"
+"POT-Creation-Date: 2026-11-26T18:38:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-career-board\n"
@@ -415,7 +415,7 @@ msgid "Public"
 msgstr ""
 
 #: admin/class-admin-candidates.php:433
-#: api/endpoints/class-employers-endpoint.php:1783
+#: api/endpoints/class-employers-endpoint.php:1797
 #: blocks/candidate-dashboard/render.php:991
 msgid "Private"
 msgstr ""
@@ -496,7 +496,7 @@ msgstr ""
 #: admin/class-admin-companies.php:524
 #: admin/class-admin-jobs.php:320
 #: admin/class-admin-jobs.php:705
-#: api/endpoints/class-employers-endpoint.php:1780
+#: api/endpoints/class-employers-endpoint.php:1794
 #: blocks/employer-dashboard/render.php:480
 msgid "Published"
 msgstr ""
@@ -505,7 +505,7 @@ msgstr ""
 #: admin/class-admin-companies.php:525
 #: admin/class-admin-jobs.php:322
 #: admin/class-admin-jobs.php:707
-#: api/endpoints/class-employers-endpoint.php:1781
+#: api/endpoints/class-employers-endpoint.php:1795
 #: blocks/employer-dashboard/render.php:481
 #: blocks/employer-dashboard/render.php:837
 msgid "Draft"
@@ -540,7 +540,7 @@ msgid " -  None  - "
 msgstr ""
 
 #: admin/class-admin-companies.php:557
-#: api/endpoints/class-jobs-endpoint.php:1929
+#: api/endpoints/class-jobs-endpoint.php:1930
 #: blocks/company-archive/render.php:71
 #: blocks/company-archive/render.php:376
 #: blocks/company-profile/render.php:65
@@ -552,7 +552,7 @@ msgid "Verified"
 msgstr ""
 
 #: admin/class-admin-companies.php:558
-#: api/endpoints/class-jobs-endpoint.php:1933
+#: api/endpoints/class-jobs-endpoint.php:1934
 #: blocks/company-archive/render.php:72
 #: blocks/company-profile/render.php:69
 #: blocks/job-listings/render.php:166
@@ -562,7 +562,7 @@ msgid "Trusted"
 msgstr ""
 
 #: admin/class-admin-companies.php:559
-#: api/endpoints/class-jobs-endpoint.php:1937
+#: api/endpoints/class-jobs-endpoint.php:1938
 #: blocks/company-archive/render.php:73
 #: blocks/company-profile/render.php:73
 #: blocks/job-listings/render.php:167
@@ -1041,14 +1041,14 @@ msgstr ""
 
 #: admin/class-admin-jobs.php:323
 #: admin/class-admin-jobs.php:708
-#: api/endpoints/class-employers-endpoint.php:1785
+#: api/endpoints/class-employers-endpoint.php:1799
 #: blocks/employer-dashboard/render.php:482
 msgid "Expired"
 msgstr ""
 
 #: admin/class-admin-jobs.php:324
 #: admin/class-admin-jobs.php:709
-#: api/endpoints/class-employers-endpoint.php:1784
+#: api/endpoints/class-employers-endpoint.php:1798
 #: blocks/employer-dashboard/render.php:478
 #: blocks/employer-dashboard/render.php:839
 #: blocks/employer-dashboard/render.php:1000
@@ -1125,7 +1125,7 @@ msgid "Filter"
 msgstr ""
 
 #: admin/class-admin-jobs.php:706
-#: api/endpoints/class-employers-endpoint.php:1782
+#: api/endpoints/class-employers-endpoint.php:1796
 #: blocks/employer-dashboard/render.php:479
 #: blocks/employer-dashboard/render.php:838
 msgid "Pending"
@@ -3293,15 +3293,19 @@ msgstr ""
 msgid "Skip for now"
 msgstr ""
 
-#: api/class-rest-controller.php:157
+#: api/class-rest-controller.php:154
+msgid "This application is in the trash. Restore it before changing its status."
+msgstr ""
+
+#: api/class-rest-controller.php:172
 msgid "Authentication is required to perform this action."
 msgstr ""
 
-#: api/class-rest-controller.php:163
+#: api/class-rest-controller.php:178
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: api/class-rest-controller.php:260
+#: api/class-rest-controller.php:275
 msgid "Too many sign-ups from your network. Please try again in an hour."
 msgstr ""
 
@@ -3479,61 +3483,61 @@ msgstr ""
 
 #: api/endpoints/class-applications-endpoint.php:565
 #: api/endpoints/class-applications-endpoint.php:585
-#: api/endpoints/class-applications-endpoint.php:756
+#: api/endpoints/class-applications-endpoint.php:760
 msgid "Application not found."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:597
+#: api/endpoints/class-applications-endpoint.php:601
 msgid "Invalid status."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:608
+#: api/endpoints/class-applications-endpoint.php:612
 msgid "This application is closed (withdrawn, position closed or job removed), so its status can no longer change."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:703
+#: api/endpoints/class-applications-endpoint.php:707
 msgid "Job no longer available"
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:780
+#: api/endpoints/class-applications-endpoint.php:784
 msgid "This application already has an outcome and can no longer be withdrawn."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:828
-#: api/endpoints/class-applications-endpoint.php:926
+#: api/endpoints/class-applications-endpoint.php:832
+#: api/endpoints/class-applications-endpoint.php:930
 msgid "No file provided."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:863
-#: api/endpoints/class-applications-endpoint.php:871
-#: api/endpoints/class-applications-endpoint.php:878
+#: api/endpoints/class-applications-endpoint.php:867
+#: api/endpoints/class-applications-endpoint.php:875
+#: api/endpoints/class-applications-endpoint.php:882
 msgid "Invalid resume attachment."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:918
+#: api/endpoints/class-applications-endpoint.php:922
 msgid "Only PDF, DOC, and DOCX files are allowed."
 msgstr ""
 
 #. translators: %d: max file size in MB
-#: api/endpoints/class-applications-endpoint.php:935
+#: api/endpoints/class-applications-endpoint.php:939
 #, php-format
 msgid "File must be under %d MB."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:1011
+#: api/endpoints/class-applications-endpoint.php:1015
 msgid "Please sign in to apply for this job."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:1025
+#: api/endpoints/class-applications-endpoint.php:1029
 msgid "You do not have permission to apply for jobs."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:1110
-#: api/endpoints/class-applications-endpoint.php:1118
+#: api/endpoints/class-applications-endpoint.php:1114
+#: api/endpoints/class-applications-endpoint.php:1122
 msgid "Application withdrawal is not enabled on this site."
 msgstr ""
 
-#: api/endpoints/class-applications-endpoint.php:1330
+#: api/endpoints/class-applications-endpoint.php:1334
 msgid "Hiring team"
 msgstr ""
 
@@ -3613,9 +3617,9 @@ msgstr ""
 #: api/endpoints/class-companies-endpoint.php:167
 #: api/endpoints/class-employers-endpoint.php:610
 #: api/endpoints/class-employers-endpoint.php:630
-#: api/endpoints/class-employers-endpoint.php:1013
-#: api/endpoints/class-employers-endpoint.php:1135
-#: api/endpoints/class-employers-endpoint.php:1496
+#: api/endpoints/class-employers-endpoint.php:1014
+#: api/endpoints/class-employers-endpoint.php:1136
+#: api/endpoints/class-employers-endpoint.php:1497
 #: modules/employers/class-employers-module.php:315
 msgid "Company not found."
 msgstr ""
@@ -3670,7 +3674,7 @@ msgid "Back to draft because its company was removed. Edit it to choose another 
 msgstr ""
 
 #: api/endpoints/class-employers-endpoint.php:950
-#: api/endpoints/class-employers-endpoint.php:1086
+#: api/endpoints/class-employers-endpoint.php:1087
 #: blocks/employer-dashboard/render.php:475
 #: blocks/employer-dashboard/render.php:483
 #: blocks/employer-dashboard/render.php:840
@@ -3690,7 +3694,7 @@ msgstr ""
 
 #. translators: %s: number of applicants, already localised.
 #: api/endpoints/class-employers-endpoint.php:965
-#: api/endpoints/class-employers-endpoint.php:1099
+#: api/endpoints/class-employers-endpoint.php:1100
 #, php-format
 msgid "%s applicant"
 msgid_plural "%s applicants"
@@ -3698,7 +3702,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: api/endpoints/class-employers-endpoint.php:968
-#: api/endpoints/class-employers-endpoint.php:1102
+#: api/endpoints/class-employers-endpoint.php:1103
 msgid "No applicants"
 msgstr ""
 
@@ -3724,27 +3728,35 @@ msgstr ""
 msgid "Waiting for review · submitted %s"
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1403
+#: api/endpoints/class-employers-endpoint.php:1404
 msgid "You do not manage this company."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1505
+#: api/endpoints/class-employers-endpoint.php:1506
 msgid "No file uploaded."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1624
+#: api/endpoints/class-employers-endpoint.php:1567
+msgid "No company found with that ID."
+msgstr ""
+
+#: api/endpoints/class-employers-endpoint.php:1635
+msgid "The person who created the company cannot be removed from it."
+msgstr ""
+
+#: api/endpoints/class-employers-endpoint.php:1638
 msgid "That person is not a co-owner of this company, or was already removed."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1654
+#: api/endpoints/class-employers-endpoint.php:1668
 msgid "You can only choose a company you run."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1657
+#: api/endpoints/class-employers-endpoint.php:1671
 msgid "This company is not published, so it can't be your main company."
 msgstr ""
 
-#: api/endpoints/class-employers-endpoint.php:1677
+#: api/endpoints/class-employers-endpoint.php:1691
 msgid "The company could not be removed. Please try again."
 msgstr ""
 
@@ -3842,51 +3854,51 @@ msgstr[1] ""
 msgid "%s ago"
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:1963
+#: api/endpoints/class-jobs-endpoint.php:1964
 msgid "Minimum salary cannot be more than the maximum."
 msgstr ""
 
 #. translators: %s: the largest salary accepted, e.g. 1,000,000,000
-#: api/endpoints/class-jobs-endpoint.php:2014
+#: api/endpoints/class-jobs-endpoint.php:2015
 #, php-format
 msgid "Minimum salary must be a number from 0 to %s."
 msgstr ""
 
 #. translators: %s: the largest salary accepted, e.g. 1,000,000,000
-#: api/endpoints/class-jobs-endpoint.php:2017
+#: api/endpoints/class-jobs-endpoint.php:2018
 #, php-format
 msgid "Maximum salary must be a number from 0 to %s."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2024
+#: api/endpoints/class-jobs-endpoint.php:2025
 msgid "Unknown salary currency."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2031
+#: api/endpoints/class-jobs-endpoint.php:2032
 msgid "Deadline must be a date in YYYY-MM-DD format."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2034
+#: api/endpoints/class-jobs-endpoint.php:2035
 msgid "Unknown job board."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2038
+#: api/endpoints/class-jobs-endpoint.php:2039
 msgid "Unknown company."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2041
+#: api/endpoints/class-jobs-endpoint.php:2042
 msgid "Apply email is not a valid email address."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2094
+#: api/endpoints/class-jobs-endpoint.php:2095
 msgid "relevance (keyword searches), newest (featured first), oldest, salary, closing. Default: relevance with a keyword, else the Settings default."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2098
+#: api/endpoints/class-jobs-endpoint.php:2099
 msgid "Sort jobs by attribute."
 msgstr ""
 
-#: api/endpoints/class-jobs-endpoint.php:2106
+#: api/endpoints/class-jobs-endpoint.php:2107
 msgid "Order jobs ascending or descending."
 msgstr ""
 
@@ -7022,43 +7034,43 @@ msgstr ""
 msgid "Plugin Activation Error"
 msgstr ""
 
-#: core/class-install.php:655
+#: core/class-install.php:680
 msgid "Full-time"
 msgstr ""
 
-#: core/class-install.php:656
+#: core/class-install.php:681
 msgid "Part-time"
 msgstr ""
 
-#: core/class-install.php:657
+#: core/class-install.php:682
 msgid "Contract"
 msgstr ""
 
-#: core/class-install.php:658
+#: core/class-install.php:683
 msgid "Freelance"
 msgstr ""
 
-#: core/class-install.php:659
+#: core/class-install.php:684
 msgid "Internship"
 msgstr ""
 
-#: core/class-install.php:660
+#: core/class-install.php:685
 msgid "Temporary"
 msgstr ""
 
-#: core/class-install.php:663
+#: core/class-install.php:688
 msgid "Entry Level"
 msgstr ""
 
-#: core/class-install.php:664
+#: core/class-install.php:689
 msgid "Mid Level"
 msgstr ""
 
-#: core/class-install.php:665
+#: core/class-install.php:690
 msgid "Senior"
 msgstr ""
 
-#: core/class-install.php:666
+#: core/class-install.php:691
 msgid "Lead"
 msgstr ""
 
@@ -9141,7 +9153,7 @@ msgid "Anchored to company ID %s"
 msgstr ""
 
 #: blocks/similar-companies-card/index.js:78
-msgid "Auto-resolves on company-single pages."
+msgid "On a company page it lists companies like that one. Elsewhere, choose a company in the block settings."
 msgstr ""
 
 #: blocks/candidate-dashboard/block.json

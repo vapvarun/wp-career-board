@@ -232,6 +232,10 @@ class ApplicationCommands extends AbstractCliCommand {
 			\WP_CLI::error( "No wcb_application found with ID {$app_id}." );
 		}
 
+		if ( 'trash' === $app->post_status ) {
+			\WP_CLI::error( "Application #{$app_id} is in the trash. Restore it before changing its status." );
+		}
+
 		if ( ! \WCB\Modules\Applications\ApplicationLifecycle::transition( $app_id, $new_status, 'cli' ) ) {
 			$current = (string) get_post_meta( $app_id, '_wcb_status', true );
 			if ( in_array( $current, \WCB\Modules\Applications\ApplicationStatus::closed(), true ) ) {

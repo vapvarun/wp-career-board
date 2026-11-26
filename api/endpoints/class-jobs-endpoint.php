@@ -1865,7 +1865,8 @@ final class JobsEndpoint extends RestController {
 			'days_ago'               => sprintf(
 				/* translators: %s: human-readable time difference, e.g. "3 days". */
 				__( '%s ago', 'wp-career-board' ),
-				human_time_diff( (int) get_post_time( 'U', true, $post ), time() )
+				// A pending or draft job has no GMT date yet (it reads as 1970).
+				human_time_diff( (int) strtotime( \WCB\Core\Time::post_date_utc( $post ) . ' UTC' ), time() )
 			),
 			// Slug arrays for filter/API consumers.
 			'categories'             => $cat_slugs,

@@ -587,6 +587,10 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		if ( 'trash' === $post->post_status ) {
+			return $this->trashed_application_error();
+		}
+
 		// Employer-actionable statuses only — `withdrawn` is candidate-only,
 		// `job_removed` is system-only (set by ApplicationLifecycle).
 		$allowed    = \WCB\Modules\Applications\ApplicationStatus::employer_actionable();

@@ -142,6 +142,21 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Refusal for a status or stage change on a trashed application. The admin
+	 * who can still open it gets told why, not "no change".
+	 *
+	 * @since 1.8.6
+	 * @return \WP_Error
+	 */
+	protected function trashed_application_error(): \WP_Error {
+		return new \WP_Error(
+			'wcb_application_trashed',
+			__( 'This application is in the trash. Restore it before changing its status.', 'wp-career-board' ),
+			array( 'status' => 409 )
+		);
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.

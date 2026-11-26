@@ -106,6 +106,9 @@ final class CompanyCommands extends AbstractCliCommand {
 			return;
 		}
 
+		if ( (int) get_post_field( 'post_author', $company_id ) === $user->ID ) {
+			\WP_CLI::error( "User #{$user->ID} created company #{$company_id} and cannot be removed from it." );
+		}
 		if ( ! \WCB\Modules\Employers\EmployersModule::remove_company_owner( $company_id, $user->ID ) ) {
 			\WP_CLI::error( "User #{$user->ID} is not a co-owner of company #{$company_id}." );
 		}

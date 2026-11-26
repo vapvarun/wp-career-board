@@ -979,7 +979,8 @@ final class EmployersEndpoint extends RestController {
 							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
 								/* translators: %s: the date the job was submitted, already formatted for the site. */
 								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
-								\WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $p ) )
+								// Sent to review on its last save, not when it was first published.
+								\WCB\Core\Time::date_label( $p->post_modified_gmt )
 							),
 							default                         => '',
 						},
@@ -1545,15 +1546,24 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function update_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
-		if ( ! $post ) {
-			return $this->permission_error();
+		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+			return $this->company_not_found();
 		}
 		// Anyone who runs the company (its creator or a named co-owner) edits it.
-		$is_owner = 'wcb_company' === $post->post_type
-		&& isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $post->ID ] )
+		$is_owner = isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $post->ID ] )
 		&& $this->check_ability( 'wcb/manage-company' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * The id names no company (missing, or another post type such as a job).
+	 *
+	 * @since 1.8.6
+	 * @return \WP_Error
+	 */
+	private function company_not_found(): \WP_Error {
+		return new \WP_Error( 'wcb_company_not_found', __( 'No company found with that ID.', 'wp-career-board' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -1568,7 +1578,7 @@ final class EmployersEndpoint extends RestController {
 	public function delete_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_company' !== $post->post_type ) {
-			return $this->permission_error();
+			return $this->company_not_found();
 		}
 		$is_creator = $this->is_current_user( (int) $post->post_author ) && $this->check_ability( 'wcb/manage-company' );
 		return ( $is_creator || $this->check_ability( 'wcb/manage-settings' ) ) ? true : $this->permission_error();
@@ -1620,6 +1630,9 @@ final class EmployersEndpoint extends RestController {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function remove_owner( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		if ( (int) get_post_field( 'post_author', (int) $request['id'] ) === (int) $request['user_id'] ) {
+			return new \WP_Error( 'wcb_owner_is_creator', __( 'The person who created the company cannot be removed from it.', 'wp-career-board' ), array( 'status' => 409 ) );
+		}
 		if ( ! \WCB\Modules\Employers\EmployersModule::remove_company_owner( (int) $request['id'], (int) $request['user_id'] ) ) {
 			return new \WP_Error( 'wcb_owner_not_found', __( 'That person is not a co-owner of this company, or was already removed.', 'wp-career-board' ), array( 'status' => 404 ) );
 		}

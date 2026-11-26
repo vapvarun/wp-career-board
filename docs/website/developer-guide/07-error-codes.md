@@ -34,6 +34,7 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | Code | HTTP | When it is returned |
 |---|---|---|
 | `wcb_not_found` | 404 | The job, company, candidate or application does not exist, or the caller may not see it. A private candidate profile answers this too |
+| `wcb_company_not_found` | 404 | A company route (`/employers/{id}` and its sub-routes) was given an ID that is not a company, such as a job's |
 | `wcb_job_not_found` | 404 | The moderation routes were given a job that does not exist |
 | `wcb_missing_title` | 400 | `POST /jobs` without a title, or `PATCH /jobs/{id}` with an empty one. Also the block editor's answer when a job, company, resume or board is published untitled |
 | `wcb_missing_name` | 400 | `PATCH /employers/{id}` with an empty company name |
@@ -66,6 +67,8 @@ Branch on `code` and `data.status`, never on `message`: messages are translated 
 | `wcb_apply_busy` | 409 | The same application is still being saved; a double click lands here |
 | `wcb_invalid_status` | 400 | A status outside the allowed list |
 | `wcb_application_closed` | 409 | The application already has an outcome (withdrawn, position closed or job removed), so its status is final |
+| `wcb_application_trashed` | 409 | The application is in the trash, so its status and pipeline stage cannot change. An admin restores it first |
+| `wcb_owner_is_creator` | 409 | `DELETE /employers/{id}/owners/{user_id}` named the person who created the company, who cannot be removed |
 | `wcb_withdraw_disabled` | 403 | **Allow Withdraw** is off |
 | `wcb_withdraw_closed` | 409 | The application already has an outcome and can no longer be withdrawn |
 | `wcb_note_empty` | 400 | A hiring note with no text |

@@ -112,6 +112,14 @@ wp_set_current_user( $creator );
 $ok( 200 === $status && ! EmployersModule::owns_job( $colleague, get_post( $job ) ), 'O4: DELETE /wcb/v1/employers/{id}/owners/{user_id} - creator removes the co-owner, who no longer runs the job' );
 [ $status ] = $call( 'DELETE', "{$base}/{$colleague}" );
 $ok( 404 === $status, 'removing them again says they are already gone' );
+[ $status, $body ] = $call( 'DELETE', "{$base}/{$creator}" );
+$ok( 409 === $status && 'wcb_owner_is_creator' === ( $body['code'] ?? '' ), 'removing the creator says the creator cannot be removed' );
+$wcb_admin = (int) ( get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) )[0] ?? 0 );
+if ( $wcb_admin ) {
+	wp_set_current_user( $wcb_admin );
+	[ $status, $body ] = $call( 'POST', "/wcb/v1/employers/{$job}/owners", array( 'user_id' => $colleague ) );
+	$ok( 404 === $status && 'wcb_company_not_found' === ( $body['code'] ?? '' ), 'an id that is not a company is a 404, even for an admin' );
+}
 
 wp_set_current_user( 0 );
 wp_delete_post( $job, true );

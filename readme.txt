@@ -82,6 +82,10 @@ Company co-owners, stronger candidate privacy and tighter permissions.
 * Fix      - The verified tick sits right after the company name on Find Companies.
 * Fix      - The logo upload on a new company appears once the company is saved, instead of failing out of sight.
 * Fix      - A new site starts with the default job types and experience levels, so the job form dropdowns are not empty.
+* Fix      - Changing the status of a trashed application, from the API or WP-CLI, says it is in the trash instead of reporting no change.
+* Fix      - A job waiting for review shows the day it was submitted, and a new pending job no longer reads 57 years old in the API.
+* Fix      - The co-owner routes answer No company found for an ID that is not a company, and refuse to remove the company's creator with a clear message.
+* Fix      - The Similar Companies block preview tells the site owner how to set it up.
 * Security - A withdrawn application no longer gives the employer the candidate's CV, email, cover letter or answers, in the dashboard or the CSV export.
 * Security - A trashed application can no longer be changed by the employer (status, notes, rating) or withdrawn, and no status email is sent.
 * Security - Jobs, applications, companies, resumes and boards have their own capabilities, so Editors, Authors and Contributors can no longer write them through the WordPress REST API.

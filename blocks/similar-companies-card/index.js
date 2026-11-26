@@ -75,7 +75,7 @@
 								__( 'Anchored to company ID %s', 'wp-career-board' ),
 								String( attr.companyId )
 						  )
-							: __( 'Auto-resolves on company-single pages.', 'wp-career-board' ) )
+							: __( 'On a company page it lists companies like that one. Elsewhere, choose a company in the block settings.', 'wp-career-board' ) )
 				),
 			);
 		},
