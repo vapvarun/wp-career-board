@@ -26,7 +26,7 @@
     "db_version": "1.4.6"
   },
   "counts": {
-    "rest": 56,
+    "rest": 62,
     "ajax": 0,
     "admin_pages": 9,
     "shortcodes": 2,
@@ -35,11 +35,11 @@
     "taxonomies": 5,
     "tables": 3,
     "capabilities": 13,
-    "services": 45,
-    "hooks_fired": 273,
-    "hooks_unique": 189,
-    "cron": 11,
-    "wp_cli": 5
+    "services": 47,
+    "hooks_fired": 278,
+    "hooks_unique": 192,
+    "cron": 12,
+    "wp_cli": 6
   },
   "static_analysis_counts": {
     "dead_listeners": 0,

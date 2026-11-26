@@ -40,6 +40,18 @@ To see the published page, click **Public Page** in the sidebar. It opens your c
 
 Only **Company name** is required. You can save with just the name and fill in the rest later. A blank name is not saved, so it cannot blank your company. When you rename the company, its jobs show the new name and keyword search finds them under it.
 
+## Co-owners
+
+A co-owner runs the company with you: they see and edit every job whose **Company** field names it, review its applications and can feature its jobs. Open the company from **Companies** and scroll to **Co-owners**.
+
+- Only the person who created the company (or a site administrator) adds or removes co-owners. Co-owners see the list but cannot change it.
+- Search by name, or type a full email address. Name results never show email addresses.
+- Only Employer accounts can be added. A candidate account is refused with a message saying so.
+- A company can have up to 20 co-owners.
+- A co-owner sees a job only when its **Company** field names this company. A co-owner with no linked jobs sees a note saying so under **My Jobs**.
+
+Site administrators can also manage co-owners in **Career Board > Companies** (edit a company, **Co-owners** box) or with `wp wcb company owners`.
+
 ## Your company page address
 
 The address is built from your company name: `yourdomain.com/companies/your-company-name/`.

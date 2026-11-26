@@ -260,6 +260,153 @@ final class EmployersModule {
 	}
 
 	/**
+	 * Most co-owners a company can have, so the panel and every ownership
+	 * query stay small.
+	 *
+	 * @since 1.8.6
+	 */
+	public const MAX_COMPANY_OWNERS = 20;
+
+	/**
+	 * Everyone who runs a company: its creator first, then its co-owners.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param int $company_id Company post ID.
+	 * @return array<int, array{id:int, name:string, avatar:string, creator:bool}>
+	 */
+	public static function company_owners( int $company_id ): array {
+		$creator = (int) get_post_field( 'post_author', $company_id );
+		$ids     = array_values( array_unique( array_filter( array_merge( array( $creator ), array_map( 'intval', (array) get_post_meta( $company_id, '_wcb_company_owner', false ) ) ) ) ) );
+		if ( ! $ids ) {
+			return array();
+		}
+		cache_users( $ids );
+		$owners = array();
+		foreach ( $ids as $user_id ) {
+			if ( ! get_userdata( $user_id ) ) {
+				continue;
+			}
+			$owners[] = array(
+				'id'      => $user_id,
+				'name'    => \WCB\Modules\Candidates\CandidatesModule::public_name( $user_id ),
+				'avatar'  => (string) get_avatar_url( $user_id, array( 'size' => 72 ) ),
+				'creator' => $user_id === $creator,
+			);
+		}
+		return $owners;
+	}
+
+	/**
+	 * Name an employer a co-owner of a company.
+	 *
+	 * The one writer of `_wcb_company_owner` (REST, the company edit screen,
+	 * WP-CLI): only Employer accounts, never the creator, no duplicates, at
+	 * most MAX_COMPANY_OWNERS. Who may call it is the caller's check.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param int $company_id Company post ID.
+	 * @param int $user_id    User to add.
+	 * @return true|\WP_Error
+	 */
+	public static function add_company_owner( int $company_id, int $user_id ): true|\WP_Error {
+		if ( 'wcb_company' !== get_post_type( $company_id ) ) {
+			return new \WP_Error( 'wcb_not_found', __( 'Company not found.', 'wp-career-board' ), array( 'status' => 404 ) );
+		}
+		$user = get_userdata( $user_id );
+		if ( ! $user instanceof \WP_User ) {
+			return new \WP_Error( 'wcb_owner_unknown', __( 'No account matches that person.', 'wp-career-board' ), array( 'status' => 400 ) );
+		}
+		$name = \WCB\Modules\Candidates\CandidatesModule::public_name( $user_id );
+		if ( ! $user->has_cap( 'wcb_post_jobs' ) ) {
+			return new \WP_Error(
+				'wcb_owner_not_employer',
+				/* translators: %s: person's name. */
+				sprintf( __( '%s is not an Employer account. Only Employer accounts can be co-owners.', 'wp-career-board' ), $name ),
+				array( 'status' => 400 )
+			);
+		}
+		$owners = array_column( self::company_owners( $company_id ), 'id' );
+		if ( in_array( $user_id, $owners, true ) ) {
+			return new \WP_Error(
+				'wcb_owner_exists',
+				/* translators: %s: person's name. */
+				sprintf( __( '%s already runs this company.', 'wp-career-board' ), $name ),
+				array( 'status' => 409 )
+			);
+		}
+		// The creator counts as one of the owners.
+		if ( count( $owners ) > self::MAX_COMPANY_OWNERS ) {
+			return new \WP_Error(
+				'wcb_owner_limit',
+				/* translators: %d: most co-owners a company can have. */
+				sprintf( __( 'A company can have up to %d co-owners.', 'wp-career-board' ), self::MAX_COMPANY_OWNERS ),
+				array( 'status' => 400 )
+			);
+		}
+		add_post_meta( $company_id, '_wcb_company_owner', (string) $user_id );
+		return true;
+	}
+
+	/**
+	 * Take a co-owner off a company. The creator cannot be removed; their
+	 * links to the company are cleared by on_company_owner_meta_change().
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param int $company_id Company post ID.
+	 * @param int $user_id    Co-owner to remove.
+	 * @return bool Whether a co-owner was removed.
+	 */
+	public static function remove_company_owner( int $company_id, int $user_id ): bool {
+		return 'wcb_company' === get_post_type( $company_id ) && delete_post_meta( $company_id, '_wcb_company_owner', (string) $user_id );
+	}
+
+	/**
+	 * Employers a company's creator may add, matched by name or by exact email.
+	 *
+	 * A name search never returns emails, so it cannot be used to collect
+	 * other employers' addresses; an email matches only in full. At most 10.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param int    $company_id Company post ID.
+	 * @param string $search     Name, or a full email address.
+	 * @return array<int, array{id:int, name:string, avatar:string}>
+	 */
+	public static function company_owner_candidates( int $company_id, string $search ): array {
+		$search = trim( $search );
+		if ( mb_strlen( $search ) < 2 ) {
+			return array();
+		}
+		$roles = array_keys( array_filter( wp_roles()->roles, static fn ( array $role ): bool => ! empty( $role['capabilities']['wcb_post_jobs'] ) ) );
+		$args  = array(
+			'role__in' => $roles,
+			'exclude'  => array_column( self::company_owners( $company_id ), 'id' ),
+			'number'   => 10,
+			'fields'   => 'ID',
+			'orderby'  => 'display_name',
+		);
+		if ( is_email( $search ) ) {
+			$args['search']         = $search;
+			$args['search_columns'] = array( 'user_email' );
+		} else {
+			$args['search']         = '*' . $search . '*';
+			$args['search_columns'] = array( 'display_name', 'user_nicename' );
+		}
+		$found = array();
+		foreach ( get_users( $args ) as $user_id ) {
+			$found[] = array(
+				'id'     => (int) $user_id,
+				'name'   => \WCB\Modules\Candidates\CandidatesModule::public_name( (int) $user_id ),
+				'avatar' => (string) get_avatar_url( (int) $user_id, array( 'size' => 72 ) ),
+			);
+		}
+		return $found;
+	}
+
+	/**
 	 * Deleting a user with "attribute all content to" hands their companies over
 	 * by a direct posts update, which fires no post_updated.
 	 *

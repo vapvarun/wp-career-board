@@ -120,6 +120,60 @@ final class EmployersEndpoint extends RestController {
 			)
 		);
 
+		// Co-owners (1.8.6): everyone who runs the company sees them; only its
+		// creator (or an admin) adds or removes one.
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/owners',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_owners' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_owner' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+					'args'                => array(
+						'user_id' => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+					),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/owners/(?P<user_id>\d+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'remove_owner' ),
+				'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/owners/search',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'search_owners' ),
+				'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+				'args'                => array(
+					'search' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/employers/me/companies',
@@ -1514,6 +1568,58 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_my_companies( \WP_REST_Request $request ): \WP_REST_Response {
 		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( get_current_user_id() ) ) );
+	}
+
+	/**
+	 * GET /employers/{id}/owners: the company's creator and co-owners.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_owners( \WP_REST_Request $request ): \WP_REST_Response {
+		return rest_ensure_response( array( 'owners' => \WCB\Modules\Employers\EmployersModule::company_owners( (int) $request['id'] ) ) );
+	}
+
+	/**
+	 * POST /employers/{id}/owners: name an employer a co-owner.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function add_owner( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$added = \WCB\Modules\Employers\EmployersModule::add_company_owner( (int) $request['id'], (int) $request->get_param( 'user_id' ) );
+		return is_wp_error( $added ) ? $added : $this->get_owners( $request );
+	}
+
+	/**
+	 * DELETE /employers/{id}/owners/{user_id}: take a co-owner off the company.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function remove_owner( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		if ( ! \WCB\Modules\Employers\EmployersModule::remove_company_owner( (int) $request['id'], (int) $request['user_id'] ) ) {
+			return new \WP_Error( 'wcb_owner_not_found', __( 'That person is not a co-owner of this company, or was already removed.', 'wp-career-board' ), array( 'status' => 404 ) );
+		}
+		return $this->get_owners( $request );
+	}
+
+	/**
+	 * GET /employers/{id}/owners/search: employers the creator may add.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function search_owners( \WP_REST_Request $request ): \WP_REST_Response {
+		return rest_ensure_response( array( 'results' => \WCB\Modules\Employers\EmployersModule::company_owner_candidates( (int) $request['id'], (string) $request->get_param( 'search' ) ) ) );
 	}
 
 	/**

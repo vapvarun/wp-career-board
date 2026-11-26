@@ -96,6 +96,44 @@ function pickApplicant( row ) {
 
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
+// Latest co-owner search, so a slow reply never overwrites a newer one.
+let ownerSearchSeq = 0;
+
+/**
+ * Add or remove a co-owner; the reply is the company's owners as they now are.
+ *
+ * @param {string} method HTTP method.
+ * @param {string} suffix Path after /owners.
+ * @param {Object} body   JSON body, when any.
+ */
+function* changeOwners( method, suffix, body ) {
+	if ( state.ownerBusy ) {
+		return;
+	}
+	state.ownerBusy  = true;
+	state.ownerError = '';
+	try {
+		const response = yield wcbFetch( state.apiBase + '/employers/' + String( state.companyId ) + '/owners' + suffix, {
+			method,
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+			body: body ? JSON.stringify( body ) : undefined,
+		} );
+		const data = yield response.json().catch( () => ( {} ) );
+		if ( response.ok ) {
+			state.companyOwners = data.owners || [];
+			return;
+		}
+		state.ownerError = data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+		// Someone may have changed the list meanwhile: show it as it is now.
+		const fresh = yield wcbFetch( state.apiBase + '/employers/' + String( state.companyId ) + '/owners', { headers: { 'X-WP-Nonce': state.nonce } } );
+		if ( fresh.ok ) {
+			state.companyOwners = ( yield fresh.json() ).owners || [];
+		}
+	} finally {
+		state.ownerBusy = false;
+	}
+}
+
 /**
  * Whether the Feature action applies: a live, not yet featured job on a board
  * with a featured price. Read from the job's current status, so Close and
@@ -723,6 +761,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get selectedAppWithdrawnTitle() {
 			return t( 'withdrawnTitle', '%s withdrew this application.' ).replace( '%s', state.selectedAppName );
+		},
+		// Company co-owners (1.8.6). Rows read their owner from context.
+		get ownerRoleLabel() {
+			return getContext().owner?.creator ? t( 'ownerCreator', 'Created the company' ) : t( 'ownerCoOwner', 'Co-owner' );
+		},
+		get canRemoveOwner() {
+			return state.canManageOwners && ! getContext().owner?.creator;
+		},
+		get ownerRemoveLabel() {
+			return t( 'ownerRemoveLabel', 'Remove %s as co-owner' ).replace( '%s', getContext().owner?.name ?? '' );
+		},
+		get ownerAddLabel() {
+			return t( 'ownerAddLabel', 'Add %s as co-owner' ).replace( '%s', getContext().match?.name ?? '' );
+		},
+		get hasOwnerResults() {
+			return state.ownerResults.length > 0;
 		},
 		get selectedAppStatusLabel() {
 			return state.selectedApp?.statusLabel ?? '';
@@ -1421,6 +1475,46 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			} finally {
 				state.addingNote = false;
 			}
+		},
+
+		// Names, or a full email: matches come back without emails (1.8.6).
+		*searchOwners( event ) {
+			state.ownerSearch = event.target.value;
+			state.ownerError  = '';
+			const term        = state.ownerSearch.trim();
+			const seq         = ++ownerSearchSeq;
+			if ( term.length < 2 ) {
+				state.ownerResults = [];
+				return;
+			}
+			yield new Promise( ( resolve ) => setTimeout( resolve, 250 ) );
+			if ( seq !== ownerSearchSeq ) {
+				return;
+			}
+			const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/owners/search' );
+			url.searchParams.set( 'search', term );
+			const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
+			const data     = yield response.json().catch( () => ( {} ) );
+			if ( seq !== ownerSearchSeq ) {
+				return;
+			}
+			state.ownerResults = response.ok ? ( data.results || [] ) : [];
+			if ( ! state.ownerResults.length ) {
+				state.ownerError = response.ok ? t( 'ownerNoMatch', 'No Employer account matches that name or email.' ) : ( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			}
+		},
+
+		*addOwner() {
+			const match = getContext().match;
+			yield* changeOwners( 'POST', '', { user_id: match.id } );
+			if ( ! state.ownerError ) {
+				state.ownerSearch  = '';
+				state.ownerResults = [];
+			}
+		},
+
+		*removeOwner() {
+			yield* changeOwners( 'DELETE', '/' + String( getContext().owner.id ) );
 		},
 
 		*deleteNote() {
