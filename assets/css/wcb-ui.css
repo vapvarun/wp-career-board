@@ -1018,6 +1018,13 @@
 	word-break: normal;
 }
 
+/* A company name sits in .wcb-ca-name-row, whose max-width already keeps it
+ * clear of the save button: a second gutter on the name pushed the trust tick
+ * ~48px away from it (1.8.6). */
+[class*="wp-block-wp-career-board"] .wcb-ca-card .wcb-ca-name-row > .wcb-ca-name {
+	padding-inline-end: 0;
+}
+
 /* Section card titles (.wcb-card-title) need more breathing room than the
  * compact archive item names above. The shared reset pins all three to
  * --wcb-space-xs (4px), which left section headings like "Job Details" / "About
