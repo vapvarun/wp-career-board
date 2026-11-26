@@ -113,11 +113,19 @@ class MissingBlockNotice {
 			return $content;
 		}
 
-		$text = wp_is_ability_granted( 'wcb/manage-settings' ) // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
-			? __( 'This page needs WP Career Board Pro to be active, so its content is empty. Activate Pro, or take this page out of your menu.', 'wp-career-board' )
-			: __( 'This page is not available right now.', 'wp-career-board' );
-
-		return $content . '<p class="wcb-missing-block">' . esc_html( $text ) . '</p>';
+		// The page holds only Pro blocks, so no Career Board style is queued yet.
+		wp_enqueue_style( 'wcb-ui' );
+		$is_admin = wp_is_ability_granted( 'wcb/manage-settings' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		$notice   = '<div class="wcb-empty-state wcb-empty-state--compact wcb-missing-block">'
+			. '<span class="wcb-empty-state__icon" aria-hidden="true">' . \WCB\Core\Icon::svg( 'info' ) . '</span>';
+		if ( $is_admin ) {
+			$notice .= '<p class="wcb-empty-state__title">' . esc_html__( 'This page needs WP Career Board Pro', 'wp-career-board' ) . '</p>'
+				. '<p class="wcb-empty-state__body">' . esc_html__( 'Its blocks come from Pro, which is not active, so visitors see an empty page. Activate Pro, or take this page out of your menu. Only administrators see this message.', 'wp-career-board' ) . '</p>'
+				. '<a class="wcb-btn wcb-btn--primary" href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Go to Plugins', 'wp-career-board' ) . '</a>';
+		} else {
+			$notice .= '<p class="wcb-empty-state__body">' . esc_html__( 'This page is not available right now.', 'wp-career-board' ) . '</p>';
+		}
+		return $content . $notice . '</div>';
 	}
 
 	/**
