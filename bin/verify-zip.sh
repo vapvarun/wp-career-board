@@ -147,8 +147,8 @@ done
 #          non-empty.
 #
 #      Cruft = non-runtime files (mirrors .distignore): *.md, *.dist, tests/,
-#      composer/package manifests, phpunit.xml*, dotfiles.
-CRUFT_RE='\.(md|dist)$|(^|/)(tests?|Tests)/|/composer\.(json|lock)$|/phpunit\.xml|/package(-lock)?\.json$|(^|/)\.[^/]+'
+#      composer/package manifests, build configs (webpack), phpunit.xml*, dotfiles.
+CRUFT_RE='\.(md|dist)$|(^|/)(tests?|Tests)/|/composer\.(json|lock)$|/phpunit\.xml|/package(-lock)?\.json$|/webpack\.config\.js$|(^|/)\.[^/]+'
 
 LIB_FAIL=0
 

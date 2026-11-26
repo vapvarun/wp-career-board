@@ -81,6 +81,7 @@ Company co-owners, stronger candidate privacy and tighter permissions.
 * Fix      - Multi-choice answers whose choices contain commas keep every ticked choice when the form is saved again.
 * Fix      - The verified tick sits right after the company name on Find Companies.
 * Fix      - The logo upload on a new company appears once the company is saved, instead of failing out of sight.
+* Fix      - A new site starts with the default job types and experience levels, so the job form dropdowns are not empty.
 * Security - A withdrawn application no longer gives the employer the candidate's CV, email, cover letter or answers, in the dashboard or the CSV export.
 * Security - A trashed application can no longer be changed by the employer (status, notes, rating) or withdrawn, and no status email is sent.
 * Security - Jobs, applications, companies, resumes and boards have their own capabilities, so Editors, Authors and Contributors can no longer write them through the WordPress REST API.
@@ -88,6 +89,7 @@ Company co-owners, stronger candidate privacy and tighter permissions.
 * Dev      - Applicant lists accept status=closed.
 * Dev      - wcb_moderation_status_changed fires for every job or resume a moderation hide or restore changes.
 * Dev      - The test seed cleanup removes only what the seed created, and tests/run-all-tests.sh needs WCB_TESTS_DISPOSABLE_SITE=1.
+* Dev      - The build compiles every file on the minimum PHP version (8.1), so syntax that needs a newer PHP cannot ship.
 * Compat   - Aligned with WP Career Board Pro 1.8.6. Install both updates together.
 
 = 1.8.5 - November 2026 =

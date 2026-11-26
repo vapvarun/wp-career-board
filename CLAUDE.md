@@ -226,6 +226,7 @@ What `composer ci:no-journeys` actually runs (read `composer.json`; stage order)
 
 | Stage | Script | Catches |
 |---|---|---|
+| 0 | `php-floor` (`bin/php-floor-lint.sh`) | syntax newer than `Requires PHP` (e.g. a standalone `true` type on 8.1): every file is compiled with `php -l` on that version, via a local `php8.1` or the `php:8.1-cli` Docker image, and the gate fails if neither exists. `bin/package-dist.sh` runs it again on the built zip |
 | 1 | `phpstan` | static type errors (baseline-aware) |
 | 2 | `phpcs` | WordPress coding standards |
 | 3 | `coding-rules` (`bin/coding-rules-check.sh --full`) | inline JS/CSS, em-dash i18n, hardcoded JS strings, `current_user_can` outside chokepoint, ability-slug format, raw `$wpdb->query`, tracked `-rtl.css` / `.min` files |

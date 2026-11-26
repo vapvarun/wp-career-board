@@ -308,9 +308,9 @@ final class EmployersModule {
 	 *
 	 * @param int $company_id Company post ID.
 	 * @param int $user_id    User to add.
-	 * @return true|\WP_Error
+	 * @return true|\WP_Error True when added (never false).
 	 */
-	public static function add_company_owner( int $company_id, int $user_id ): true|\WP_Error {
+	public static function add_company_owner( int $company_id, int $user_id ): bool|\WP_Error {
 		if ( 'wcb_company' !== get_post_type( $company_id ) ) {
 			return new \WP_Error( 'wcb_not_found', __( 'Company not found.', 'wp-career-board' ), array( 'status' => 404 ) );
 		}

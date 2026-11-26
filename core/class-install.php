@@ -625,6 +625,14 @@ final class Install {
 				add_action( 'init', array( self::class, 'seed_default_terms' ), 25 );
 			}
 
+			// 1.5.0 - job views are de-duplicated in the views table; drop the
+			// per-visitor transients 1.8.5 counted with (they only expire).
+			if ( '0' !== (string) $installed && version_compare( (string) $installed, '1.5.0', '<' ) ) {
+				global $wpdb;
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time cleanup of expired-by-design transients.
+				$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_wcb_job_view_' ) . '%', $wpdb->esc_like( '_transient_timeout_wcb_job_view_' ) . '%' ) );
+			}
+
 			// Only bump the stored DB version if every expected table now
 			// exists. A silently-failed dbDelta (e.g. the MariaDB 11.7+
 			// `vector` collision pre-fa3a337) used to bump the version
@@ -639,11 +647,28 @@ final class Install {
 	}
 
 	/**
+	 * Seed the default terms on the first load after activation.
+	 *
+	 * Activation runs the upgrade after init has fired, so the init hook it
+	 * queues for seed_default_terms() never runs and a fresh site had no job
+	 * types or experience levels (1.8.6). Activation also sets the deferred
+	 * rewrite-flush flag, consumed at init 999; at init 25 the taxonomies exist.
+	 *
+	 * @since 1.8.6
+	 * @return void
+	 */
+	public static function seed_terms_after_activation(): void {
+		if ( get_option( 'wcb_flush_rewrite_rules' ) ) {
+			self::seed_default_terms();
+		}
+	}
+
+	/**
 	 * Give an empty job-type or experience-level list its default terms.
 	 *
 	 * Only a taxonomy with no terms at all is filled, so an owner's own list is
 	 * never touched and one they emptied on purpose is not refilled until the
-	 * next upgrade. Categories are left to the owner: they are specific to the
+	 * next upgrade or activation. Categories are left to the owner: they are specific to the
 	 * board. Uses terms only: no table, no option.
 	 *
 	 * @since 1.8.5

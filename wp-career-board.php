@@ -226,3 +226,4 @@ add_action(
 // that bypass register_activation_hook. Runs at init@5 so Pro's
 // `wcb_pro_active` filter (registered on plugins_loaded@10) is in place.
 add_action( 'init', array( 'WCB\\Core\\Install', 'maybe_migrate' ), 5 );
+add_action( 'init', array( 'WCB\\Core\\Install', 'seed_terms_after_activation' ), 25 );
