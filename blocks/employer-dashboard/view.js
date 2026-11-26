@@ -1959,25 +1959,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				);
 				if ( response.ok ) {
-					const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
-					if ( idx !== -1 ) {
-						// A rejected listing resubmits to moderation (pending), not
-						// straight live — the server enforces this; mirror it in the
-						// optimistic update so the badge matches what the API stored.
-						const wasRejected = state.jobs[ idx ].isRejected;
-						state.jobs[ idx ].status      = wasRejected ? 'pending' : 'publish';
-						state.jobs[ idx ].statusLabel = wasRejected
-							? t( 'jobStatusPending', 'Pending' )
-							: t( 'jobStatusPublished', 'Published' );
-						state.jobs[ idx ].isClosed    = false;
-						state.jobs[ idx ].isExpired   = false;
-						state.jobs[ idx ].isRejected  = false;
-						state.jobs[ idx ].isDraft     = false;
-						state.jobs[ idx ].closedNote  = '';
-						state.jobs[ idx ].statusNote  = '';
-						state.jobs[ idx ].canFeature  = canFeatureJob( state.jobs[ idx ] );
-						Object.assign( state.jobs[ idx ], jobStats( state.jobs[ idx ] ) );
-					}
+					// The server decides what Publish means: live, or held for review on a
+					// board that needs approval (and Pro's per-board rule). Show the row as
+					// it was stored, never a guess (1.8.6: it read "Published" while pending).
+					yield actions.loadJobs();
 				} else {
 					yield actions.reportRefusal( response );
 				}
