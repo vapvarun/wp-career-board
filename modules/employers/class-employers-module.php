@@ -648,7 +648,7 @@ final class EmployersModule {
 					'with_front' => false,
 				),
 				'has_archive'     => 'companies',
-				'capability_type' => 'post',
+				'capability_type' => array( 'wcb_company', 'wcb_companies' ),
 				'map_meta_cap'    => true,
 			)
 		);

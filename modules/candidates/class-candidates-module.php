@@ -257,7 +257,7 @@ final class CandidatesModule {
 					'with_front' => false,
 				),
 				'supports'              => array( 'title', 'custom-fields' ),
-				'capability_type'       => 'post',
+				'capability_type'       => array( 'wcb_resume', 'wcb_resumes' ),
 				'map_meta_cap'          => true,
 			)
 		);

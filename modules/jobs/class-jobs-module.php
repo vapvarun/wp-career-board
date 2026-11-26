@@ -358,7 +358,7 @@ final class JobsModule {
 				),
 				'has_archive'     => 'jobs',
 				'menu_icon'       => 'dashicons-portfolio',
-				'capability_type' => 'post',
+				'capability_type' => array( 'wcb_job', 'wcb_jobs' ),
 				'map_meta_cap'    => true,
 			)
 		);
