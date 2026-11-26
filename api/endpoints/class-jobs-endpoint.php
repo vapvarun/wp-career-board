@@ -1500,7 +1500,7 @@ final class JobsEndpoint extends RestController {
 		$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
 		$photos       ??= \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( array( $p ) );
 
-		return array(
+		$item = array(
 			'id'                 => $p->ID,
 			'candidate_id'       => $candidate_id,
 			// Resume photo, else '' (the board shows initials; never the grey Gravatar silhouette).
@@ -1537,6 +1537,8 @@ final class JobsEndpoint extends RestController {
 				return '' !== $url ? $url : null;
 			} )(),
 		) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
+
+		return \WCB\Modules\Candidates\CandidatesModule::hide_withdrawn_data( $item, $status_raw );
 	}
 
 	// --- Permission callbacks ---------------------------------------------------

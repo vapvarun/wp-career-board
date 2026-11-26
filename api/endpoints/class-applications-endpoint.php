@@ -1278,6 +1278,9 @@ final class ApplicationsEndpoint extends RestController {
 		// Same applicant fields as the employer's applications lists; keys the
 		// candidate shape already sets keep their value.
 		$base += JobsEndpoint::employer_application_item( $post, (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ) );
+		// The candidate shape set the CV, cover letter and answers first, so a
+		// withdrawal is applied again on the merged item.
+		$base = \WCB\Modules\Candidates\CandidatesModule::hide_withdrawn_data( $base, (string) $base['status'] );
 		return array_merge(
 			$base,
 			array(

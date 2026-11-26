@@ -145,6 +145,8 @@ wp eval-file wp-content/plugins/wp-career-board/tests/test-job-search-multi-cate
 wp eval-file wp-content/plugins/wp-career-board/tests/test-labelled-values.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-privacy-gates.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-private-files.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-private-file-access-scale.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-withdrawn-application-privacy.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-trashed-application-writes.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-stored-language.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-term-names.php

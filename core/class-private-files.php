@@ -284,9 +284,12 @@ final class PrivateFiles {
 	 * One indexed query with LIMIT 1, so a CV attached to thousands of
 	 * applications answers as fast as one attached to a single application and
 	 * nobody is refused for sitting past the first page. The employer side uses
-	 * the same job scope as the dashboard (author or company the user runs).
+	 * the same job scope as the dashboard (author or company the user runs), and
+	 * a withdrawn application no longer counts for it (the candidate took their
+	 * data back, CandidatesModule::shows_candidate_data()).
 	 *
 	 * @since 1.8.5
+	 * @since 1.8.6 Withdrawn applications no longer grant the employer the file.
 	 *
 	 * @param int $attachment_id Attachment post ID.
 	 * @param int $user_id       Current user ID.
@@ -305,9 +308,11 @@ final class PrivateFiles {
 				LEFT JOIN {$wpdb->postmeta} cand ON cand.post_id = app.ID AND cand.meta_key = '_wcb_candidate_id'
 				LEFT JOIN {$wpdb->postmeta} jobref ON jobref.post_id = app.ID AND jobref.meta_key = '_wcb_job_id'
 				LEFT JOIN {$wpdb->posts} job ON job.ID = CAST( jobref.meta_value AS UNSIGNED ) AND job.post_type = 'wcb_job'
-				WHERE app.post_type = 'wcb_application' AND app.post_status NOT IN ( 'trash', 'auto-draft' ) AND ( cand.meta_value = %d OR ( job.ID IS NOT NULL AND ",
+				LEFT JOIN {$wpdb->postmeta} st ON st.post_id = app.ID AND st.meta_key = '_wcb_status'
+				WHERE app.post_type = 'wcb_application' AND app.post_status NOT IN ( 'trash', 'auto-draft' ) AND ( cand.meta_value = %d OR ( job.ID IS NOT NULL AND ( st.meta_value IS NULL OR st.meta_value <> %s ) AND ",
 				(string) $attachment_id,
-				$user_id
+				$user_id,
+				\WCB\Modules\Applications\ApplicationStatus::WITHDRAWN
 			) . $scope . ' ) ) LIMIT 1' // $scope is already prepared; never run it through prepare() again.
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
