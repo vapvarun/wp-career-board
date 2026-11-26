@@ -1138,7 +1138,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.mainCompanyId   = main ? main.id : 0;
 			state.mainCompanyName = main ? main.name : '';
 			state.mainLogoUrl     = main ? main.logo : '';
-			state.noCompany       = ! main;
+			state.noCompany       = ! list.length; // A co-owner runs a company without a main one.
 			if ( state.companyFilter && ! list.some( ( c ) => c.id === state.companyFilter ) ) {
 				state.companyFilter = 0;
 			}

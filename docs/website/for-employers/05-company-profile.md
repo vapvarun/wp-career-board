@@ -50,7 +50,7 @@ A co-owner runs the company with you: they see and edit every job whose **Compan
 - A company can have up to 20 co-owners.
 - A co-owner sees a job only when its **Company** field names this company. A co-owner with no linked jobs sees a note saying so under **My Jobs**.
 
-Site administrators can also manage co-owners in **Career Board > Companies** (edit a company, **Co-owners** box) or with `wp wcb company owners`.
+Site administrators can also manage co-owners in **Career Board > Companies**: edit a company, type an email or username in the **Co-owners** box and click **Add co-owner**. The person is added at once, or the box says why not. Tick a co-owner and save the company to remove them. The same can be done with `wp wcb company owners`.
 
 ## Your company page address
 

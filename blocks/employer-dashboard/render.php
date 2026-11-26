@@ -226,7 +226,8 @@ wp_interactivity_state(
 		'appsHints'             => $wcb_apps_hints,
 		'loading'               => true,
 		'error'                 => '',
-		'noCompany'             => 0 === (int) $wcb_main_company_id,
+		// A co-owner with no company of their own still runs a company (1.8.6).
+		'noCompany'             => ! $wcb_companies,
 		'mainCompanyId'         => $wcb_main_company_id,
 		'mainCompanyName'       => $wcb_main_name,
 		'mainLogoUrl'           => $wcb_main_logo,

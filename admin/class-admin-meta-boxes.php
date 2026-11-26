@@ -140,6 +140,7 @@ class AdminMetaBoxes {
 			'side',
 			'default'
 		);
+		$this->enqueue_owners_script();
 
 		add_meta_box(
 			'wcb-company-trust',
@@ -650,6 +651,33 @@ class AdminMetaBoxes {
 	}
 
 	/**
+	 * Add co-owners from the Co-owners box through REST, with the reason when it
+	 * is refused. The block editor saves meta boxes in the background and never
+	 * shows the redirect notice save_company_meta() leaves; without JS the
+	 * field still saves with the post. Enqueued at registration, before the
+	 * header prints scripts in both editors.
+	 *
+	 * @since 1.8.6
+	 * @return void
+	 */
+	private function enqueue_owners_script(): void {
+		wp_enqueue_script( 'wp-api-fetch' );
+		wp_add_inline_script(
+			'wp-api-fetch',
+			'(function(){var t=' . wp_json_encode(
+				array(
+					'company' => (int) get_the_ID(),
+					'unknown' => __( 'No account matches that email or username, so no co-owner was added.', 'wp-career-board' ),
+					/* translators: %s: the new co-owner's display name. */
+					'added'   => __( '%s is now a co-owner.', 'wp-career-board' ),
+					'remove'  => __( '(tick to remove)', 'wp-career-board' ),
+					'failed'  => __( 'The co-owner could not be added. Try again.', 'wp-career-board' ),
+				)
+			) . ';function el(s){return document.querySelector(s);}function say(m){el(".wcb-owner-status").textContent=m;}function add(){var input=el("#wcb_add_owner"),btn=el(".wcb-add-owner-btn"),box=el(".wcb-owners-box"),v=input.value.trim();if(!v||btn.disabled){return;}btn.disabled=true;say("");wp.apiFetch({path:"/wp/v2/users?context=edit&per_page=20&search="+encodeURIComponent(v)}).then(function(users){var l=v.toLowerCase(),u=users.find(function(x){return (x.email||"").toLowerCase()===l||(x.username||"").toLowerCase()===l;});if(!u){throw{message:t.unknown};}return wp.apiFetch({path:"/wcb/v1/employers/"+t.company+"/owners",method:"POST",data:{user_id:u.id}}).then(function(){var li=document.createElement("li"),lab=document.createElement("label"),cb=document.createElement("input"),d=document.createElement("span");cb.type="checkbox";cb.name="wcb_remove_owners[]";cb.value=String(u.id);d.className="description";d.textContent=t.remove;lab.append(cb," "+u.name+" ",d);li.append(lab);box.append(li);input.value="";say(t.added.replace("%s",u.name));});}).catch(function(e){say(e&&e.message?e.message:t.failed);}).finally(function(){btn.disabled=false;});}function show(){var b=el(".wcb-add-owner-btn");if(b){b.hidden=false;}}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",show):show();document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest(".wcb-add-owner-btn")){add();}});document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="wcb_add_owner"){e.preventDefault();add();}});})();'
+		);
+	}
+
+	/**
 	 * Co-owners box: everyone who runs the company, a remove tick for each
 	 * co-owner and a field to add one (saved with the company).
 	 *
@@ -674,7 +702,9 @@ class AdminMetaBoxes {
 		<p>
 			<label for="wcb_add_owner"><?php esc_html_e( 'Add a co-owner', 'wp-career-board' ); ?></label>
 			<input type="text" id="wcb_add_owner" name="wcb_add_owner" class="widefat" autocomplete="off" placeholder="<?php esc_attr_e( 'Email or username', 'wp-career-board' ); ?>" />
+			<button type="button" class="button wcb-add-owner-btn" hidden><?php esc_html_e( 'Add co-owner', 'wp-career-board' ); ?></button>
 		</p>
+		<p class="wcb-owner-status" role="status" aria-live="polite"></p>
 		<p class="description"><?php esc_html_e( 'Only Employer accounts can be co-owners. They see and edit every job whose Company field names this company.', 'wp-career-board' ); ?></p>
 		<?php
 	}

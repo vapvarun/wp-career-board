@@ -100,6 +100,12 @@ $cli = static fn ( string $args ): string => (string) WP_CLI::runcommand( "wcb c
 $listed = json_decode( $cli( "list {$company} --format=json" ), true );
 $ok( in_array( $colleague, array_map( 'intval', wp_list_pluck( (array) $listed, 'id' ) ), true ), 'O5: wp wcb company owners list shows the co-owner' );
 
+// --- Employer dashboard -----------------------------------------------------
+// A co-owner with no company of their own runs a company: no "Set up your company".
+wp_set_current_user( $colleague );
+render_block( array( 'blockName' => 'wp-career-board/employer-dashboard', 'attrs' => array(), 'innerBlocks' => array(), 'innerHTML' => '', 'innerContent' => array() ) );
+$ok( false === ( wp_interactivity_state( 'wcb-employer-dashboard' )['noCompany'] ?? null ), 'a co-owner without a company of their own is not told to set one up' );
+
 // --- Removal ----------------------------------------------------------------
 wp_set_current_user( $creator );
 [ $status ] = $call( 'DELETE', "{$base}/{$colleague}" );
