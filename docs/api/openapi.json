@@ -2772,6 +2772,205 @@
                 }
             }
         },
+        "/wcb/v1/employers/{id}/owners": {
+            "get": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "get_wcb_v1_employers_id_owners",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "post_wcb_v1_employers_id_owners",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                },
+                                "required": [
+                                    "user_id"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/wcb/v1/employers/{id}/owners/search": {
+            "get": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "get_wcb_v1_employers_id_owners_search",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
+        "/wcb/v1/employers/{id}/owners/{user_id}": {
+            "delete": {
+                "tags": [
+                    "Employers"
+                ],
+                "operationId": "delete_wcb_v1_employers_id_owners_user_id",
+                "security": [
+                    {
+                        "appPassword": []
+                    },
+                    {
+                        "cookieNonce": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Authentication required or invalid."
+                    },
+                    "403": {
+                        "description": "Not permitted."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            }
+        },
         "/wcb/v1/files/{id}": {
             "get": {
                 "tags": [
@@ -3898,7 +4097,8 @@
                                 "hired",
                                 "withdrawn",
                                 "job_removed",
-                                "position_closed"
+                                "position_closed",
+                                "closed"
                             ]
                         },
                         "description": ""
