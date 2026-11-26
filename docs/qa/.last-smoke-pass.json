@@ -1,203 +1,327 @@
 {
+  "release_version": "1.8.6",
+  "pro_version": "1.8.6",
+  "free_version": "1.8.6",
+  "free_commit": "c416f01e",
+  "pro_commit": "ef1a2eb1",
+  "ran_at": "2026-11-26T20:37:38Z",
   "mode": "combo",
-  "scope": "rebuild re-walk after the nine 1.8.6-branch review fixes: Pro credits (Featured hold, renewal once, payer pricing, Featured not sold), access (co-owner applications, trashed and withdrawn applications, candidate profile under public/approved), admin Feature, app-password lock, core regressions, 8 test files; plus Free-only pass",
-  "release_version": "1.8.5",
-  "pro_version": "1.8.5",
-  "free_version": "1.8.5",
-  "free_commit": "f82e96e6",
-  "pro_commit": "ef512df",
-  "ran_at": "2026-11-20T20:14:59Z",
+  "scope": "1.8.6 final re-check (Free c416f01e / Pro ef1a2eb1) from the zips: static checks, F1 submitted date and withdrawn ai_score with negative controls on 60031e02, quick regression, Free-only. Items not re-run carry the 60031e02/ef1a2eb1 result of 2026-11-26.",
   "env": {
-    "url": "http://127.0.0.1:8420",
-    "theme": "reign",
-    "service_worker": "unregistered and caches deleted before measuring (none registered)",
-    "debug_log": "debug.log 2156 bytes before and after the walk (delta 0, no new lines, none mention wp-career-board); the 9 existing lines are older wp-cli/eval-file notices from 18:05-18:09 UTC",
-    "js_console": "pageerror and console.error listeners on every page walked (archive, single job, company, candidate and employer dashboards, post-a-job, pipeline, admin lists, apply panel): zero JS errors; the only console error is the browser's own 'Failed to load resource' for the intended 409 on Featured-not-sold",
-    "stack": "docker cb-model-wp-1 (php8.2 + wp-cli), Free+Pro live-mounted from the 1.8.5 worktrees (branch 1.8.6, version strings 1.8.5), WP_DEBUG_LOG on",
-    "cleanup": "Test data created and removed by captured IDs: boards 110881/110884, jobs 110882/110883/110885/110886/110889, application 110887, throwaway user 20334, co-owner meta, app-password lock transients. Thomas Becker credits topped up +20 then adjusted back to 0 (the append-only ledger keeps the rows). wcbp_featured_upgrade_cost restored to 10; resume_single_access and app_password_login restored to absent."
+    "url": "http://localhost:9041 (new zips); http://localhost:9043 (negative control: git archive 60031e02 + Pro ef1a2eb1 zip)",
+    "theme": "reign 8.1.2 (git archive v8.1.2)",
+    "php": "8.1.34 (wordpress:php8.1-apache) on both sites, WP 7.1.5, MySQL 8.0, WP_DEBUG and WP_DEBUG_LOG on",
+    "zips": {
+      "wp-career-board-1.8.6.zip": "7cc0e380398c431ca6b28210732761ae77d832a06f2eef7c22cedab2b285a2c8",
+      "wp-career-board-pro-1.8.6.zip": "32b04e2ff921d82dec985312ea15eec614d2e7c8484a4089f374951a38d1068f"
+    },
+    "service_worker": "none registered (fresh Playwright context)",
+    "debug_log": "wp site: 0 PHP lines from either plugin. Lines present: 2 CBRC-AI-CALL (QA intercept, ranking of 2 live unscored applications) and 2 'PHP Parse error ... Eval_Command.php' from a malformed QA wp eval (harness, not plugin). wpold: 2 harness parse errors and 1 CBRC-AI-CALL.",
+    "js_console": "16 Playwright console logs across the walk: 0 errors, 0 warnings; info only (JQMIGRATE, editorjs 'Block paragraph skipped')",
+    "stack": "docker project cbfinal (~/work-artifacts/scratch/cbfinal/stack): wp :9041 php8.1 fresh install from zips; wpold :9043 php8.1 60031e02 control; Mailpit :9042; seed = dev-tree ScaleCommand (40 candidates, 8 employers, 8 companies, 44 jobs, 130 applications) + seed-real.php, employers linked to companies",
+    "cleanup": "docker compose down -v (both volumes and network removed); browser closed",
+    "ai_harness": "mu-plugin blocks and counts HTTP to api.openai.com / api.anthropic.com / :11434; dummy OpenAI key so the provider counts as configured"
   },
   "sections": {
-    "C_core_flows": {
-      "pass": 4,
-      "fail": 0,
-      "skipped": 0
-    },
-    "D_regression_guards": {
-      "pass": 4,
-      "fail": 0,
-      "skipped": 0
-    },
-    "E_pro_smoke": {
-      "pass": 5,
-      "fail": 0,
-      "skipped": 0,
-      "note": "see .last-smoke-pass-pro.json"
-    },
-    "T_test_files": {
+    "S_static": {
       "pass": 8,
       "fail": 0,
       "skipped": 0,
-      "note": "Free 79 assertions, Pro 77, all pass"
+      "note": "all re-run except Pro em-dash (Pro zip unchanged)"
     },
-    "G_free_only": {
-      "pass": 4,
+    "B_boot_php81": {
+      "pass": 3,
       "fail": 0,
       "skipped": 0,
-      "note": "see .last-smoke-pass-free.json"
+      "note": "re-run"
+    },
+    "I_install_upgrade": {
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "note": "fresh install re-run; upgrade 4 carried from 60031e02 pass 2026-11-26"
+    },
+    "F_new_fixes": {
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0,
+      "note": "2 re-run (FX.submitted-date now pass, FX.withdrawn-ai-score new), 8 carried from 60031e02 pass 2026-11-26"
+    },
+    "C_core_flows": {
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0,
+      "note": "6 re-run, 2 carried (coowners, auto-publish) from 60031e02 pass 2026-11-26"
+    },
+    "R_responsive": {
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "note": "re-run"
+    },
+    "E_pro_smoke": {
+      "pass": 11,
+      "fail": 0,
+      "skipped": 0,
+      "note": "see last-smoke-pass-pro.json; 4 re-run, 7 carried"
+    },
+    "G_free_only": {
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "note": "see last-smoke-pass-free.json; all re-run"
     }
   },
   "checks": [
     {
-      "id": "T.free.review-hardening",
+      "id": "S.sha256",
       "result": "pass",
-      "observed": "tests/test-review-hardening.php: Total 25 Pass 25 Fail 0"
+      "observed": "Free 7cc0e380398c431ca6b28210732761ae77d832a06f2eef7c22cedab2b285a2c8 and Pro 32b04e2ff921d82dec985312ea15eec614d2e7c8484a4089f374951a38d1068f match the expected values and SHA256SUMS"
     },
     {
-      "id": "T.free.candidate-visibility",
+      "id": "S.zip-vs-archive",
       "result": "pass",
-      "observed": "tests/test-candidate-visibility.php: Total 18 Pass 18 Fail 0"
+      "observed": "Free zip vs git archive c416f01e: every common file byte-identical; only-in-zip = 15 generated *-rtl.css; dev files excluded per .distignore"
     },
     {
-      "id": "T.free.bookmark-state",
+      "id": "S.changed-files",
       "result": "pass",
-      "observed": "tests/test-bookmark-state.php: Total 19 Pass 19 Fail 0"
+      "observed": "Free zip vs git archive 60031e02: 5 files differ: core/class-time.php (new Time::post_modified_utc), api/endpoints/class-employers-endpoint.php (status_note uses it), modules/candidates/class-candidates-module.php (ai_score added to WITHDRAWN_HIDDEN_FIELDS), readme.txt (bullet wording), plus api/endpoints/class-jobs-endpoint.php (not in the expected list: updated_at now calls the same helper; identical logic to the inline ternary it replaces). Nothing else."
     },
     {
-      "id": "T.free.rest-write-hardening",
+      "id": "S.php-lint-8.1",
       "result": "pass",
-      "observed": "tests/test-rest-write-hardening.php: Total 17 Pass 17 Fail 0 (79 Free assertions in total)"
+      "observed": "258/258 Free PHP files clean on php:8.1-cli 8.1.34"
     },
     {
-      "id": "T.pro.review-credits",
+      "id": "S.php-lint-8.5",
       "result": "pass",
-      "observed": "tests/test-review-credits.php: Total 12 Pass 12 Fail 0"
+      "observed": "258/258 Free PHP files clean on php:8.5-cli 8.5.11"
     },
     {
-      "id": "T.pro.job-charge",
+      "id": "S.versions",
       "result": "pass",
-      "observed": "tests/test-job-charge.php: Total 35 Pass 35 Fail 0"
+      "observed": "Free header Version, WCB_VERSION and Stable tag 1.8.6; Requires PHP 8.1; DB 1.5.0 after activation"
     },
     {
-      "id": "T.pro.featured-charge-on-create",
+      "id": "S.no-dev-files",
       "result": "pass",
-      "observed": "tests/test-featured-charge-on-create.php: 11 passed 0 failed"
+      "observed": "no tests/, bin/, docs/, audit/, composer/package files, cli/class-scale-command.php or phpstan/phpcs files in the Free zip"
     },
     {
-      "id": "T.pro.paid-board-featured",
+      "id": "S.emdash",
       "result": "pass",
-      "observed": "tests/test-paid-board-featured.php: Total 19 Pass 19 Fail 0 (77 Pro assertions in total)"
+      "observed": "0 em-dashes in Free readme.txt, plugin header and every block.json; Pro zip unchanged (carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round)"
     },
     {
-      "id": "CR.renew-once.ui",
+      "id": "B.front-php81",
       "result": "pass",
-      "observed": "thomas.becker, My Jobs, expired 'Senior Backend Engineer' on a 4-credit board, Reopen double-clicked: balance 20 -> 16 (one price), ledger hold -4 / release +4 / spend -4 once, job publish. The UI sent a single PATCH (menu closes after the first click), so the double click was also proven server-side: 3 parallel PATCH status=publish on a second expired job 'Staff Platform Engineer' all returned 200 and the balance moved 16 -> 12 once (one hold, one spend)."
+      "observed": "20 front URLs (home, 9 plugin pages, sample page, 2 jobs, 2 companies, resume, board, 3 REST) x guest/admin/employer/candidate: 200, no PHP error markup"
     },
     {
-      "id": "CR.featured.quote-charge",
+      "id": "B.admin-php81",
       "result": "pass",
-      "observed": "Feature on the published job: dialog quoted 'Credits this uses from your balance: 10', double-clicked Feature job, balance 12 -> 2 exactly, one hold/spend pair of 10, Featured badge shown. Quoted, shown and charged agree for the job author."
+      "observed": "45 admin URLs (all Career Board screens, 21 settings tabs incl. Pro, taxonomies, editors) 200 with no error markup; the very first admin load 302 once to the setup wizard (one-time wcb_activation_redirect), 200 on re-check"
     },
     {
-      "id": "CR.featured.free-board-price-0",
+      "id": "B.rest-jobs",
       "result": "pass",
-      "observed": "wcbp_featured_upgrade_cost=0, job 'Product Designer' on a 0-credit board: POST /jobs/{id}/feature returned 409 wcb_feature_not_sold 'Featured upgrades are not available on this site.', job not featured, Feature absent from its My Jobs menu. Same price 0 on a paid board (cost 3) features with no charge (included), as designed. Option restored to 10."
+      "observed": "/wcb/v1/jobs, /wcb/v1/companies, /wcb/v1/jobs?per_page=50 200 for all four roles; 125 requests, 0 fatals"
     },
     {
-      "id": "CR.featured.pending-held-once",
+      "id": "I.fresh-terms",
       "result": "pass",
-      "observed": "Covered by tests/test-review-credits.php F1 (feature a pending job twice, flag cleared between: one hold); not re-driven by hand in the browser."
+      "observed": "Post a Job step 3 listed seeded job types and experience levels on the fresh install; full check carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "CR.coowner-price",
+      "id": "I.upgrade-db",
       "result": "pass",
-      "observed": "Co-owner priced as themselves and moderator leaves the author's price: asserted by tests/test-review-credits.php F4 (12/12). Not driven live with a second paying co-owner in the browser."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round: v1.8.5 -> 1.8.6 DB 1.4.9 -> 1.5.0; fresh install this round also reports 1.5.0"
     },
     {
-      "id": "CR.credits-tab.render",
+      "id": "I.upgrade-transients",
       "result": "pass",
-      "observed": "Employer dashboard Credits tab, balance badge in nav, 'CREDIT BALANCE 0' card and Transaction History accordion render at 1440 and 390 in light, and 390 in dark; scrollWidth equals viewport; copy 'Credits can't be bought on this site yet' is clear. Balance returned to 0 afterwards."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round: 40 view transients -> 0"
     },
     {
-      "id": "AC.coowner-applications",
+      "id": "I.upgrade-counts",
       "result": "pass",
-      "observed": "Added carlos.vega as _wcb_company_owner of Tidewater Energy (removed afterwards by exact value): employer dashboard Applications lists 11 applications at 1440 (incl. Tidewater's Adrian Kowalski, application 68805, GET 200); GET /employers/me/applications 200 total 11; 390 renders without horizontal scroll."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round: all row counts and option keys unchanged"
     },
     {
-      "id": "AC.trashed-application",
+      "id": "I.upgrade-schema",
       "result": "pass",
-      "observed": "thomas.becker GET /applications/68805: 200 before, 403 after wp_trash_post, 200 after untrash (status publish restored). Under 'approved', with that trashed application being his only one from the candidate, GET /candidates/16637 for him returned 404 while trashed (trashed application grants no access); 200 again after untrash."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round: only KEY job_visitor added (no schema file changed since 60031e02)"
     },
     {
-      "id": "AC.candidate-profile.public",
+      "id": "FX.submitted-date",
       "result": "pass",
-      "observed": "GET /candidates/16637 under resume_single_access public (site default): guest 200, stranger employer 200, applied employer 200, candidate self 200, admin 200, other candidate 200."
+      "observed": "New build: job 327 posted through the 4-step Post a Job form, job 324 created by employer REST POST /jobs and job 325 inserted as pending by wp_insert_post (all with post_modified_gmt 0000-00-00) read 'Waiting for review · submitted November 26, 2026' in My Jobs and /employers/me/jobs status_note; job 14 resubmitted from draft (dated Nov 4) reads 'submitted November 26, 2026'. Control 60031e02: 324 and 325 read 'submitted' + dash fallback, 14 reads the date. Evidence FINAL-F1-myjobs-submitted-date-NEW-1280.png, FINAL-F1-myjobs-dash-OLD-60031e02-1280.png"
     },
     {
-      "id": "AC.candidate-profile.approved",
+      "id": "FX.withdrawn-ai-score",
       "result": "pass",
-      "observed": "Same route under resume_single_access approved: guest 404, stranger employer 404, other candidate 404, applied employer (thomas) 200, candidate self 200, admin 200. Setting restored to its original (key absent = public)."
+      "observed": "Withdrawn application 326 (cached score 88): ai_score null, ai_summary '', ai_reason '', resume_id null in GET /applications/326, /jobs/22/applications, /employers/me/applications, /employers/6/applications; live application 77 keeps ai_score 74 in all four. Before withdraw 326 returned 88 (control). Applications list: no % chip on Mei Chen's withdrawn row, '74%' chip on Liam O'Connor's live row. Pro /ai/ranked-applications/22: 326 score null, not_scored true; 77 score 74. Control 60031e02: withdrawn 326 still returns ai_score 88 in all four payloads and the list shows an '88%' chip; Pro ranking null. Evidence FINAL-N1-withdrawn-no-score-chip-live-74-NEW-1280.png"
     },
     {
-      "id": "AC.withdrawn-no-access",
+      "id": "FX.trashed-status-rest",
       "result": "pass",
-      "observed": "Under approved, ana.silva (applied-to employer) 200 before; application 68804 set to withdrawn -> 404; status restored to submitted."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "AF.admin-feature",
+      "id": "FX.trashed-status-cli",
       "result": "pass",
-      "observed": "Admin new job 'Principal Security Engineer' with Featured listing ticked, Publish: one post (110886) publish, _wcb_featured=1, /find-jobs/ shows it first with a Featured badge at 1440 and 390, single page shows Featured. Concern (see observations): the admin Jobs list has no Featured column or marker."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "AP.app-password",
+      "id": "FX.days-ago (re-observed: employer POST /jobs days_ago '1 second ago')",
       "result": "pass",
-      "observed": "POST /wcb/v1/auth/app-password with app_password_login on and a valid password for a throwaway account: 200 with a credential. Then 7 wrong passwords with a different X-Forwarded-For each: 5x 401 wcb_login_failed then 429 wcb_too_many_attempts; the valid password is then refused 429 too (lock holds; spoofing the forwarded header does not reset it). Account deleted, setting and lock transients restored."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "RG.candidate",
+      "id": "FX.owner-is-creator",
       "result": "pass",
-      "observed": "adrian.kowalski: /find-jobs/, single job, company page, candidate dashboard at 1440 and 390, light and dark: all 200, no horizontal scroll, no JS errors. My Applications shows 2 rows with status history and Withdraw, Saved shows 4 jobs / 2 companies."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "RG.apply-flow",
+      "id": "FX.company-not-found",
       "result": "pass",
-      "observed": "Apply now at 390 opens the panel (resume select, upload, cover letter, screening questions); submitting with required answers created an application, panel closed and the page showed 'Application submitted'. Test application 110887 deleted."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "RG.employer",
+      "id": "FX.similar-companies-copy",
       "result": "pass",
-      "observed": "thomas.becker: employer dashboard Jobs, Applications, Credits, Post a Job (4-step form) and Hiring Pipeline at 1440 and 390, light and dark: all load, no horizontal scroll, no JS errors."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     },
     {
-      "id": "RG.admin-lists",
+      "id": "FX.withdrawn-ai-fields (summary/reason/resume_id re-observed hidden this round)",
       "result": "pass",
-      "observed": "Admin Jobs list (142 items, 20 rows) and Applications list (144 items) at 1440 and 390, plus the plugin Settings page: 200, no error notices (two hidden core inline-edit notices only)."
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
+    },
+    {
+      "id": "FX.coowner-search-staff",
+      "result": "pass",
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
+    },
+    {
+      "id": "C.employer-post-approval",
+      "result": "pass",
+      "observed": "Maria Lopez 4-step form 'Hub Operations Manager (Rotterdam)', EUR 62k-74k, Operations, Full-time, Senior -> 'Job submitted for review', pending, admin emailed '[Action Required] New job pending approval'"
+    },
+    {
+      "id": "C.admin-approve",
+      "result": "pass",
+      "observed": "Career Board > Jobs (pending) > Approve opens 'This job will be published and the employer will be notified.' -> job 327 publish, 'Your job has been approved' emailed"
+    },
+    {
+      "id": "C.apply-with-cv",
+      "result": "pass",
+      "observed": "Daniel Okafor chose upload in the apply modal, PDF CV + cover letter -> application 332 with attachment 333, stage 1, button 'Application submitted', 2 emails"
+    },
+    {
+      "id": "C.shortlist",
+      "result": "pass",
+      "observed": "status select Shortlisted -> DB shortlisted, 'Your application status has been updated' emailed"
+    },
+    {
+      "id": "C.rejected-confirm",
+      "result": "pass",
+      "observed": "Rejected opens 'Mark Daniel Okafor as Rejected? ... You cannot undo this.'; Cancel keeps Shortlisted, 0 emails. Hired confirm carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
+    },
+    {
+      "id": "C.withdraw-cv-hidden",
+      "result": "pass",
+      "observed": "candidate dashboard Withdraw confirm -> withdrawn; employer ?wcb_file=333 404, candidate own file 200; /applications/332 email, cover letter, resume_url blank, resume_id and ai_score null"
+    },
+    {
+      "id": "C.coowners",
+      "result": "pass",
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
+    },
+    {
+      "id": "C.auto-publish",
+      "result": "pass",
+      "observed": "carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
+    },
+    {
+      "id": "R.responsive-dark",
+      "result": "pass",
+      "observed": "1280: My Jobs, Applications, Find Jobs (scrollWidth 1265/1280). 390: job single dark, candidate dashboard, employer My Jobs dark, Pro pipeline (scrollWidth 375/390 everywhere, no horizontal scroll). Reign's own dark toggle. Wider 390-light set carried from the 60031e02/ef1a2eb1 pass (2026-11-26, walk ended 2026-11-26T20:22:56Z), not re-run in this round"
     }
   ],
   "hard_fails": [],
   "failures": [],
   "debug_log_issues": [],
+  "not_run": [
+    {
+      "check": "wppqa_run_checks",
+      "reason": "qa-config.json personas are plain strings and it defines no live checks; runner returns INCOMPLETE (pre-existing setup gap, unchanged)"
+    }
+  ],
   "untested": [
+    {
+      "id": "php-8.2-8.4",
+      "reason": "lint on 8.1 and 8.5, live on 8.1 only",
+      "needs": "boot on 8.2-8.4"
+    },
     {
       "id": "cross-browser",
       "reason": "Chromium only",
       "needs": "Firefox, WebKit"
     },
     {
-      "id": "coowner-live-pricing",
-      "reason": "asserted by test F4, not driven with a second paying co-owner",
-      "needs": "live co-owner session"
+      "id": "rtl",
+      "reason": "not run",
+      "needs": "RTL locale walk"
     },
     {
-      "id": "real-dark-toggle",
-      "reason": "dark forced via html[data-bx-mode]",
-      "needs": "theme toggle walk"
+      "id": "real-ai-provider",
+      "reason": "dummy key, HTTP intercepted",
+      "needs": "live provider key"
+    },
+    {
+      "id": "admin-coowner-metabox",
+      "reason": "covered in pristine-186, not re-walked",
+      "needs": "block editor walk"
+    },
+    {
+      "id": "upgrade-from-1.8.5-on-c416f01e",
+      "reason": "not re-run; no schema, install or migration file changed since 60031e02",
+      "needs": "v1.8.5 -> zip upgrade on c416f01e"
+    },
+    {
+      "id": "hired-confirm-coowners-autopublish",
+      "reason": "not re-run in this round",
+      "needs": "carried from 60031e02 pass"
     }
   ],
   "observations": [
-    "Admin Jobs list has no Featured column or marker; Featured shows on the front-end card and in the job editor only (not a regression, flagged for the owner).",
-    "Dark mode was checked by setting html[data-bx-mode=dark] on a loaded page: the Reign header wordmark 'WP Career' is dark on dark at 390 and the Transaction History button keeps a light fill. This may be an artifact of forcing the attribute instead of using the theme's own toggle; not verified with the real toggle.",
-    "Candidate resume_data was empty for every viewer (the candidate has none), so contact-detail gating on the profile route was not exercised.",
-    "At 390 the co-owner's Applications tab opened pre-filtered to 'Senior DevOps Engineer' (2 rows) while 1440 showed all 11; looks like remembered browser state from earlier sessions, not reproduced a second time."
+    "F1 (RC blocker) is fixed: every pending job shows its review date, including jobs inserted as pending with a zero GMT date.",
+    "N1 is fixed: a withdrawn application's ai_score is null in every Free employer payload and the Applications list shows no score chip.",
+    "Free zip changes one file more than the expected list: api/endpoints/class-jobs-endpoint.php. It swaps an inline '0000-00-00' fallback for the new Time::post_modified_utc() helper on updated_at; same logic, GET /jobs/324 returns a valid updated_at for a pending job. Not a risk.",
+    "Seed artifacts unchanged from the RC run: 'Harbor &#038; Pine Studio' in candidate My Applications (seed stored get_the_title() as the company snapshot); single-character avatars.",
+    "Screenshots via headless Playwright MCP (Chrome DevTools MCP may only write under the Local doc root)."
   ],
-  "verdict": "pass"
+  "verdict": "pass",
+  "qa_tooling_log_lines": [
+    {
+      "site": "wp",
+      "line": "CBRC-AI-CALL https://api.openai.com/v1/chat/completions (x2)",
+      "source": "QA AI-intercept mu-plugin",
+      "plugin_issue": false
+    },
+    {
+      "site": "wp",
+      "line": "PHP Parse error: syntax error, unexpected token '{' in Eval_Command.php eval()'d code (x2)",
+      "source": "malformed QA wp eval when the Free-only apply refused a builder resume",
+      "plugin_issue": false
+    },
+    {
+      "site": "wpold",
+      "line": "PHP Parse error in Eval_Command.php eval()'d code (x2), CBRC-AI-CALL (x1)",
+      "source": "QA harness on the control site",
+      "plugin_issue": false
+    }
+  ],
+  "debug_log_note": "No debug.log line came from wp-career-board or wp-career-board-pro. Lines written by the QA harness (AI-intercept mu-plugin, malformed QA wp eval) are listed under qa_tooling_log_lines."
 }
