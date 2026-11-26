@@ -89,6 +89,7 @@ Company co-owners, stronger candidate privacy and tighter permissions.
 * Security - A withdrawn application no longer gives the employer the candidate's CV, email, cover letter or answers, in the dashboard or the CSV export.
 * Security - A trashed application can no longer be changed by the employer (status, notes, rating) or withdrawn, and no status email is sent.
 * Security - Jobs, applications, companies, resumes and boards have their own capabilities, so Editors, Authors and Contributors can no longer write them through the WordPress REST API.
+* Security - A withdrawn candidate's AI summary and fit reason are hidden from the employer, and the co-owner search no longer lists administrators.
 * Dev      - New REST routes /employers/{id}/owners (GET, POST), /employers/{id}/owners/{user_id} (DELETE) and /employers/{id}/owners/search, and the wp wcb company owners command.
 * Dev      - Applicant lists accept status=closed.
 * Dev      - wcb_moderation_status_changed fires for every job or resume a moderation hide or restore changes.

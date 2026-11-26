@@ -63,6 +63,11 @@ $ok( ! EmployersModule::owns_job( $colleague, get_post( $job ) ), 'before: the c
 $ids                = wp_list_pluck( (array) ( $found['results'] ?? array() ), 'id' );
 $ok( 200 === $status && in_array( $colleague, $ids, true ), 'O1: GET /wcb/v1/employers/{id}/owners/search - name search finds the employer' );
 $ok( ! in_array( $candidate, $ids, true ) && ! str_contains( (string) wp_json_encode( $found ), '@' ), 'name search returns no candidates and no email addresses' );
+$wcb_admin_user = get_users( array( 'role' => 'administrator', 'number' => 1 ) )[0] ?? null;
+if ( $wcb_admin_user ) {
+	[ , $found ] = $call( 'GET', "{$base}/search", array( 'search' => $wcb_admin_user->user_email ) );
+	$ok( ! in_array( (int) $wcb_admin_user->ID, wp_list_pluck( (array) ( $found['results'] ?? array() ), 'id' ), true ), 'the search never lists an administrator, even by exact email' );
+}
 
 [ , $by_mail ] = $call( 'GET', "{$base}/search", array( 'search' => get_userdata( $colleague )->user_email ) );
 $ok( array( $colleague ) === wp_list_pluck( (array) ( $by_mail['results'] ?? array() ), 'id' ), 'a full email address finds exactly that employer' );

@@ -380,13 +380,16 @@ final class EmployersModule {
 		if ( mb_strlen( $search ) < 2 ) {
 			return array();
 		}
+		// Roles that post jobs, without staff roles: the search never lists administrators.
+		$staff = array_keys( array_filter( wp_roles()->roles, static fn ( array $role ): bool => ! empty( $role['capabilities']['wcb_manage_settings'] ) ) );
 		$roles = array_keys( array_filter( wp_roles()->roles, static fn ( array $role ): bool => ! empty( $role['capabilities']['wcb_post_jobs'] ) ) );
 		$args  = array(
-			'role__in' => $roles,
-			'exclude'  => array_column( self::company_owners( $company_id ), 'id' ),
-			'number'   => 10,
-			'fields'   => 'ID',
-			'orderby'  => 'display_name',
+			'role__in'     => $roles,
+			'role__not_in' => $staff,
+			'exclude'      => array_column( self::company_owners( $company_id ), 'id' ),
+			'number'       => 10,
+			'fields'       => 'ID',
+			'orderby'      => 'display_name',
 		);
 		if ( is_email( $search ) ) {
 			$args['search']         = $search;

@@ -96,6 +96,13 @@ $cv_gone   = $file( $quitter );
 $cv_live   = $file( $stayer );
 $withdrawn = $app( $quitter, $cv_gone, 'withdrawn' );
 $live      = $app( $stayer, $cv_live, 'reviewing' );
+// Pro's AI fit summary and reason are the candidate's data too (G3 review, 1.8.6).
+foreach ( array( $withdrawn, $live ) as $wcb_ai_app ) {
+	update_post_meta( $wcb_ai_app, '_wcbp_ai_scored_at', time() );
+	update_post_meta( $wcb_ai_app, '_wcbp_ai_fit_score', 82 );
+	update_post_meta( $wcb_ai_app, '_wcbp_ai_fit_reason', 'Five years of WordPress plugin work matches the role.' );
+	update_post_meta( $wcb_ai_app, '_wcbp_ai_summary', 'Senior PHP developer, remote, ships to WordPress.org.' );
+}
 
 $get    = static function ( string $route ): array {
 	$parts = explode( '?', $route, 2 );
@@ -133,6 +140,9 @@ $ok( ! $hidden( $live_single ), 'single application: a live applicant keeps emai
 [ , $job_list ] = $get( "/wcb/v1/jobs/{$job}/applications" );
 $job_list       = (array) ( $job_list['applications'] ?? array() );
 $ok( $hidden( $row( $job_list, $withdrawn ) ) && ! $hidden( $row( $job_list, $live ) ), 'job applicant list hides only the withdrawn candidate\'s data' );
+
+$ai_gone = static fn ( array $item ): bool => '' === (string) ( $item['ai_summary'] ?? '' ) && '' === (string) ( $item['ai_reason'] ?? '' ) && empty( $item['resume_id'] );
+$ok( $ai_gone( $row( $job_list, $withdrawn ) ) && '' !== (string) ( $row( $job_list, $live )['ai_summary'] ?? '' ), 'job applicant list hides the withdrawn candidate\'s AI summary, fit reason and resume id' );
 
 [ , $dash ] = $get( '/wcb/v1/employers/me/applications' );
 $dash_items = isset( $dash['applications'] ) ? (array) $dash['applications'] : $dash;
