@@ -126,6 +126,22 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Whether an application sits in the trash for this viewer.
+	 *
+	 * A trashed application is gone for everyone but an admin, the same as its
+	 * CV file: no read, no status change, note, rating, withdrawal or Pro stage
+	 * move. The admin restores it first.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_Post $application Application post.
+	 * @return bool
+	 */
+	protected function application_in_trash( \WP_Post $application ): bool {
+		return 'trash' === $application->post_status && ! $this->check_ability( 'wcb/manage-settings' );
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.

@@ -449,7 +449,8 @@ final class ApplicationLifecycle {
 	 * @return bool Whether the status actually changed.
 	 */
 	public static function transition( int $application_id, string $new_status, string $reason = '', ?int $actor = null, string $note = '', bool $notify = true ): bool {
-		if ( ! ApplicationStatus::is_valid( $new_status ) || 'wcb_application' !== get_post_type( $application_id ) ) {
+		// A trashed application keeps its last status until an admin restores it.
+		if ( ! ApplicationStatus::is_valid( $new_status ) || 'wcb_application' !== get_post_type( $application_id ) || 'trash' === get_post_status( $application_id ) ) {
 			return false;
 		}
 
