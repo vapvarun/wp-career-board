@@ -27,7 +27,7 @@ Safe to run multiple times - skips records that already exist.
 wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/cleanup-seed-data.php
 ```
 
-Permanently deletes all content created by the seed script.
+Permanently deletes the posts, users and terms the seed script created (each carries a `_wcb_test_seed` marker). Anything the seed found already on the site and reused is left alone.
 Does **not** touch admin users or any content outside the seed list.
 
 ---
