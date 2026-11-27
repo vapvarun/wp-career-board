@@ -5,14 +5,14 @@
         "version": "1.8.5"
     },
     "generated": {
-        "at": "2026-11-20T18:51:24+00:00",
+        "at": "2026-11-26T08:30:30+00:00",
         "manifest_at": "2026-10-26T00:00:00Z",
         "manifest_branch": "1.8.3"
     },
     "categories": {
         "rest": {
-            "total": 78,
-            "covered": 51,
+            "total": 82,
+            "covered": 55,
             "uncovered": 27,
             "skipped": 0,
             "covered_items": [
@@ -107,6 +107,22 @@
                 {
                     "method": "POST",
                     "route": "/wcb/v1/employers"
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)/owners"
+                },
+                {
+                    "method": "POST",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)/owners"
+                },
+                {
+                    "method": "DELETE",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)/owners/(?P<user_id>\\d+)"
+                },
+                {
+                    "method": "GET",
+                    "route": "/wcb/v1/employers/(?P<id>\\d+)/owners/search"
                 },
                 {
                     "method": "GET",
@@ -369,7 +385,7 @@
             "total": 93,
             "covered": 35,
             "uncovered": 58,
-            "skipped": 184,
+            "skipped": 185,
             "covered_items": [
                 {
                     "name": "wcb_pro_active",
@@ -855,8 +871,8 @@
             ]
         },
         "wp_cli": {
-            "total": 5,
-            "covered": 5,
+            "total": 6,
+            "covered": 6,
             "uncovered": 0,
             "skipped": 0,
             "covered_items": [
@@ -870,6 +886,9 @@
                     "command": "wcb application"
                 },
                 {
+                    "command": "wcb company"
+                },
+                {
                     "command": "wcb migrate"
                 },
                 {
@@ -881,15 +900,15 @@
     },
     "summary": {
         "categories_checked": 5,
-        "items_total": 188,
-        "items_covered": 101,
+        "items_total": 193,
+        "items_covered": 106,
         "items_uncovered": 87,
-        "items_skipped": 184,
-        "coverage_percent": 53.700000000000003
+        "items_skipped": 185,
+        "coverage_percent": 54.899999999999999
     },
     "drift": {
-        "previous_uncovered": 90,
+        "previous_uncovered": 87,
         "current_uncovered": 87,
-        "delta": -3
+        "delta": 0
     }
 }

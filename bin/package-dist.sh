@@ -16,7 +16,7 @@
 # allowlist needs a human to remember every new folder; a denylist does not.
 #
 # Usage: bin/package-dist.sh [--output DIR]
-# Exit:  0 ok | 2 bad flag | 10 cannot resolve version | 40 verify-zip failed | 41 rtl build failed
+# Exit:  0 ok | 2 bad flag | 10 cannot resolve version | 40 verify-zip failed | 41 rtl build failed | 42 minimum-PHP lint failed
 
 set -euo pipefail
 
@@ -102,5 +102,7 @@ rm -f "$ZIP"
 
 # Gate — required runtime payloads present, libraries complete, dev junk absent.
 bash "$ROOT/bin/verify-zip.sh" "$ZIP" || { echo "FAIL: zip content verification failed" >&2; exit 40; }
+# Every shipped file must compile on the oldest PHP the plugin supports (Requires PHP).
+bash "$ROOT/bin/php-floor-lint.sh" "$ZIP" || { echo "FAIL: the zip does not compile on its minimum PHP" >&2; exit 42; }
 
 echo "  ✓ Built: $ZIP ($(du -h "$ZIP" | cut -f1))"

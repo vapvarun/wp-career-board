@@ -22,6 +22,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Roles {
 
 	/**
+	 * Plural capability_type of each post type the plugin registers.
+	 *
+	 * Each has its own capabilities, so core post caps (Editor, Author,
+	 * Contributor) never grant a write through /wp/v2 or wp-admin. Members
+	 * work through /wcb/v1 and never need them; administrators get them all.
+	 *
+	 * @since 1.8.6
+	 */
+	public const CONTENT_TYPES = array( 'wcb_jobs', 'wcb_applications', 'wcb_companies', 'wcb_resumes', 'wcb_boards' );
+
+	/**
+	 * The primitive caps WordPress derives for a capability_type with
+	 * map_meta_cap (get_post_type_capabilities()), as "{verb}_{plural}".
+	 *
+	 * @since 1.8.6
+	 */
+	private const CONTENT_CAPS = array( 'edit', 'edit_others', 'edit_published', 'edit_private', 'publish', 'delete', 'delete_others', 'delete_published', 'delete_private', 'read_private' );
+
+	/**
 	 * Register all custom roles and add admin capabilities.
 	 *
 	 * @since 1.0.0
@@ -197,11 +216,26 @@ final class Roles {
 			'wcb_access_candidate_dashboard',
 			'wcb_withdraw_application',
 		);
-
-		foreach ( $caps as $cap ) {
-			if ( ! $admin->has_cap( $cap ) ) {
-				$admin->add_cap( $cap );
+		foreach ( self::CONTENT_TYPES as $plural ) {
+			foreach ( self::CONTENT_CAPS as $verb ) {
+				$caps[] = $verb . '_' . $plural;
 			}
+		}
+
+		$missing = array_filter( $caps, static fn ( string $cap ): bool => ! $admin->has_cap( $cap ) );
+		if ( ! $missing ) {
+			return;
+		}
+		// One write to wp_user_roles for the whole set, not one per cap.
+		$wp_roles         = wp_roles();
+		$use_db           = $wp_roles->use_db;
+		$wp_roles->use_db = false;
+		foreach ( $missing as $cap ) {
+			$admin->add_cap( $cap );
+		}
+		$wp_roles->use_db = $use_db;
+		if ( $use_db ) {
+			update_option( $wp_roles->role_key, $wp_roles->roles );
 		}
 	}
 

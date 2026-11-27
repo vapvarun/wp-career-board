@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "title": "Job Stats",
   "category": "widgets",
-  "description": "Horizontal stat strip showing total jobs, companies, and candidates.",
+  "description": "A row of totals: open jobs, companies and candidates.",
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {

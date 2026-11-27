@@ -15,7 +15,8 @@
 			// translates via the block's `textdomain`. Never re-declare them here.
 			var meta = wp.blocks.getBlockType( 'wp-career-board/job-alert-card' ) || {};
 
-			return [
+			// The root carries useBlockProps(), so the block can be clicked to select it (apiVersion 3 adds no wrapper).
+			return el( 'div', wp.blockEditor.useBlockProps(),
 				el( InspectorControls, { key: 'inspector' },
 					el( PanelBody, { title: __( 'Card content', 'wp-career-board' ), initialOpen: true },
 						el( TextControl, {
@@ -45,7 +46,7 @@
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } },
 						meta.description )
 				),
-			];
+			);
 		},
 	} );
 } )();

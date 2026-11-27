@@ -257,7 +257,7 @@ final class CandidatesModule {
 					'with_front' => false,
 				),
 				'supports'              => array( 'title', 'custom-fields' ),
-				'capability_type'       => 'post',
+				'capability_type'       => array( 'wcb_resume', 'wcb_resumes' ),
 				'map_meta_cap'          => true,
 			)
 		);
@@ -542,6 +542,53 @@ final class CandidatesModule {
 			return '';
 		}
 		return (string) get_permalink( $resume_id );
+	}
+
+	/**
+	 * Application fields that carry the candidate's own data.
+	 *
+	 * An employer stops seeing them when the candidate withdraws; the row
+	 * itself (name, status, date) stays so counts and history still add up.
+	 *
+	 * @since 1.8.6
+	 */
+	public const WITHDRAWN_HIDDEN_FIELDS = array( 'applicant_email', 'cover_letter', 'custom_fields', 'resume_url', 'resume_permalink', 'resume_id', 'ai_score', 'ai_summary', 'ai_reason' );
+
+	/**
+	 * Whether the viewer may see the candidate's data on an application with
+	 * this status. Withdrawing takes it back from the employer, the same rule
+	 * as has_applied_to() and the CV download; admins keep it.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param string $status Application status slug.
+	 * @return bool
+	 */
+	public static function shows_candidate_data( string $status ): bool {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		return \WCB\Modules\Applications\ApplicationStatus::WITHDRAWN !== $status || wp_is_ability_granted( 'wcb/manage-settings' );
+	}
+
+	/**
+	 * Empty the candidate's own fields on an application payload the viewer
+	 * may no longer see, keeping each field's type for the clients.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param array<string,mixed> $item   Application payload.
+	 * @param string              $status Application status slug.
+	 * @return array<string,mixed>
+	 */
+	public static function hide_withdrawn_data( array $item, string $status ): array {
+		if ( self::shows_candidate_data( $status ) ) {
+			return $item;
+		}
+		foreach ( self::WITHDRAWN_HIDDEN_FIELDS as $key ) {
+			if ( array_key_exists( $key, $item ) ) {
+				$item[ $key ] = is_array( $item[ $key ] ) ? array() : ( is_string( $item[ $key ] ) ? '' : null );
+			}
+		}
+		return $item;
 	}
 
 	/**

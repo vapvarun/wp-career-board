@@ -3,7 +3,7 @@
  * Plugin Name: WP Career Board
  * Plugin URI:  https://store.wbcomdesigns.com/wp-career-board/
  * Description: The community-powered job board for WordPress.
- * Version:     1.8.5
+ * Version:     1.8.6
  * Requires at least: 6.9
  * Requires PHP: 8.1
  * Author:      Wbcom Designs
@@ -20,7 +20,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WCB_VERSION', '1.8.5' );
+define( 'WCB_VERSION', '1.8.6' );
 define( 'WCB_FILE', __FILE__ );
 define( 'WCB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WCB_URL', plugin_dir_url( __FILE__ ) );
@@ -226,3 +226,4 @@ add_action(
 // that bypass register_activation_hook. Runs at init@5 so Pro's
 // `wcb_pro_active` filter (registered on plugins_loaded@10) is in place.
 add_action( 'init', array( 'WCB\\Core\\Install', 'maybe_migrate' ), 5 );
+add_action( 'init', array( 'WCB\\Core\\Install', 'seed_terms_after_activation' ), 25 );

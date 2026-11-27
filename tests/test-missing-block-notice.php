@@ -45,8 +45,14 @@ wp_set_current_user( 0 );
 $ok( false !== strpos( wcb_mbn_render( $gone ), 'not available right now' ), 'visitor sees the short notice' );
 $ok( false === strpos( wcb_mbn_render( $live ), 'wcb-missing-block' ), 'an ordinary page gets nothing' );
 
+$ok( false === strpos( wcb_mbn_render( $gone ), 'plugins.php' ), 'a visitor gets no admin link' );
+
 wp_set_current_user( 1 );
-$ok( false !== strpos( wcb_mbn_render( $gone ), 'needs WP Career Board Pro' ), 'site owner is told what to do' );
+$wcb_admin_view = wcb_mbn_render( $gone );
+$ok( false !== strpos( $wcb_admin_view, 'needs WP Career Board Pro' ), 'site owner is told what to do' );
+// 1.8.6: a styled card with a way to act, not a bare paragraph.
+$ok( false !== strpos( $wcb_admin_view, 'wcb-empty-state' ) && false !== strpos( $wcb_admin_view, esc_url( admin_url( 'plugins.php' ) ) ), 'the owner sees a styled card with a Go to Plugins link' );
+$ok( wp_style_is( 'wcb-ui', 'enqueued' ), 'the card\'s stylesheet is queued on a page that has no other Career Board block' );
 
 // An empty page is thin content: noindex, and out of the pages sitemap.
 $robots_for = static function ( int $page_id ): array {

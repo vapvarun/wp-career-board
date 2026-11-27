@@ -42,6 +42,16 @@ class ModerationModule extends \WCB\Api\RestController {
 	private static int $hidden_by_this_report = 0;
 
 	/**
+	 * Post meta set when someone other than the employer moves a submitted job
+	 * back to Draft (wp-admin, CLI), so My Jobs can say it was returned instead
+	 * of "Not submitted yet". Holds the UTC time; cleared when it is resubmitted.
+	 *
+	 * @since 1.8.6
+	 * @var string
+	 */
+	public const RETURNED = '_wcb_returned';
+
+	/**
 	 * Boot the module.
 	 *
 	 * @since 1.0.0
@@ -56,8 +66,16 @@ class ModerationModule extends \WCB\Api\RestController {
 		add_action(
 			'transition_post_status',
 			static function ( string $new_status, string $old_status, \WP_Post $post ): void {
-				if ( 'publish' === $new_status && 'wcb_job' === $post->post_type ) {
+				if ( 'wcb_job' !== $post->post_type ) {
+					return;
+				}
+				if ( 'publish' === $new_status ) {
 					delete_post_meta( $post->ID, '_wcb_rejection_reason' );
+				}
+				if ( 'pending' === $old_status && 'draft' === $new_status && get_current_user_id() !== (int) $post->post_author ) {
+					update_post_meta( $post->ID, self::RETURNED, gmdate( 'Y-m-d H:i:s' ) );
+				} elseif ( in_array( $new_status, array( 'pending', 'publish' ), true ) ) {
+					delete_post_meta( $post->ID, self::RETURNED );
 				}
 			},
 			10,

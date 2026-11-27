@@ -348,9 +348,11 @@ Run manually before each release using Playwright MCP tools.
 
 ### Full Suite
 
+Run it only on a throwaway test site. The suite seeds, changes and deletes data and acts on site-wide settings, so the runner refuses to start unless you say the site is disposable.
+
 ```bash
-# From WordPress root:
-bash wp-content/plugins/wp-career-board/tests/run-all-tests.sh
+# From WordPress root, on a throwaway site:
+WCB_TESTS_DISPOSABLE_SITE=1 bash wp-content/plugins/wp-career-board/tests/run-all-tests.sh
 ```
 
 ### Individual Suites

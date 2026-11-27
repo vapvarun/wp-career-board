@@ -126,6 +126,37 @@ abstract class RestController extends \WP_REST_Controller {
 	}
 
 	/**
+	 * Whether an application sits in the trash for this viewer.
+	 *
+	 * A trashed application is gone for everyone but an admin, the same as its
+	 * CV file: no read, no status change, note, rating, withdrawal or Pro stage
+	 * move. The admin restores it first.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_Post $application Application post.
+	 * @return bool
+	 */
+	protected function application_in_trash( \WP_Post $application ): bool {
+		return 'trash' === $application->post_status && ! $this->check_ability( 'wcb/manage-settings' );
+	}
+
+	/**
+	 * Refusal for a status or stage change on a trashed application. The admin
+	 * who can still open it gets told why, not "no change".
+	 *
+	 * @since 1.8.6
+	 * @return \WP_Error
+	 */
+	protected function trashed_application_error(): \WP_Error {
+		return new \WP_Error(
+			'wcb_application_trashed',
+			__( 'This application is in the trash. Restore it before changing its status.', 'wp-career-board' ),
+			array( 'status' => 409 )
+		);
+	}
+
+	/**
 	 * Standard permission error response.
 	 *
 	 * Returns 401 for unauthenticated requests, 403 for authenticated-but-forbidden.
@@ -273,13 +304,26 @@ abstract class RestController extends \WP_REST_Controller {
 		}
 
 		// One view per visitor and job an hour: a script reloading a page does not
-		// inflate the count or grow the table. Uses the plugin's one hourly limiter.
-		$visitor = get_current_user_id() ? 'user:' . get_current_user_id() : \WCB\Auth\AppCredentials::client_ip();
-		if ( $this->rate_limit_reached( 'wcb_job_view_' . $job_id . '_', $visitor, 1 ) ) {
+		// inflate the count or grow the table. Checked in the views table itself
+		// (KEY job_visitor, 1.8.6), not a transient and lock per view, which wrote
+		// two wp_options rows on every first view without a persistent cache.
+		// ponytail: two requests in the same instant can both count; harmless for a view tally.
+		global $wpdb;
+		// A member counts as themselves (two colleagues on one office IP are two
+		// visitors), a guest by their address; both hashed, never stored raw.
+		$visitor = get_current_user_id() ? hash_hmac( 'sha256', 'user:' . get_current_user_id(), wp_salt( 'auth' ) ) : \WCB\Auth\AppCredentials::client_ip_hash();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- indexed existence check on the job_visitor key.
+		$seen = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 1 FROM {$wpdb->prefix}wcb_job_views WHERE job_id = %d AND ip_hash = %s AND viewed_at > %s LIMIT 1",
+				$job_id,
+				$visitor,
+				gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS )
+			)
+		);
+		if ( $seen ) {
 			return;
 		}
-
-		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Insert into custom wcb_job_views table; no caching needed for write-only analytics.
 		$wpdb->insert(
@@ -287,7 +331,7 @@ abstract class RestController extends \WP_REST_Controller {
 			array(
 				'job_id'    => $job_id,
 				'viewed_at' => current_time( 'mysql', true ),
-				'ip_hash'   => \WCB\Auth\AppCredentials::client_ip_hash(),
+				'ip_hash'   => $visitor,
 			),
 			array( '%d', '%s', '%s' )
 		);

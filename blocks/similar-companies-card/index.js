@@ -38,7 +38,8 @@
 			// core via the block's textdomain - never duplicate them here.
 			var meta = wp.blocks.getBlockType( 'wp-career-board/similar-companies-card' ) || {};
 
-			return [
+			// The root carries useBlockProps(), so the block can be clicked to select it (apiVersion 3 adds no wrapper).
+			return el( 'div', wp.blockEditor.useBlockProps(),
 				el( InspectorControls, { key: 'inspector' },
 					el( PanelBody, { title: __( 'Settings', 'wp-career-board' ), initialOpen: true },
 						el( TextControl, {
@@ -74,9 +75,9 @@
 								__( 'Anchored to company ID %s', 'wp-career-board' ),
 								String( attr.companyId )
 						  )
-							: __( 'Auto-resolves on company-single pages.', 'wp-career-board' ) )
+							: __( 'On a company page it lists companies like that one. Elsewhere, choose a company in the block settings.', 'wp-career-board' ) )
 				),
-			];
+			);
 		},
 	} );
 } )();

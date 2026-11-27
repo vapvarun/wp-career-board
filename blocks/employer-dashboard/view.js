@@ -96,6 +96,44 @@ function pickApplicant( row ) {
 
 const countLabel = ( n ) => ( n ? fmtNumber( n ) : '' );
 
+// Latest co-owner search, so a slow reply never overwrites a newer one.
+let ownerSearchSeq = 0;
+
+/**
+ * Add or remove a co-owner; the reply is the company's owners as they now are.
+ *
+ * @param {string} method HTTP method.
+ * @param {string} suffix Path after /owners.
+ * @param {Object} body   JSON body, when any.
+ */
+function* changeOwners( method, suffix, body ) {
+	if ( state.ownerBusy ) {
+		return;
+	}
+	state.ownerBusy  = true;
+	state.ownerError = '';
+	try {
+		const response = yield wcbFetch( state.apiBase + '/employers/' + String( state.companyId ) + '/owners' + suffix, {
+			method,
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': state.nonce },
+			body: body ? JSON.stringify( body ) : undefined,
+		} );
+		const data = yield response.json().catch( () => ( {} ) );
+		if ( response.ok ) {
+			state.companyOwners = data.owners || [];
+			return;
+		}
+		state.ownerError = data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' );
+		// Someone may have changed the list meanwhile: show it as it is now.
+		const fresh = yield wcbFetch( state.apiBase + '/employers/' + String( state.companyId ) + '/owners', { headers: { 'X-WP-Nonce': state.nonce } } );
+		if ( fresh.ok ) {
+			state.companyOwners = ( yield fresh.json() ).owners || [];
+		}
+	} finally {
+		state.ownerBusy = false;
+	}
+}
+
 /**
  * Whether the Feature action applies: a live, not yet featured job on a board
  * with a featured price. Read from the job's current status, so Close and
@@ -555,9 +593,12 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		// Application filter.
 		get filteredApps() {
 			const f = state.appsFilter;
+			// Closed holds every status the employer cannot act on (withdrawn,
+			// position closed, job removed), the same rule as selectedAppClosed.
+			const inFilter = ( a ) => ( 'closed' === f ? ! ( state.actionableStatuses || [] ).includes( a.status ) : a.status === f );
 			const list = f === 'all'
 				? state.applications
-				: state.applications.filter( ( a ) => a.status === f );
+				: state.applications.filter( inFilter );
 			if ( state.aiRanked ) {
 				return [ ...list ].sort( ( a, b ) => ( b.aiScore ?? -1 ) - ( a.aiScore ?? -1 ) );
 			}
@@ -589,6 +630,9 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		},
 		get isAppsFilterHired() {
 			return state.appsFilter === 'hired';
+		},
+		get isAppsFilterClosed() {
+			return state.appsFilter === 'closed';
 		},
 
 		// Applications layout toggle — List (split panel) vs Board (Kanban).
@@ -674,6 +718,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get appsCountHired() {
 			return countLabel( state.appsCounts.by_status.hired );
 		},
+		// Withdrawn, position closed and job removed: everything no other tab counts.
+		get appsCountClosed() {
+			return countLabel( state.appsNotOnBoard );
+		},
 
 		// Selected applicant detail.
 		get noAppSelected() {
@@ -706,6 +754,29 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 		get selectedAppClosed() {
 			const status = state.selectedApp?.status;
 			return !! status && ! ( state.actionableStatuses || [] ).includes( status );
+		},
+		// The candidate took their data back: the pane says so (1.8.6).
+		get selectedAppWithdrawn() {
+			return state.selectedApp?.status === 'withdrawn';
+		},
+		get selectedAppWithdrawnTitle() {
+			return t( 'withdrawnTitle', '%s withdrew this application.' ).replace( '%s', state.selectedAppName );
+		},
+		// Company co-owners (1.8.6). Rows read their owner from context.
+		get ownerRoleLabel() {
+			return getContext().owner?.creator ? t( 'ownerCreator', 'Created the company' ) : t( 'ownerCoOwner', 'Co-owner' );
+		},
+		get canRemoveOwner() {
+			return state.canManageOwners && ! getContext().owner?.creator;
+		},
+		get ownerRemoveLabel() {
+			return t( 'ownerRemoveLabel', 'Remove %s as co-owner' ).replace( '%s', getContext().owner?.name ?? '' );
+		},
+		get ownerAddLabel() {
+			return t( 'ownerAddLabel', 'Add %s as co-owner' ).replace( '%s', getContext().match?.name ?? '' );
+		},
+		get hasOwnerResults() {
+			return state.ownerResults.length > 0;
 		},
 		get selectedAppStatusLabel() {
 			return state.selectedApp?.statusLabel ?? '';
@@ -1067,7 +1138,7 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			state.mainCompanyId   = main ? main.id : 0;
 			state.mainCompanyName = main ? main.name : '';
 			state.mainLogoUrl     = main ? main.logo : '';
-			state.noCompany       = ! main;
+			state.noCompany       = ! list.length; // A co-owner runs a company without a main one.
 			if ( state.companyFilter && ! list.some( ( c ) => c.id === state.companyFilter ) ) {
 				state.companyFilter = 0;
 			}
@@ -1406,6 +1477,46 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			}
 		},
 
+		// Names, or a full email: matches come back without emails (1.8.6).
+		*searchOwners( event ) {
+			state.ownerSearch = event.target.value;
+			state.ownerError  = '';
+			const term        = state.ownerSearch.trim();
+			const seq         = ++ownerSearchSeq;
+			if ( term.length < 2 ) {
+				state.ownerResults = [];
+				return;
+			}
+			yield new Promise( ( resolve ) => setTimeout( resolve, 250 ) );
+			if ( seq !== ownerSearchSeq ) {
+				return;
+			}
+			const url = new URL( state.apiBase + '/employers/' + String( state.companyId ) + '/owners/search' );
+			url.searchParams.set( 'search', term );
+			const response = yield wcbFetch( url.toString(), { headers: { 'X-WP-Nonce': state.nonce } } );
+			const data     = yield response.json().catch( () => ( {} ) );
+			if ( seq !== ownerSearchSeq ) {
+				return;
+			}
+			state.ownerResults = response.ok ? ( data.results || [] ) : [];
+			if ( ! state.ownerResults.length ) {
+				state.ownerError = response.ok ? t( 'ownerNoMatch', 'No Employer account matches that name or email.' ) : ( data.message || t( 'errorConnection', 'Connection error. Please check your network and try again.' ) );
+			}
+		},
+
+		*addOwner() {
+			const match = getContext().match;
+			yield* changeOwners( 'POST', '', { user_id: match.id } );
+			if ( ! state.ownerError ) {
+				state.ownerSearch  = '';
+				state.ownerResults = [];
+			}
+		},
+
+		*removeOwner() {
+			yield* changeOwners( 'DELETE', '/' + String( getContext().owner.id ) );
+		},
+
 		*deleteNote() {
 			const appId = state.selectedAppId;
 			const note  = getContext().note;
@@ -1645,6 +1756,22 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 			if ( ! appId || ! newStatus ) {
 				return;
 			}
+			// A final decision emails the candidate and cannot be undone: ask first
+			// (1.8.6, owner decision). Covers the select, the board drop and Move to.
+			if ( 'hired' === newStatus || 'rejected' === newStatus ) {
+				const who   = state.applications.find( ( a ) => a.id === appId )?.applicant_name || '';
+				const hired = 'hired' === newStatus;
+				try {
+					yield window.wcbConfirm( {
+						title:       ( hired ? t( 'confirmHiredTitle', 'Mark %s as Hired?' ) : t( 'confirmRejectedTitle', 'Mark %s as Rejected?' ) ).replace( '%s', who ),
+						message:     ( hired ? t( 'confirmHiredMsg', '%s gets an email saying they were hired. You cannot undo this.' ) : t( 'confirmRejectedMsg', '%s gets an email saying they were not selected. You cannot undo this.' ) ).replace( '%s', who ),
+						confirmText: hired ? t( 'confirmHiredCta', 'Mark Hired' ) : t( 'confirmRejectedCta', 'Mark Rejected' ),
+						destructive: ! hired,
+					} );
+				} catch ( cancelled ) {
+					return;
+				}
+			}
 			try {
 				const response = yield wcbFetch(
 					state.apiBase + '/applications/' + String( appId ) + '/status',
@@ -1848,25 +1975,10 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 					}
 				);
 				if ( response.ok ) {
-					const idx = state.jobs.findIndex( ( j ) => j.id === jobId );
-					if ( idx !== -1 ) {
-						// A rejected listing resubmits to moderation (pending), not
-						// straight live — the server enforces this; mirror it in the
-						// optimistic update so the badge matches what the API stored.
-						const wasRejected = state.jobs[ idx ].isRejected;
-						state.jobs[ idx ].status      = wasRejected ? 'pending' : 'publish';
-						state.jobs[ idx ].statusLabel = wasRejected
-							? t( 'jobStatusPending', 'Pending' )
-							: t( 'jobStatusPublished', 'Published' );
-						state.jobs[ idx ].isClosed    = false;
-						state.jobs[ idx ].isExpired   = false;
-						state.jobs[ idx ].isRejected  = false;
-						state.jobs[ idx ].isDraft     = false;
-						state.jobs[ idx ].closedNote  = '';
-						state.jobs[ idx ].statusNote  = '';
-						state.jobs[ idx ].canFeature  = canFeatureJob( state.jobs[ idx ] );
-						Object.assign( state.jobs[ idx ], jobStats( state.jobs[ idx ] ) );
-					}
+					// The server decides what Publish means: live, or held for review on a
+					// board that needs approval (and Pro's per-board rule). Show the row as
+					// it was stored, never a guess (1.8.6: it read "Published" while pending).
+					yield actions.loadJobs();
 				} else {
 					yield actions.reportRefusal( response );
 				}
@@ -2009,6 +2121,8 @@ const { state, actions } = store( 'wcb-employer-dashboard', {
 				return;
 			}
 			if ( ! state.companyId ) {
+				// The field is hidden until the company is saved; this is the backstop.
+				event.target.value = '';
 				state.error = t( 'errorSaveLogo', 'Please save your company profile before uploading a logo.' );
 				return;
 			}

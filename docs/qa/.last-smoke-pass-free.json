@@ -1,0 +1,121 @@
+{
+  "release_version": "1.8.6",
+  "pro_version": "1.8.6",
+  "free_version": "1.8.6",
+  "free_commit": "c416f01e",
+  "pro_commit": "ef1a2eb1",
+  "ran_at": "2026-11-26T20:37:38Z",
+  "mode": "free-only",
+  "scope": "Free c416f01e zip with Pro deactivated on PHP 8.1",
+  "env": {
+    "url": "http://localhost:9041 (new zips); http://localhost:9043 (negative control: git archive 60031e02 + Pro ef1a2eb1 zip)",
+    "theme": "reign 8.1.2 (git archive v8.1.2)",
+    "php": "8.1.34 (wordpress:php8.1-apache) on both sites, WP 7.1.5, MySQL 8.0, WP_DEBUG and WP_DEBUG_LOG on",
+    "zips": {
+      "wp-career-board-1.8.6.zip": "7cc0e380398c431ca6b28210732761ae77d832a06f2eef7c22cedab2b285a2c8",
+      "wp-career-board-pro-1.8.6.zip": "32b04e2ff921d82dec985312ea15eec614d2e7c8484a4089f374951a38d1068f"
+    },
+    "service_worker": "none registered (fresh Playwright context)",
+    "debug_log": "wp site: 0 PHP lines from either plugin. Lines present: 2 CBRC-AI-CALL (QA intercept, ranking of 2 live unscored applications) and 2 'PHP Parse error ... Eval_Command.php' from a malformed QA wp eval (harness, not plugin). wpold: 2 harness parse errors and 1 CBRC-AI-CALL.",
+    "js_console": "16 Playwright console logs across the walk: 0 errors, 0 warnings; info only (JQMIGRATE, editorjs 'Block paragraph skipped')",
+    "stack": "docker project cbfinal (~/work-artifacts/scratch/cbfinal/stack): wp :9041 php8.1 fresh install from zips; wpold :9043 php8.1 60031e02 control; Mailpit :9042; seed = dev-tree ScaleCommand (40 candidates, 8 employers, 8 companies, 44 jobs, 130 applications) + seed-real.php, employers linked to companies",
+    "cleanup": "docker compose down -v (both volumes and network removed); browser closed",
+    "ai_harness": "mu-plugin blocks and counts HTTP to api.openai.com / api.anthropic.com / :11434; dummy OpenAI key so the provider counts as configured"
+  },
+  "sections": {
+    "G_free_only": {
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "checks": [
+    {
+      "id": "G.pages-200",
+      "result": "pass",
+      "observed": "Pro deactivated: 20 front URLs x 4 roles and 45 admin URLs 200, 0 flagged, no PHP lines"
+    },
+    {
+      "id": "G.archive",
+      "result": "pass",
+      "observed": "/find-jobs/ and /wcb/v1/jobs: 38 jobs with Job type and Experience filters"
+    },
+    {
+      "id": "G.apply",
+      "result": "pass",
+      "observed": "Priya Raman at 390 dark: Free modal asks for a file (no resume picker), PDF uploaded -> application 338 with attachment 339, 2 emails, 'Application submitted', no horizontal scroll. Evidence FINAL-freeonly-applied-390-dark.png"
+    },
+    {
+      "id": "G.candidate-dashboard",
+      "result": "pass",
+      "observed": "Priya My Applications 8 rows with Status history and Withdraw at 390"
+    },
+    {
+      "id": "G.employer-dashboard",
+      "result": "pass",
+      "observed": "Maria My Jobs at 390 dark: 3 pending rows each 'Waiting for review · submitted November 26, 2026'. Evidence FINAL-freeonly-employer-myjobs-390-dark.png"
+    },
+    {
+      "id": "G.submitted-date",
+      "result": "pass",
+      "observed": "Henrik Larsen REST POST /jobs (company 7): 201, days_ago '1 second ago', status_note 'Waiting for review · submitted November 26, 2026'"
+    },
+    {
+      "id": "G.withdrawn-ai-score",
+      "result": "pass",
+      "observed": "Free-only: withdrawn 326 ai_score null and live 77 ai_score 74 in /applications/{id}, /jobs/22/applications, /employers/me/applications, /employers/6/applications"
+    }
+  ],
+  "hard_fails": [],
+  "failures": [],
+  "debug_log_issues": [],
+  "not_run": [
+    {
+      "check": "wppqa_run_checks",
+      "reason": "qa-config.json personas are plain strings and it defines no live checks; runner returns INCOMPLETE (pre-existing setup gap, unchanged)"
+    }
+  ],
+  "untested": [
+    {
+      "id": "php-8.2-8.4",
+      "reason": "lint on 8.1 and 8.5, live on 8.1 only",
+      "needs": "boot on 8.2-8.4"
+    },
+    {
+      "id": "cross-browser",
+      "reason": "Chromium only",
+      "needs": "Firefox, WebKit"
+    },
+    {
+      "id": "rtl",
+      "reason": "not run",
+      "needs": "RTL locale walk"
+    }
+  ],
+  "observations": [
+    "Pro was reactivated after the Free-only pass.",
+    "The Free apply modal refuses a builder resume with no PDF (wcb_resume_no_pdf) and asks for a file; by design."
+  ],
+  "verdict": "pass",
+  "qa_tooling_log_lines": [
+    {
+      "site": "wp",
+      "line": "CBRC-AI-CALL https://api.openai.com/v1/chat/completions (x2)",
+      "source": "QA AI-intercept mu-plugin",
+      "plugin_issue": false
+    },
+    {
+      "site": "wp",
+      "line": "PHP Parse error: syntax error, unexpected token '{' in Eval_Command.php eval()'d code (x2)",
+      "source": "malformed QA wp eval when the Free-only apply refused a builder resume",
+      "plugin_issue": false
+    },
+    {
+      "site": "wpold",
+      "line": "PHP Parse error in Eval_Command.php eval()'d code (x2), CBRC-AI-CALL (x1)",
+      "source": "QA harness on the control site",
+      "plugin_issue": false
+    }
+  ],
+  "debug_log_note": "No debug.log line came from wp-career-board or wp-career-board-pro. Lines written by the QA harness (AI-intercept mu-plugin, malformed QA wp eval) are listed under qa_tooling_log_lines."
+}

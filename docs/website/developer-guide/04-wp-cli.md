@@ -36,6 +36,16 @@ Operate on applications.
 | `wp wcb application list [--job=<id>] [--status=<status>] [--per-page=<n>] [--page=<n>] [--format=<format>]` | List applications, newest first. `--per-page` is 1-500 (default 100). `--format` is `table`, `csv`, `json`, `ids` or `count` (a count needs no paging) |
 | `wp wcb application update <id> --status=<status>` | Set an application's status: `submitted`, `reviewing`, `shortlisted`, `hired` or `rejected`. The change is logged and `wcb_application_status_changed` fires once. Setting the same status, or changing an application that already has an outcome, prints a warning and changes nothing |
 
+## `wp wcb company`
+
+| Command | What it does |
+|---|---|
+| `wp wcb company owners list <company> [--format=<format>]` | Everyone who runs the company, creator first. `--format` is `table`, `json` or `csv` |
+| `wp wcb company owners add <company> <user>` | Add a co-owner by user ID, email or username. Same rules as the dashboard: Employer accounts only, not the creator, at most 20 |
+| `wp wcb company owners remove <company> <user>` | Remove a co-owner |
+
+These commands need `wcb/manage-settings` (run them with `--user=<admin>`).
+
 ## `wp wcb migrate`
 
 Import legacy job-board content into Career Board, and move files.

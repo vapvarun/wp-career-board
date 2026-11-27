@@ -24,7 +24,8 @@
 			};
 			var layoutLabel = layoutLabels[ attr.layout ] || layoutLabels.horizontal;
 
-			return [
+			// The root carries useBlockProps(), so the block can be clicked to select it (apiVersion 3 adds no wrapper).
+			return el( 'div', wp.blockEditor.useBlockProps(),
 				el( InspectorControls, { key: 'inspector' },
 					el( PanelBody, { title: __( 'Layout', 'wp-career-board' ), initialOpen: true },
 						el( SelectControl, {
@@ -64,7 +65,7 @@
 					),
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', display: 'block' } }, meta.description || '' )
 				),
-			];
+			);
 		},
 	} );
 } )();

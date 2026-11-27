@@ -262,3 +262,105 @@
 		transition: none;
 	}
 }
+
+/* Company co-owners (1.8.6): a card under the profile form. */
+.wcb-co-owners {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-md);
+	margin-block-start: var(--wcb-space-xl);
+	padding: var(--wcb-space-xl);
+	background: var(--wcb-base);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-lg);
+}
+
+.wcb-co-owners__title {
+	margin: 0;
+	font-size: var(--wcb-text-lg, 1.25rem);
+}
+
+.wcb-co-owners__intro {
+	margin: 0;
+	color: var(--wcb-text-secondary);
+	line-height: 1.5;
+}
+
+.wcb-co-owners__list,
+.wcb-co-owners__results {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+}
+
+.wcb-co-owners__row {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	padding: var(--wcb-space-sm) var(--wcb-space-md);
+}
+
+.wcb-co-owners__row + .wcb-co-owners__row {
+	border-block-start: 1px solid var(--wcb-border);
+}
+
+.wcb-co-owners__who {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.wcb-co-owners__name {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.wcb-co-owners__role {
+	font-size: var(--wcb-text-sm, 0.875rem);
+	color: var(--wcb-text-secondary);
+}
+
+.wcb-co-owners__add {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wcb-space-xs);
+}
+
+.wcb-co-owners__add[hidden],
+.wcb-co-owners__results[hidden],
+.wcb-co-owners__remove[hidden] {
+	display: none;
+}
+
+.wcb-co-owners__pick {
+	display: flex;
+	align-items: center;
+	gap: var(--wcb-space-sm);
+	width: 100%;
+	min-height: 44px;
+	padding: var(--wcb-space-xs) var(--wcb-space-md);
+	border: 0;
+	background: transparent;
+	color: var(--wcb-contrast);
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
+}
+
+.wcb-co-owners__pick:hover,
+.wcb-co-owners__pick:focus-visible {
+	background: var(--wcb-surface);
+}
+
+@media (max-width: 640px) {
+	.wcb-co-owners {
+		padding: var(--wcb-space-lg);
+	}
+
+	.wcb-co-owners__row {
+		flex-wrap: wrap;
+	}
+}

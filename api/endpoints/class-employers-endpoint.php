@@ -120,6 +120,60 @@ final class EmployersEndpoint extends RestController {
 			)
 		);
 
+		// Co-owners (1.8.6): everyone who runs the company sees them; only its
+		// creator (or an admin) adds or removes one.
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/owners',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_owners' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_owner' ),
+					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+					'args'                => array(
+						'user_id' => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+							'validate_callback' => 'rest_validate_request_arg',
+						),
+					),
+				),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/owners/(?P<user_id>\d+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'remove_owner' ),
+				'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+			)
+		);
+		register_rest_route(
+			$this->namespace,
+			'/employers/(?P<id>\d+)/owners/search',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'search_owners' ),
+				'permission_callback' => array( $this, 'delete_item_permissions_check' ),
+				'args'                => array(
+					'search' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/employers/me/companies',
@@ -855,8 +909,21 @@ final class EmployersEndpoint extends RestController {
 		// Views in the last 30 days, also one query for the page (the owner's own jobs only).
 		$wcb_view_counts = \WCB\Modules\Jobs\JobViewsRetention::counts( $wcb_job_ids );
 
+		// Whether publishing a draft sends it to review, per board (one filter run per board on the page).
+		$wcb_review_boards  = array();
+		$wcb_goes_to_review = static function ( \WP_Post $p ) use ( &$wcb_review_boards ): bool {
+			if ( self::is_rejected_job( $p ) ) {
+				return true; // A rejected job always goes back to review.
+			}
+			$board = (int) get_post_meta( $p->ID, '_wcb_board_id', true );
+			if ( ! isset( $wcb_review_boards[ $board ] ) ) {
+				$wcb_review_boards[ $board ] = 'pending' === JobsEndpoint::default_status( new \WP_REST_Request( 'POST', '/wcb/v1/jobs' ), $board );
+			}
+			return $wcb_review_boards[ $board ];
+		};
+
 		$items = array_map(
-			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts ): array {
+			static function ( \WP_Post $p ) use ( $wcb_form_url, $wcb_app_counts, $wcb_view_counts, $wcb_goes_to_review ): array {
 				$location_terms = \WCB\Core\Locations::place_names( get_the_terms( $p->ID, 'wcb_location' ) );
 				$type_terms     = \WCB\Core\Taxonomy::names( get_the_terms( $p->ID, 'wcb_job_type' ) );
 				$deadline_raw   = \WCB\Core\JobDeadline::get( $p->ID );
@@ -887,6 +954,8 @@ final class EmployersEndpoint extends RestController {
 						'featured'         => '1' === get_post_meta( $p->ID, '_wcb_featured', true ),
 						// Core 404s a pending or draft job, even for its author: no link.
 						'permalink'        => in_array( $p->post_status, \WCB\Modules\Jobs\JobsExpiry::PAGE_STATUSES, true ) ? get_permalink( $p->ID ) : '',
+						// The draft's publish action says what it really does on this board.
+						'publishLabel'     => 'draft' === $p->post_status && $wcb_goes_to_review( $p ) ? __( 'Submit for review', 'wp-career-board' ) : __( 'Publish', 'wp-career-board' ),
 						'editUrl'          => add_query_arg( 'edit', $p->ID, $wcb_form_url ),
 						'pipelineUrl'      => (string) apply_filters( 'wcb_job_pipeline_url', '', $p->ID ),
 						'appCount'         => $wcb_app_counts[ $p->ID ] ?? 0,
@@ -905,11 +974,13 @@ final class EmployersEndpoint extends RestController {
 						// A job nobody can see yet says why, instead of "0 views".
 						'statusNote'       => match ( true ) {
 							$rejected                       => '',
+							'draft' === $p->post_status && metadata_exists( 'post', $p->ID, \WCB\Modules\Moderation\ModerationModule::RETURNED ) => __( 'Returned by the site. Edit it and submit again.', 'wp-career-board' ),
 							'draft' === $p->post_status     => __( 'Not submitted yet', 'wp-career-board' ),
 							'pending' === $p->post_status && ! \WCB\Modules\Jobs\JobPayment::is_awaiting( $p->ID ) => sprintf(
 								/* translators: %s: the date the job was submitted, already formatted for the site. */
 								__( 'Waiting for review · submitted %s', 'wp-career-board' ),
-								\WCB\Core\Time::date_label( \WCB\Core\Time::post_date_utc( $p ) )
+								// Sent to review on its last save, not when it was first published.
+								\WCB\Core\Time::date_label( \WCB\Core\Time::post_modified_utc( $p ) )
 							),
 							default                         => '',
 						},
@@ -1156,9 +1227,10 @@ final class EmployersEndpoint extends RestController {
 
 		$status = sanitize_key( (string) $request->get_param( 'status' ) );
 		if ( '' !== $status ) {
-			$from .= $wpdb->prepare(
-				" AND COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) = %s",
-				$status
+			$statuses = \WCB\Modules\Applications\ApplicationStatus::filter_statuses( $status );
+			$from    .= $wpdb->prepare(
+				" AND COALESCE( NULLIF( ( SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = app.ID AND meta_key = '_wcb_status' LIMIT 1 ), '' ), 'submitted' ) IN ( " . implode( ', ', array_fill( 0, count( $statuses ), '%s' ) ) . ' )',
+				...$statuses
 			);
 		}
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) {$from}" );
@@ -1474,15 +1546,24 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function update_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
-		if ( ! $post ) {
-			return $this->permission_error();
+		if ( ! $post || 'wcb_company' !== $post->post_type ) {
+			return $this->company_not_found();
 		}
 		// Anyone who runs the company (its creator or a named co-owner) edits it.
-		$is_owner = 'wcb_company' === $post->post_type
-		&& isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $post->ID ] )
+		$is_owner = isset( \WCB\Modules\Employers\EmployersModule::owned_companies( get_current_user_id() )[ $post->ID ] )
 		&& $this->check_ability( 'wcb/manage-company' );
 		$is_admin = $this->check_ability( 'wcb/manage-settings' );
 		return ( $is_owner || $is_admin ) ? true : $this->permission_error();
+	}
+
+	/**
+	 * The id names no company (missing, or another post type such as a job).
+	 *
+	 * @since 1.8.6
+	 * @return \WP_Error
+	 */
+	private function company_not_found(): \WP_Error {
+		return new \WP_Error( 'wcb_company_not_found', __( 'No company found with that ID.', 'wp-career-board' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -1497,7 +1578,7 @@ final class EmployersEndpoint extends RestController {
 	public function delete_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
 		if ( ! $post || 'wcb_company' !== $post->post_type ) {
-			return $this->permission_error();
+			return $this->company_not_found();
 		}
 		$is_creator = $this->is_current_user( (int) $post->post_author ) && $this->check_ability( 'wcb/manage-company' );
 		return ( $is_creator || $this->check_ability( 'wcb/manage-settings' ) ) ? true : $this->permission_error();
@@ -1513,6 +1594,61 @@ final class EmployersEndpoint extends RestController {
 	 */
 	public function get_my_companies( \WP_REST_Request $request ): \WP_REST_Response {
 		return rest_ensure_response( array( 'companies' => \WCB\Modules\Employers\EmployersModule::company_cards( get_current_user_id() ) ) );
+	}
+
+	/**
+	 * GET /employers/{id}/owners: the company's creator and co-owners.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_owners( \WP_REST_Request $request ): \WP_REST_Response {
+		return rest_ensure_response( array( 'owners' => \WCB\Modules\Employers\EmployersModule::company_owners( (int) $request['id'] ) ) );
+	}
+
+	/**
+	 * POST /employers/{id}/owners: name an employer a co-owner.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function add_owner( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$added = \WCB\Modules\Employers\EmployersModule::add_company_owner( (int) $request['id'], (int) $request->get_param( 'user_id' ) );
+		return is_wp_error( $added ) ? $added : $this->get_owners( $request );
+	}
+
+	/**
+	 * DELETE /employers/{id}/owners/{user_id}: take a co-owner off the company.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function remove_owner( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		if ( (int) get_post_field( 'post_author', (int) $request['id'] ) === (int) $request['user_id'] ) {
+			return new \WP_Error( 'wcb_owner_is_creator', __( 'The person who created the company cannot be removed from it.', 'wp-career-board' ), array( 'status' => 409 ) );
+		}
+		if ( ! \WCB\Modules\Employers\EmployersModule::remove_company_owner( (int) $request['id'], (int) $request['user_id'] ) ) {
+			return new \WP_Error( 'wcb_owner_not_found', __( 'That person is not a co-owner of this company, or was already removed.', 'wp-career-board' ), array( 'status' => 404 ) );
+		}
+		return $this->get_owners( $request );
+	}
+
+	/**
+	 * GET /employers/{id}/owners/search: employers the creator may add.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function search_owners( \WP_REST_Request $request ): \WP_REST_Response {
+		return rest_ensure_response( array( 'results' => \WCB\Modules\Employers\EmployersModule::company_owner_candidates( (int) $request['id'], (string) $request->get_param( 'search' ) ) ) );
 	}
 
 	/**

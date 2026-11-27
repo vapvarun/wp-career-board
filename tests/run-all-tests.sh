@@ -11,6 +11,15 @@
 
 set -e
 
+# The suite seeds, rewrites and deletes data, and some tests act on the whole
+# site (settings, expiry sweeps). Run it only on a throwaway install, never on a
+# shared or real one: say so explicitly.
+if [ "${WCB_TESTS_DISPOSABLE_SITE:-}" != "1" ]; then
+	echo "Refusing to run: this suite changes site data. On a throwaway test site, run:"
+	echo "  WCB_TESTS_DISPOSABLE_SITE=1 bash wp-content/plugins/wp-career-board/tests/run-all-tests.sh"
+	exit 2
+fi
+
 # Clean up even when a suite fails - otherwise a red run leaves seed data
 # behind and the next run starts dirty.
 trap 'echo ""; echo "=== Cleaning up test data ==="; wp eval-file wp-content/plugins/wp-career-board/tests/fixtures/cleanup-seed-data.php' EXIT
@@ -145,6 +154,12 @@ wp eval-file wp-content/plugins/wp-career-board/tests/test-job-search-multi-cate
 wp eval-file wp-content/plugins/wp-career-board/tests/test-labelled-values.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-privacy-gates.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-private-files.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-private-file-access-scale.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-withdrawn-application-privacy.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-trashed-application-writes.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-cpt-capabilities.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-company-owners.php
+wp eval-file wp-content/plugins/wp-career-board/tests/test-job-returned-and-review-label.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-stored-language.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-term-names.php
 wp eval-file wp-content/plugins/wp-career-board/tests/test-time.php

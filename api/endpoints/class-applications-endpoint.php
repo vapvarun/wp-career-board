@@ -587,6 +587,10 @@ final class ApplicationsEndpoint extends RestController {
 			);
 		}
 
+		if ( 'trash' === $post->post_status ) {
+			return $this->trashed_application_error();
+		}
+
 		// Employer-actionable statuses only — `withdrawn` is candidate-only,
 		// `job_removed` is system-only (set by ApplicationLifecycle).
 		$allowed    = \WCB\Modules\Applications\ApplicationStatus::employer_actionable();
@@ -1039,9 +1043,7 @@ final class ApplicationsEndpoint extends RestController {
 	 */
 	public function get_item_permissions_check( $request ): bool|\WP_Error {
 		$post = get_post( (int) $request['id'] );
-		// A trashed application is gone for everyone but an admin, as its CV file already is:
-		// the cover letter, contact details and resume link must not outlive the trash.
-		if ( ! $post || ( 'trash' === $post->post_status && ! $this->check_ability( 'wcb/manage-settings' ) ) ) {
+		if ( ! $post || $this->application_in_trash( $post ) ) {
 			return $this->permission_error();
 		}
 		$current_user_id = get_current_user_id();
@@ -1076,7 +1078,7 @@ final class ApplicationsEndpoint extends RestController {
 		}
 		// Employers may only update applications on jobs they post or whose company they run.
 		$app = get_post( (int) $request['id'] );
-		if ( ! $app ) {
+		if ( ! $app || $this->application_in_trash( $app ) ) {
 			return $this->permission_error();
 		}
 		$job_id   = (int) get_post_meta( $app->ID, '_wcb_job_id', true );
@@ -1123,7 +1125,7 @@ final class ApplicationsEndpoint extends RestController {
 		}
 
 		$post = get_post( (int) $request['id'] );
-		if ( ! $post ) {
+		if ( ! $post || $this->application_in_trash( $post ) ) {
 			return $this->permission_error();
 		}
 
@@ -1280,6 +1282,9 @@ final class ApplicationsEndpoint extends RestController {
 		// Same applicant fields as the employer's applications lists; keys the
 		// candidate shape already sets keep their value.
 		$base += JobsEndpoint::employer_application_item( $post, (array) apply_filters( 'wcb_application_form_fields_groups', array(), $job_id ) );
+		// The candidate shape set the CV, cover letter and answers first, so a
+		// withdrawal is applied again on the merged item.
+		$base = \WCB\Modules\Candidates\CandidatesModule::hide_withdrawn_data( $base, (string) $base['status'] );
 		return array_merge(
 			$base,
 			array(

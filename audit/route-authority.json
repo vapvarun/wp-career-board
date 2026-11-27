@@ -178,6 +178,34 @@
       "writes": true,
       "check": "Only a company the user runs (owned_companies()); changes only their own _wcb_company_id."
     },
+    "GET /wcb/v1/employers/(?P<id>\\d+)/owners": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::update_item_permissions_check",
+      "object_id": true,
+      "writes": false,
+      "check": "Anyone who runs the company (creator or co-owner) with wcb/manage-company, or wcb/manage-settings; lists names and avatars, never emails."
+    },
+    "POST /wcb/v1/employers/(?P<id>\\d+)/owners": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::delete_item_permissions_check",
+      "object_id": true,
+      "writes": true,
+      "check": "Only the company's creator with wcb/manage-company, or wcb/manage-settings; EmployersModule::add_company_owner() admits Employer accounts only, no duplicates, at most 20."
+    },
+    "DELETE /wcb/v1/employers/(?P<id>\\d+)/owners/(?P<user_id>\\d+)": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::delete_item_permissions_check",
+      "object_id": true,
+      "writes": true,
+      "check": "Only the company's creator with wcb/manage-company, or wcb/manage-settings; removes a co-owner (never the creator)."
+    },
+    "GET /wcb/v1/employers/(?P<id>\\d+)/owners/search": {
+      "audience": "owner",
+      "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::delete_item_permissions_check",
+      "object_id": true,
+      "writes": false,
+      "check": "Only the company's creator, or wcb/manage-settings; matches names or a full email, returns no email addresses, at most 10."
+    },
     "DELETE /wcb/v1/employers/(?P<id>\\d+)": {
       "audience": "owner",
       "permission_callback": "WCB\\Api\\Endpoints\\EmployersEndpoint::delete_item_permissions_check",

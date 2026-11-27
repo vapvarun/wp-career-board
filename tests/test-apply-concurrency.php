@@ -260,7 +260,9 @@ wcb_conc_assert( 10 === count( \WCB\Modules\Applications\ApplicationNotes::notes
 // Empty guest applies are counted, then rejected for the missing name.
 // The limiter counts the address the server sees: from the Docker WP-CLI container that is the container's, not 127.0.0.1.
 list( $wcb_guest_url, $wcb_guest_headers ) = wcb_conc_wire( rest_url( 'wcb/v1/jobs/' . $wcb_jobs[0] . '/apply' ) );
-$wcb_client_ip = $wcb_guest_headers ? (string) gethostbyname( (string) gethostname() ) : '127.0.0.1';
+// Sent to this machine's own loopback (a WP-CLI container that shares the web container's network), the server sees 127.0.0.1.
+$wcb_target    = (string) wp_parse_url( $wcb_guest_url, PHP_URL_HOST );
+$wcb_client_ip = $wcb_guest_headers && ! in_array( $wcb_target, array( 'localhost', '127.0.0.1' ), true ) ? (string) gethostbyname( (string) gethostname() ) : '127.0.0.1';
 $wcb_ip_key    = 'wcb_guest_apply_' . md5( wp_salt() . $wcb_client_ip );
 delete_transient( $wcb_ip_key );
 $wcb_guest = array_fill(

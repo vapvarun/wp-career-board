@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "title": "Job Form (Single-Page)",
   "category": "widgets",
-  "description": "Single-page job posting form — every field on one screen, suitable for sidebars, modals, or partner pages where the multi-step wizard is overkill.",
+  "description": "A one-page job posting form with every field on one screen, for sidebars, pop-ups or partner pages where the step-by-step form is too much.",
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {

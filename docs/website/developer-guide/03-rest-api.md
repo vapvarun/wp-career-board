@@ -166,6 +166,10 @@ reference.
 | `GET` | `/employers/{id}/jobs` | guest OK | Employer's job postings. `appCount` and `appLabel` are included only for the company's owner and administrators |
 | `GET` | `/employers/{id}/applications` | the company's author or a co-owner, with `wcb/view-applications`, or `wcb/manage-settings` | Applications across the employer's jobs |
 | `POST` | `/employers/{id}/logo` | same as update | Upload the company logo (file field `logo`) |
+| `GET` | `/employers/{id}/owners` | the company's author or a co-owner, or `wcb/manage-settings` | Everyone who runs the company: `owners` (`id`, `name`, `avatar`, `creator`), creator first |
+| `POST` | `/employers/{id}/owners` | the company's author with `wcb/manage-company`, or `wcb/manage-settings` | Add a co-owner: `user_id`. Only Employer accounts (`400 wcb_owner_not_employer`), not someone who already runs it (`409 wcb_owner_exists`), at most 20 (`400 wcb_owner_limit`). Returns the owners |
+| `DELETE` | `/employers/{id}/owners/{user_id}` | same as add | Remove a co-owner (`404 wcb_owner_not_found` when they are not one). Returns the owners |
+| `GET` | `/employers/{id}/owners/search` | same as add | Employers who can be added: `search` matches a name, or a full email address only. Up to 10 `results` (`id`, `name`, `avatar`), never an email |
 | `GET` | `/employers/me/jobs` | `wcb/access-employer-dashboard` | The current employer's own jobs |
 | `GET` | `/employers/me/applications` | `wcb/access-employer-dashboard` | Applications across the current employer's jobs |
 | `GET` | `/companies` | guest OK | List companies. Filters: `search`, `industry`, `size`, `page`, `per_page` (max 100) |

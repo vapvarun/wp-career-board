@@ -111,7 +111,8 @@ foreach ( wp_roles()->roles as $wcb_role_slug => $wcb_role_data ) {
 		continue;
 	}
 	foreach ( array_keys( $wcb_role->capabilities ) as $wcb_cap ) {
-		if ( 0 === strpos( (string) $wcb_cap, 'wcb_' ) ) {
+		// Plus the post-type caps (edit_wcb_jobs and the rest, Roles::CONTENT_TYPES, 1.8.6).
+		if ( 0 === strpos( (string) $wcb_cap, 'wcb_' ) || preg_match( '/_wcb_(jobs|applications|companies|resumes|boards)$/', (string) $wcb_cap ) ) {
 			$wcb_role->remove_cap( (string) $wcb_cap );
 		}
 	}

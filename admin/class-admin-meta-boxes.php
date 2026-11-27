@@ -75,6 +75,14 @@ class AdminMetaBoxes {
 	private array $refused_urls = array();
 
 	/**
+	 * Why a co-owner typed on the company screen was not added (a WP_Error code).
+	 *
+	 * @since 1.8.6
+	 * @var string
+	 */
+	private string $owner_error = '';
+
+	/**
 	 * Boot the meta box module.
 	 *
 	 * @since 1.0.0
@@ -123,6 +131,16 @@ class AdminMetaBoxes {
 			'side',
 			'default'
 		);
+
+		add_meta_box(
+			'wcb-company-owners',
+			__( 'Co-owners', 'wp-career-board' ),
+			array( $this, 'render_company_owners_box' ),
+			'wcb_company',
+			'side',
+			'default'
+		);
+		$this->enqueue_owners_script();
 
 		add_meta_box(
 			'wcb-company-trust',
@@ -633,6 +651,65 @@ class AdminMetaBoxes {
 	}
 
 	/**
+	 * Add co-owners from the Co-owners box through REST, with the reason when it
+	 * is refused. The block editor saves meta boxes in the background and never
+	 * shows the redirect notice save_company_meta() leaves; without JS the
+	 * field still saves with the post. Enqueued at registration, before the
+	 * header prints scripts in both editors.
+	 *
+	 * @since 1.8.6
+	 * @return void
+	 */
+	private function enqueue_owners_script(): void {
+		wp_enqueue_script( 'wp-api-fetch' );
+		wp_add_inline_script(
+			'wp-api-fetch',
+			'(function(){var t=' . wp_json_encode(
+				array(
+					'company' => (int) get_the_ID(),
+					'unknown' => __( 'No account matches that email or username, so no co-owner was added.', 'wp-career-board' ),
+					/* translators: %s: the new co-owner's display name. */
+					'added'   => __( '%s is now a co-owner.', 'wp-career-board' ),
+					'remove'  => __( '(tick to remove)', 'wp-career-board' ),
+					'failed'  => __( 'The co-owner could not be added. Try again.', 'wp-career-board' ),
+				)
+			) . ';function el(s){return document.querySelector(s);}function say(m){el(".wcb-owner-status").textContent=m;}function add(){var input=el("#wcb_add_owner"),btn=el(".wcb-add-owner-btn"),box=el(".wcb-owners-box"),v=input.value.trim();if(!v||btn.disabled){return;}btn.disabled=true;say("");wp.apiFetch({path:"/wp/v2/users?context=edit&per_page=20&search="+encodeURIComponent(v)}).then(function(users){var l=v.toLowerCase(),u=users.find(function(x){return (x.email||"").toLowerCase()===l||(x.username||"").toLowerCase()===l;});if(!u){throw{message:t.unknown};}return wp.apiFetch({path:"/wcb/v1/employers/"+t.company+"/owners",method:"POST",data:{user_id:u.id}}).then(function(){var li=document.createElement("li"),lab=document.createElement("label"),cb=document.createElement("input"),d=document.createElement("span");cb.type="checkbox";cb.name="wcb_remove_owners[]";cb.value=String(u.id);d.className="description";d.textContent=t.remove;lab.append(cb," "+u.name+" ",d);li.append(lab);box.append(li);input.value="";say(t.added.replace("%s",u.name));});}).catch(function(e){say(e&&e.message?e.message:t.failed);}).finally(function(){btn.disabled=false;});}function show(){var b=el(".wcb-add-owner-btn");if(b){b.hidden=false;}}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",show):show();document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest(".wcb-add-owner-btn")){add();}});document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="wcb_add_owner"){e.preventDefault();add();}});})();'
+		);
+	}
+
+	/**
+	 * Co-owners box: everyone who runs the company, a remove tick for each
+	 * co-owner and a field to add one (saved with the company).
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param \WP_Post $post Company post.
+	 * @return void
+	 */
+	public function render_company_owners_box( \WP_Post $post ): void {
+		?>
+		<ul class="wcb-owners-box">
+			<?php foreach ( \WCB\Modules\Employers\EmployersModule::company_owners( $post->ID ) as $wcb_owner ) : ?>
+				<li>
+					<?php if ( $wcb_owner['creator'] ) : ?>
+						<strong><?php echo esc_html( $wcb_owner['name'] ); ?></strong> <span class="description"><?php esc_html_e( 'created the company', 'wp-career-board' ); ?></span>
+					<?php else : ?>
+						<label><input type="checkbox" name="wcb_remove_owners[]" value="<?php echo esc_attr( (string) $wcb_owner['id'] ); ?>" /> <?php echo esc_html( $wcb_owner['name'] ); ?> <span class="description"><?php esc_html_e( '(tick to remove)', 'wp-career-board' ); ?></span></label>
+					<?php endif; ?>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<p>
+			<label for="wcb_add_owner"><?php esc_html_e( 'Add a co-owner', 'wp-career-board' ); ?></label>
+			<input type="text" id="wcb_add_owner" name="wcb_add_owner" class="widefat" autocomplete="off" placeholder="<?php esc_attr_e( 'Email or username', 'wp-career-board' ); ?>" />
+			<button type="button" class="button wcb-add-owner-btn" hidden><?php esc_html_e( 'Add co-owner', 'wp-career-board' ); ?></button>
+		</p>
+		<p class="wcb-owner-status" role="status" aria-live="polite"></p>
+		<p class="description"><?php esc_html_e( 'Only Employer accounts can be co-owners. They see and edit every job whose Company field names this company.', 'wp-career-board' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Save job meta values when the post is saved.
 	 *
 	 * @since 1.0.0
@@ -786,6 +863,9 @@ class AdminMetaBoxes {
 		if ( $this->refused_urls ) {
 			$location = add_query_arg( 'wcb_bad_url', implode( ',', $this->refused_urls ), $location );
 		}
+		if ( '' !== $this->owner_error ) {
+			$location = add_query_arg( 'wcb_owner_error', $this->owner_error, $location );
+		}
 		return $this->past_deadline ? add_query_arg( 'wcb_deadline_past', 1, $location ) : $location;
 	}
 
@@ -805,6 +885,19 @@ class AdminMetaBoxes {
 		if ( isset( $_GET['wcb_bad_url'] ) ) {
 			$wcb_apply = in_array( 'apply_url', explode( ',', sanitize_text_field( wp_unslash( $_GET['wcb_bad_url'] ) ) ), true );
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The web address was not saved, so the previous one is kept.', 'wp-career-board' ) . ' ' . esc_html( \WCB\Core\Text::web_url_error( $wcb_apply ) ) . '</p></div>';
+		}
+		if ( 'wcb_company' === $screen->post_type && isset( $_GET['wcb_owner_error'] ) ) {
+			$wcb_owner_messages = array(
+				'wcb_owner_unknown'      => __( 'No account matches that email or username, so no co-owner was added.', 'wp-career-board' ),
+				'wcb_owner_not_employer' => __( 'That account is not an Employer account. Only Employer accounts can be co-owners.', 'wp-career-board' ),
+				'wcb_owner_exists'       => __( 'That person already runs this company.', 'wp-career-board' ),
+				/* translators: %d: most co-owners a company can have. */
+				'wcb_owner_limit'        => sprintf( __( 'A company can have up to %d co-owners.', 'wp-career-board' ), \WCB\Modules\Employers\EmployersModule::MAX_COMPANY_OWNERS ),
+			);
+			$wcb_owner_code     = sanitize_key( wp_unslash( $_GET['wcb_owner_error'] ) );
+			if ( isset( $wcb_owner_messages[ $wcb_owner_code ] ) ) {
+				echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html( $wcb_owner_messages[ $wcb_owner_code ] ) . '</p></div>';
+			}
 		}
 		if ( 'wcb_job' === $screen->post_type && isset( $_GET['wcb_deadline_past'] ) ) {
 			echo '<div class="notice notice-warning wcb-notice is-dismissible"><p>' . esc_html__( 'The deadline is in the past, so it was not saved. Choose today or a later date.', 'wp-career-board' ) . '</p></div>';
@@ -836,6 +929,19 @@ class AdminMetaBoxes {
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
+		}
+
+		// Co-owners box (1.8.6): through the same rules as the dashboard and REST.
+		foreach ( array_map( 'absint', (array) wp_unslash( $_POST['wcb_remove_owners'] ?? array() ) ) as $wcb_owner_id ) {
+			\WCB\Modules\Employers\EmployersModule::remove_company_owner( $post_id, $wcb_owner_id );
+		}
+		$wcb_add_owner = sanitize_text_field( wp_unslash( $_POST['wcb_add_owner'] ?? '' ) );
+		if ( '' !== $wcb_add_owner ) {
+			$wcb_owner_user = get_user_by( is_email( $wcb_add_owner ) ? 'email' : 'login', $wcb_add_owner );
+			$wcb_added      = \WCB\Modules\Employers\EmployersModule::add_company_owner( $post_id, $wcb_owner_user instanceof \WP_User ? $wcb_owner_user->ID : 0 );
+			if ( is_wp_error( $wcb_added ) ) {
+				$this->owner_error = $wcb_added->get_error_code();
+			}
 		}
 
 		$allowed_sizes = array_merge( array( '' ), \WCB\Core\CompanyMetaShape::size_keys() );

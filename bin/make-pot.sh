@@ -40,6 +40,8 @@ if [ "$CHECK" -eq 0 ]; then
 fi
 
 # Compare message keys (context + msgid), ignoring references and dates.
+# Without gettext both key lists come out empty and always "match": refuse instead.
+command -v msgcat >/dev/null || { echo "make-pot --check needs msgcat (gettext); install it, e.g. brew install gettext or apt-get install gettext." >&2; rm -f "$OUT"; exit 1; }
 keys() { msgcat --no-location --no-wrap --sort-output "$1" | grep -E '^(msgctxt|msgid) ' ; }
 if ! diff <(keys "$POT") <(keys "$OUT") > /dev/null; then
 	echo "${POT} is stale; run bin/make-pot.sh. Differences (< committed, > code):"

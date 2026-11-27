@@ -137,7 +137,7 @@ final class JobsEndpoint extends RestController {
 					),
 					'status'   => array(
 						'type'              => 'string',
-						'enum'              => \WCB\Modules\Applications\ApplicationStatus::all(),
+						'enum'              => array_merge( \WCB\Modules\Applications\ApplicationStatus::all(), array( \WCB\Modules\Applications\ApplicationStatus::FILTER_CLOSED ) ),
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -602,7 +602,7 @@ final class JobsEndpoint extends RestController {
 			return $wcb_limit_error;
 		}
 
-		$status = $this->default_status( $request );
+		$status = self::default_status( $request );
 
 		$wcb_post_data = array(
 			'post_type'    => 'wcb_job',
@@ -876,7 +876,7 @@ final class JobsEndpoint extends RestController {
 					$data['post_status'] = 'pending';
 					$wcb_charge          = 'resubmit';
 				} else {
-					$data['post_status'] = $this->default_status( $request, (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
+					$data['post_status'] = self::default_status( $request, (int) get_post_meta( $post->ID, '_wcb_board_id', true ) );
 				}
 			}
 
@@ -1121,9 +1121,9 @@ final class JobsEndpoint extends RestController {
 	 *                                   request itself carries no board_id.
 	 * @return string 'publish', 'pending' or 'draft'.
 	 */
-	private function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
+	public static function default_status( \WP_REST_Request $request, int $board_id = 0 ): string {
 		// Whoever approves jobs doesn't wait for their own approval.
-		if ( $this->check_ability( 'wcb/moderate-jobs' ) ) {
+		if ( wp_is_ability_granted( 'wcb/moderate-jobs' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
 			return 'publish';
 		}
 		$auto_publish = \WCB\Admin\Settings::bool( 'auto_publish_jobs', false );
@@ -1423,8 +1423,9 @@ final class JobsEndpoint extends RestController {
 							'value' => $job_id,
 						),
 						$status ? array(
-							'key'   => '_wcb_status',
-							'value' => $status,
+							'key'     => '_wcb_status',
+							'value'   => \WCB\Modules\Applications\ApplicationStatus::filter_statuses( $status ),
+							'compare' => 'IN',
 						) : null,
 					)
 				),
@@ -1500,7 +1501,7 @@ final class JobsEndpoint extends RestController {
 		$status_raw     = \WCB\Modules\Applications\ApplicationLifecycle::current_status( $p->ID );
 		$photos       ??= \WCB\Modules\Candidates\CandidatesModule::application_photo_resumes( array( $p ) );
 
-		return array(
+		$item = array(
 			'id'                 => $p->ID,
 			'candidate_id'       => $candidate_id,
 			// Resume photo, else '' (the board shows initials; never the grey Gravatar silhouette).
@@ -1537,6 +1538,8 @@ final class JobsEndpoint extends RestController {
 				return '' !== $url ? $url : null;
 			} )(),
 		) + \WCB\Modules\Applications\ApplicationStatus::payload( $status_raw, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_EMPLOYER );
+
+		return \WCB\Modules\Candidates\CandidatesModule::hide_withdrawn_data( $item, $status_raw );
 	}
 
 	// --- Permission callbacks ---------------------------------------------------
@@ -1797,6 +1800,8 @@ final class JobsEndpoint extends RestController {
 			// A rejected job is kept as a draft carrying a rejection reason; expose
 			// a flag so the dashboard labels/filters it as "Rejected", not "Draft".
 			'rejected'               => EmployersEndpoint::is_rejected_job( $post ),
+			// Sent back to Draft by the site after it was submitted (not rejected).
+			'returned'               => 'draft' === $post->post_status && metadata_exists( 'post', $post->ID, \WCB\Modules\Moderation\ModerationModule::RETURNED ),
 			// Approved by a moderator but not yet paid for (Pro credits): the job
 			// stays pending until the employer's balance covers it.
 			'awaiting_payment'       => JobPayment::is_awaiting( $post->ID ),
@@ -1808,7 +1813,7 @@ final class JobsEndpoint extends RestController {
 			// clients always receive a valid time. Stored UTC; the wcb/v1
 			// filter (Time::iso_response_dates) sends ISO 8601 with offset.
 			'created_at'             => $wcb_created_gmt,
-			'updated_at'             => '0000-00-00 00:00:00' === $post->post_modified_gmt ? get_gmt_from_date( $post->post_modified ) : $post->post_modified_gmt,
+			'updated_at'             => \WCB\Core\Time::post_modified_utc( $post ),
 			// Deprecated alias of `created_at` (UTC since 1.8.3; was site-local).
 			'date'                   => \WCB\Core\Time::rest_datetime( $wcb_created_gmt ),
 			'permalink'              => get_permalink( $post->ID ),
@@ -1860,7 +1865,8 @@ final class JobsEndpoint extends RestController {
 			'days_ago'               => sprintf(
 				/* translators: %s: human-readable time difference, e.g. "3 days". */
 				__( '%s ago', 'wp-career-board' ),
-				human_time_diff( (int) get_post_time( 'U', true, $post ), time() )
+				// A pending or draft job has no GMT date yet (it reads as 1970).
+				human_time_diff( (int) strtotime( \WCB\Core\Time::post_date_utc( $post ) . ' UTC' ), time() )
 			),
 			// Slug arrays for filter/API consumers.
 			'categories'             => $cat_slugs,

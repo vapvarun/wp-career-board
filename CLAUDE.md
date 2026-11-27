@@ -13,7 +13,7 @@ Everything QA-related lives in three directories. Touch nothing else for routine
 | **Docs-level walkthroughs (20, by actor)** | [`docs/qa/walkthroughs/`](docs/qa/walkthroughs/) | Human-runnable end-to-end walkthroughs, one per catalog use case: `seeker/` (7), `poster/` (5), `admin/` (8). The *how* behind the catalog's *what*. No script parses them (`bin/check-qa-portability.sh` only checks they pin no machine). Regression sentinels stay in `audit/journeys/`. |
 | **Feature walkthroughs (25 + README)** | [`docs/journeys/`](docs/journeys/) | One browser walkthrough per feature through every role (anonymous, candidate, employer, admin). Read by people and agents only; nothing in `bin/` or `composer` reads them and the route gate does not cover them. |
 | **Plugin facts for the smoke skill** | [`docs/qa/qa-config.json`](docs/qa/qa-config.json) | Edit when slug / version constant / personas / fixture-cleanup SQL / debug-log whitelist change. Read by the global `/wp-plugin-smoke` skill. |
-| **Sonnet+Playwright runbook (sections A–H + 129 D-rows)** | [`docs/qa/AGENT_SMOKE_RUNBOOK.md`](docs/qa/AGENT_SMOKE_RUNBOOK.md) | Per-release walk (A fresh install, B upgrade, C core flows, D regression guards, H empty-state and adversarial data, E Pro extensions, F cross-browser/RTL/a11y, G post-release monitoring); describes customer contracts (not scripts). Count the D-rows with `grep -c '^\| D\.' docs/qa/AGENT_SMOKE_RUNBOOK.md`. Add a D-row in the same PR as every customer-visible bug fix. |
+| **Sonnet+Playwright runbook (sections A–H + 185 D-rows)** | [`docs/qa/AGENT_SMOKE_RUNBOOK.md`](docs/qa/AGENT_SMOKE_RUNBOOK.md) | Per-release walk (A fresh install, B upgrade, C core flows, D regression guards, H empty-state and adversarial data, E Pro extensions, F cross-browser/RTL/a11y, G post-release monitoring); describes customer contracts (not scripts). Count the D-rows with `grep -c '^\| D\.' docs/qa/AGENT_SMOKE_RUNBOOK.md`. Add a D-row in the same PR as every customer-visible bug fix. |
 | **Human pre-release checklist (90 min, 4 personas)** | [`docs/qa/PRE_RELEASE_SMOKE.md`](docs/qa/PRE_RELEASE_SMOKE.md) | When a human walks the release pre-tag. |
 | **15-section release gate** | [`docs/qa/QA_RELEASE_CHECKLIST.md`](docs/qa/QA_RELEASE_CHECKLIST.md) | Final gate: branch hygiene → version triangulation → static analysis → tests → security → packaging → install-in-anger → tag. |
 | **Per-template surface check** | [`docs/qa/UX_AUDIT.md`](docs/qa/UX_AUDIT.md) | When a release touches UI; per-view × per-persona × per-viewport × per-theme matrix. |
@@ -226,6 +226,7 @@ What `composer ci:no-journeys` actually runs (read `composer.json`; stage order)
 
 | Stage | Script | Catches |
 |---|---|---|
+| 0 | `php-floor` (`bin/php-floor-lint.sh`) | syntax newer than `Requires PHP` (e.g. a standalone `true` type on 8.1): every file is compiled with `php -l` on that version, via a local `php8.1` or the `php:8.1-cli` Docker image, and the gate fails if neither exists. `bin/package-dist.sh` runs it again on the built zip |
 | 1 | `phpstan` | static type errors (baseline-aware) |
 | 2 | `phpcs` | WordPress coding standards |
 | 3 | `coding-rules` (`bin/coding-rules-check.sh --full`) | inline JS/CSS, em-dash i18n, hardcoded JS strings, `current_user_can` outside chokepoint, ability-slug format, raw `$wpdb->query`, tracked `-rtl.css` / `.min` files |

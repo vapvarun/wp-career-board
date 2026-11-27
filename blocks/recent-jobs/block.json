@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "title": "Recent Jobs",
   "category": "widgets",
-  "description": "Static sidebar widget listing the most recently published jobs.",
+  "description": "A sidebar list of the newest jobs.",
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {

@@ -70,3 +70,6 @@ phpunit.xml*
 /.wbcom-i18n.json
 /.gate-check-allow
 /cli/class-scale-command.php
+/libs/edd-sl-sdk/webpack.config.js
+/libs/edd-sl-sdk/composer.json
+/libs/edd-sl-sdk/package.json

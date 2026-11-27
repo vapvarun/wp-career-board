@@ -66,8 +66,24 @@ foreach ( get_posts( array( 'post_type' => 'wcb_board', 'numberposts' => -1, 'fi
 		break;
 	}
 }
+// A fresh site has no priced board: make a temporary one (Pro prices boards from this setting).
+$wcb_temp_board = 0;
 if ( ! $wcb_paid_board ) {
-	WP_CLI::error( 'No board with a credit price: set one in Pro board settings first.' );
+	$wcb_temp_board = (int) wp_insert_post(
+		array(
+			'post_type'   => 'wcb_board',
+			'post_status' => 'publish',
+			'post_title'  => 'Premium Listings (test)',
+		)
+	);
+	update_post_meta( $wcb_temp_board, '_wcb_board_settings', array( 'credit_cost' => 5 ) );
+	if ( (int) apply_filters( 'wcb_board_credit_cost', 0, $wcb_temp_board ) > 0 ) {
+		$wcb_paid_board = $wcb_temp_board;
+	} else {
+		wp_delete_post( $wcb_temp_board, true );
+		WP_CLI::success( 'SKIP: boards have no credit price without Pro credits.' );
+		return;
+	}
 }
 $wcb_free_board = 0;
 foreach ( get_posts( array( 'post_type' => 'wcb_board', 'numberposts' => -1, 'fields' => 'ids' ) ) as $wcb_b ) {
@@ -153,7 +169,7 @@ wcb_assert( false === \WCB\Modules\Jobs\JobPayment::is_exempt(), 'wcb_job_paymen
 remove_filter( 'wcb_job_payment_exempt', '__return_false' );
 
 // Teardown.
-foreach ( array_filter( $wcb_created ) as $wcb_id ) {
+foreach ( array_filter( array_merge( $wcb_created, array( $wcb_temp_board ) ) ) as $wcb_id ) {
 	wp_delete_post( (int) $wcb_id, true );
 }
 require_once ABSPATH . 'wp-admin/includes/user.php';

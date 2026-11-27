@@ -84,6 +84,9 @@ $wcb_employer_id = get_current_user_id();
 $wcb_company_id  = \WCB\Core\CompanyMetaShape::resolve_company_id( $wcb_employer_id );
 $wcb_company     = $wcb_company_id ? get_post( $wcb_company_id ) : null;
 $wcb_companies   = \WCB\Modules\Employers\EmployersModule::owned_companies( $wcb_employer_id );
+// Companies this employer runs but did not create (co-owner, 1.8.6), for the My Jobs hint.
+_prime_post_caches( array_keys( $wcb_companies ), false, false );
+$wcb_co_owned = array_filter( $wcb_companies, static fn ( $name, $id ): bool => (int) get_post_field( 'post_author', (int) $id ) !== $wcb_employer_id, ARRAY_FILTER_USE_BOTH );
 
 // The main company stays in the sidebar, the Public Page link and Post a Job.
 $wcb_main_company_id = $wcb_company_id;
@@ -223,7 +226,8 @@ wp_interactivity_state(
 		'appsHints'             => $wcb_apps_hints,
 		'loading'               => true,
 		'error'                 => '',
-		'noCompany'             => 0 === (int) $wcb_main_company_id,
+		// A co-owner with no company of their own still runs a company (1.8.6).
+		'noCompany'             => ! $wcb_companies,
 		'mainCompanyId'         => $wcb_main_company_id,
 		'mainCompanyName'       => $wcb_main_name,
 		'mainLogoUrl'           => $wcb_main_logo,
@@ -250,6 +254,13 @@ wp_interactivity_state(
 			? (int) count( (array) get_user_meta( get_current_user_id(), '_wcb_resume_bookmark', false ) )
 			: 0,
 		'companyId'             => $wcb_company_id,
+		// Co-owners (1.8.6): listed for everyone who runs the company; managed by its creator or an admin.
+		'companyOwners'         => $wcb_company_id ? \WCB\Modules\Employers\EmployersModule::company_owners( $wcb_company_id ) : array(),
+		'canManageOwners'       => $wcb_company instanceof \WP_Post && ( (int) $wcb_company->post_author === get_current_user_id() || wp_is_ability_granted( 'wcb/manage-settings' ) ), // phpcs:ignore WordPress.WP.Capabilities.Unknown -- polyfilled in core/abilities-api-polyfill.php.
+		'ownerSearch'           => '',
+		'ownerResults'          => array(),
+		'ownerError'            => '',
+		'ownerBusy'             => false,
 		'companyName'           => $wcb_company_name,
 		'companyDesc'           => $wcb_company_desc,
 		'companyTagline'        => $wcb_company_tagline,
@@ -439,6 +450,25 @@ wp_interactivity_state(
 			'statusSubmitted'          => __( 'Submitted', 'wp-career-board' ),
 			/* translators: %s: number of applications. */
 			'boardNotShown'            => __( 'Not on the board (closed, withdrawn or removed): %s', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'withdrawnTitle'           => __( '%s withdrew this application.', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmHiredTitle'        => __( 'Mark %s as Hired?', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmRejectedTitle'     => __( 'Mark %s as Rejected?', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmHiredMsg'          => __( '%s gets an email saying they were hired. You cannot undo this.', 'wp-career-board' ),
+			/* translators: %s: applicant's name. */
+			'confirmRejectedMsg'       => __( '%s gets an email saying they were not selected. You cannot undo this.', 'wp-career-board' ),
+			'confirmHiredCta'          => __( 'Mark Hired', 'wp-career-board' ),
+			'confirmRejectedCta'       => __( 'Mark Rejected', 'wp-career-board' ),
+			'ownerCreator'             => __( 'Created the company', 'wp-career-board' ),
+			'ownerCoOwner'             => __( 'Co-owner', 'wp-career-board' ),
+			'ownerNoMatch'             => __( 'No Employer account matches that name or email.', 'wp-career-board' ),
+			/* translators: %s: person's name. */
+			'ownerRemoveLabel'         => __( 'Remove %s as co-owner', 'wp-career-board' ),
+			/* translators: %s: person's name. */
+			'ownerAddLabel'            => __( 'Add %s as co-owner', 'wp-career-board' ),
 			'statusReviewing'          => __( 'Reviewing', 'wp-career-board' ),
 			'statusShortlisted'        => __( 'Shortlisted', 'wp-career-board' ),
 			'statusHired'              => __( 'Hired', 'wp-career-board' ),
@@ -586,7 +616,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 			<?php endif; ?>
 
 			<?php
-			/* My Saves - any logged-in user can bookmark jobs, companies,
+			/*
+			My Saves - any logged-in user can bookmark jobs, companies,
 					or resumes. Employers are most likely to save candidate
 					resumes (Saved Resumes) but jobs + companies are kept here
 					too so the surface is consistent with the candidate
@@ -839,6 +870,14 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 				<span class="wcb-empty-state__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'briefcase' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
 				<p class="wcb-empty-state__title"><?php esc_html_e( 'No jobs yet', 'wp-career-board' ); ?></p>
 				<p class="wcb-empty-state__body"><?php esc_html_e( 'Post your first job and it will appear here.', 'wp-career-board' ); ?></p>
+				<?php if ( $wcb_co_owned ) : ?>
+					<p class="wcb-empty-state__body">
+						<?php
+						/* translators: %s: company names, comma separated. */
+						echo esc_html( sprintf( __( 'You co-own %s. Its jobs show here once their Company field names it; no job is linked yet.', 'wp-career-board' ), wp_sprintf( '%l', array_values( $wcb_co_owned ) ) ) );
+						?>
+					</p>
+				<?php endif; ?>
 				<button type="button" class="wcb-btn wcb-btn--secondary" data-wp-on--click="actions.switchToPostJob"><?php esc_html_e( 'Post Your First Job', 'wp-career-board' ); ?></button>
 			</div>
 
@@ -878,7 +917,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 									<a class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.permalink" data-wp-bind--href="context.job.permalink" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View ↗', 'wp-career-board' ); ?></a>
 									<a class="wcb-row-menu__item wcb-hidden" data-wp-bind--href="context.job.editUrl" data-wp-class--wcb-hidden="!context.job.pipelineUrl"><?php esc_html_e( 'Edit', 'wp-career-board' ); ?></a>
 									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.canFeature" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.featureJob"><?php esc_html_e( 'Feature', 'wp-career-board' ); ?></button>
-									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.isDraft" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Publish', 'wp-career-board' ); ?></button>
+									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.isDraft" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob" data-wp-text="context.job.publishLabel"><?php esc_html_e( 'Publish', 'wp-career-board' ); ?></button>
 									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!context.job.isRejected" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Resubmit', 'wp-career-board' ); ?></button>
 									<button type="button" class="wcb-row-menu__item" data-wp-class--wcb-hidden="!state.isJobInactive" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.reopenJob"><?php esc_html_e( 'Reopen', 'wp-career-board' ); ?></button>
 									<button type="button" class="wcb-row-menu__item wcb-row-menu__item--danger" data-wp-class--wcb-hidden="state.isJobNotClosable" data-wp-bind--data-wcb-job-id="context.job.id" data-wp-on--click="actions.closeJob"><?php esc_html_e( 'Close', 'wp-career-board' ); ?></button>
@@ -956,6 +995,11 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					<?php esc_html_e( 'Hired', 'wp-career-board' ); ?>
 					<span class="wcb-pill-count" data-wp-text="state.appsCountHired"></span>
 				</button>
+				<?php // Withdrawn, position closed and job removed, so the tabs add up to All. ?>
+				<button type="button" class="wcb-filter-pill" data-wcb-filter="<?php echo esc_attr( \WCB\Modules\Applications\ApplicationStatus::FILTER_CLOSED ); ?>" data-wp-class--wcb-filter-active="state.isAppsFilterClosed" data-wp-bind--aria-pressed="state.isAppsFilterClosed" data-wp-on--click="actions.setAppsFilter">
+					<?php esc_html_e( 'Closed', 'wp-career-board' ); ?>
+					<span class="wcb-pill-count" data-wp-text="state.appsCountClosed"></span>
+				</button>
 				<button type="button" class="wcb-filter-pill wcb-filter-active" hidden data-wp-bind--hidden="!state.appsSinceActive" data-wp-on--click="actions.clearAppsSince" aria-label="<?php esc_attr_e( 'Remove filter: this week', 'wp-career-board' ); ?>">
 					<?php esc_html_e( 'This week', 'wp-career-board' ); ?> <span aria-hidden="true">&times;</span>
 				</button>
@@ -1023,6 +1067,13 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<span class="wcb-status-badge wcb-hidden" role="status" data-wp-class--wcb-hidden="!state.selectedAppClosed" data-wp-bind--data-status="state.selectedAppStatus" data-wp-text="state.selectedAppStatusLabel"></span>
 							<p class="wcb-status-msg" role="status" data-wp-bind--hidden="!state.statusNotice" data-wp-text="state.statusNotice"></p>
 						</div>
+						<div class="wcb-withdrawn-notice" role="status" data-wp-class--wcb-hidden="!state.selectedAppWithdrawn">
+							<span class="wcb-withdrawn-notice__icon" aria-hidden="true"><?php echo \WCB\Core\Icon::svg( 'info' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped inside helper. ?></span>
+							<div>
+								<p class="wcb-withdrawn-notice__title" data-wp-text="state.selectedAppWithdrawnTitle"></p>
+								<p class="wcb-withdrawn-notice__body"><?php esc_html_e( 'Their email, cover letter, answers and resume are no longer shared with you. Your team\'s rating and notes stay here.', 'wp-career-board' ); ?></p>
+							</div>
+						</div>
 						<div class="wcb-detail-section wcb-ai-fit" data-wp-class--wcb-shown="state.selectedAppHasAiScore">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'AI fit', 'wp-career-board' ); ?> <span class="wcb-ai-score" data-wp-text="state.selectedAppAiScoreLabel"></span></h4>
 							<p class="wcb-ai-summary-detail" data-wp-class--wcb-hidden="!state.selectedAppAiSummary" data-wp-text="state.selectedAppAiSummary"></p>
@@ -1050,7 +1101,7 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 							<textarea id="wcb-note-draft" class="wcb-field-input" rows="2" placeholder="<?php esc_attr_e( 'Add a note for your team…', 'wp-career-board' ); ?>" data-wp-bind--value="state.noteDraft" data-wp-on--input="actions.setNoteDraft"></textarea>
 							<button type="button" class="wcb-btn wcb-btn--outline" data-wp-on--click="actions.addNote" data-wp-bind--disabled="!state.noteDraft"><?php esc_html_e( 'Add note', 'wp-career-board' ); ?></button>
 						</div>
-						<div class="wcb-detail-section">
+						<div class="wcb-detail-section" data-wp-class--wcb-hidden="state.selectedAppWithdrawn">
 							<h4 class="wcb-detail-section-label"><?php esc_html_e( 'Cover letter', 'wp-career-board' ); ?></h4>
 							<div class="wcb-cover-letter" data-wp-bind--hidden="!state.selectedAppHasCoverLetter" data-wp-text="state.selectedAppCoverLetter"></div>
 							<p class="wcb-empty-state wcb-empty-state--plain wcb-empty-state--compact" data-wp-bind--hidden="state.selectedAppHasCoverLetter"><?php esc_html_e( 'No cover letter submitted.', 'wp-career-board' ); ?></p>
@@ -1189,7 +1240,8 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 
 			<div class="wcb-profile-grid">
 				<div class="wcb-profile-form">
-					<div class="wcb-field-group" data-wp-class--wcb-shown="state.companyId">
+					<?php // No upload before the company exists: the hint below takes the logo's place (1.8.6). ?>
+					<div class="wcb-field-group<?php echo $wcb_company_id ? '' : ' wcb-hidden'; ?>" data-wp-class--wcb-hidden="!state.companyId">
 						<label class="wcb-field-label"><?php esc_html_e( 'Company Logo', 'wp-career-board' ); ?></label>
 						<div class="wcb-logo-field">
 							<img class="wcb-logo-current" data-wp-class--wcb-shown="state.companyLogoUrl" data-wp-bind--src="state.companyLogoUrl" alt="" width="64" height="64" />
@@ -1340,6 +1392,46 @@ wp_interactivity_config( 'wcb-employer-dashboard', array( 'views' => $wcb_views 
 					</div>
 				</div>
 			</div>
+
+			<?php if ( $wcb_company instanceof \WP_Post ) : ?>
+				<section class="wcb-co-owners" aria-labelledby="wcb-co-owners-title">
+					<h2 class="wcb-co-owners__title" id="wcb-co-owners-title"><?php esc_html_e( 'Co-owners', 'wp-career-board' ); ?></h2>
+					<p class="wcb-co-owners__intro">
+						<?php
+						/* translators: %s: company name. */
+						echo esc_html( sprintf( __( 'Co-owners manage this company with you: they see and edit every job linked to %s, review its applications and can feature its jobs.', 'wp-career-board' ), $wcb_company->post_title ) );
+						?>
+					</p>
+					<ul class="wcb-co-owners__list">
+						<template data-wp-each--owner="state.companyOwners" data-wp-each-key="context.owner.id">
+							<li class="wcb-co-owners__row">
+								<img class="wcb-avatar wcb-avatar--round wcb-avatar--sm" alt="" loading="lazy" data-wp-bind--src="context.owner.avatar" />
+								<div class="wcb-co-owners__who">
+									<span class="wcb-co-owners__name" data-wp-text="context.owner.name"></span>
+									<span class="wcb-co-owners__role" data-wp-text="state.ownerRoleLabel"></span>
+								</div>
+								<button type="button" class="wcb-btn wcb-btn--outline wcb-btn--sm wcb-co-owners__remove" data-wp-bind--hidden="!state.canRemoveOwner" data-wp-bind--aria-label="state.ownerRemoveLabel" data-wp-bind--disabled="state.ownerBusy" data-wp-on--click="actions.removeOwner"><?php esc_html_e( 'Remove', 'wp-career-board' ); ?></button>
+							</li>
+						</template>
+					</ul>
+					<div class="wcb-co-owners__add" data-wp-bind--hidden="!state.canManageOwners">
+						<label class="wcb-field-label" for="wcb-co-owner-search"><?php esc_html_e( 'Add a co-owner', 'wp-career-board' ); ?></label>
+						<input type="search" id="wcb-co-owner-search" class="wcb-field-input" autocomplete="off" aria-describedby="wcb-co-owner-hint" data-wp-bind--value="state.ownerSearch" data-wp-on--input="actions.searchOwners" />
+						<ul class="wcb-co-owners__results" aria-label="<?php esc_attr_e( 'Matching employers', 'wp-career-board' ); ?>" data-wp-bind--hidden="!state.hasOwnerResults">
+							<template data-wp-each--match="state.ownerResults" data-wp-each-key="context.match.id">
+								<li>
+									<button type="button" class="wcb-co-owners__pick" data-wp-bind--aria-label="state.ownerAddLabel" data-wp-bind--disabled="state.ownerBusy" data-wp-on--click="actions.addOwner">
+										<img class="wcb-avatar wcb-avatar--round wcb-avatar--sm" alt="" loading="lazy" data-wp-bind--src="context.match.avatar" />
+										<span data-wp-text="context.match.name"></span>
+									</button>
+								</li>
+							</template>
+						</ul>
+						<p class="wcb-field-hint" id="wcb-co-owner-hint"><?php esc_html_e( 'Search by name, or type a full email address. Only Employer accounts can be added. A co-owner sees the jobs linked to this company, so check each job\'s Company field is set.', 'wp-career-board' ); ?></p>
+						<p class="wcb-db-error" role="alert" data-wp-class--wcb-shown="state.ownerError" data-wp-text="state.ownerError"></p>
+					</div>
+				</section>
+			<?php endif; ?>
 		</div>
 
 		<!-- VIEW: Post a Job -->

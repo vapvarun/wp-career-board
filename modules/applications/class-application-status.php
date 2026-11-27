@@ -124,6 +124,27 @@ final class ApplicationStatus {
 	}
 
 	/**
+	 * The applicant-list filter that holds every closed() status, so the
+	 * employer's status tabs add up to "All".
+	 *
+	 * @since 1.8.6
+	 */
+	public const FILTER_CLOSED = 'closed';
+
+	/**
+	 * Statuses an applicant-list `status` filter matches: one status, or every
+	 * closed one for FILTER_CLOSED.
+	 *
+	 * @since 1.8.6
+	 *
+	 * @param string $filter A status slug or FILTER_CLOSED.
+	 * @return array<int,string>
+	 */
+	public static function filter_statuses( string $filter ): array {
+		return self::FILTER_CLOSED === $filter ? self::closed() : array( $filter );
+	}
+
+	/**
 	 * Statuses that represent end-of-pipeline states (no further employer action expected).
 	 *
 	 * @since 1.1.2

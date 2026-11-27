@@ -52,7 +52,8 @@
 			// via its `textdomain` field. Never duplicate them as literals here.
 			var meta = wp.blocks.getBlockType( 'wp-career-board/featured-jobs' ) || {};
 
-			return [
+			// The root carries useBlockProps(), so the block can be clicked to select it (apiVersion 3 adds no wrapper).
+			return el( 'div', wp.blockEditor.useBlockProps(),
 				el( InspectorControls, { key: 'inspector' },
 					el( PanelBody, { title: __( 'Settings', 'wp-career-board' ), initialOpen: true },
 						el( SelectControl, {
@@ -83,7 +84,7 @@
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } },
 						meta.description )
 				),
-			];
+			);
 		},
 	} );
 } )();

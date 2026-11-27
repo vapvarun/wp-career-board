@@ -1045,6 +1045,42 @@
 	margin-top: var(--wcb-space-xl);
 }
 
+/* A withdrawn application: the candidate took their data back, and the pane
+   says so instead of showing empty sections. */
+.wcb-withdrawn-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--wcb-space-sm);
+	margin-top: var(--wcb-space-xl);
+	padding: var(--wcb-space-md) var(--wcb-space-lg);
+	border: 1px solid var(--wcb-border);
+	border-radius: var(--wcb-radius-md);
+	background: var(--wcb-surface);
+	color: var(--wcb-contrast);
+}
+
+.wcb-withdrawn-notice__icon {
+	flex-shrink: 0;
+	display: inline-flex;
+	margin-top: 2px;
+}
+
+.wcb-withdrawn-notice__icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+.wcb-withdrawn-notice__title {
+	margin: 0 0 var(--wcb-space-xs);
+	font-weight: 600;
+}
+
+.wcb-withdrawn-notice__body {
+	margin: 0;
+	color: var(--wcb-text-secondary);
+	line-height: 1.5;
+}
+
 /* In the applicant pane a section is a band under a divider, not a card: the
    split panel is already the box (no box in a box). */
 .wcb-applicant-detail .wcb-detail-section {

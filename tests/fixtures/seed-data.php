@@ -21,6 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Every row created below is tagged, so cleanup-seed-data.php removes only these.
+require_once __DIR__ . '/seed-marker.php';
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -38,7 +41,11 @@ function wcb_seed_term( string $name, string $taxonomy ): int {
 		return $existing->term_id;
 	}
 	$result = wp_insert_term( $name, $taxonomy );
-	return is_wp_error( $result ) ? 0 : (int) $result['term_id'];
+	if ( is_wp_error( $result ) ) {
+		return 0;
+	}
+	update_term_meta( (int) $result['term_id'], WCB_TEST_SEED_MARKER, 1 );
+	return (int) $result['term_id'];
 }
 
 /**
@@ -60,6 +67,7 @@ function wcb_seed_post( array $args ): int {
 		WP_CLI::warning( 'Could not create post "' . $args['post_title'] . '": ' . $id->get_error_message() );
 		return 0;
 	}
+	update_post_meta( $id, WCB_TEST_SEED_MARKER, 1 );
 	WP_CLI::log( '  → created: ' . $args['post_title'] . ' (ID ' . $id . ')' );
 	return $id;
 }
@@ -81,6 +89,7 @@ function wcb_seed_user( array $args ): int {
 		WP_CLI::warning( 'Could not create user "' . $args['user_login'] . '": ' . $id->get_error_message() );
 		return 0;
 	}
+	update_user_meta( $id, WCB_TEST_SEED_MARKER, 1 );
 	WP_CLI::log( '  → created user: ' . $args['display_name'] . ' (ID ' . $id . ')' );
 	return $id;
 }
@@ -1561,6 +1570,7 @@ foreach ( $applications_data as $app ) {
 		continue;
 	}
 
+	update_post_meta( $app_id, WCB_TEST_SEED_MARKER, 1 );
 	update_post_meta( $app_id, '_wcb_job_id', $job_id );
 	update_post_meta( $app_id, '_wcb_cover_letter', $app['cover'] );
 	update_post_meta( $app_id, '_wcb_status', $app['status'] );
@@ -1572,7 +1582,7 @@ foreach ( $applications_data as $app ) {
 		update_post_meta( $app_id, '_wcb_guest_email', $app['guest_email'] );
 	}
 
-	WP_CLI::log( '  → created application: ' . $title . ' — ' . $app['status'] . ' (ID ' . $app_id . ')' );
+	WP_CLI::log( '  → created application: ' . $app_title . ' — ' . $app['status'] . ' (ID ' . $app_id . ')' );
 	++$application_count;
 }
 

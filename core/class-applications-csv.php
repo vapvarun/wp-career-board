@@ -95,6 +95,9 @@ final class ApplicationsCsv {
 				$candidate_id  = (int) get_post_meta( $app_id, '_wcb_candidate_id', true );
 				$user          = $candidate_id > 0 ? get_userdata( $candidate_id ) : false;
 				$attachment_id = (int) get_post_meta( $app_id, '_wcb_resume_attachment_id', true );
+				$status        = (string) get_post_meta( $app_id, '_wcb_status', true );
+				// A withdrawn candidate's email, letter, CV and answers stay off the employer's file.
+				$shows = \WCB\Modules\Candidates\CandidatesModule::shows_candidate_data( $status );
 
 				self::csv_row(
 					$out,
@@ -103,12 +106,12 @@ final class ApplicationsCsv {
 						(string) $job_id,
 						$job_id > 0 ? (string) get_post_field( 'post_title', $job_id ) : '',
 						$user instanceof \WP_User ? \WCB\Modules\Candidates\CandidatesModule::public_name( $user->ID ) : (string) get_post_meta( $app_id, '_wcb_guest_name', true ),
-						$user instanceof \WP_User ? $user->user_email : (string) get_post_meta( $app_id, '_wcb_guest_email', true ),
-						\WCB\Modules\Applications\ApplicationStatus::label( (string) get_post_meta( $app_id, '_wcb_status', true ), \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ),
+						$shows ? ( $user instanceof \WP_User ? $user->user_email : (string) get_post_meta( $app_id, '_wcb_guest_email', true ) ) : '',
+						\WCB\Modules\Applications\ApplicationStatus::label( $status, \WCB\Modules\Applications\ApplicationStatus::AUDIENCE_ADMIN ),
 						(string) get_post_field( 'post_date', $app_id ),
-						(string) get_post_meta( $app_id, '_wcb_cover_letter', true ),
-						$attachment_id > 0 ? \WCB\Core\PrivateFiles::url( $attachment_id ) : '',
-						implode(
+						$shows ? (string) get_post_meta( $app_id, '_wcb_cover_letter', true ) : '',
+						$shows && $attachment_id > 0 ? \WCB\Core\PrivateFiles::url( $attachment_id ) : '',
+						$shows ? implode(
 							"\n",
 							array_map(
 								static fn ( array $answer ): string => $answer['label'] . ': ' . $answer['value'],
@@ -119,7 +122,7 @@ final class ApplicationsCsv {
 									\WCB\Api\Endpoints\ApplicationsEndpoint::FIELD_META_PREFIX
 								)
 							)
-						),
+						) : '',
 					)
 				);
 			}

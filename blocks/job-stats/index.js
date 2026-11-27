@@ -12,7 +12,8 @@
 			// Title/description come from block.json and are already translated by core.
 			var meta    = wp.blocks.getBlockType( 'wp-career-board/job-stats' ) || {};
 
-			return [
+			// The root carries useBlockProps(), so the block can be clicked to select it (apiVersion 3 adds no wrapper).
+			return el( 'div', wp.blockEditor.useBlockProps(),
 				el( InspectorControls, { key: 'inspector' },
 					el( PanelBody, { title: __( 'Visible stats', 'wp-career-board' ), initialOpen: true },
 						el( ToggleControl, { label: __( 'Show Jobs count', 'wp-career-board' ),       checked: attr.showJobs,       onChange: function ( v ) { setAttr( { showJobs: v } ); } } ),
@@ -24,7 +25,7 @@
 					el( 'strong', { style: { color: '#1e40af', display: 'block' } }, meta.title ),
 					el( 'span', { style: { color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' } }, meta.description )
 				),
-			];
+			);
 		},
 	} );
 } )();

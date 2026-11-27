@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "title": "Job Search Hero",
   "category": "widgets",
-  "description": "Full-width job search form with optional filters. Horizontal or vertical layout.",
+  "description": "A large job search box, with optional filters, side by side or stacked.",
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",
   "attributes": {

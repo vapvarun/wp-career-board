@@ -47,6 +47,12 @@ Use a role manager plugin such as User Role Editor or Members. Edit the role, ti
 
 To let Editors act as employers, grant `wcb_post_jobs`, `wcb_view_applications`, `wcb_manage_company` and `wcb_access_employer_dashboard`.
 
+## Career Board content in wp-admin and the core REST API
+
+Since 1.8.6, jobs, applications, companies, resumes and boards use their own capabilities instead of the ones for blog posts. Administrators get all of them. Editors, Authors and Contributors no longer create, edit, publish or delete Career Board content through the WordPress Posts screens or `/wp/v2/` routes. Employers and candidates are not affected: they work through the dashboards and the `wcb/v1` REST API.
+
+Each content type has the WordPress post capabilities with its own name, for example `edit_wcb_jobs`, `edit_others_wcb_jobs`, `publish_wcb_jobs` and `delete_wcb_jobs`. The names end in `wcb_jobs`, `wcb_applications`, `wcb_companies`, `wcb_resumes` or `wcb_boards`. To let an Editor manage jobs in wp-admin again, grant that role the `*_wcb_jobs` capabilities with a role manager plugin.
+
 ## Registration
 
 - On the Employer Registration page, a visitor picks **Find a Job** or the hiring option. Find a Job creates a Candidate account. The hiring option creates an Employer account.

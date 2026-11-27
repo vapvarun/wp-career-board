@@ -21,7 +21,7 @@ The pills at the top narrow the list: **All**, **Live**, **Draft**, **Pending**,
 | Status | Meaning |
 |---|---|
 | **Published** (Live) | The job is live on the board and visible to candidates |
-| **Draft** | Saved but not yet submitted |
+| **Draft** | Saved but not yet submitted. A job the site sent back to Draft says **Returned by the site**: edit it and submit it again |
 | **Pending** | Submitted and waiting for a moderator |
 | **Awaiting payment** | Approved, but your credit balance did not cover it. It goes live once you top up |
 | **Rejected** | A moderator declined the job. You can edit it and resubmit |
@@ -37,7 +37,7 @@ The buttons on each row change with the job's status:
 - **Pipeline** - with Pro's Application Pipeline, opens that job's applicants in the pipeline. Hidden otherwise.
 - **Feature** - features a job so it lists first. It appears only when the site sells featured placement and the job is live and not already featured. You confirm the credit cost first. See [Your Credit Balance](./10-employer-credit-balance.md#featured-job-upgrades).
 - **Close** - closes the job. You are asked to confirm.
-- **Publish** - sends a saved draft live, or to review when the site moderates jobs (drafts only).
+- **Publish** or **Submit for review** - sends a saved draft live. When the job's board needs approval the item reads **Submit for review** and the job goes to Pending (drafts only).
 - **Resubmit** - sends a rejected job back for moderator approval (rejected jobs only). It returns to Pending. It does not publish directly.
 - **Reopen** - puts a closed or expired job back on the board with a fresh deadline. The site may charge credits for it.
 

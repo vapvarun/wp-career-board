@@ -196,7 +196,7 @@ final class ApplicationsModule {
 				'rest_controller_class' => ApplicationRestController::class,
 				'show_in_menu'          => false,
 				'supports'              => array( 'title', 'custom-fields' ),
-				'capability_type'       => 'post',
+				'capability_type'       => array( 'wcb_application', 'wcb_applications' ),
 				'map_meta_cap'          => true,
 			)
 		);

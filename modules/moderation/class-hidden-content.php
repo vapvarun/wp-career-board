@@ -237,7 +237,25 @@ final class HiddenContent {
 		foreach ( $ids as $id ) {
 			clean_post_cache( $id );
 			$post = get_post( $id );
-			if ( ! $post instanceof \WP_Post || isset( $fired[ $post->post_type ] ) ) {
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
+
+			/**
+			 * Fires for EVERY post a moderation hide or restore changed, after its status is written.
+			 *
+			 * The status is written with a direct query, so transition_post_status never runs, and save_post_{type}
+			 * below fires once per post type for the whole batch. A listener that keeps a copy of the post elsewhere (a
+			 * community feed card, a search row) needs this one: it can read the post's current status and sync.
+			 *
+			 * @since 1.8.6
+			 *
+			 * @param int      $post_id Post ID.
+			 * @param \WP_Post $post    Post after the change.
+			 */
+			do_action( 'wcb_moderation_status_changed', (int) $post->ID, $post );
+
+			if ( isset( $fired[ $post->post_type ] ) ) {
 				continue;
 			}
 			$fired[ $post->post_type ] = true;

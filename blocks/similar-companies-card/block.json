@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "title": "Similar Companies",
   "category": "widgets",
-  "description": "Sidebar card listing companies in the same industry. Auto-resolves on company-single pages or set Company ID manually.",
+  "description": "A sidebar card listing companies in the same industry. On a company page it picks that company; elsewhere, set the company in the block settings.",
   "keywords": [ "career board", "wcb", "companies", "similar", "sidebar" ],
   "editorScript": "file:./index.js",
   "textdomain": "wp-career-board",

@@ -88,7 +88,7 @@ final class BoardsModule {
 				'rest_controller_class' => BoardRestController::class,
 				'show_in_menu'          => false,
 				'supports'              => array( 'title', 'custom-fields' ),
-				'capability_type'       => 'post',
+				'capability_type'       => array( 'wcb_board', 'wcb_boards' ),
 				'map_meta_cap'          => true,
 			)
 		);
